@@ -37,7 +37,7 @@ RSpec.describe Catalog::Backfill do
     expect(name_checksum).to eq(before)
   end
 
-  it 'leaves no duplicate or orphaned related link, every link pairs_with, and no orphaned tagging' do
+  it 'leaves no duplicate or orphaned related link, every undrafted link pairs_with, and no orphaned tagging' do
     described_class.run
 
     expect(value(<<~SQL)).to eq(0)
@@ -51,7 +51,12 @@ RSpec.describe Catalog::Backfill do
       WHERE NOT EXISTS (SELECT 1 FROM downloadable_resources r WHERE r.id = link.downloadable_resource_id)
          OR NOT EXISTS (SELECT 1 FROM downloadable_resources r WHERE r.id = link.related_resource_id)
     SQL
-    expect(value("SELECT count(*) FROM downloadable_related_resources WHERE relation_type <> 'pairs_with'")).to eq(0)
+    expect(value(<<~SQL)).to eq(0)
+      SELECT count(*) FROM downloadable_related_resources link
+      JOIN downloadable_resources source ON source.id = link.downloadable_resource_id
+      WHERE link.relation_type <> 'pairs_with'
+        AND NOT coalesce(source.review->'drafted', '{}') ? ('link:' || link.related_resource_id)
+    SQL
     expect(value(<<~SQL)).to eq(0)
       SELECT count(*) FROM downloadable_resource_taggings tagging
       WHERE NOT EXISTS (SELECT 1 FROM downloadable_resources r WHERE r.id = tagging.downloadable_resource_id)
@@ -62,8 +67,10 @@ RSpec.describe Catalog::Backfill do
     first = described_class.run
     second = described_class.run
 
-    expect(first.keys).to eq(%w[blank_slugs display_names slugs related_links taggings])
-    expect(first.values).to all(be_positive)
+    expect(first.keys).to eq(%w[blank_slugs display_names slugs related_links taggings script_families renderings
+                                statuses requires_links recommended summaries])
+    # No layout on the clone has the evidence the recommended flag needs (drafts_spec.rb).
+    expect(first.except('recommended').values).to all(be_positive)
     expect(second.values).to all(eq(0))
   end
 end

@@ -13,6 +13,7 @@ Typelizer.configure do |config|
     %r{\A/__dev/},
     %r{\A/users/sign_(in|out)\z},
     %r{\A/\z},
+    %r{\A/spotlight\z},
     # The catalog, its type pages and the resource detail pages.
     ->(route) { route[:verb] == 'get' && route[:path].match?(%r{\A/resources(/:type(/:id)?)?\z}) }
   ]

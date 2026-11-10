@@ -38,6 +38,11 @@ class DownloadableFile < ApplicationRecord
     update_columns(download_count: user_downloads.sum(:download_count))
   end
 
+  # Every counted download request of this file. Catalog sorting reads only this method.
+  def total_download_count
+    download_count.to_i
+  end
+
   protected
   def generate_token
     update_column(:token, SecureRandom.hex)

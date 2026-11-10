@@ -144,7 +144,9 @@ New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
 below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
 served by the old ERB views. A group takes over only the URLs that have a new page so far (for
-`catalog`: `/resources/:type`); the rest of the group stays on the old views.
+`catalog`: `/resources` and `/resources/:type`); the rest of the group stays on the old views.
+The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
+groups, for every new page.
 
 - New routes go in the one block in `config/routes.rb` that wraps them in
   `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same

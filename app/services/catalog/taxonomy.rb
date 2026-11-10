@@ -107,12 +107,82 @@ module Catalog
       )
     ].index_by(&:key).freeze
 
+    # A value of one of the search vocabularies below, with its label.
+    Option = Data.define(:key, :label)
+
+    # The formats a file can have. File type strings (about two dozen, several of them variants
+    # of JSON and SQLite) map onto these in .format_for.
+    FORMATS = [
+      Option.new(key: 'json', label: 'JSON'),
+      Option.new(key: 'sqlite', label: 'SQLite'),
+      Option.new(key: 'csv', label: 'CSV'),
+      Option.new(key: 'docx', label: 'Word document'),
+      Option.new(key: 'font', label: 'Font file'),
+      Option.new(key: 'svg', label: 'SVG'),
+      Option.new(key: 'image', label: 'Images'),
+      Option.new(key: 'other', label: 'Other')
+    ].freeze
+
+    FONT_FILE_TYPES = ['ttf', 'otf', 'woff', 'woff2', 'font pack'].freeze
+
+    SCRIPT_FAMILIES = [
+      Option.new(key: 'madani', label: 'Madani'),
+      Option.new(key: 'indopak', label: 'IndoPak'),
+      Option.new(key: 'other', label: 'Other scripts')
+    ].freeze
+
+    STATUSES = [
+      Option.new(key: 'stable', label: 'Stable'),
+      Option.new(key: 'beta', label: 'Beta'),
+      Option.new(key: 'legacy', label: 'Legacy'),
+      Option.new(key: 'superseded', label: 'Superseded')
+    ].freeze
+
+    # Granularity is the resource's cardinality type.
+    GRANULARITIES = [
+      Option.new(key: '1_word', label: 'Word by word'),
+      Option.new(key: '1_phrase', label: 'Phrase'),
+      Option.new(key: '1_ayah', label: 'Ayah by ayah'),
+      Option.new(key: 'n_ayah', label: 'Multiple ayahs'),
+      Option.new(key: '1_ruku', label: 'Ruku'),
+      Option.new(key: '1_page', label: 'Page by page'),
+      Option.new(key: '1_chapter', label: 'Surah by surah'),
+      Option.new(key: '1_rub', label: 'Rub'),
+      Option.new(key: '1_hizb', label: 'Hizb'),
+      Option.new(key: '1_juz', label: 'Juz'),
+      Option.new(key: '1_manzil', label: 'Manzil'),
+      Option.new(key: '1_sajda', label: 'Sajda'),
+      Option.new(key: 'quran', label: 'Whole Quran')
+    ].freeze
+
+    SORTS = [
+      Option.new(key: 'popular', label: 'Most downloaded'),
+      Option.new(key: 'name', label: 'Name'),
+      Option.new(key: 'updated', label: 'Recently updated')
+    ].freeze
+
     def self.types
       TYPES.values
     end
 
     def self.type(key)
       TYPES[key.to_s]
+    end
+
+    def self.formats = FORMATS
+    def self.script_families = SCRIPT_FAMILIES
+    def self.statuses = STATUSES
+    def self.granularities = GRANULARITIES
+    def self.sorts = SORTS
+
+    def self.format_for(file_type)
+      type = file_type.to_s.strip.downcase
+      return 'json' if type.end_with?('json')
+      return 'sqlite' if type.end_with?('sqlite')
+      return 'font' if FONT_FILE_TYPES.include?(type)
+      return 'image' if type == 'images'
+
+      FORMATS.any? { |format| format.key == type } ? type : 'other'
     end
   end
 end

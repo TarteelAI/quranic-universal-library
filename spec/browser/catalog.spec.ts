@@ -21,9 +21,15 @@ test.describe('type pages', () => {
     expect(overflow).toBeLessThanOrEqual(0)
   })
 
-  test('an old page links into the new page, and the new page links back out', async ({ page }) => {
-    await page.goto('/resources')
+  test('a new page links out to an old page, and the old page links back in', async ({ page }) => {
+    await page.goto('/resources/tafsir')
+    expect(await isInertiaPage(page)).toBe(true)
+
+    await page.getByRole('list', { name: 'Tafsirs' }).getByRole('link').first().click()
+    await expect(page).toHaveURL(/\/resources\/tafsir\/[^/]+$/)
     expect(await isInertiaPage(page)).toBe(false)
+    // The old page's own bundle (Turbo) loads and runs there.
+    await page.waitForFunction(() => 'Turbo' in window)
 
     await page.locator('a[href="/resources/tafsir"]:visible').first().click()
     await expect(page).toHaveURL(/\/resources\/tafsir$/)
@@ -32,9 +38,8 @@ test.describe('type pages', () => {
 
     await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Resources' }).click()
     await expect(page).toHaveURL(/\/resources$/)
-    expect(await isInertiaPage(page)).toBe(false)
-    // The old page's own bundle (Turbo) loads and runs there.
-    await page.waitForFunction(() => 'Turbo' in window)
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Resources')
+    expect(await isInertiaPage(page)).toBe(true)
   })
 
   test('sends one GA4 page view on the first load and one after an Inertia visit', async ({

@@ -35,4 +35,23 @@ RSpec.describe Catalog::Taxonomy do
   it 'has one entry for each resource type the CMS knows' do
     expect(described_class.types.map(&:key)).to match_array(DownloadableResource::RESOURCE_TYPES)
   end
+
+  it 'has the statuses and script families of the model, and every granularity of the catalog' do
+    expect(described_class.statuses.map(&:key)).to eq(DownloadableResource.statuses.keys)
+    expect(described_class.script_families.map(&:key)).to eq(DownloadableResource.script_families.keys)
+    expect(described_class.granularities.map(&:key)).to include(*DownloadableResource.distinct.pluck(:cardinality_type))
+  end
+
+  it 'maps file type strings onto the format vocabulary' do
+    {
+      'json' => 'json', 'simple.json' => 'json', 'translation-with-footnote-tags.json' => 'json',
+      'letter-segments-json' => 'json', 'sqlite' => 'sqlite', 'translation-text-chunk.sqlite' => 'sqlite',
+      'letter-segments-sqlite' => 'sqlite', 'csv' => 'csv', 'docx' => 'docx', 'ttf' => 'font', 'woff2' => 'font',
+      'OTF' => 'font', 'svg' => 'svg', 'images' => 'image', 'Ligatures' => 'other', nil => 'other'
+    }.each { |file_type, format| expect(described_class.format_for(file_type)).to eq(format), file_type.inspect }
+
+    keys = described_class.formats.map(&:key)
+    formats = DownloadableFile.distinct.pluck(:file_type).map { |type| described_class.format_for(type) }
+    expect(formats).to all(be_in(keys))
+  end
 end

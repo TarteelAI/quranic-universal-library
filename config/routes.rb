@@ -143,8 +143,11 @@ Rails.application.routes.draw do
   # routes must stay above the old ones for the same paths: when a group is off, its constraint
   # fails and the old route below answers.
   constraints(PageGroups.constraint(:catalog)) do
+    get '/resources', to: 'catalog/resources#index', as: :catalog_resources, format: false
     get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
   end
+  # The spotlight's search results (JSON), for every new page whatever the groups.
+  get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false
 
   resources :resources do
     get '/:token/download', action: 'download' , as: :download_file

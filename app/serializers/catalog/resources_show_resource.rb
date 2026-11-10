@@ -32,6 +32,7 @@ module Catalog
 
     # Previews.for; null when the resource's type has no preview.
     typelize preview: 'Previews::MushafLayoutResource | Previews::FontResource | Previews::ScriptResource | ' \
+                      'Previews::RecitationResource | Previews::TextResource | Previews::RecordsResource | ' \
                       'Previews::UnavailableResource | null'
     attribute(:preview, inertia: :defer) do |page|
       Previews.as_json(Previews.for(page[:page].resource, page[:preview_query]))

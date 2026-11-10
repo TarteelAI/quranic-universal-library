@@ -7,9 +7,10 @@ import * as fontkit from 'fontkit'
 
 import { expect, test } from './support/test'
 
-// The Preview tab of mushaf layouts, fonts and Quran scripts on the development clone: a sweep
-// over every published one, page navigation that reloads only the preview prop and loads only
-// the shown page's fonts, and the font Ligatures and Glyphs views.
+// The Preview tab on the development clone: a sweep over every published mushaf layout, font
+// and Quran script, page navigation that reloads only the preview prop and loads only the shown
+// page's fonts, the font Ligatures and Glyphs views, the recitation player's highlight (with the
+// real audio from the CDN), and the surah choice of text previews.
 //
 // The resources come from the database through `bin/rails runner`; QUL_BROWSER_RAILS_RUNNER
 // replaces that command (for example `docker exec qul-dev bin/rails runner`). The sweeps print a
@@ -34,6 +35,11 @@ type Fixtures = {
   layouts: (Row & { pages: number | null })[]
   fonts: (Row & { ligatures: number })[]
   scripts: Row[]
+  // Surah recitations with audio for Al-Fatihah, with and without its segment data.
+  // The segmented one carries its Al-Fatihah ayah times (milliseconds), as the server sends them.
+  segmented: Row & { ayahs: { key: string; from: number; to: number }[] }
+  unsegmented: Row
+  translation: Row
 }
 
 let fixtures: Fixtures
@@ -46,7 +52,18 @@ test.beforeAll(() => {
     puts({
       layouts: rows.('mushaf-layout').map { |r| row.(r).merge(pages: MushafLayouts::Page.mushaf_for(r)&.pages_count) },
       fonts: rows.('font').map { |r| row.(r).merge(ligatures: JSON.parse(r.resource_content.meta_value('ligatures') || '{}').size) },
-      scripts: rows.('quran-script').map(&row)
+      scripts: rows.('quran-script').map(&row),
+      **%i[segmented unsegmented].zip([true, false]).to_h do |key, segments|
+        found = rows.('recitation').find do |r|
+          audio = Audio::Recitation.find_by(resource_content_id: r.resource_content_id)
+          r.resource_content.chapter? && audio &&
+            Audio::ChapterAudioFile.exists?(audio_recitation_id: audio.id, chapter_id: 1) &&
+            Audio::Segment.exists?(audio_recitation_id: audio.id, chapter_id: 1) == segments
+        end
+        times = Previews.as_json(Previews.for(found, {}))['ayahs'].map { |a| a.slice('key', 'from', 'to') }
+        [key, row.(found).merge(segments ? { ayahs: times } : {})]
+      end,
+      translation: row.(rows.('translation').find { |r| r.resource_content.one_ayah? })
     }.to_json)
   `)
 })
@@ -264,5 +281,92 @@ test.describe('font ligatures and glyphs', () => {
     await page.getByRole('tab', { name: 'Sample' }).click()
     await expect(page).toHaveURL(new RegExp(`${font.path}$`))
     expect(requests).toEqual([])
+  })
+})
+
+test.describe('recitations and text', () => {
+  const position = (page: Page) => page.getByTestId('player').locator('audio')
+  const active = (page: Page) => page.getByTestId('recitation-preview')
+
+  async function playing(page: Page) {
+    await page.getByRole('button', { name: 'Play', exact: true }).click()
+    await expect
+      .poll(() => position(page).evaluate((audio: HTMLAudioElement) => audio.currentTime), { timeout: 30_000 })
+      .toBeGreaterThan(0)
+  }
+
+  async function seek(page: Page, seconds: number) {
+    await position(page).evaluate((audio: HTMLAudioElement, at) => (audio.currentTime = at), seconds)
+  }
+
+  test('a recitation with segments highlights the ayah being recited, and moves at the boundary', async ({ page }) => {
+    const media: string[] = []
+    page.on('request', (request) => {
+      if (request.url().includes('audio-cdn')) media.push(request.url())
+    })
+    await page.goto(fixtures.segmented.path)
+    await expect(active(page)).toHaveAttribute('data-highlights', 'true')
+    expect(await position(page).getAttribute('src')).toBeNull()
+    expect(media).toEqual([])
+
+    await playing(page)
+    expect(media.length).toBeGreaterThan(0)
+
+    // Seek into ayah 3, then to just before the end of ayah 1 and let it play over the boundary.
+    const { ayahs } = fixtures.segmented
+    await seek(page, (ayahs[2].from + 500) / 1000)
+    await expect(active(page)).toHaveAttribute('data-active-ayah', '1:3')
+    await expect(page.locator('[data-ayah="1:3"]')).toHaveAttribute('aria-current', 'true')
+
+    await seek(page, (ayahs[0].to - 1000) / 1000)
+    await expect(active(page)).toHaveAttribute('data-active-ayah', '1:1')
+    await expect(active(page)).toHaveAttribute('data-active-ayah', '1:2', { timeout: 10_000 })
+    const at = await position(page).evaluate((audio: HTMLAudioElement) => audio.currentTime * 1000)
+    expect(at).toBeGreaterThanOrEqual(ayahs[1].from)
+  })
+
+  test('a recitation without segments plays with no highlight and no error', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    page.on('console', (message) => {
+      if (message.type() === 'error') errors.push(message.text())
+    })
+    await page.goto(fixtures.unsegmented.path)
+    await expect(active(page)).toHaveAttribute('data-highlights', 'false')
+    await expect(page.getByText(/has no segment data for this surah/)).toBeVisible()
+
+    await playing(page)
+    await seek(page, 10)
+    await expect.poll(() => position(page).evaluate((audio: HTMLAudioElement) => audio.currentTime)).toBeGreaterThan(10)
+    await expect(active(page)).toHaveAttribute('data-active-ayah', '')
+    await expect(page.locator('[data-ayah][aria-current]')).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible()
+    expect(errors).toEqual([])
+  })
+
+  test('changing the surah updates the query string and requests only the preview prop', async ({ page }) => {
+    const inertia: Request[] = []
+    page.on('request', (request) => {
+      if (request.headers()['x-inertia']) inertia.push(request)
+    })
+    await page.goto(fixtures.translation.path)
+    await expect(page.getByTestId('text-preview')).toHaveAttribute('data-surah', '1')
+    inertia.length = 0
+
+    await page.getByRole('combobox', { name: 'Surah' }).selectOption('114')
+    await expect(page).toHaveURL(new RegExp(`${fixtures.translation.path}\\?surah=114$`))
+    await expect(page.getByTestId('text-preview')).toHaveAttribute('data-surah', '114')
+    await expect(page.locator('[data-entry="114:1"]')).toBeVisible()
+    expect(inertia).toHaveLength(1)
+    expect(inertia[0].headers()['x-inertia-partial-data']).toBe('preview')
+
+    inertia.length = 0
+    await page.goto(fixtures.segmented.path)
+    await expect(active(page)).toHaveAttribute('data-highlights', 'true')
+    inertia.length = 0
+    await page.getByRole('combobox', { name: 'Surah' }).selectOption('114')
+    await expect(page).toHaveURL(/\?surah=114$/)
+    await expect(page.locator('[data-ayah="114:6"]')).toBeVisible()
+    expect(inertia.map((request) => request.headers()['x-inertia-partial-data'])).toEqual(['preview'])
   })
 })

@@ -285,3 +285,26 @@
     color: #ff7e1e;
   }
 }
+
+/* Editor HTML in text and record previews (translations, tafsirs, surah info): the tags
+   Previews.sanitize keeps, spaced as reading text. */
+@layer components {
+  .preview-html :is(p, ul, ol, blockquote) + :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+    margin-top: 0.75em;
+  }
+  .preview-html :is(h1, h2, h3, h4, h5, h6) {
+    margin-top: 1em;
+    font-weight: 600;
+  }
+  .preview-html :is(ul, ol) {
+    padding-inline-start: 1.5em;
+    list-style: revert;
+  }
+  .preview-html blockquote {
+    border-inline-start: 2px solid var(--border);
+    padding-inline-start: 0.75em;
+  }
+  .preview-html sup {
+    font-size: 0.7em;
+  }
+}

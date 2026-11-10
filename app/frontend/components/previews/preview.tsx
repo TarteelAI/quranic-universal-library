@@ -3,7 +3,10 @@ import type { CatalogResourcesShow } from '@/types/serializers'
 import { FontPreview } from './font-preview'
 import { MushafPageView } from './mushaf-page'
 import type { PreviewNavigation } from './navigation'
+import { RecitationPlayer } from './recitation-player'
+import { RecordsPreview } from './records-preview'
 import { ScriptPreview } from './script-preview'
+import { TextPreview } from './text-preview'
 
 function NoPreview({ title, reason }: { title: string; reason: string }) {
   return (
@@ -32,6 +35,12 @@ export function Preview({
       return <FontPreview preview={preview} navigation={navigation} />
     case 'script':
       return <ScriptPreview preview={preview} navigation={navigation} />
+    case 'recitation':
+      return <RecitationPlayer key={preview.tracks[0]} preview={preview} navigation={navigation} />
+    case 'text':
+      return <TextPreview preview={preview} navigation={navigation} />
+    case 'records':
+      return <RecordsPreview preview={preview} navigation={navigation} />
     case 'unavailable':
       return <NoPreview title="No preview for this resource" reason={preview.reason} />
     default:

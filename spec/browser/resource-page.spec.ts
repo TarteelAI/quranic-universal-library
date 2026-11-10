@@ -170,7 +170,7 @@ test('the open tab is in the URL, Back and Forward follow it, and a tab URL load
   await page.goto(path)
   await hydrated(page)
   await expect(page.getByRole('tab', { name: 'Preview' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByText('No preview for this resource yet')).toBeVisible()
+  await expect(page.getByTestId('text-preview')).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Changelog' })).toHaveCount(0)
 
   await page.getByRole('tab', { name: 'Data' }).click()

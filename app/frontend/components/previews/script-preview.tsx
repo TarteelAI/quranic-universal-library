@@ -1,7 +1,7 @@
 import type { PreviewsScript, PreviewsScriptAyah, PreviewsScriptToken } from '@/types/serializers'
 
 import { FontFaces, FontFailed, useFontStatus, V4_PALETTE } from './fonts'
-import { JumpTo, PreviewToolbar, selectClass, StepButtons, type PreviewNavigation } from './navigation'
+import { AyahRangeToolbar, type PreviewNavigation } from './navigation'
 
 type Rendering = PreviewsScript['rendering']
 
@@ -56,8 +56,7 @@ function Ayah({ ayah, preview }: { ayah: PreviewsScriptAyah; preview: PreviewsSc
 // surah picker and the previous and next range.
 export function ScriptPreview({ preview, navigation }: { preview: PreviewsScript; navigation: PreviewNavigation }) {
   const { surah, from, to, fonts, ayahs } = preview
-  const { navigate, loading } = navigation
-  const size = to - from + 1
+  const { loading } = navigation
   const firstText = ayahs[0]?.text ?? ayahs[0]?.words[0]?.text ?? ''
   const status = useFontStatus(fonts[0]?.family ?? null, firstText.replace(/<[^>]*>/g, ''))
   const v4 = preview.fontCode === 'v4-tajweed'
@@ -73,34 +72,7 @@ export function ScriptPreview({ preview, navigation }: { preview: PreviewsScript
       data-to={to}
     >
       <FontFaces fonts={fonts} palette={v4 ? fonts : []} />
-      <PreviewToolbar loading={loading}>
-        <label className="flex items-center gap-1.5 text-muted-foreground">
-          Surah
-          <select
-            className={selectClass}
-            value={surah.number}
-            onChange={(event) => navigate({ surah: event.target.value })}
-          >
-            {preview.surahs.map((entry) => (
-              <option key={entry.number} value={entry.number}>
-                {entry.number}. {entry.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <JumpTo
-          label="From ayah"
-          value={from}
-          min={1}
-          max={surah.versesCount}
-          onJump={(number) => navigate({ surah: surah.number, from: number })}
-        />
-        <StepButtons
-          label="ayahs"
-          previous={from > 1 ? () => navigate({ surah: surah.number, from: Math.max(1, from - size) }) : null}
-          next={to < surah.versesCount ? () => navigate({ surah: surah.number, from: to + 1 }) : null}
-        />
-      </PreviewToolbar>
+      <AyahRangeToolbar surah={surah} surahs={preview.surahs} from={from} to={to} navigation={navigation} />
 
       <p className="text-sm text-muted-foreground">
         Surah {surah.name}, {from === to ? `ayah ${from}` : `ayahs ${from}–${to}`} of {surah.versesCount}

@@ -1,4 +1,12 @@
-import type { FontFiles, PreviewsFont, PreviewsMushafLayout, PreviewsScript } from '@/types/serializers'
+import type {
+  FontFiles,
+  PreviewsFont,
+  PreviewsMushafLayout,
+  PreviewsRecitation,
+  PreviewsRecords,
+  PreviewsScript,
+  PreviewsText,
+} from '@/types/serializers'
 
 const CDN = 'https://static-cdn.tarteel.ai/qul/fonts'
 
@@ -88,5 +96,121 @@ export const scriptPreview: PreviewsScript = {
   surahs: [
     { number: 1, name: 'Al-Fatihah', versesCount: 7 },
     { number: 112, name: 'Al-Ikhlas', versesCount: 4 },
+  ],
+}
+
+const surahs = [
+  { number: 1, name: 'Al-Fatihah', versesCount: 7 },
+  { number: 2, name: 'Al-Baqarah', versesCount: 286 },
+  { number: 114, name: 'An-Nas', versesCount: 6 },
+]
+
+// Al-Fatihah by Mahmoud Khalil Al-Husary (mujawwad), with the segment times of the snapshot.
+const fatihah: [string, number, number][] = [
+  ['بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ', 0, 4470],
+  ['ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ', 4670, 12540],
+  ['ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ', 15670, 21595],
+  ['مَـٰلِكِ يَوْمِ ٱلدِّينِ', 24025, 29895],
+  ['إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', 33045, 42510],
+  ['ٱهْدِنَا ٱلصِّرَٰطَ ٱلْمُسْتَقِيمَ', 45800, 53150],
+  ['صِرَٰطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ', 55940, 75389],
+]
+
+export const recitationPreview: PreviewsRecitation = {
+  kind: 'recitation',
+  granularity: 'surah',
+  highlights: true,
+  tracks: ['https://audio-cdn.tarteel.ai/quran/surah/husary/mujawwad/mp3/001.mp3'],
+  surah: surahs[0],
+  ayahs: fatihah.map(([text, from, to], index) => ({
+    key: `1:${index + 1}`,
+    number: index + 1,
+    text,
+    track: 0,
+    from,
+    to,
+  })),
+  surahs,
+}
+
+export const unsegmentedRecitationPreview: PreviewsRecitation = {
+  ...recitationPreview,
+  highlights: false,
+  ayahs: recitationPreview.ayahs.map((ayah) => ({ ...ayah, from: null, to: null })),
+}
+
+export const ayahRecitationPreview: PreviewsRecitation = {
+  ...recitationPreview,
+  granularity: 'ayah',
+  tracks: fatihah.map((_, index) => `https://audio-cdn.tarteel.ai/quran/alafasy/00100${index + 1}.mp3`),
+  ayahs: recitationPreview.ayahs.map((ayah, index) => ({ ...ayah, track: index, from: 0, to: null })),
+}
+
+export const translationPreview: PreviewsText = {
+  kind: 'text',
+  granularity: 'ayah',
+  locale: { code: 'ur', direction: 'rtl' },
+  surah: surahs[1],
+  from: 1,
+  to: 2,
+  entries: [
+    {
+      key: '2:1',
+      ayahs: [{ key: '2:1', text: 'الٓمٓ' }],
+      text: 'الم<sup>1</sup>',
+      truncated: false,
+      footnotes: [{ id: 7, text: 'حروف <b>مقطعات</b>' }],
+      words: [],
+    },
+    {
+      key: '2:2',
+      ayahs: [{ key: '2:2', text: 'ذَٰلِكَ ٱلْكِتَـٰبُ' }],
+      text: null,
+      truncated: false,
+      footnotes: [],
+      words: [],
+    },
+  ],
+  surahs,
+}
+
+export const wordTranslationPreview: PreviewsText = {
+  ...translationPreview,
+  granularity: 'word',
+  locale: { code: 'en', direction: 'ltr' },
+  surah: surahs[0],
+  from: 1,
+  to: 1,
+  entries: [
+    {
+      key: '1:1',
+      ayahs: [{ key: '1:1', text: fatihah[0][0] }],
+      text: null,
+      truncated: false,
+      footnotes: [],
+      words: [
+        { id: 1, arabic: 'بِسْمِ', text: 'In (the) name' },
+        { id: 2, arabic: 'ٱللَّهِ', text: '(of) Allah' },
+      ],
+    },
+  ],
+}
+
+export const recordsPreview: PreviewsRecords = {
+  kind: 'records',
+  limit: 10,
+  surah: surahs[0],
+  surahs,
+  locale: { code: 'en', direction: 'ltr' },
+  records: [
+    {
+      key: '1',
+      label: '1:1–1:7',
+      arabic: null,
+      text: 'Supplication to Allah for guidance taught by Allah Himself',
+      html: null,
+      truncated: false,
+      tags: ['Supplic', 'Allah'],
+    },
   ],
 }

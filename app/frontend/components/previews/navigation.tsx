@@ -2,7 +2,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
-import type { PreviewsFont } from '@/types/serializers'
+import type { PreviewsFont, PreviewsScriptSurah } from '@/types/serializers'
 
 // The query-string keys of a preview (Previews::QUERY_KEYS). Each preview sets the keys it reads.
 export type PreviewQuery = Partial<Record<'page' | 'surah' | 'from' | 'to' | 'view', string | number>>
@@ -102,5 +102,64 @@ export function JumpTo({
         Go
       </Button>
     </form>
+  )
+}
+
+export function SurahSelect({
+  surah,
+  surahs,
+  onSelect,
+}: {
+  surah: number
+  surahs: PreviewsScriptSurah[]
+  onSelect: (surah: number) => void
+}) {
+  return (
+    <label className="flex items-center gap-1.5 text-muted-foreground">
+      Surah
+      <select className={selectClass} value={surah} onChange={(event) => onSelect(Number(event.target.value))}>
+        {surahs.map((entry) => (
+          <option key={entry.number} value={entry.number}>
+            {entry.number}. {entry.name}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
+// The surah picker, the from-ayah jump and the previous and next range of a preview that shows
+// a range of ayahs of one surah.
+export function AyahRangeToolbar({
+  surah,
+  surahs,
+  from,
+  to,
+  navigation,
+}: {
+  surah: PreviewsScriptSurah
+  surahs: PreviewsScriptSurah[]
+  from: number
+  to: number
+  navigation: PreviewNavigation
+}) {
+  const { navigate, loading } = navigation
+  const size = to - from + 1
+  return (
+    <PreviewToolbar loading={loading}>
+      <SurahSelect surah={surah.number} surahs={surahs} onSelect={(number) => navigate({ surah: number })} />
+      <JumpTo
+        label="From ayah"
+        value={from}
+        min={1}
+        max={surah.versesCount}
+        onJump={(number) => navigate({ surah: surah.number, from: number })}
+      />
+      <StepButtons
+        label="ayahs"
+        previous={from > 1 ? () => navigate({ surah: surah.number, from: Math.max(1, from - size) }) : null}
+        next={to < surah.versesCount ? () => navigate({ surah: surah.number, from: to + 1 }) : null}
+      />
+    </PreviewToolbar>
   )
 }

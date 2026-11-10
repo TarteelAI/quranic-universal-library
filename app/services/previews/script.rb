@@ -26,7 +26,6 @@ module Previews
     Preview = Data.define(:granularity, :rendering, :font_code, :fonts, :surah, :from, :to, :ayahs, :surahs) do
       def serializer = ScriptResource
     end
-    Surah = Data.define(:number, :name, :verses_count)
     Ayah = Data.define(:key, :number, :text, :font, :words)
     Token = Data.define(:id, :text, :font, :image_url)
 
@@ -45,11 +44,9 @@ module Previews
     end
 
     def call
-      surahs = Chapter.order(:id).pluck(:id, :name_simple, :verses_count).map do |id, name, count|
-        Surah.new(number: id, name:, verses_count: count)
-      end
-      surah = surahs.fetch(@query['surah'].to_i.clamp(1, surahs.size) - 1)
-      from, to = range(surah.verses_count)
+      surahs = Previews.surahs
+      surah = Previews.surah(@query, surahs)
+      from, to = Previews.range(@query, surah.verses_count, size: RANGE, max: MAX_RANGE)
 
       ayahs = self.ayahs(Verse.where(chapter_id: surah.number, verse_number: from..to).order(:verse_number).to_a)
       return Unavailable.new(reason: "This script's text (#{@text_type}) has no preview yet.") unless ayahs
@@ -60,13 +57,6 @@ module Previews
     end
 
     private
-
-    def range(verses_count)
-      from = @query['from'].to_i.clamp(1, verses_count)
-      last = [from + MAX_RANGE - 1, verses_count].min
-      to = @query['to'].present? ? @query['to'].to_i.clamp(from, last) : [from + RANGE - 1, last].min
-      [from, to]
-    end
 
     def word?
       @content&.word? || false

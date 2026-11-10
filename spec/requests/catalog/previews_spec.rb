@@ -186,8 +186,9 @@ RSpec.describe 'Resource previews (the deferred preview prop)', type: :request d
       end
     end
 
-    it 'has no preview for a type without one yet' do
-      expect(preview(resource('translation', ''))).to be_nil
+    it 'has a preview provider for every catalog type, and none for a type outside the catalog' do
+      expect(Catalog::Taxonomy::TYPES.keys.reject { |type| Previews.provider(type) }).to eq([])
+      expect(Previews.provider('qirat-recitation')).to be_nil
     end
   end
 

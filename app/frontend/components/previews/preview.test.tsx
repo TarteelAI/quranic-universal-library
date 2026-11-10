@@ -143,7 +143,7 @@ describe('Preview', () => {
       expect(nav.navigate).toHaveBeenLastCalledWith({ surah: 112, from: 3 })
       expect((screen.getByRole('button', { name: /Previous ayahs/ }) as HTMLButtonElement).disabled).toBe(true)
       fireEvent.change(screen.getByRole('combobox', { name: 'Surah' }), { target: { value: '1' } })
-      expect(nav.navigate).toHaveBeenLastCalledWith({ surah: '1' })
+      expect(nav.navigate).toHaveBeenLastCalledWith({ surah: 1 })
     })
 
     it('draws ayah text with tajweed rules, and word images', () => {

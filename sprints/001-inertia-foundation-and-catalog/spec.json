@@ -1031,8 +1031,40 @@
       "testFirst": false,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "Same safety rules as 001-03: clones only, Sidekiq service disabled before start, no SMTP variables, `localhost`. A fresh restore goes into new database names, not over the working snapshot; the restore steps are in the private sprint notes. VALIDATION.md is public: counts of catalog rows are fine, nothing from user or download tables, no connection strings. `git fetch` and pushing sprint branches are allowed; pushing `main` is not. If the image cannot boot for want of a real credential, record what was proven without it and list the credential as a human step for 001-20."
+      "passes": true,
+      "notes": "Same safety rules as 001-03: clones only, Sidekiq service disabled before start, no SMTP variables, `localhost`. A fresh restore goes into new database names, not over the working snapshot; the restore steps are in the private sprint notes. VALIDATION.md is public: counts of catalog rows are fine, nothing from user or download tables, no connection strings. `git fetch` and pushing sprint branches are allowed; pushing `main` is not. If the image cannot boot for want of a real credential, record what was proven without it and list the credential as a human step for 001-20.",
+      "completedAt": "2026-11-10T20:51:55Z",
+      "handoff": {
+        "done": [
+          "sprints/001-inertia-foundation-and-catalog/VALIDATION.md written: one pass/fail row per PRD exit criterion with its evidence, and a section per Runtime Validation Plan item.",
+          "AC1 image: `docker build --platform linux/amd64 -t qul-sprint001:validation .` exit 0 (gem/yarn layers cached; `ADD .` onward fresh, both assets:precompile runs, Vite client + SSR). Run on the dev clones with SECRET_KEY_BASE only, Sidekiq `down` file, no SMTP, QUL_PAGE_GROUPS=home,catalog,apps: `down: sidekiq`, `run: inertia-ssr`, `run: nginx`. /, /resources, /resources/tafsir, translation/mushaf-layout/recitation detail pages and /apps: all 200 with data-server-rendered=\"true\" and the right <title>.",
+          "AC2: `sv stop inertia-ssr` → all 7 URLs 200 without the SSR marker, titles kept, `[inertia-rails] SSR render failed: … Connection refused` per request in production.log; headless Chromium rendered each page's h1 with no page/console errors. `sv start` → SSR marker back on all 7, browser hydrated with no errors.",
+          "AC3: full Playwright suite (--workers=4) against the image. Public mode: 88 passed, 16 skipped, 0 failed (desktop 47/5, phone 41/11). Sign-in mode, final run: 86 passed, 17 skipped, 1 failed (home ring animation, phone, predicate timeout; passed alone on rerun) (desktop 47/5, phone 39/12).",
+          "Two browser-spec fixes found by the runs: spec/browser/previews.spec.ts fontsCheck now awaits document.fonts.load for every named font before document.fonts.check (data-font-status covers only the text font, so decoration fonts raced; failed twice on different pages before, previews.spec.ts 10/10 after); spec/browser/catalog.spec.ts waits for the load state after a full-page link before reading script[data-page] (failed in both full sign-in runs, 10/10 with --repeat-each=5 after). Prettier, ESLint and `tsc -p spec/browser` clean.",
+          "AC4: fresh restores of both 2026-11-02 backups into new scratch databases (CMS ~3 min, 0 ERROR lines; 118 migrations to 20261023140000, no catalog columns). Migrate via migration_context.migrate (no schema dump): applied 10 (7 draft_* from main + 3 sprint). Backfill run 1 total 1331 (= 001-07 616 + 001-08 715, same per-step counts). Hand edits through the model (tafsir-ibn-kathir-arabic summary, kfgqpc-nastaleeq-15-lines-layout script family, hindi-wbw-translation display name). Run 2: every step 0, total 0; all three edits kept. Extra: an SQL edit of a drafted summary → next run 1 row (moved to reviewed), value kept, then 0. Review report on the restore: 695 rows = 695 drafted keys by direct jsonb query; file deleted. Scratch databases dropped.",
+          "AC5: image restarted per setting. home off → / old; catalog off → /resources, type and detail old; apps off → /apps 404 (main has no /apps); none → all old, /apps 404. New pages answered every other URL. In qul-dev with no groups: spec/requests/resources_spec.rb 2/0, and every `page_groups: []` group (6 files) 7/0.",
+          "AC6: image props vs direct queries on the dev clone: home resources 547, languages 94, recitations 133, category sum 547; facets type=tafsir 108, language=en 39, script=madani 27, granularity=1_ayah 237, status=legacy 1; popular top ten ids identical in order. All pass; no download numbers recorded.",
+          "AC7: every published detail URL (547, from the dev clone) requested from the image: 547 200 with SSR, 0 without, 0 other.",
+          "AC8: `git log main..origin/main` 24 (local main stale; origin/main = merge base 3d805f64); HEAD..origin/main 0; trial merge of origin/main: Already up to date. Trial merge of origin/qiraat/p7-5-drop-legacy: 30 conflicts, 29 of which also occur merging it into origin/main alone; the sprint adds only .gitignore (list in VALIDATION.md). Layout/app/javascript diff vs merge base empty; 0 tracked files under tmp/; no dump/report/db file tracked; origin/main..main 0.",
+          "Downloads: spec/requests/catalog/downloads_spec.rb 44 examples, 0 failures (both routes, both modes)."
+        ],
+        "decisions": [
+          "The image ran on host port 3001 (`-p 3001:3000`, nginx listens on 3000 inside) because qul-dev publishes host port 3000; Playwright used QUL_BROWSER_BASE_URL=http://localhost:3001 and QUL_BROWSER_RAILS_RUNNER='docker exec qul-dev bin/rails runner', which reads the same dev clone the image serves.",
+          "The fresh restore was migrated with migration_context.migrate in a rails runner (what bin/snapshot-clones does) instead of db:migrate, so db/schema.rb was never dumped.",
+          "Hand edits between runs went through the model (the CMS path), so run 2 can be 0; an SQL edit was checked separately because it legitimately costs one row (draft → reviewed).",
+          "The 'production-mode stack' for the detail sweep is the image itself: a curl sweep of every published detail URL with the SSR marker. The RSpec sweep from 001-14 (preview/no-preview state) is covered by the full RSpec run at 2fed56b4.",
+          "The gate exit criterion is recorded as passing at 2fed56b4 (001-17's run); this story changed only two browser specs, and the final gate is the driver's / 001-20's."
+        ],
+        "concerns": [
+          "Full RSpec and Vitest were not rerun in this story (only browser specs changed); the driver's checkpoint run should confirm.",
+          "The home ring-animation test (phone) and, before the fix, the two fixed tests are load-sensitive; on this machine (load ~200) they needed reruns. VALIDATION.md says which.",
+          "Inside the amd64 image under OrbStack the SSR process shows as `node --no-opt -r /proc/.p public/vite-ssr/ssr.mjs` (the emulation layer's wrapper); not seen on real x86_64.",
+          "The image qul-sprint001:validation is left in the local Docker image store (not running); remove with `docker rmi` when no longer needed.",
+          "Exit criterion 'merged into qul-next, pushed, draft PR' is open and owned by 001-20.",
+          "Public-mode browser tests added anonymous counts on the dev clone's files (dev data only)."
+        ]
+      },
+      "filesChanged": 5
     },
     {
       "id": "001-19",

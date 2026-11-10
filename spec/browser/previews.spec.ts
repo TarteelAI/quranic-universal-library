@@ -79,11 +79,18 @@ async function settled(page: Page, selector: string) {
   return target
 }
 
-// document.fonts.check for every element that names its own font, in the page.
+// document.fonts.check for every element that names its own font, in the page. The data-font-status
+// the page reports covers its text font only, so each named font is loaded first; a font that
+// cannot load still fails the check.
 async function fontsCheck(page: Page, root: string) {
-  return page.evaluate((root) => {
+  return page.evaluate(async (root) => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>(`${root}, ${root} [style*="font-family"]`))
     const named = elements.filter((element) => element.style.fontFamily && element.textContent?.trim())
+    await Promise.all(
+      named.map((element) =>
+        document.fonts.load(`30px ${element.style.fontFamily}`, element.textContent!.trim()).catch(() => []),
+      ),
+    )
     const failed = named.filter(
       (element) => !document.fonts.check(`30px ${element.style.fontFamily}`, element.textContent!.trim()),
     )

@@ -27,12 +27,15 @@ test.describe('type pages', () => {
 
     await page.getByRole('list', { name: 'Tafsirs' }).getByRole('link').first().click()
     await expect(page).toHaveURL(/\/resources\/tafsir\/[^/]+$/)
+    // The card link is a full page load: the URL changes before the new document has loaded.
+    await page.waitForLoadState()
     expect(await isInertiaPage(page)).toBe(true)
 
     // The resource guide is an old docs page.
     await page.goto(`${new URL(page.url()).pathname}?tab=data`)
     await page.getByRole('link', { name: 'the tafsir guide' }).click()
     await expect(page).toHaveURL(/\/docs\/resource-tafsirs$/)
+    await page.waitForLoadState()
     expect(await isInertiaPage(page)).toBe(false)
     // The old page's own bundle (Turbo) loads and runs there.
     await page.waitForFunction(() => 'Turbo' in window)

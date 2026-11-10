@@ -69,6 +69,16 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       expect(contribute[:groups].last[:links].pluck(:href)).to eq(['/docs/contribute-data', '/faq', '/credits'])
     end
 
+    it 'marks the contributor tool groups, and only those, as tools' do
+      get page_path
+      nav = props[:nav]
+      contribute = nav[:menus].last
+
+      expect(contribute[:groups].pluck(:tools)).to eq([true] * SiteNav::ContributeTools::GROUPS.size + [false])
+      others = nav[:menus][0...-1].flat_map { |menu| menu[:groups] + menu[:aside] } + contribute[:aside] + nav[:footer]
+      expect(others.pluck(:tools)).to all(be(false))
+    end
+
     it 'puts the request form, the changelog and the community links under the Contribute tools' do
       get page_path
       aside = props[:nav][:menus].last[:aside]

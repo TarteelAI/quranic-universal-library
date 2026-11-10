@@ -54,6 +54,21 @@ describe('MegaMenu', () => {
     expect(menu.queryByText('Community')).toBeNull()
   })
 
+  it.each([
+    ['Contribute', 'Mushaf & scripts', 'All contribution tools'],
+    ['Resources', 'Resource types', 'Browse all resources'],
+  ])(
+    'lets the %s links scroll inside the panel, with the overview row outside the scroll',
+    (label, heading, overview) => {
+      renderPage(Menus, { props: {}, url: '/resources' })
+      const menu = openMenu(label)
+
+      const scroller = menu.getByText(heading).closest('.overflow-y-auto')
+      expect(scroller?.parentElement?.className).toContain('max-h-[calc(100dvh-5.5rem)]')
+      expect(scroller?.contains(menu.getByRole('link', { name: overview }))).toBe(false)
+    },
+  )
+
   it('keeps the side rail with its headings in a menu that is not dense', () => {
     renderPage(Menus, { props: {}, url: '/resources' })
     const menu = openMenu('Resources')

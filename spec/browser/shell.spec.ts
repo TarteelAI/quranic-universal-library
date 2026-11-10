@@ -5,7 +5,7 @@ import { expect, test } from './support/test'
 // The parts of the `nav` shared prop (SiteNavResource) the tests read.
 type SiteNavLink = { label: string; href: string; external: boolean; inertia: boolean }
 type SiteNavGroup = { heading: string; links: SiteNavLink[] }
-type SiteNavMenu = SiteNavLink & { overview: string; groups: SiteNavGroup[]; aside: SiteNavGroup[] }
+type SiteNavMenu = SiteNavLink & { overview: string; dense: boolean; groups: SiteNavGroup[]; aside: SiteNavGroup[] }
 type SiteNav = { menus: SiteNavMenu[]; search: SiteNavLink; footer: SiteNavGroup[] }
 
 const PAGE = '/resources/translation'
@@ -78,6 +78,25 @@ test.describe('site header and footer', () => {
       body: await page.getByRole('contentinfo').screenshot(),
       contentType: 'image/png',
     })
+  })
+
+  test('short desktop window: each menu panel fits, and its bottom row stays in view', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'desktop layout')
+    await page.setViewportSize({ width: 1024, height: 640 })
+    await page.goto(PAGE)
+    await hydrated(page)
+    const nav = await siteNav(page)
+    const main = page.getByRole('navigation', { name: 'Main' })
+
+    for (const menu of nav.menus.filter((m) => ['Resources', 'Contribute'].includes(m.label))) {
+      await main.getByRole('button', { name: menu.label }).focus()
+      await page.keyboard.press('Enter')
+      await expect(main.getByRole('link', { name: menu.overview })).toBeInViewport({ ratio: 1 })
+      if (menu.dense)
+        for (const link of menu.aside.flatMap((group) => group.links))
+          await expect(main.getByRole('link', { name: link.label })).toBeInViewport({ ratio: 1 })
+      await page.keyboard.press('Escape')
+    }
   })
 
   test('phone: the menu sheet lists the same destinations and closes after a visit', async ({ page }, testInfo) => {

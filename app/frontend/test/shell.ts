@@ -18,6 +18,7 @@ export const nav: SiteNav = {
         {
           heading: 'Resource types',
           wide: true,
+          tools: false,
           links: [
             link('Translations', '/resources/translation', {
               inertia: true,
@@ -28,7 +29,9 @@ export const nav: SiteNav = {
           ],
         },
       ],
-      aside: [{ heading: 'Jump to', wide: false, links: [link('How to download', '/docs/downloading-data')] }],
+      aside: [
+        { heading: 'Jump to', wide: false, tools: false, links: [link('How to download', '/docs/downloading-data')] },
+      ],
     },
     {
       label: 'Contribute',
@@ -40,6 +43,7 @@ export const nav: SiteNav = {
         {
           heading: 'Mushaf & scripts',
           wide: false,
+          tools: true,
           links: [
             link('Tajweed rules', '/tajweed_words', { icon: 'palette', description: 'Rules marked on each letter.' }),
           ],
@@ -47,6 +51,7 @@ export const nav: SiteNav = {
         {
           heading: 'Translations & tafsir',
           wide: false,
+          tools: true,
           links: [
             link('Ayah translations', '/translations', {
               icon: 'languages',
@@ -60,11 +65,13 @@ export const nav: SiteNav = {
         {
           heading: 'Help improve the data',
           wide: false,
+          tools: false,
           links: [link('Changelog', '/change_logs')],
         },
         {
           heading: 'Community',
           wide: false,
+          tools: false,
           links: [link('GitHub', 'https://github.com/TarteelAI/quranic-universal-library', { external: true })],
         },
       ],
@@ -75,6 +82,7 @@ export const nav: SiteNav = {
     {
       heading: 'Resources',
       wide: false,
+      tools: false,
       links: [link('All resources', '/resources', { inertia: true }), link('All docs', '/docs')],
     },
   ],

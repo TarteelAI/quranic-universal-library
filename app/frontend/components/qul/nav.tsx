@@ -213,11 +213,16 @@ function panelWidth(menu: SiteNavMenu) {
   return (menu.groups.some((group) => group.wide) ? 32 : 20) + (menu.aside.length ? 14 : 0)
 }
 
+// A panel is never taller than the window below the sticky header (4rem, plus a margin): its links
+// scroll inside it, and the row with the overview link stays in view.
+const panelFrame = 'flex max-h-[calc(100dvh-5.5rem)] flex-col'
+const panelBody = 'min-h-0 overflow-y-auto overscroll-contain'
+
 // Many links: the groups in three columns, the side rail as one row of links beside the overview link.
 function DensePanel({ menu }: { menu: SiteNavMenu }) {
   return (
-    <div className="flex flex-col" style={{ width: `${panelWidth(menu)}rem` }}>
-      <div className="grid grid-cols-3 gap-x-2 p-4">
+    <div className={panelFrame} style={{ width: `${panelWidth(menu)}rem` }}>
+      <div className={cn('grid grid-cols-3 gap-x-2 p-4', panelBody)}>
         {balance(menu.groups, 3).map((column, i) => (
           <div key={i} className="flex min-w-0 flex-col gap-3">
             {column.map((group) => (
@@ -233,7 +238,7 @@ function DensePanel({ menu }: { menu: SiteNavMenu }) {
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-between border-t bg-surface">
+      <div className="flex shrink-0 items-center justify-between border-t bg-surface">
         <OverviewLink menu={menu} className="shrink-0" />
         <div className="flex flex-wrap items-center justify-end gap-0.5 pe-3">
           {menu.aside
@@ -258,8 +263,8 @@ function DensePanel({ menu }: { menu: SiteNavMenu }) {
 function Panel({ menu }: { menu: SiteNavMenu }) {
   if (menu.dense) return <DensePanel menu={menu} />
   return (
-    <div className="flex flex-col" style={{ width: `${panelWidth(menu)}rem` }}>
-      <div className={cn('grid gap-2 p-3', menu.aside.length > 0 && 'grid-cols-[1fr_13.5rem]')}>
+    <div className={panelFrame} style={{ width: `${panelWidth(menu)}rem` }}>
+      <div className={cn('grid gap-2 p-3', menu.aside.length > 0 && 'grid-cols-[1fr_13.5rem]', panelBody)}>
         <div className="flex flex-col gap-3 p-1">
           {menu.groups.map((group) => (
             <div key={group.heading}>
@@ -287,7 +292,7 @@ function Panel({ menu }: { menu: SiteNavMenu }) {
           </div>
         )}
       </div>
-      <OverviewLink menu={menu} className="border-t" />
+      <OverviewLink menu={menu} className="shrink-0 border-t" />
     </div>
   )
 }

@@ -14,11 +14,16 @@ class SiteNav
 
   Link = Data.define(:label, :href, :description, :category, :icon, :external, :inertia) do
     def initialize(label:, href:, description: nil, category: nil, icon: nil, external: false, inertia: false)
+      # The frontend has a component for each name in ICONS only
+      raise ArgumentError, "unknown nav icon #{icon.inspect} for #{label}" if icon && ICONS.exclude?(icon)
+
       super
     end
   end
-  Group = Data.define(:heading, :links, :wide) do
-    def initialize(heading:, links:, wide: false)
+  # `tools` marks a group of contribution tools (the Contribute menu's tool groups), so other
+  # parts of the page can tell the tools from the other links.
+  Group = Data.define(:heading, :links, :wide, :tools) do
+    def initialize(heading:, links:, wide: false, tools: false)
       super
     end
   end
@@ -132,14 +137,13 @@ class SiteNav
   def contribute_menu
     tools = ContributeTools.grouped(@tools).map do |heading, entries|
       links = entries.map { |tool, icon, text| Link.new(label: tool.title, href: tool.url, icon:, description: text) }
-      Group.new(heading:, links:)
+      Group.new(heading:, links:, tools: true)
     end
     about = [
       doc_link('How to contribute data', 'contribute-data', icon: 'book-open',
                                                             description: 'A guide to fixing and adding data.'),
       Link.new(label: 'FAQ', href: routes.faq_path, icon: 'circle-help', description: 'Answers to common questions.'),
-      Link.new(label: 'Credits', href: routes.credits_path, icon: 'award',
-               description: 'The sources and people behind the data.')
+      Link.new(label: 'Credits', href: routes.credits_path, icon: 'award', description: 'Who made the data and tools.')
     ]
     help = [@request, Link.new(label: 'Changelog', href: routes.change_logs_path)]
     community = [*apps_links, Link.new(label: 'Discord', href: DISCORD_URL, external: true), github_link]
@@ -147,7 +151,10 @@ class SiteNav
     Menu.new(
       label: 'Contribute', href: routes.tools_path, overview: 'All contribution tools', inertia: false, dense: true,
       groups: [*tools, Group.new(heading: 'About contributing', links: about)],
-      aside: [Group.new(heading: 'Help improve the data', links: help), Group.new(heading: 'Community', links: community)]
+      aside: [
+        Group.new(heading: 'Help improve the data', links: help),
+        Group.new(heading: 'Community', links: community)
+      ]
     )
   end
 

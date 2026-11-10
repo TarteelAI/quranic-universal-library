@@ -103,6 +103,13 @@ test.describe('site header and footer', () => {
     expect(new Set(listed)).toEqual(new Set(expected))
     await testInfo.attach('menu-sheet', { body: await page.screenshot(), contentType: 'image/png' })
 
+    await expect(sheet.getByRole('link', { name: 'QUL home' })).toContainText('Quranic Universal Library')
+    await sheet.getByRole('button', { name: 'Search resources' }).click()
+    await expect(sheet).toBeHidden()
+    await expect(page.getByRole('dialog', { name: 'Search QUL' }).getByRole('combobox')).toBeFocused()
+    await page.keyboard.press('Escape')
+    await header(page).getByRole('button', { name: 'Menu' }).click()
+
     await sheet.getByRole('button', { name: 'Resources' }).click()
     await sheet.getByRole('region', { name: 'Resources' }).getByRole('link', { name: 'Tafsirs' }).click()
     await expect(page).toHaveURL(/\/resources\/tafsir$/)
@@ -152,9 +159,7 @@ test.describe('site header and footer', () => {
       link: nav.search,
       open: async () => {
         await header(page).getByRole('button', { name: 'Search resources' }).click()
-        return page
-          .getByRole('dialog', { name: 'Search resources' })
-          .getByRole('option', { name: 'Browse all resources' })
+        return page.getByRole('dialog', { name: 'Search QUL' }).getByRole('option', { name: 'Browse all resources' })
       },
     })
     expect(targets.length).toBeGreaterThan(40)

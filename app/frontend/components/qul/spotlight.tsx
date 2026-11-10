@@ -1,19 +1,53 @@
 import { router, usePage } from '@inertiajs/react'
-import { ArrowRightIcon, SearchIcon } from 'lucide-react'
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  BookOpenIcon,
+  BracesIcon,
+  CompassIcon,
+  CornerDownLeftIcon,
+  FileTextIcon,
+  HandHeartIcon,
+  LibraryIcon,
+  SearchIcon,
+  WrenchIcon,
+} from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Kbd } from '@/components/ui/misc'
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/overlays'
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/overlays'
 import { cn } from '@/lib/utils'
 import { catalogResources, catalogSpotlight, detailResources } from '@/routes'
-import type { CatalogSpotlightResult } from '@/types/serializers'
+import type { CatalogSpotlightResult, SiteNav, SiteNavLink } from '@/types/serializers'
+
+import { ResourceIcon } from './icons'
 
 // Typing waits this long for a pause before it asks the server.
 const DEBOUNCE_MS = 250
+// At most this many pages and this many tools are shown for a query.
+const NAV_LIMIT = 4
 
 type Answer = { q: string; results: CatalogSpotlightResult[]; total: number }
-type Item = { id: string; label: string; detail?: string; href: string; inertia: boolean }
+type Item = {
+  id: string
+  label: string
+  detail?: string
+  href: string
+  inertia: boolean
+  external?: boolean
+  icon?: React.ReactNode
+}
+type Section = { heading: string; items: Item[] }
+// A navigation link, with the words it is found by that are not shown.
+type NavItem = Item & { group: 'Pages' | 'Tools'; keywords: string }
 
 const noSubscription = () => () => {}
 
@@ -27,24 +61,28 @@ function useShortcutLabel() {
 }
 
 // The answer for the latest query only: each new query aborts the request before it, and an
-// answer is kept with the query it is for, so an older query's results are never shown.
-function useSpotlightSearch(query: string) {
+// answer is kept with the query it is for, so an older query's results are never shown. A null
+// query asks nothing; the empty query asks at once for the most popular resources.
+function useSpotlightSearch(query: string | null) {
   const [answer, setAnswer] = React.useState<Answer | null>(null)
 
   React.useEffect(() => {
-    if (!query) return
+    if (query === null) return
     const controller = new AbortController()
-    const timer = window.setTimeout(async () => {
-      try {
-        const response = await fetch(catalogSpotlight.index({ query: { q: query } }).url, {
-          headers: { Accept: 'application/json' },
-          signal: controller.signal,
-        })
-        if (response.ok) setAnswer({ q: query, ...((await response.json()) as Omit<Answer, 'q'>) })
-      } catch (error) {
-        if (!controller.signal.aborted) throw error
-      }
-    }, DEBOUNCE_MS)
+    const timer = window.setTimeout(
+      async () => {
+        try {
+          const response = await fetch(catalogSpotlight.index(query ? { query: { q: query } } : undefined).url, {
+            headers: { Accept: 'application/json' },
+            signal: controller.signal,
+          })
+          if (response.ok) setAnswer({ q: query, ...((await response.json()) as Omit<Answer, 'q'>) })
+        } catch (error) {
+          if (!controller.signal.aborted) throw error
+        }
+      },
+      query ? DEBOUNCE_MS : 0,
+    )
     return () => {
       window.clearTimeout(timer)
       controller.abort()
@@ -54,50 +92,163 @@ function useSpotlightSearch(query: string) {
   return answer?.q === query ? answer : null
 }
 
-function statusLine(query: string, answer: Answer | null) {
-  if (!query) return 'Type to search the catalog.'
-  if (!answer) return 'Searching…'
-  if (answer.total === 0) return `No resources match “${query}”.`
-  return null
+const tile = (icon: React.ReactNode) => (
+  <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-[28%] border bg-card text-foreground [&_svg]:size-4">
+    {icon}
+  </span>
+)
+
+// Docs are left out of the results until the docs pages move to the new site and are indexed.
+const isDocs = (link: Pick<SiteNavLink, 'href'>) => /^\/docs(\/|$)/.test(link.href)
+
+// The detail page belongs to the catalog page group, as the catalog search link does.
+function resourceItem(result: CatalogSpotlightResult, inertia: boolean): Item {
+  return {
+    id: `resource:${result.id}`,
+    label: result.name,
+    detail: [result.typeLabel, result.language, result.formats.join(', ')].filter(Boolean).join(' · '),
+    href: detailResources({ type: result.type, id: result.toParam }).url,
+    inertia,
+    icon: <ResourceIcon category={result.category} size="sm" />,
+  }
+}
+
+function navItem(link: SiteNavLink, group: NavItem['group'], keywords: string): NavItem {
+  return {
+    id: `nav:${link.href}`,
+    label: link.label,
+    detail: link.description ?? undefined,
+    href: link.href,
+    inertia: link.inertia,
+    external: link.external,
+    icon: link.category ? (
+      <ResourceIcon category={link.category} size="sm" />
+    ) : (
+      tile(group === 'Tools' ? <WrenchIcon /> : <FileTextIcon />)
+    ),
+    group,
+    keywords,
+  }
+}
+
+/**
+ * The pages and contribution tools the site navigation links to, one item per address. The
+ * links in the main groups of the Contribute menu are the contribution tools; every other link
+ * is a page.
+ */
+function navSearchItems(nav: SiteNav): NavItem[] {
+  const items: NavItem[] = [navItem(nav.home, 'Pages', '')]
+  for (const menu of nav.menus) {
+    const main = /contribut/i.test(menu.label) ? 'Tools' : 'Pages'
+    const overview = { label: menu.overview, href: menu.href, inertia: menu.inertia }
+    items.push(navItem({ ...overview, description: null, category: null, external: false }, main, menu.label))
+    for (const group of menu.groups)
+      for (const link of group.links) items.push(navItem(link, main, `${menu.label} ${group.heading}`))
+    for (const group of menu.aside)
+      for (const link of group.links) items.push(navItem(link, 'Pages', `${menu.label} ${group.heading}`))
+  }
+  for (const group of nav.footer) for (const link of group.links) items.push(navItem(link, 'Pages', group.heading))
+
+  const byHref = new Map<string, NavItem>()
+  for (const item of items) if (!isDocs(item) && !byHref.has(item.href)) byHref.set(item.href, item)
+  return [...byHref.values()]
+}
+
+/** Every query word must appear; hits in the label rank first. */
+function score(item: NavItem, words: string[]) {
+  const label = item.label.toLowerCase()
+  const text = `${label} ${item.detail ?? ''} ${item.keywords}`.toLowerCase()
+  if (!words.every((word) => text.includes(word))) return 0
+  const query = words.join(' ')
+  if (label.startsWith(query)) return 4
+  if (label.includes(query)) return 3
+  if (words.every((word) => label.includes(word))) return 2
+  return 1
+}
+
+function matchNav(items: NavItem[], query: string, group: NavItem['group']) {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean)
+  return items
+    .filter((item) => item.group === group)
+    .map((item) => ({ item, score: score(item, words) }))
+    .filter((hit) => hit.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, NAV_LIMIT)
+    .map((hit) => hit.item)
+}
+
+const QUICK_LINK_ICONS: Record<string, React.ReactNode> = {
+  resources: <LibraryIcon />,
+  docs: <BookOpenIcon />,
+  developers: <BracesIcon />,
+  contribute: <HandHeartIcon />,
+}
+
+// The overview link of each menu: the catalog, the docs, the API docs, the contribution tools.
+function quickLinks(nav: SiteNav): Item[] {
+  return nav.menus.map((menu) => ({
+    id: `quick:${menu.href}`,
+    label: menu.overview,
+    href: menu.href,
+    inertia: menu.inertia,
+    icon: tile(QUICK_LINK_ICONS[menu.label.toLowerCase()] ?? <CompassIcon />),
+  }))
 }
 
 function go(item: Item) {
-  if (item.inertia) router.visit(item.href)
+  if (item.external) window.open(item.href, '_blank', 'noreferrer')
+  else if (item.inertia) router.visit(item.href)
   else window.location.assign(item.href)
 }
 
 interface SpotlightPanelProps {
+  shortcut: string | null
   onNavigate: () => void
 }
 
-function SpotlightPanel({ onNavigate }: SpotlightPanelProps) {
+function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
   const { nav } = usePage().props
   const [input, setInput] = React.useState('')
   const [active, setActive] = React.useState(0)
   const query = input.trim()
-  const answer = useSpotlightSearch(query)
+  const popular = useSpotlightSearch('')
+  const answer = useSpotlightSearch(query || null)
+  const navItems = React.useMemo(() => navSearchItems(nav), [nav])
   const listId = React.useId()
+  const listRef = React.useRef<HTMLUListElement>(null)
 
-  const all: Item = query
+  const toItem = (result: CatalogSpotlightResult) => resourceItem(result, nav.search.inertia)
+  const sections: Section[] = query
+    ? [
+        { heading: 'Resources', items: (answer?.results ?? []).map(toItem) },
+        { heading: 'Pages', items: matchNav(navItems, query, 'Pages') },
+        { heading: 'Tools', items: matchNav(navItems, query, 'Tools') },
+      ]
+    : [
+        { heading: 'Popular resources', items: (popular?.results ?? []).map(toItem) },
+        { heading: 'Quick links', items: quickLinks(nav) },
+      ]
+  const visible = sections.filter((section) => section.items.length > 0)
+  const all: Item | null = query
     ? {
         id: 'all',
         label: answer ? `All ${answer.total} results for “${query}”` : `All results for “${query}”`,
         href: catalogResources.index({ query: { q: query } }).url,
         inertia: nav.search.inertia,
+        icon: <SearchIcon className="size-4 shrink-0" />,
       }
-    : { id: 'all', label: 'Browse all resources', href: nav.search.href, inertia: nav.search.inertia }
-  const items: Item[] = [
-    ...(answer?.results ?? []).map((result) => ({
-      id: String(result.id),
-      label: result.name,
-      detail: [result.typeLabel, result.language].filter(Boolean).join(' · '),
-      href: detailResources({ type: result.type, id: result.toParam }).url,
-      inertia: false,
-    })),
-    all,
-  ]
+    : null
+  const items = [...visible.flatMap((section) => section.items), ...(all ? [all] : [])]
   const current = Math.min(active, items.length - 1)
   const optionId = (index: number) => `${listId}-${index}`
+
+  React.useEffect(() => {
+    listRef.current?.querySelector(`[data-index="${current}"]`)?.scrollIntoView?.({ block: 'nearest' })
+  }, [current])
+
+  let status: string | null = null
+  if (query && !answer) status = 'Searching…'
+  else if (query && items.length === 1) status = `No resources, pages or tools match “${query}”.`
 
   const choose = (item: Item) => {
     onNavigate()
@@ -105,33 +256,63 @@ function SpotlightPanel({ onNavigate }: SpotlightPanelProps) {
   }
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!items.length) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       const step = event.key === 'ArrowDown' ? 1 : -1
       setActive((current + step + items.length) % items.length)
-    } else if (event.key === 'Enter') {
+    } else if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
       event.preventDefault()
       choose(items[current])
     }
   }
 
-  const status = statusLine(query, answer)
+  const option = (item: Item) => {
+    const i = items.indexOf(item)
+    const on = i === current
+    return (
+      <li
+        key={item.id}
+        id={optionId(i)}
+        data-index={i}
+        role="option"
+        aria-selected={on}
+        onMouseMove={() => active !== i && setActive(i)}
+        onClick={() => choose(item)}
+        className={cn(
+          'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
+          on && 'bg-foreground/[0.055]',
+          item === all && 'mt-1 text-muted-foreground',
+        )}
+      >
+        {item.icon}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className={cn('flex items-center gap-1', item !== all && 'font-medium text-foreground')}>
+            <span className="truncate">{item.label}</span>
+            {item.external && <ArrowUpRightIcon className="size-3.5 shrink-0 text-muted-foreground" />}
+          </span>
+          {item.detail && <span className="truncate text-[13px] text-muted-foreground">{item.detail}</span>}
+        </span>
+        <ArrowRightIcon className={cn('size-4 shrink-0 text-muted-foreground', !on && 'invisible')} />
+      </li>
+    )
+  }
 
   return (
     <>
-      <div className="flex items-center gap-3 border-b px-4">
+      <div className="flex shrink-0 items-center gap-3 border-b px-4">
         <SearchIcon className="size-5 shrink-0 text-muted-foreground" />
         <input
           type="text"
           role="combobox"
-          aria-label="Search resources"
+          aria-label="Search QUL"
           aria-expanded="true"
           aria-controls={listId}
           aria-autocomplete="list"
-          aria-activedescendant={optionId(current)}
+          aria-activedescendant={items.length ? optionId(current) : undefined}
           autoComplete="off"
           spellCheck={false}
-          placeholder="Search by name, language or type…"
+          placeholder="Search resources, pages and tools…"
           className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
           value={input}
           onChange={(event) => {
@@ -140,6 +321,12 @@ function SpotlightPanel({ onNavigate }: SpotlightPanelProps) {
           }}
           onKeyDown={onKeyDown}
         />
+        <DialogClose
+          aria-label="Close search"
+          className="shrink-0 rounded-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          <Kbd className="hover:text-foreground">Esc</Kbd>
+        </DialogClose>
       </div>
       <div className="max-h-[min(60vh,28rem)] overflow-y-auto overscroll-contain p-2">
         {status && (
@@ -147,43 +334,53 @@ function SpotlightPanel({ onNavigate }: SpotlightPanelProps) {
             {status}
           </p>
         )}
-        <ul id={listId} role="listbox" aria-label="Search results" className="flex flex-col gap-0.5">
-          {items.map((item, index) => (
-            <li
-              key={item.id}
-              id={optionId(index)}
-              role="option"
-              aria-selected={index === current}
-              onMouseMove={() => setActive(index)}
-              onClick={() => choose(item)}
-              className={cn(
-                'flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm',
-                index === current && 'bg-secondary',
-                item === all && 'text-muted-foreground',
-              )}
-            >
-              <span className="min-w-0 flex-1">
-                <span className={cn('block truncate', item !== all && 'font-medium text-foreground')}>
-                  {item.label}
-                </span>
-                {item.detail && <span className="block truncate text-xs text-muted-foreground">{item.detail}</span>}
-              </span>
-              {index === current && <ArrowRightIcon className="size-4 shrink-0 text-muted-foreground" />}
+        <ul ref={listRef} id={listId} role="listbox" aria-label="Search results" className="flex flex-col">
+          {visible.map((section) => (
+            <li key={section.heading} role="presentation" className="pb-1">
+              <p aria-hidden="true" className="px-3 pt-2 pb-1.5 text-xs text-muted-foreground">
+                {section.heading}
+              </p>
+              <ul role="group" aria-label={section.heading} className="flex flex-col gap-0.5">
+                {section.items.map(option)}
+              </ul>
             </li>
           ))}
+          {all && option(all)}
         </ul>
+      </div>
+      <div className="hidden shrink-0 items-center gap-4 border-t px-4 py-2.5 text-xs text-muted-foreground sm:flex">
+        <span className="inline-flex items-center gap-1.5">
+          <Kbd>↑</Kbd>
+          <Kbd>↓</Kbd> to move
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <Kbd>
+            <CornerDownLeftIcon className="size-3" />
+          </Kbd>{' '}
+          to open
+        </span>
+        {shortcut && (
+          <span className="ms-auto inline-flex items-center gap-1.5">
+            <Kbd>{shortcut}</Kbd> to close
+          </span>
+        )}
       </div>
     </>
   )
 }
 
+export interface SpotlightProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
 /**
- * Catalog search from any new page: the header's search button, or ⌘K / Ctrl K. Results come
- * from /spotlight as the user types; Enter opens the highlighted resource, or the catalog with
- * every result. Closing returns focus to where it was.
+ * Search from any new page: the header's search button, or ⌘K / Ctrl K. On open it shows the
+ * most popular resources and quick links; as the user types, catalog results from /spotlight
+ * and the pages and contribution tools of the site navigation. Enter opens the highlighted
+ * result, or the catalog with every result. Closing returns focus to where it was.
  */
-function Spotlight() {
-  const [open, setOpen] = React.useState(false)
+function Spotlight({ open, onOpenChange }: SpotlightProps) {
   const returnFocus = React.useRef<HTMLElement | null>(null)
   const shortcut = useShortcutLabel()
 
@@ -191,50 +388,49 @@ function Spotlight() {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() !== 'k' || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) return
       event.preventDefault()
-      setOpen((wasOpen) => {
-        if (!wasOpen) {
-          const focused = document.activeElement
-          returnFocus.current = focused instanceof HTMLElement && focused !== document.body ? focused : null
-        }
-        return !wasOpen
-      })
+      if (!open) {
+        const focused = document.activeElement
+        returnFocus.current = focused instanceof HTMLElement && focused !== document.body ? focused : null
+      }
+      onOpenChange(!open)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [])
+  }, [open, onOpenChange])
 
-  const close = React.useCallback(() => setOpen(false), [])
+  const close = React.useCallback(() => onOpenChange(false), [onOpenChange])
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
           size="icon-sm"
           aria-label="Search resources"
           className={cn(shortcut && 'lg:w-auto lg:gap-2 lg:px-2')}
-          onClick={() => (returnFocus.current = null)}
         >
           <SearchIcon />
           {shortcut && <Kbd className="hidden lg:inline-flex">{shortcut}</Kbd>}
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="top-[12vh] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-xl [&>button:last-child]:hidden"
+        className="top-[max(1rem,10vh)] max-h-[min(36rem,calc(100dvh-2rem))] translate-y-0 gap-0 overflow-hidden p-0 sm:max-w-xl [&>button:last-child]:hidden"
         onCloseAutoFocus={(event) => {
-          if (!returnFocus.current?.isConnected) return
+          const target = returnFocus.current
+          returnFocus.current = null
+          if (!target?.isConnected) return
           event.preventDefault()
-          returnFocus.current.focus()
+          target.focus()
         }}
       >
-        <DialogTitle className="sr-only">Search resources</DialogTitle>
+        <DialogTitle className="sr-only">Search QUL</DialogTitle>
         <DialogDescription className="sr-only">
-          Type to search. Use the arrow keys to pick a result and Enter to open it.
+          Type to search resources, pages and tools. Use the arrow keys to pick a result and Enter to open it.
         </DialogDescription>
-        <SpotlightPanel onNavigate={close} />
+        <SpotlightPanel shortcut={shortcut} onNavigate={close} />
       </DialogContent>
     </Dialog>
   )
 }
 
-export { Spotlight }
+export { Spotlight, navSearchItems }

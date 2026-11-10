@@ -173,6 +173,10 @@ function SiteHeader({ className }: SiteHeaderProps) {
   const { url, props } = usePage()
   const { auth, nav } = props
   const [menuOpen, setMenuOpen] = React.useState(false)
+  const [searchOpen, setSearchOpen] = React.useState(false)
+  // Set by the sheet's search field: the spotlight opens once the sheet has closed and given
+  // focus back, so the two dialogs never fight over focus.
+  const searchAfterMenu = React.useRef(false)
   const closeMenu = React.useCallback(() => setMenuOpen(false), [])
   React.useEffect(() => router.on('start', closeMenu), [closeMenu])
 
@@ -184,7 +188,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
         </NavAnchor>
         <MegaMenu menus={nav.menus} url={url} className="hidden lg:flex" />
         <div className="ms-auto flex items-center gap-1.5">
-          <Spotlight />
+          <Spotlight open={searchOpen} onOpenChange={setSearchOpen} />
           <Button variant="ghost" size="icon-sm" asChild className="hidden sm:inline-flex">
             <a href={REPO_URL} target="_blank" rel="noreferrer" aria-label="QUL on GitHub">
               <GitHubMark />
@@ -205,14 +209,35 @@ function SiteHeader({ className }: SiteHeaderProps) {
                 <MenuIcon />
               </Button>
             </DialogTrigger>
-            <DialogContent side="right" aria-describedby={undefined} className="max-w-none gap-0 p-0 sm:max-w-sm">
+            <DialogContent
+              side="right"
+              aria-describedby={undefined}
+              className="max-w-none gap-0 p-0 sm:max-w-sm"
+              onCloseAutoFocus={(event) => {
+                if (!searchAfterMenu.current) return
+                searchAfterMenu.current = false
+                event.preventDefault()
+                setSearchOpen(true)
+              }}
+            >
               <DialogTitle className="sr-only">Menu</DialogTitle>
               <div className="flex h-16 shrink-0 items-center px-5">
                 <NavAnchor link={nav.home} className="text-foreground" aria-label="QUL home">
-                  <Logo variant="mark" />
+                  <Logo />
                 </NavAnchor>
               </div>
-              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-5 pb-6">
+              <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-5 pb-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    searchAfterMenu.current = true
+                    setMenuOpen(false)
+                  }}
+                  className="flex h-11 shrink-0 items-center gap-2 rounded-lg border bg-card px-3 text-base text-muted-foreground shadow-xs outline-none focus-visible:border-foreground/30 focus-visible:ring-[3px] focus-visible:ring-ring/30"
+                >
+                  <SearchIcon className="size-4" />
+                  Search resources
+                </button>
                 <MobileNav menus={nav.menus} url={url} onNavigate={closeMenu} />
               </div>
               <div className="flex shrink-0 items-center gap-3 border-t bg-popover px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">

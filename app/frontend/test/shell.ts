@@ -1,7 +1,7 @@
 import type { Auth, SharedProps, SiteNav, SiteNavLink } from '@/types/serializers'
 
 function link(label: string, href: string, options: Partial<SiteNavLink> = {}): SiteNavLink {
-  return { label, href, description: null, category: null, external: false, inertia: false, ...options }
+  return { label, href, description: null, category: null, icon: null, external: false, inertia: false, ...options }
 }
 
 // The site navigation, shaped like SiteNavResource: one new-page menu and one old-page menu.
@@ -13,10 +13,12 @@ export const nav: SiteNav = {
       href: '/resources',
       overview: 'Browse all resources',
       inertia: true,
+      dense: false,
       groups: [
         {
           heading: 'Resource types',
           wide: true,
+          tools: false,
           links: [
             link('Translations', '/resources/translation', {
               inertia: true,
@@ -27,18 +29,49 @@ export const nav: SiteNav = {
           ],
         },
       ],
-      aside: [{ heading: 'Jump to', wide: false, links: [link('How to download', '/docs/downloading-data')] }],
+      aside: [
+        { heading: 'Jump to', wide: false, tools: false, links: [link('How to download', '/docs/downloading-data')] },
+      ],
     },
     {
       label: 'Contribute',
       href: '/tools',
       overview: 'All contribution tools',
       inertia: false,
-      groups: [{ heading: 'Contribution tools', wide: true, links: [link('Tajweed rules', '/tajweed_words')] }],
+      dense: true,
+      groups: [
+        {
+          heading: 'Mushaf & scripts',
+          wide: false,
+          tools: true,
+          links: [
+            link('Tajweed rules', '/tajweed_words', { icon: 'palette', description: 'Rules marked on each letter.' }),
+          ],
+        },
+        {
+          heading: 'Translations & tafsir',
+          wide: false,
+          tools: true,
+          links: [
+            link('Ayah translations', '/translations', {
+              icon: 'languages',
+              description: 'Fix typos in many languages.',
+            }),
+            link('Tafsirs', '/tafsirs', { icon: 'book-open-text', description: 'Tafsir text and ayah ranges.' }),
+          ],
+        },
+      ],
       aside: [
+        {
+          heading: 'Help improve the data',
+          wide: false,
+          tools: false,
+          links: [link('Changelog', '/change_logs')],
+        },
         {
           heading: 'Community',
           wide: false,
+          tools: false,
           links: [link('GitHub', 'https://github.com/TarteelAI/quranic-universal-library', { external: true })],
         },
       ],
@@ -49,6 +82,7 @@ export const nav: SiteNav = {
     {
       heading: 'Resources',
       wide: false,
+      tools: false,
       links: [link('All resources', '/resources', { inertia: true }), link('All docs', '/docs')],
     },
   ],

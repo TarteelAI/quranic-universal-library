@@ -1,3 +1,6 @@
+sprint_root: sprints                             # one folder per sprint (PRD.md, spec.json, lessons.md)
+decision_log: DECISIONS.md                      # hard-to-reverse decisions: Decision, Why, Cost
+glossary: GLOSSARY.md                           # terms used by the specs and AGENTS.md
 docs_root: app/views/docs/markdown              # public product docs served at /docs
 rule_docs:
   - AGENTS.md                                   # local run on the snapshot, test harness, gate

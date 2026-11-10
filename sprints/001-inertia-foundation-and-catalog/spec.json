@@ -1083,8 +1083,32 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "Prescriptive: (1) `/docs/` is gitignored in this repo, so the decision log and glossary cannot live there; use the paths `.agents/config.yaml` names, or create `DECISIONS.md` and `GLOSSARY.md` at the repo root if it names none. (2) Read the existing `AGENTS.md` and `.agents/config.yaml` first; extend, do not rewrite. (3) Decision entries come from `interviewSummary.decisions` and from story handoffs' `decisions`; skip any the user rejected. (4) `.env.sample` today lists the storage keys and the database connection variables; add `CDN_HOST`, the page group setting, the download mode setting and the SSR URL, with safe example values and no real hostnames beyond the public CDN. (5) Do not describe weaknesses of the current site; describe the rules the new code follows. (6) Keep the README change to the development section."
+      "passes": true,
+      "notes": "Prescriptive: (1) `/docs/` is gitignored in this repo, so the decision log and glossary cannot live there; use the paths `.agents/config.yaml` names, or create `DECISIONS.md` and `GLOSSARY.md` at the repo root if it names none. (2) Read the existing `AGENTS.md` and `.agents/config.yaml` first; extend, do not rewrite. (3) Decision entries come from `interviewSummary.decisions` and from story handoffs' `decisions`; skip any the user rejected. (4) `.env.sample` today lists the storage keys and the database connection variables; add `CDN_HOST`, the page group setting, the download mode setting and the SSR URL, with safe example values and no real hostnames beyond the public CDN. (5) Do not describe weaknesses of the current site; describe the rules the new code follows. (6) Keep the README change to the development section.",
+      "completedAt": "2026-11-10T21:03:10Z",
+      "handoff": {
+        "done": [
+          "Created DECISIONS.md (13 entries, Decision/Why/Cost): New pages are Inertia inside this Rails app; Work lands on qul-next, never on main; Plans live in this repo, sensitive context does not; Server-side rendering is on, with client rendering as the fallback; Shapes are defined once in Alba serializers; Fewer, deeper stories; The page group setting is a deploy-time variable; Catalog search runs in Ruby over the loaded catalog; recommended is a flag, not a status; No CMS form changes for the new catalog fields; Anonymous downloads are a plain counter; The apps directory is a file in this repo; The branch has its own database-free CI. These are exactly the RATIFIED items in interviewSummary.decisions.",
+          "Created GLOSSARY.md with all 8 PRD Terms (page group, page group setting, drafted value, review column, review report, download mode, display name, script family), same meanings, plus the env var / task names.",
+          "AGENTS.md: intro now points to GLOSSARY.md, DECISIONS.md, .env.sample and states the public-repo copy rule; new section 'Code and build rules' graduating lessons. Existing sections untouched.",
+          ".agents/config.yaml: added sprint_root, decision_log, glossary (checkpoint_cmd and package commands were already there).",
+          ".env.sample: added CDN_HOST (public CDN), QUL_PAGE_GROUPS, QUL_DOWNLOAD_MODE, INERTIA_SSR_URL (inertia_rails 3.23 reads INERTIA_<KEY> env; default localhost:13714) with safe values.",
+          "README.md: new Development section (bundle/yarn install, old asset builds, .env from sample, bin/dev with Vite on :3036, localhost, QUL_PAGE_GROUPS).",
+          "Clean-clone check, run from a git clone of the committed branch in the session scratchpad: yarn install --frozen-lockfile (Done 8.62s); yarn build (esbuild Done); Sass builds on host; Tailwind via the AGENTS Docker recipe (Done in 3289ms); container qul-clean (ruby:3.3.10-bookworm, port 3001) apt nodejs/libhunspell/socat, bundler 2.5.15, bundle install -> BUNDLE_OK; host node_modules/.bin/vite + socat forward; bin/rails server with QUL_PAGE_GROUPS=home,catalog,apps on the existing development clones. Results: / 200, /resources 200 (h1 Resources), /resources/font 200, /apps 200; Vite log shows SSR catalog/CatalogPage, catalog/TypePage, site/AppsPage. Clone, container and Vite process removed afterwards.",
+          "Lessons mapping: Word default scope/reorder, @font-palette-values, yarn resolutions + check yarn.lock, eslint-plugin-ssr-friendly, Vite page glob vs test files, bun.lock/packageManager pin, NODE_ENV/devDependencies, esbuild build script, Inertia/vite install generators, early dotenv require, two databases, all-digit slugs, idempotent backfills, null_store cache, storage URLs, origin/main comparison -> AGENTS.md 'Code and build rules'; public repo rule -> AGENTS.md intro; amd64 image build -> docker/README.md (already); hosts/host!, ExecJS, escompress, Gemfile.lock platforms, Redis/Sidekiq/SMTP, snapshot safety, clone workflow, CDN_HOST -> AGENTS.md (already) and .env.sample; Inertia redirects/xsrf/meta -> AGENTS Integration answers (already). Sprint-only entries (planning re-checks, prototype facts, catalog data audit counts, qiraat stack file list) not graduated."
+        ],
+        "decisions": [
+          "Decision log and glossary at repo root (DECISIONS.md, GLOSSARY.md) because /docs/ is gitignored; paths recorded in .agents/config.yaml.",
+          "Only RATIFIED decisions became log entries (per criterion); PLANNER DEFAULT and DEFAULT KEPT items are described in AGENTS.md conventions instead.",
+          "README had no development section; added one before Contributing, otherwise unchanged."
+        ],
+        "concerns": [
+          "The private sprint notes are not available to this builder, so the privacy check was a scan of the diff for connection strings, IPs, passwords and non-public hostnames (only the public CDN and localhost appear), not a check against the notes' own list. A human with the notes should confirm.",
+          "Clean-clone Rails ran in Docker reusing the existing qul-dev-bundle gem volume (bundle install was fast because gems were cached) and the existing development clones (bin/snapshot-clones and dev:fake_accounts were not re-run). The .env was copied from the main checkout, not freshly filled from .env.sample. yarn build:css's Tailwind step needs Ruby on the host; in Docker the AGENTS recipe was used.",
+          "RuboCop not run (cannot run here); bin/gate not run (docs-only change)."
+        ]
+      },
+      "filesChanged": 7
     },
     {
       "id": "001-20",

@@ -3,6 +3,13 @@
 General setup, build commands and file locations are in
 [`.github/copilot-instructions.md`](.github/copilot-instructions.md). This file covers running
 the app on a local copy of the production snapshot, the test harness, and the quality gate.
+Terms (page group, download mode, drafted value, …) are defined in [`GLOSSARY.md`](GLOSSARY.md);
+the decisions that are hard to reverse, with why and what they cost, are in
+[`DECISIONS.md`](DECISIONS.md). Settings the app reads are listed in `.env.sample`.
+
+This repo is public. Commits, sprint files, handoffs and lessons never hold production data,
+anything from user, download, draft or admin tables, credentials or connection strings, and
+describe the rules the code follows rather than weaknesses of the running site.
 
 ## Quality gate
 
@@ -308,6 +315,40 @@ the development clones, with Sidekiq disabled and no SMTP variables, and how the
 service is run, logged and restarted. The image boots without the master key
 (`SECRET_KEY_BASE` is enough). `.dockerignore` keeps `.env` files, `sprints/`, `.agents/`,
 this file and local Vite builds out of the image.
+
+## Code and build rules
+
+- **Two databases.** The CMS database (`ApplicationRecord`) and the Quran content database
+  (`QulQuranRecord`) are separate Postgres databases: SQL cannot join across them, so preload in
+  two steps. New migrations use the CMS connection only; the content database is never changed.
+- **Slugs** are never all digits: `find_by_slug_or_id!` falls back to `find`.
+- **Backfills** are idempotent and keyed on stable fields, because editors keep changing
+  production while development runs on the snapshot.
+- **Cache.** Test and development use `null_store`; build nothing that needs the cache to be
+  correct.
+- **File URLs.** Without the storage variables a blob URL points at a placeholder host locally.
+  Specs assert the redirect, never fetch the file.
+- **`Word` order.** `Word` has a default scope ordered by `position`, so `order(...)` still sorts
+  by position first. Use `reorder` whenever the order matters.
+- **Font palettes.** `@font-palette-values` rules with the same name do not merge per family: the
+  last one wins. When several V4 Tajweed page fonts share a screen, emit one rule whose
+  `font-family` lists all of them.
+- **Dependencies.** The Dockerfile installs no devDependencies (`NODE_ENV=production`): build
+  tools are regular dependencies, test and lint tools are devDependencies. The `resolutions` in
+  `package.json` apply to every copy of a package, so check `yarn.lock` after `yarn add` and run
+  the new tool rather than trusting its declared range. `eslint-plugin-ssr-friendly` does not
+  work on ESLint 9; the SSR render tests cover SSR safety.
+- **Vite.** The entrypoint globs `../pages/**/*.tsx` minus `*.test.tsx`; a test file inside the
+  glob pulls test libraries into the client bundle, which the image cannot resolve. vite_ruby
+  checks `bun.lock` before `yarn.lock`, so `config/vite.json` pins `"packageManager": "yarn"`;
+  leave the stray `bun.lock` alone.
+- **Old pipeline.** The `build` script in `package.json` belongs to esbuild and jsbundling; do not
+  change it for Vite. Do not run the Inertia or `vite install` generators: they inject tags into
+  `application.html.erb` (which every old page uses) and may overwrite `bin/dev`.
+- **Early `require 'dotenv'`** (before Rails loads) skips dotenv's railtie, so a script that
+  does it calls `Dotenv.load` itself.
+- **Comparing with `main`:** local `main` can be behind; compare with `origin/main` or
+  `git merge-base origin/main HEAD`.
 
 ## Data safety
 

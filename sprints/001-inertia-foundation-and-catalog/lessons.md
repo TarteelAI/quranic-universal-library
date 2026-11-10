@@ -157,3 +157,8 @@ Checked with `git diff 30bec50e 3d805f64` and against the snapshot.
 - Build the image with `--platform linux/amd64`. `Gemfile.lock` lists `x86_64-linux` but not `aarch64-linux`, so a native arm64 build installs `tailwindcss-rails` without its binary and `assets:precompile` fails at `tailwindcss:build`. OrbStack runs the amd64 build through Rosetta at usable speed.
 - Vite bundles every file the page glob matches. The entrypoint globs `../pages/**/*.tsx` minus `*.test.tsx`; a test file inside the glob pulls Vitest and Testing Library into the client bundle, and the image installs no devDependencies, so it cannot resolve them. Host builds pass because devDependencies are installed there, so check the manifest for test chunks, not only the exit code.
 - vite_ruby picks its package manager from lockfiles and checks `bun.lock` before `yarn.lock`, so the stray `bun.lock` made `vite:build_all` call `bun` (absent in the image). `config/vite.json` pins `"packageManager": "yarn"`.
+
+### Word's default order and repeated palette names — 001-15
+
+- `Word` has `default_scope { order 'position asc' }`, so `Word.where(...).order(:verse_id, :position)` still sorts by position first across verses. Use `reorder` whenever the order matters.
+- `@font-palette-values` rules with the same name do not merge per family: the last one wins. When several V4 Tajweed page fonts share the screen, emit one rule whose `font-family` lists all of them.

@@ -372,14 +372,13 @@ Rails.application.routes.draw do
   get 'mistake-heatmap/edit', to: 'word_mistakes#edit', as: 'edit_mistake_heatmap'
   get 'mistake-heatmap/:id', to: 'word_mistakes#word_details', as: 'mistake_heatmap_word_details'
 
-  # QUL_INERTIA_SAMPLE_PAGE=true also adds these development pages (the Inertia sample and the
-  # 001-04 mushaf page spike) to a locally run production image.
+  # QUL_INERTIA_SAMPLE_PAGE=true also adds the development-only Inertia sample page to a locally
+  # run production image.
   if Rails.env.local? || ENV['QUL_INERTIA_SAMPLE_PAGE'] == 'true'
     namespace :dev, path: '__dev' do
       resource :inertia_sample, only: [:show, :create] do
         get :ping
       end
-      resources :mushaf_pages, only: :show
     end
   end
 

@@ -72,7 +72,8 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       end
 
       it 'redirects the old tab and copyright URLs to the page and the tab that holds what they showed' do
-        { 'docs' => '?tab=data', 'licence' => '?tab=licence', 'ligatures' => '', 'glyphs' => '' }.each do |old, query|
+        { 'docs' => '?tab=data', 'licence' => '?tab=licence', 'ligatures' => '?view=ligatures',
+          'glyphs' => '?view=glyphs' }.each do |old, query|
           get "/resources/tafsir/#{resource.id}/#{old}"
           expect(response).to have_http_status(:moved_permanently)
           expect(response).to redirect_to("/resources/tafsir/#{resource.slug}#{query}")

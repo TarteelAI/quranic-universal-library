@@ -30,8 +30,11 @@ module Catalog
     attribute(:updated_on) { |page| page[:page].updated_on&.strftime(ResourcePage::DATE_FORMAT) }
     attribute(:guide_path) { |page| page[:page].guide_path }
 
-    # Filled by the previews (001-15, 001-16); null is the "no preview" state.
-    typelize preview: [:unknown, { nullable: true }]
-    attribute(:preview, inertia: :defer) { nil }
+    # Previews.for; null when the resource's type has no preview.
+    typelize preview: 'Previews::MushafLayoutResource | Previews::FontResource | Previews::ScriptResource | ' \
+                      'Previews::UnavailableResource | null'
+    attribute(:preview, inertia: :defer) do |page|
+      Previews.as_json(Previews.for(page[:page].resource, page[:preview_query]))
+    end
   end
 end

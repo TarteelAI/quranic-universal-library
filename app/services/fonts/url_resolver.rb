@@ -11,6 +11,10 @@ module Fonts
   class UrlResolver
     FORMATS = { 'woff2' => 'woff2', 'woff' => 'woff', 'ttf' => 'truetype', 'otf' => 'opentype' }.freeze
 
+    # Paths and family names end up in a CSS block, and font resource meta is edited by hand:
+    # they keep only the characters a path or a family name needs.
+    UNSAFE = %r{[^\w/.-]}
+
     Source = Struct.new(:url, :format, keyword_init: true)
     Font = Struct.new(:family, :sources, :per_page, keyword_init: true) do
       def url(extension)
@@ -86,11 +90,11 @@ module Fonts
         path = paths[extension]
         next unless path
 
-        file = per_page ? "#{path}/p#{page}" : path
+        file = (per_page ? "#{path}/p#{page}" : path).gsub(UNSAFE, '')
         Source.new(url: "#{@root}/#{file}.#{extension}", format: format)
       end
 
-      Font.new(family: family(paths.values.first, font_face, per_page, page), sources: sources, per_page: per_page)
+      Font.new(family: family(paths.values.first, font_face, per_page, page).gsub(UNSAFE, ''), sources:, per_page:)
     end
 
     def family(path, font_face, per_page, page)

@@ -82,6 +82,13 @@ class FontsUrlResolverTest < Minitest::Test
     assert_nil resolver.for_script({ 'text-type' => 'qa_black_image_url' })
   end
 
+  def test_meta_keeps_only_path_characters_because_it_ends_up_in_css
+    font = resolver.from_meta({ 'font-face' => "x'}</style><b>", 'woff2' => "a b/c');}<x" })
+
+    assert_equal 'x/styleb', font.family
+    assert_equal "#{CDN}/qul/fonts/ab/cx.woff2", font.url('woff2')
+  end
+
   def test_page_must_be_a_positive_integer
     assert_raises(ArgumentError) { resolver.named('v2', page: 0) }
     assert_raises(ArgumentError) { resolver.named('v2', page: '3') }

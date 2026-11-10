@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { resourcePageProps as props } from '@/test/catalog'
 import { renderPage } from '@/test/inertia'
+import { layoutPreview } from '@/test/previews'
 
 import ResourcePage from './ResourcePage'
 
@@ -158,5 +159,31 @@ describe('catalog/ResourcePage', () => {
     const link = screen.getByRole('link', { name: 'Report an issue with this resource' })
     expect(link.getAttribute('href')).toBe(props.issueUrl)
     expect(link.getAttribute('target')).toBe('_blank')
+  })
+
+  describe('the preview', () => {
+    const layout = { ...props, resource: { ...props.resource, type: 'mushaf-layout', toParam: 'v2' } }
+    const layoutUrl = '/resources/mushaf-layout/v2'
+
+    it('pages by reloading only the preview prop, with the page in the URL', () => {
+      Object.defineProperty(document, 'fonts', { value: { load: () => Promise.resolve([]) }, configurable: true })
+      const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+      renderPage(ResourcePage, { props: { ...layout, preview: layoutPreview }, url: `${layoutUrl}?page=2` })
+
+      fireEvent.click(screen.getByRole('button', { name: /Next page/ }))
+      expect(get).toHaveBeenCalledWith(
+        `${layoutUrl}?page=3`,
+        {},
+        expect.objectContaining({ only: ['preview'], preserveState: true, preserveScroll: true }),
+      )
+    })
+
+    it('keeps the page shown when another tab opens', () => {
+      const push = vi.spyOn(router, 'push').mockImplementation(() => {})
+      renderPage(ResourcePage, { props: layout, url: `${layoutUrl}?page=7&download=x` })
+
+      fireEvent.mouseDown(screen.getByRole('tab', { name: 'Data' }))
+      expect(push).toHaveBeenCalledWith(expect.objectContaining({ url: `${layoutUrl}?tab=data&page=7` }))
+    })
   })
 })

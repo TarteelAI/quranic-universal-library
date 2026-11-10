@@ -9,10 +9,15 @@ module Catalog
   #
   # Detail page: the slug URL is the only one. An id URL, a wrong type and the old tab and
   # copyright URLs redirect to it permanently, keeping the query string. `?tab=` names the open
-  # tab; `?download=<file id>` (where sign-in returns to) starts that file's download.
+  # tab; `?download=<file id>` (where sign-in returns to) starts that file's download. The
+  # preview's own keys (Previews::QUERY_KEYS: the page, the surah and ayahs, the font view) go to
+  # the deferred preview prop, which page navigation reloads on its own.
   class ResourcesController < InertiaController
-    # The old tabs and the tab of the new page that holds what they showed.
-    OLD_TABS = { 'docs' => 'data', 'licence' => 'licence', 'ligatures' => nil, 'glyphs' => nil }.freeze
+    # The old tabs and the query of the new page that shows what they showed.
+    OLD_TABS = {
+      'docs' => { tab: 'data' }, 'licence' => { tab: 'licence' },
+      'ligatures' => { view: 'ligatures' }, 'glyphs' => { view: 'glyphs' }
+    }.freeze
 
     DESCRIPTION = 'Download Quran data for your app: translations, tafsirs, recitations, Quran scripts, ' \
                   'fonts, mushaf layouts and more. Search the catalog and filter it by type, language and format.'
@@ -39,6 +44,8 @@ module Catalog
       @download_mode = DownloadMode.current
       @download = download_to_start(params[:download])
       @issue_url = @page.issue_url("#{SeoHelper::HOST}#{request.path}")
+      # Only plain values: `?page[]=2` is not a page.
+      @preview_query = request.query_parameters.slice(*Previews::QUERY_KEYS).select { |_, value| value.is_a?(String) }
 
       render_inertia 'catalog/ResourcePage', meta: page_meta(
         title: "#{resource.display_name} - #{@page.type.label} - QUL",
@@ -48,7 +55,7 @@ module Catalog
     end
 
     def tab
-      redirect_to_page(ResourcePage.find(params[:slug]), tab: OLD_TABS.fetch(params[:tab]))
+      redirect_to_page(ResourcePage.find(params[:slug]), OLD_TABS.fetch(params[:tab]))
     end
 
     def copyright

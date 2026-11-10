@@ -3,6 +3,8 @@ import { FlagIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
+import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navigation'
+import { Preview } from '@/components/previews/preview'
 import { DownloadPanel, WorksWith } from '@/components/qul/download-panel'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
@@ -20,11 +22,19 @@ function NotYetReviewed() {
   return <span className="text-xs text-muted-foreground">(not yet reviewed)</span>
 }
 
-// The URL of the page with a tab open (Preview has no `?tab=`).
-function tabUrl(resource: CatalogResourcesShow['resource'], tab: Tab) {
+// The preview's keys in the query string (Previews::QUERY_KEYS).
+const PREVIEW_KEYS = ['page', 'surah', 'from', 'to', 'view'] as const
+
+function previewQuery(url: string): PreviewQuery {
+  const params = new URL(url, 'http://localhost').searchParams
+  return Object.fromEntries(PREVIEW_KEYS.flatMap((key) => (params.has(key) ? [[key, params.get(key) ?? '']] : [])))
+}
+
+// The URL of the page with a tab open (Preview has no `?tab=`) and the preview's own keys.
+function pageUrl(resource: CatalogResourcesShow['resource'], tab: Tab, query: PreviewQuery) {
   return catalogResource(
     { type: resource.type, slug: resource.toParam },
-    { query: tab === 'preview' ? undefined : { tab } },
+    { query: tab === 'preview' ? query : { tab, ...query } },
   ).url
 }
 
@@ -46,22 +56,52 @@ export default function ResourcePage(props: CatalogResourcesShow) {
   React.useEffect(() => {
     if (props.download === null) return
     router.replace({
-      url: tabUrl(resource, tab),
+      url: pageUrl(resource, tab, previewQuery(url)),
       props: (current) => ({ ...current, download: null }),
       preserveState: true,
       preserveScroll: true,
     })
-  }, [props.download, resource, tab])
+  }, [props.download, resource, tab, url])
   const signInHref = shared.auth.user ? null : newUserSession({ query: { user_return_to: url } }).url
 
   function selectTab(value: string) {
     const next = value as Tab
     router.push({
-      url: tabUrl(resource, next),
+      url: pageUrl(resource, next, previewQuery(url)),
       props: (current) => ({ ...current, tab: next }),
       preserveState: true,
       preserveScroll: true,
     })
+  }
+
+  // Preview pages and ranges reload the preview prop alone; the URL holds the page shown.
+  const [previewLoading, setPreviewLoading] = React.useState(false)
+  const navigation: PreviewNavigation = {
+    navigate(query) {
+      router.get(
+        pageUrl(resource, 'preview', query),
+        {},
+        {
+          only: ['preview'],
+          preserveState: true,
+          preserveScroll: true,
+          onStart: () => setPreviewLoading(true),
+          onFinish: () => setPreviewLoading(false),
+        },
+      )
+    },
+    showView(view, query) {
+      router.push({
+        url: pageUrl(resource, 'preview', query),
+        props: (current) => ({
+          ...current,
+          preview: props.preview?.kind === 'font' ? { ...props.preview, view } : props.preview,
+        }),
+        preserveState: true,
+        preserveScroll: true,
+      })
+    },
+    loading: previewLoading,
   }
 
   return (
@@ -133,7 +173,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
               />
             )}
             <Deferred data="preview" fallback={<Skeleton className="h-64 rounded-xl" />}>
-              <PreviewFrame preview={props.preview} />
+              <Preview preview={props.preview} navigation={navigation} />
             </Deferred>
           </TabsContent>
 
@@ -241,16 +281,4 @@ export default function ResourcePage(props: CatalogResourcesShow) {
       </Container>
     </SiteShell>
   )
-}
-
-function PreviewFrame({ preview }: Pick<CatalogResourcesShow, 'preview'>) {
-  if (preview == null) {
-    return (
-      <div className="flex min-h-48 flex-col items-center justify-center gap-1 rounded-xl border border-dashed p-8 text-center">
-        <p className="font-medium">No preview for this resource yet</p>
-        <p className="text-sm text-muted-foreground">Download a file, or read the Data tab to see what it holds.</p>
-      </div>
-    )
-  }
-  return null
 }

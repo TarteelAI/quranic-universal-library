@@ -231,3 +231,57 @@
   line-height: 1.05;
   text-wrap: balance;
 }
+
+/* Tajweed rules in Quran script previews: the <rule class="..."> tags of the tajweed text, in the
+   colours the old pages use (app/assets/stylesheets/shared/tajweed_color_new.scss). The text sits
+   on the light paper card in both themes. */
+@layer components {
+  .tajweed rule.tafkheem {
+    color: #006994;
+  }
+  .tajweed rule.izhar {
+    color: darkgreen;
+  }
+  .tajweed rule.izhar_shafawi {
+    color: blue;
+  }
+  .tajweed rule.ikhafa_shafawi {
+    color: #d500b7;
+  }
+  .tajweed rule:is(.ham_wasl, .slnt, .laam_shamsiyah) {
+    color: #aaaaaa;
+  }
+  .tajweed rule.madda_normal {
+    color: #537fff;
+  }
+  .tajweed rule.madda_permissible {
+    color: #f38e02;
+  }
+  .tajweed rule.madda_necessary {
+    color: #a9045c;
+  }
+  .tajweed rule:is(.madda_obligatory, .madda_obligatory_mottasel, .madda_obligatory_monfasel) {
+    color: #f2007f;
+  }
+  .tajweed rule.qalaqah {
+    color: #009ee6;
+  }
+  .tajweed rule.ikhafa {
+    color: #9400a8;
+  }
+  .tajweed rule.iqlab {
+    color: #26bffd;
+  }
+  .tajweed rule.idgham_shafawi {
+    color: #58b800;
+  }
+  .tajweed rule:is(.idgham_ghunnah, .idgham_wo_ghunnah) {
+    color: #169200;
+  }
+  .tajweed rule:is(.idgham_mutajanisayn, .idgham_mutaqaribayn) {
+    color: #a1a1a1;
+  }
+  .tajweed rule.ghunnah {
+    color: #ff7e1e;
+  }
+}

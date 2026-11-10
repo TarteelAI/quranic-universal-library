@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react'
 
 import * as layout from '@/components/layout'
+import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
 import * as flash from '@/components/qul/flash'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
 import * as resourceCard from '@/components/qul/resource-card'
+import * as spotlight from '@/components/qul/spotlight'
 import * as theme from '@/components/qul/theme'
 import * as badge from '@/components/ui/badge'
 import * as button from '@/components/ui/button'
@@ -21,12 +23,14 @@ import { nav as navProps } from './shell'
 
 const modules = {
   layout,
+  catalog,
   chrome,
   flash,
   icons,
   nav,
   pageHeader,
   resourceCard,
+  spotlight,
   theme,
   badge,
   button,
@@ -46,12 +50,14 @@ export const componentNames = Object.values(modules)
   .sort()
 
 const { Container, SiteShell } = layout
+const { EmptyState, FacetGroup, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
 const { FlashMessages } = flash
 const { GitHubMark, QulIcon, ResourceIcon } = icons
 const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
+const { Spotlight } = spotlight
 const { ThemeToggle } = theme
 const { Badge } = badge
 const { Button } = button
@@ -188,6 +194,23 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'Sahih International',
   },
   ThemeToggle: { element: <ThemeToggle />, text: 'theme' },
+  Spotlight: { element: <Spotlight />, text: 'Search resources' },
+  FacetGroup: {
+    element: (
+      <FacetGroup
+        title="Language"
+        limit={1}
+        onToggle={() => {}}
+        options={[
+          { value: 'en', label: 'English', count: 12, checked: false },
+          { value: 'ur', label: 'Urdu', count: 4, checked: false },
+        ]}
+      />
+    ),
+    text: 'English',
+  },
+  EmptyState: { element: <EmptyState title="Nothing matches this search" />, text: 'Nothing matches this search' },
+  RequestCard: { element: <RequestCard link={navProps.request} />, text: 'resource_request.yml' },
   Badge: { element: <Badge variant="brand">Recommended</Badge>, text: 'Recommended' },
   Button: { element: <Button variant="outline">Download</Button>, text: 'Download' },
   Card: { element: cardElement, text: 'Card content' },

@@ -20,12 +20,14 @@ class SiteNav
   REQUEST_URL = "#{REPO_URL}/issues/new?template=resource_request.yml".freeze
   DISCORD_URL = 'https://t.zip/discord?utm_source=qul%20header&utm_campaign=qul'
 
-  attr_reader :menus, :footer, :search
+  attr_reader :menus, :footer, :search, :request
 
   # `tools` are the contributor tools (ToolsHelper#developer_tools): anything with a title and a url.
   def initialize(tools:)
     @catalog = PageGroups.enabled?(:catalog)
     @tools = tools
+    @request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
+                        description: 'Ask for a translation, tafsir or recitation that is missing.')
     @menus = [resources_menu, docs_menu, developers_menu, contribute_menu]
     @footer = footer_groups
     @search = catalog_link('Search resources', '/resources')
@@ -62,13 +64,10 @@ class SiteNav
       catalog_link('Compare mushaf layouts', '/resources/mushaf-layout'),
       doc_link('How to download', 'downloading-data')
     ]
-    request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
-                       description: 'Ask for a translation, tafsir or recitation that is missing.')
-
     Menu.new(
       label: 'Resources', href: '/resources', overview: 'Browse all resources', inertia: @catalog,
       groups: [Group.new(heading: 'Resource types', links: types, wide: true)],
-      aside: [Group.new(heading: 'Jump to', links: jump_to), Group.new(heading: 'Cannot find it?', links: [request])]
+      aside: [Group.new(heading: 'Jump to', links: jump_to), Group.new(heading: 'Cannot find it?', links: [@request])]
     )
   end
 

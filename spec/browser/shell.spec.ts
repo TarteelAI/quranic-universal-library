@@ -39,7 +39,7 @@ function header(page: Page) {
 }
 
 test.describe('site header and footer', () => {
-  test('desktop header: icon-only logo, menus with the contributor tools, search icon and account control', async ({
+  test('desktop header: icon-only logo, menus with the contributor tools, search button and account control', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop layout')
@@ -52,7 +52,7 @@ test.describe('site header and footer', () => {
     const main = page.getByRole('navigation', { name: 'Main' })
     for (const label of ['Resources', 'Docs', 'Developers', 'Contribute'])
       await expect(main.getByRole('button', { name: label })).toBeVisible()
-    await expect(header(page).getByRole('link', { name: 'Search resources' })).toBeVisible()
+    await expect(header(page).getByRole('button', { name: 'Search resources' })).toBeVisible()
     await expect(header(page).getByRole('link', { name: 'Sign in' })).toBeVisible()
     await expect(header(page).getByRole('searchbox')).toHaveCount(0)
     await expect(header(page).getByRole('button', { name: /theme/ })).toHaveCount(0)
@@ -148,9 +148,14 @@ test.describe('site header and footer', () => {
           open: () => page.getByRole('contentinfo').getByRole('link', { name: link.label, exact: true }),
         })
     targets.push({
-      where: 'header',
+      where: 'spotlight',
       link: nav.search,
-      open: () => header(page).getByRole('link', { name: 'Search resources' }),
+      open: async () => {
+        await header(page).getByRole('button', { name: 'Search resources' }).click()
+        return page
+          .getByRole('dialog', { name: 'Search resources' })
+          .getByRole('option', { name: 'Browse all resources' })
+      },
     })
     expect(targets.length).toBeGreaterThan(40)
 

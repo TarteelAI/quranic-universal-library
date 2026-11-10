@@ -14,6 +14,7 @@ import type { AuthUser, SiteNavGroup } from '@/types/serializers'
 import { GitHubMark } from './icons'
 import { MARK_SVG, WORDMARK_SVG } from './logo-paths'
 import { MegaMenu, MobileNav, NavAnchor } from './nav'
+import { Spotlight } from './spotlight'
 import { ThemeToggle } from './theme'
 
 const REPO_URL = 'https://github.com/TarteelAI/quranic-universal-library'
@@ -167,7 +168,7 @@ export interface SiteHeaderProps {
 /**
  * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu.
  * Below lg: a Menu button opens a sheet with the same sections and the account control. The
- * search icon opens catalog search; the theme toggle is in the footer.
+ * search button (and ⌘K / Ctrl K) opens the spotlight; the theme toggle is in the footer.
  */
 function SiteHeader({ className }: SiteHeaderProps) {
   const { url, props } = usePage()
@@ -184,11 +185,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
         </a>
         <MegaMenu menus={nav.menus} url={url} className="hidden lg:flex" />
         <div className="ms-auto flex items-center gap-1.5">
-          <Button variant="ghost" size="icon-sm" asChild>
-            <NavAnchor link={nav.search} aria-label={nav.search.label}>
-              <SearchIcon />
-            </NavAnchor>
-          </Button>
+          <Spotlight />
           <Button variant="ghost" size="icon-sm" asChild className="hidden sm:inline-flex">
             <a href={REPO_URL} target="_blank" rel="noreferrer" aria-label="QUL on GitHub">
               <GitHubMark />

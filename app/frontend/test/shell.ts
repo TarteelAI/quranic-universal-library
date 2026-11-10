@@ -51,6 +51,11 @@ export const nav: SiteNav = {
       links: [link('All resources', '/resources', { inertia: true }), link('All docs', '/docs')],
     },
   ],
+  request: link(
+    'Request a resource',
+    'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
+    { external: true },
+  ),
 }
 
 export const signedInAuth: Auth = { user: { initials: 'FR', name: 'Fake' } }

@@ -84,17 +84,47 @@ export const catalogPageProps: CatalogResourcesIndex = {
       recommended: false,
     },
   ],
-  facets: { type: [], language: [], script: [], format: [], granularity: [], status: [] },
+  facets: {
+    type: [
+      { value: 'translation', count: 1 },
+      { value: 'tafsir', count: 1 },
+    ],
+    language: [{ value: 'en', count: 1 }],
+    script: [
+      { value: 'madani', count: 2 },
+      { value: 'indopak', count: 1 },
+    ],
+    format: [
+      { value: 'json', count: 2 },
+      { value: 'sqlite', count: 1 },
+    ],
+    granularity: [
+      { value: '1_ayah', count: 1 },
+      { value: 'n_ayah', count: 1 },
+    ],
+    status: [{ value: 'stable', count: 2 }],
+  },
   vocabularies: {
     types: [translation, tafsir],
     languages: [{ key: 'en', name: 'English', nativeName: 'English' }],
-    scriptFamilies: [],
-    formats: [{ key: 'json', label: 'JSON' }],
+    scriptFamilies: [
+      { key: 'madani', label: 'Madani' },
+      { key: 'indopak', label: 'IndoPak' },
+      { key: 'other', label: 'Other scripts' },
+    ],
+    formats: [
+      { key: 'json', label: 'JSON' },
+      { key: 'sqlite', label: 'SQLite' },
+    ],
     granularities: [
       { key: '1_ayah', label: 'Ayah by ayah' },
       { key: 'n_ayah', label: 'Multiple ayahs' },
     ],
     statuses: [{ key: 'stable', label: 'Stable' }],
-    sorts: [{ key: 'popular', label: 'Most downloaded' }],
+    sorts: [
+      { key: 'popular', label: 'Most downloaded' },
+      { key: 'name', label: 'Name' },
+      { key: 'updated', label: 'Recently updated' },
+    ],
   },
 }

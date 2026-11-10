@@ -36,7 +36,8 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
     it 'sends the navigation once: on the first load, not on later Inertia visits that already have it' do
       get page_path
-      expect(props[:nav].keys).to eq(%i[menus search footer])
+      expect(props[:nav].keys).to eq(%i[menus search footer request])
+      expect(props[:nav][:request]).to include(href: SiteNav::REQUEST_URL, external: true)
       expect(inertia).to have_once_props(nav: { prop: 'nav' })
 
       get '/resources/tafsir', headers: { 'X-Inertia' => 'true', 'X-Inertia-Version' => InertiaRails.configuration.version.to_s,

@@ -11,7 +11,7 @@ const Header = () => <SiteHeader />
 const Footer = () => <SiteFooter />
 
 describe('SiteHeader', () => {
-  it('shows the icon-only logo, the menus, a search link and sign-in, and no theme toggle or search field', () => {
+  it('shows the icon-only logo, the menus, the search button and sign-in, and no theme toggle or search field', () => {
     renderPage(Header, { props: {}, url: '/resources/tafsir?q=ibn' })
 
     const home = screen.getByRole('link', { name: 'QUL home' })
@@ -20,7 +20,7 @@ describe('SiteHeader', () => {
     const menus = within(screen.getByRole('navigation', { name: 'Main' }))
     expect(menus.getByRole('button', { name: 'Resources' }).getAttribute('aria-current')).toBe('page')
     expect(menus.getByRole('button', { name: 'Contribute' }).getAttribute('aria-current')).toBeNull()
-    expect(screen.getByRole('link', { name: 'Search resources' }).getAttribute('href')).toBe('/resources')
+    expect(screen.getByRole('button', { name: 'Search resources' }).getAttribute('aria-haspopup')).toBe('dialog')
     expect(screen.getByRole('link', { name: 'Sign in' }).getAttribute('href')).toBe(
       '/users/sign_in?user_return_to=%2Fresources%2Ftafsir%3Fq%3Dibn',
     )

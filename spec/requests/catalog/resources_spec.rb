@@ -90,6 +90,41 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(html.at('link[rel="canonical"]')['href']).to eq('https://qul.tarteel.ai/resources')
     end
 
+    it 'server-renders the view of the URL, with the controls showing its filters' do
+      query = 'q=english&script[]=madani&script[]=indopak&format=json&sort=name'
+      SsrServer.with_ssr { get "/resources?#{query}" }
+
+      expect(response).to have_http_status(:ok)
+      app = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
+      expect(app).to be_present
+      expect(app.at('input[type="search"]')['value']).to eq('english')
+      expect(app.at('select option[selected]')['value']).to eq('name')
+      rail = app.at('aside[aria-label="Filters"]')
+      checked = rail.css('label:has(button[aria-checked="true"]) span.truncate').map(&:text)
+      expect(checked).to contain_exactly('Madani', 'IndoPak', 'JSON')
+      chips = app.css('[aria-label="Active filters"] button[aria-label^="Remove"]').map { |chip| chip['aria-label'] }
+      expect(chips).to eq(['Remove “english”', 'Remove Madani', 'Remove IndoPak', 'Remove JSON'])
+
+      expected = Catalog::SearchQuery.new(
+        Catalog::SearchFilters.from(q: 'english', script: %w[madani indopak], format: 'json', sort: 'name')
+      ).call
+      expect(app.at('h1 span').text).to eq(expected.total.to_s)
+      expect(app.css('ul[aria-label="Resources"] article h3').map(&:text))
+        .to eq(expected.results.map { |row| row.resource.display_name })
+    end
+
+    it 'points the canonical of every filtered view at the unfiltered catalog' do
+      ['q=tafsir', 'script[]=madani&script[]=indopak', 'format=json&sort=updated&page=2', 'language=ur&type=tafsir']
+        .each do |query|
+        get "/resources?#{query}"
+
+        head = Nokogiri::HTML(response.body).at('head')
+        expect(head.at('link[rel="canonical"]')['href']).to eq('https://qul.tarteel.ai/resources'), query
+        expect(head.at('title').text).to eq('Resources - QUL')
+        expect(head.at('meta[name="description"]')['content']).to eq(Catalog::ResourcesController::DESCRIPTION)
+      end
+    end
+
     it 'runs the same number of queries whatever the filters and result count' do
       get '/resources' # loads the code and the schema
       unfiltered = count_queries { get '/resources' }
@@ -129,7 +164,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(body['results'].size).to eq(Catalog::SpotlightController::LIMIT)
       expect(body['results'].pluck('id')).to eq(expected.matches.first(Catalog::SpotlightController::LIMIT)
                                                          .map { |row| row.resource.id })
-      expect(body['results'].first.keys).to contain_exactly('id', 'name', 'type', 'toParam', 'language')
+      expect(body['results'].first.keys).to contain_exactly('id', 'name', 'type', 'typeLabel', 'toParam', 'language')
     end
 
     it 'finds an Arabic query' do

@@ -146,7 +146,12 @@ below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means e
 served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources` and `/resources/:type`); the rest of the group stays on the old views.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
-groups, for every new page.
+groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
+
+- The catalog page (`/resources`) keeps every filter, the query, the sort and the page in the
+  query string. A filter change is a partial reload (`only` the search props, `preserveState`)
+  that adds a history entry; typing searches after a pause and replaces the entry. Back restores
+  the page from history and remounts it, so local state starts again from the props.
 
 - New routes go in the one block in `config/routes.rb` that wraps them in
   `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same
@@ -239,8 +244,9 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 - Redirects: redirect with `*_path`. A path redirect stays on the request's own origin. A
   `*_url` helper uses `default_url_options` (`https`, `config/initializers/hosts.rb`), so an
   Inertia request that reached Rails as `http` gets a 409 full-page visit instead.
-- JSON requests that are not page visits (the spotlight): `useHttp` from `@inertiajs/react`. It
-  sends the XSRF header and does not change the URL.
+- JSON requests that are not page visits: `useHttp` from `@inertiajs/react` sends the XSRF
+  header and does not change the URL. The spotlight's GET needs no token and uses `fetch` with an
+  `AbortController`, so each new query aborts the one before it (`components/qul/spotlight.tsx`).
 - `yarn.lock` resolutions in `package.json` pin all copies of `picomatch` (2.x), `minimatch`
   (3.x) and `postcss`, including the copies Vite, Vitest and typescript-eslint ask for.
   Path-scoped resolutions crash yarn 1.22, so they are not used. The new tools work with those

@@ -7,10 +7,12 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 | # | Branch | PR | Base | Cut at story | Files |
 | --- | --- | --- | --- | --- | --- |
 | 1 | `stack/001-01-foundation-spikes` | #1025 | `qul-next` | 001-03 | 64 |
+| 2 | `stack/001-02-type-pages-slice` | #1026 | layer 1 | 001-06 | 78 |
 
 ## Notes
 
-- The CI workflow runs on `main` only until story 001-06 lands, so layer 1 has no checks yet.
+- CI for `qul-next`, `sprint/**` and `stack/**` (`.github/workflows/qul-next.yml`) lands in layer 2,
+  so layer 1 has no checks of its own.
 - The local gate ran at the layer 1 head: every step passed. The standalone `test/` step needs
   the gems CI installs (`minitest activesupport csv rubyzip sqlite3`) on a plain Ruby, or
   `bundle exec` in the dev container.

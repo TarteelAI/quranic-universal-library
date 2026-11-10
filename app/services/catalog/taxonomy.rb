@@ -197,6 +197,27 @@ module Catalog
       Option.new(key: 'updated', label: 'Recently updated')
     ].freeze
 
+    # The resource guide (/docs/:key) of each type.
+    GUIDES = {
+      'recitation' => 'resource-recitations', 'mushaf-layout' => 'resource-mushaf-layouts',
+      'quran-script' => 'resource-quran-script', 'font' => 'resource-fonts',
+      'translation' => 'resource-translations', 'transliteration' => 'resource-transliteration',
+      'tafsir' => 'resource-tafsirs', 'surah-info' => 'resource-surah-information',
+      'morphology' => 'resource-morphology', 'mutashabihat' => 'resource-mutashabihat',
+      'similar-ayah' => 'resource-similar-ayah', 'ayah-topics' => 'resource-ayah-topics',
+      'ayah-theme' => 'resource-ayah-theme', 'quran-metadata' => 'resource-quran-metadata'
+    }.freeze
+
+    # The option of the `resource_type` dropdown in .github/ISSUE_TEMPLATE/content_issue.yml for
+    # each type. A type the dropdown lacks reports through the issue form chooser.
+    ISSUE_TYPES = {
+      'quran-script' => 'Quran script', 'font' => 'Font', 'mushaf-layout' => 'Mushaf layout',
+      'translation' => 'Translation', 'tafsir' => 'Tafsir', 'transliteration' => 'Transliteration',
+      'recitation' => 'Recitation / segments', 'morphology' => 'Morphology / grammar',
+      'surah-info' => 'Surah info', 'ayah-topics' => 'Ayah topics', 'ayah-theme' => 'Ayah themes',
+      'similar-ayah' => 'Similar ayah', 'mutashabihat' => 'Mutashabihat', 'quran-metadata' => 'Quran metadata'
+    }.freeze
+
     def self.types
       TYPES.values
     end

@@ -14,7 +14,10 @@ Typelizer.configure do |config|
     %r{\A/users/sign_(in|out)\z},
     %r{\A/\z},
     %r{\A/spotlight\z},
-    # The catalog, its type pages and the resource detail pages.
-    ->(route) { route[:verb] == 'get' && route[:path].match?(%r{\A/resources(/:type(/:id)?)?\z}) }
+    # The catalog, its type pages, the resource detail pages and file downloads.
+    lambda { |route|
+      route[:verb] == 'get' &&
+        route[:path].match?(%r{\A/resources(/:type(/:(id|slug)(/download/:file_id)?)?)?\z})
+    }
   ]
 end

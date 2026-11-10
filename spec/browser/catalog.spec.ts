@@ -27,16 +27,18 @@ test.describe('type pages', () => {
 
     await page.getByRole('list', { name: 'Tafsirs' }).getByRole('link').first().click()
     await expect(page).toHaveURL(/\/resources\/tafsir\/[^/]+$/)
+    expect(await isInertiaPage(page)).toBe(true)
+
+    // The resource guide is an old docs page.
+    await page.goto(`${new URL(page.url()).pathname}?tab=data`)
+    await page.getByRole('link', { name: 'the tafsir guide' }).click()
+    await expect(page).toHaveURL(/\/docs\/resource-tafsirs$/)
     expect(await isInertiaPage(page)).toBe(false)
     // The old page's own bundle (Turbo) loads and runs there.
     await page.waitForFunction(() => 'Turbo' in window)
 
-    await page.locator('a[href="/resources/tafsir"]:visible').first().click()
-    await expect(page).toHaveURL(/\/resources\/tafsir$/)
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Tafsirs')
-    expect(await isInertiaPage(page)).toBe(true)
-
-    await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Resources' }).click()
+    // At phone width the docs page keeps its links in a closed menu.
+    await page.locator('a[href="/resources"]').first().dispatchEvent('click')
     await expect(page).toHaveURL(/\/resources$/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Resources')
     expect(await isInertiaPage(page)).toBe(true)

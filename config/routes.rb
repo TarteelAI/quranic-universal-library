@@ -145,6 +145,11 @@ Rails.application.routes.draw do
   constraints(PageGroups.constraint(:catalog)) do
     get '/resources', to: 'catalog/resources#index', as: :catalog_resources, format: false
     get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
+    # The old copyright and tab URLs answer with the resource page.
+    get '/resources/:slug/copyright', to: 'catalog/resources#copyright', format: false
+    get '/resources/:type/:slug', to: 'catalog/resources#show', as: :catalog_resource, format: false
+    get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
+                                       constraints: { tab: /docs|licence|ligatures|glyphs/ }
   end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false

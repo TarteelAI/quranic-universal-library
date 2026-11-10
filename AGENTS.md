@@ -144,7 +144,8 @@ New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
 below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
 served by the old ERB views. A group takes over only the URLs that have a new page so far (for
-`catalog`: `/resources` and `/resources/:type`); the rest of the group stays on the old views.
+`catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
+rest of the group stays on the old views.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
@@ -169,7 +170,8 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 
 - `QUL_DOWNLOAD_MODE` (`DownloadMode`): `sign_in` (the default) sends an anonymous visitor to
   sign-in, which returns to `/resources/:type/:slug?download=<file id>` (with the `catalog` group
-  off, to the download URL itself, because the old page ignores the parameter); `public` sends
+  off, to the download URL itself, because the old page ignores the parameter). The detail page
+  starts that download in a hidden frame and takes the parameter out of the URL; `public` sends
   the file without an account. An unknown value stops the boot. Request specs set it with
   `download_mode: 'public'`.
 - In both modes an unpublished file or resource is a 404, and a restricted resource is blocked
@@ -202,7 +204,10 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   with `send_page_view: false`. `app/frontend/lib/analytics.ts` sends one page view on the first load
   and one after every Inertia visit. The GA4 tag also forwards each event to a second
   measurement id, so each page view leaves the browser twice.
-- Links to old pages (detail pages, `/`) are plain `<a>` with the typed route helpers; links
+- The detail page (`Catalog::ResourcesController#show`, props from `Catalog::ResourcePage`) is the
+  only URL of a resource: an id URL, a wrong type and the old `/:tab` and `/copyright` URLs
+  redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`).
+- Links to old pages (`/`, docs, tools) are plain `<a>` with the typed route helpers; links
   between new pages are Inertia `<Link>`.
 - Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the
   flash messages (`notice` and `alert`), the page and the footer. The header and footer links

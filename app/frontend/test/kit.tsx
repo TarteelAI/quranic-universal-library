@@ -3,6 +3,7 @@ import type { ReactElement } from 'react'
 import * as layout from '@/components/layout'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
+import * as downloadPanel from '@/components/qul/download-panel'
 import * as flash from '@/components/qul/flash'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
@@ -20,12 +21,14 @@ import * as misc from '@/components/ui/misc'
 import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
+import { resourcePageProps } from './catalog'
 import { nav as navProps } from './shell'
 
 const modules = {
   layout,
   catalog,
   chrome,
+  downloadPanel,
   flash,
   icons,
   nav,
@@ -54,6 +57,7 @@ export const componentNames = Object.values(modules)
 const { Container, SiteShell } = layout
 const { EmptyState, FacetGroup, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
+const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
 const { GitHubMark, QulIcon, ResourceIcon } = icons
 const { MegaMenu, MobileNav, NavAnchor } = nav
@@ -182,6 +186,21 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   SiteHeader: { element: <SiteHeader />, text: 'Resources' },
   SiteFooter: { element: <SiteFooter />, text: 'All docs' },
   FlashMessages: { element: <FlashMessages />, text: 'Signed in successfully.' },
+  DownloadPanel: {
+    element: (
+      <DownloadPanel
+        type="tafsir"
+        slug="tafsir-ibn-kathir"
+        files={resourcePageProps.files}
+        canDownload
+        restriction={null}
+        downloadMode="sign_in"
+        signInHref="/users/sign_in"
+      />
+    ),
+    text: '5.1 MB',
+  },
+  WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
   GitHubMark: { element: <GitHubMark />, text: '<svg' },
   QulIcon: { element: <QulIcon name="bundle" />, text: '<svg' },
   ResourceIcon: { element: <ResourceIcon category="audio" />, text: 'text-cat-audio' },

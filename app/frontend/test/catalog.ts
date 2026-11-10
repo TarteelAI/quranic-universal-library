@@ -1,4 +1,10 @@
-import type { CatalogResourceCard, CatalogResourcesIndex, CatalogType, CatalogTypesShow } from '@/types/serializers'
+import type {
+  CatalogResourceCard,
+  CatalogResourcesIndex,
+  CatalogResourcesShow,
+  CatalogType,
+  CatalogTypesShow,
+} from '@/types/serializers'
 
 const translation = {
   key: 'translation',
@@ -226,4 +232,112 @@ export const catalogPageProps: CatalogResourcesIndex = {
       { key: 'updated', label: 'Recently updated' },
     ],
   },
+}
+
+// Props of catalog/ResourcePage, shaped like Catalog::ResourcesShowResource: a tafsir with two
+// SQLite files and one JSON file, two relation groups (one link drafted) and a changelog.
+export const resourcePageProps: CatalogResourcesShow = {
+  resource: {
+    id: 7,
+    name: 'Tafsir Ibn Kathir',
+    type: 'tafsir',
+    toParam: 'tafsir-ibn-kathir',
+    status: 'stable',
+    scriptFamily: null,
+    language: 'English',
+    granularity: 'Ayah by Ayah',
+    summary: 'English tafsir, ayah by ayah. JSON and SQLite files.',
+    info: '<p>An abridged <strong>English</strong> edition.</p>',
+    recommendation: null,
+    reviewed: {
+      status: true,
+      supersededBy: true,
+      recommended: true,
+      scriptFamily: true,
+      rendering: true,
+      summary: false,
+    },
+    supersededBy: null,
+  },
+  type: tafsir,
+  statuses: [
+    { key: 'stable', label: 'Stable' },
+    { key: 'beta', label: 'Beta' },
+    { key: 'legacy', label: 'Legacy' },
+    { key: 'superseded', label: 'Superseded' },
+  ],
+  files: [
+    {
+      id: 11,
+      name: 'simple.sqlite',
+      format: 'sqlite',
+      formatLabel: 'SQLite',
+      byteSize: 5_347_738,
+      md5: 'd41d8cd98f00b204e9800998ecf8427e',
+    },
+    {
+      id: 12,
+      name: 'simple.json',
+      format: 'json',
+      formatLabel: 'JSON',
+      byteSize: 812,
+      md5: '0cc175b9c0f1b6a831c399e269772661',
+    },
+    {
+      id: 13,
+      name: 'translation-text-chunk.sqlite',
+      format: 'sqlite',
+      formatLabel: 'SQLite',
+      byteSize: 1_048_576,
+      md5: '92eb5ffee6ae2fec3ad71c777531578f',
+    },
+  ],
+  facts: [
+    { label: 'Type', value: 'Tafsir' },
+    { label: 'Granularity', value: 'Ayah by Ayah' },
+    { label: 'Formats', value: 'SQLite, JSON' },
+  ],
+  worksWith: [
+    {
+      key: 'requires',
+      label: 'Requires',
+      links: [
+        {
+          reviewed: false,
+          typeLabel: 'Font',
+          resource: { id: 21, name: 'Digital Khatt', type: 'font', toParam: 'digital-khatt' },
+        },
+      ],
+    },
+    {
+      key: 'pairs_with',
+      label: 'Pairs with',
+      links: [
+        {
+          reviewed: true,
+          typeLabel: 'Quran script',
+          resource: { id: 22, name: 'QPC Hafs', type: 'quran-script', toParam: 'qpc-hafs' },
+        },
+      ],
+    },
+  ],
+  changelog: [
+    {
+      id: 31,
+      title: 'Fixed footnotes',
+      excerpt: 'Footnotes in 2:255 are back.',
+      date: '4 March 2026',
+      path: '/change_logs/31',
+    },
+  ],
+  licence: null,
+  tab: 'preview',
+  downloadMode: 'sign_in',
+  download: null,
+  issueUrl:
+    'https://github.com/TarteelAI/quranic-universal-library/issues/new?resource_link=https%3A%2F%2Fqul.tarteel.ai%2Fresources%2Ftafsir%2Ftafsir-ibn-kathir&resource_name=Tafsir+Ibn+Kathir&resource_type=Tafsir&template=content_issue.yml',
+  canDownload: true,
+  restriction: null,
+  updatedOn: '29 December 2023',
+  guidePath: '/docs/resource-tafsirs',
 }

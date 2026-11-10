@@ -1,5 +1,39 @@
 import { Link, router } from '@inertiajs/react'
-import { ArrowRightIcon, ArrowUpRightIcon, ChevronDownIcon } from 'lucide-react'
+import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
+  AudioLinesIcon,
+  AudioWaveformIcon,
+  AwardIcon,
+  BookOpenIcon,
+  BookOpenTextIcon,
+  CaseSensitiveIcon,
+  ChevronDownIcon,
+  CircleHelpIcon,
+  Columns2Icon,
+  CopyIcon,
+  FileDiffIcon,
+  GitCompareIcon,
+  HashIcon,
+  InfoIcon,
+  LanguagesIcon,
+  LayersIcon,
+  LayoutPanelTopIcon,
+  ListTreeIcon,
+  type LucideIcon,
+  MicIcon,
+  NetworkIcon,
+  PaletteIcon,
+  RepeatIcon,
+  ScissorsIcon,
+  SplitIcon,
+  SproutIcon,
+  TagsIcon,
+  TimerIcon,
+  TypeIcon,
+  WholeWordIcon,
+  WorkflowIcon,
+} from 'lucide-react'
 import { Accordion as AccordionPrimitive, NavigationMenu as NavPrimitive } from 'radix-ui'
 import * as React from 'react'
 
@@ -53,8 +87,47 @@ export function isMenuActive(menu: SiteNavMenu, url: string) {
   return path === menu.href || path.startsWith(`${menu.href}/`)
 }
 
+const ICONS: Record<NonNullable<SiteNavLink['icon']>, LucideIcon> = {
+  languages: LanguagesIcon,
+  'case-sensitive': CaseSensitiveIcon,
+  'book-open-text': BookOpenTextIcon,
+  info: InfoIcon,
+  'layout-panel-top': LayoutPanelTopIcon,
+  palette: PaletteIcon,
+  type: TypeIcon,
+  'audio-waveform': AudioWaveformIcon,
+  timer: TimerIcon,
+  scissors: ScissorsIcon,
+  workflow: WorkflowIcon,
+  mic: MicIcon,
+  'whole-word': WholeWordIcon,
+  split: SplitIcon,
+  sprout: SproutIcon,
+  tags: TagsIcon,
+  network: NetworkIcon,
+  repeat: RepeatIcon,
+  copy: CopyIcon,
+  'list-tree': ListTreeIcon,
+  layers: LayersIcon,
+  'git-compare': GitCompareIcon,
+  'file-diff': FileDiffIcon,
+  'audio-lines': AudioLinesIcon,
+  columns: Columns2Icon,
+  hash: HashIcon,
+  'book-open': BookOpenIcon,
+  'circle-help': CircleHelpIcon,
+  award: AwardIcon,
+}
+
 function LinkIcon({ link }: { link: SiteNavLink }) {
-  return link.category ? <ResourceIcon category={link.category} size="sm" /> : null
+  if (link.category) return <ResourceIcon category={link.category} size="sm" />
+  if (!link.icon) return null
+  const Icon = ICONS[link.icon]
+  return (
+    <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-[28%] border bg-card text-foreground">
+      <Icon aria-hidden className="size-3.5" />
+    </span>
+  )
 }
 
 /* ---------------- desktop mega menu ---------------- */
@@ -84,12 +157,106 @@ function PanelLink({ link, compact }: { link: SiteNavLink; compact?: boolean }) 
   )
 }
 
-// Panel width in rem: two columns for a wide group, plus the side rail.
+// One-line row of a dense menu: small icon, label and a one-line description.
+function DenseLink({ link }: { link: SiteNavLink }) {
+  return (
+    <NavPrimitive.Link asChild>
+      <NavAnchor
+        link={link}
+        className="flex items-center gap-2.5 rounded-lg px-2 py-1 outline-none transition-colors hover:bg-foreground/[0.045] focus-visible:bg-foreground/[0.045] focus-visible:ring-[3px] focus-visible:ring-ring/40"
+      >
+        <LinkIcon link={link} />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-[13px] leading-5 font-medium text-foreground">{link.label}</span>
+          {link.description && (
+            <span className="truncate text-xs leading-4 text-muted-foreground">{link.description}</span>
+          )}
+        </span>
+      </NavAnchor>
+    </NavPrimitive.Link>
+  )
+}
+
+// Splits groups into `n` columns of about equal length, keeping their order: each group goes to
+// the shortest column so far.
+function balance(groups: SiteNavGroup[], n: number) {
+  const columns: SiteNavGroup[][] = Array.from({ length: n }, () => [])
+  const lengths = columns.map(() => 0)
+  for (const group of groups) {
+    const shortest = lengths.indexOf(Math.min(...lengths))
+    columns[shortest].push(group)
+    lengths[shortest] += group.links.length + 1
+  }
+  return columns
+}
+
+function OverviewLink({ menu, className }: { menu: SiteNavMenu; className?: string }) {
+  return (
+    <NavPrimitive.Link asChild>
+      <NavAnchor
+        link={menu}
+        className={cn(
+          'group/ov flex items-center gap-1.5 px-5 py-3 text-sm font-medium text-foreground outline-none hover:bg-foreground/[0.03] focus-visible:bg-foreground/[0.045]',
+          className,
+        )}
+      >
+        {menu.overview}
+        <ArrowRightIcon className="size-3.5 transition-transform group-hover/ov:translate-x-0.5" />
+      </NavAnchor>
+    </NavPrimitive.Link>
+  )
+}
+
+// Panel width in rem: three columns for a dense menu, else two columns for a wide group, plus the side rail.
 function panelWidth(menu: SiteNavMenu) {
+  if (menu.dense) return 52
   return (menu.groups.some((group) => group.wide) ? 32 : 20) + (menu.aside.length ? 14 : 0)
 }
 
+// Many links: the groups in three columns, the side rail as one row of links beside the overview link.
+function DensePanel({ menu }: { menu: SiteNavMenu }) {
+  return (
+    <div className="flex flex-col" style={{ width: `${panelWidth(menu)}rem` }}>
+      <div className="grid grid-cols-3 gap-x-2 p-4">
+        {balance(menu.groups, 3).map((column, i) => (
+          <div key={i} className="flex min-w-0 flex-col gap-3">
+            {column.map((group) => (
+              <div key={group.heading}>
+                <p className="px-2 pt-1 pb-1.5 text-xs text-muted-foreground">{group.heading}</p>
+                <div className="flex flex-col">
+                  {group.links.map((link) => (
+                    <DenseLink key={link.label} link={link} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between border-t bg-surface">
+        <OverviewLink menu={menu} className="shrink-0" />
+        <div className="flex flex-wrap items-center justify-end gap-0.5 pe-3">
+          {menu.aside
+            .flatMap((group) => group.links)
+            .map((link) => (
+              <NavPrimitive.Link key={link.label} asChild>
+                <NavAnchor
+                  link={link}
+                  className="flex items-center gap-1 rounded-md px-2 py-1.5 text-[13px] text-muted-foreground outline-none transition-colors hover:bg-foreground/[0.045] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/40"
+                >
+                  {link.label}
+                  {link.external && <ArrowUpRightIcon className="size-3.5" />}
+                </NavAnchor>
+              </NavPrimitive.Link>
+            ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function Panel({ menu }: { menu: SiteNavMenu }) {
+  if (menu.dense) return <DensePanel menu={menu} />
   return (
     <div className="flex flex-col" style={{ width: `${panelWidth(menu)}rem` }}>
       <div className={cn('grid gap-2 p-3', menu.aside.length > 0 && 'grid-cols-[1fr_13.5rem]')}>
@@ -120,15 +287,7 @@ function Panel({ menu }: { menu: SiteNavMenu }) {
           </div>
         )}
       </div>
-      <NavPrimitive.Link asChild>
-        <NavAnchor
-          link={menu}
-          className="group/ov flex items-center gap-1.5 border-t px-5 py-3 text-sm font-medium text-foreground outline-none hover:bg-foreground/[0.03] focus-visible:bg-foreground/[0.045]"
-        >
-          {menu.overview}
-          <ArrowRightIcon className="size-3.5 transition-transform group-hover/ov:translate-x-0.5" />
-        </NavAnchor>
-      </NavPrimitive.Link>
+      <OverviewLink menu={menu} className="border-t" />
     </div>
   )
 }
@@ -271,7 +430,8 @@ function MobileNav({ menus, url, onNavigate, className }: MobileNavProps) {
                           onClick={onNavigate}
                           className="-mx-2 flex min-h-11 items-center gap-3 rounded-lg px-2 py-1.5 text-[15px] active:bg-foreground/[0.06]"
                         >
-                          <LinkIcon link={link} />
+                          {/* A dense menu's rows are short enough without their icons */}
+                          {!menu.dense && <LinkIcon link={link} />}
                           <span className="flex-1">{link.label}</span>
                           {link.external && <ArrowUpRightIcon className="size-4 text-muted-foreground" />}
                         </NavAnchor>

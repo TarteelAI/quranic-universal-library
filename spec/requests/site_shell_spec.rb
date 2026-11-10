@@ -52,9 +52,39 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       menus = props[:nav][:menus]
 
       expect(menus.pluck(:label)).to eq(%w[Resources Docs Developers Contribute])
-      tools = menus.last[:groups].first[:links]
-      expect(tools.pluck(:href)).to eq(controller.helpers.developer_tools.map(&:url))
+      expect(menus.pluck(:dense)).to eq([false, false, false, true])
+      tools = menus.last[:groups][0...-1].flat_map { |group| group[:links] }
+      expect(tools.pluck(:href)).to match_array(controller.helpers.developer_tools.map(&:url))
       expect(menus.first[:groups].first[:links].pluck(:href)).to eq(Catalog::Taxonomy.types.map { |t| "/resources/#{t.key}" })
+    end
+
+    it 'groups the contributor tools, each with an icon and a one-line description' do
+      get page_path
+      contribute = props[:nav][:menus].last
+
+      # No tool falls back to the group without icons: every tool has its entry in ContributeTools
+      expect(contribute[:groups].pluck(:heading)).to eq([*SiteNav::ContributeTools::GROUPS.keys, 'About contributing'])
+      links = contribute[:groups].flat_map { |group| group[:links] }
+      expect(links).to all(include(icon: be_in(SiteNav::ICONS), description: be_present))
+      expect(contribute[:groups].last[:links].pluck(:href)).to eq(['/docs/contribute-data', '/faq', '/credits'])
+    end
+
+    it 'puts the request form, the changelog and the community links under the Contribute tools' do
+      get page_path
+      aside = props[:nav][:menus].last[:aside]
+
+      expect(aside.pluck(:heading)).to eq(['Help improve the data', 'Community'])
+      expect(aside.first[:links].pluck(:href)).to eq([SiteNav::REQUEST_URL, '/change_logs'])
+      expect(aside.last[:links].pluck(:label)).to eq(%w[Discord GitHub])
+    end
+
+    it 'adds a "Spot a mistake?" group to the Resources menu, linking the translation tool and all tools' do
+      get page_path
+      group = props[:nav][:menus].first[:aside].find { |g| g[:heading] == 'Spot a mistake?' }
+
+      expect(group[:links].pluck(:label, :href)).to eq([['Fix a translation', '/translations'],
+                                                         ['All contribution tools', '/tools']])
+      expect(group[:links].pluck(:inertia)).to all(be(false))
     end
 
     it 'marks only the catalog pages as Inertia visits' do
@@ -92,6 +122,24 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       get '/__dev/inertia_sample'
 
       expect(all_links(props[:nav]).pluck(:inertia)).to all(be(false))
+    end
+
+    it 'has the same Contribute menu, without the apps link' do
+      get '/__dev/inertia_sample'
+      contribute = props[:nav][:menus].last
+
+      expect(contribute[:dense]).to be(true)
+      expect(contribute[:aside].last[:links].pluck(:label)).to eq(%w[Discord GitHub])
+      expect(props[:nav][:menus].first[:aside].pluck(:heading)).to include('Spot a mistake?')
+    end
+  end
+
+  describe 'with the apps page group on', page_groups: %w[catalog apps] do
+    it 'links the apps directory from the Contribute menu' do
+      get page_path
+
+      community = props[:nav][:menus].last[:aside].last[:links]
+      expect(community.pluck(:label, :href).first).to eq(['Apps built with QUL', '/apps'])
     end
   end
 end

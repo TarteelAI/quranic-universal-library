@@ -4,8 +4,16 @@
 # whether a new page serves it: `inertia` links are Inertia visits, the rest are plain links
 # to the old pages (docs, tools, the home page), which load in full.
 class SiteNav
-  Link = Data.define(:label, :href, :description, :category, :external, :inertia) do
-    def initialize(label:, href:, description: nil, category: nil, external: false, inertia: false)
+  # The icon names a link can carry (the frontend maps each to a lucide icon): the contribution
+  # tools (SiteNav::ContributeTools) and the help links of the Contribute menu.
+  ICONS = %w[
+    languages case-sensitive book-open-text info layout-panel-top palette type audio-waveform timer
+    scissors workflow mic whole-word split sprout tags network repeat copy list-tree layers git-compare
+    file-diff audio-lines columns hash book-open circle-help award
+  ].freeze
+
+  Link = Data.define(:label, :href, :description, :category, :icon, :external, :inertia) do
+    def initialize(label:, href:, description: nil, category: nil, icon: nil, external: false, inertia: false)
       super
     end
   end
@@ -14,7 +22,13 @@ class SiteNav
       super
     end
   end
-  Menu = Data.define(:label, :href, :overview, :inertia, :groups, :aside)
+  # A `dense` menu shows its groups in three columns of one-line rows and its aside as a row of
+  # links under them.
+  Menu = Data.define(:label, :href, :overview, :inertia, :groups, :aside, :dense) do
+    def initialize(label:, href:, overview:, inertia:, groups:, aside:, dense: false)
+      super
+    end
+  end
 
   REPO_URL = 'https://github.com/TarteelAI/quranic-universal-library'
   REQUEST_URL = "#{REPO_URL}/issues/new?template=resource_request.yml".freeze
@@ -66,6 +80,10 @@ class SiteNav
     types = Catalog::Taxonomy.types.map do |type|
       type_link(type, description: type.summary, category: type.category.key)
     end
+    fix_links = [
+      Link.new(label: 'Fix a translation', href: routes.translations_path),
+      Link.new(label: 'All contribution tools', href: routes.tools_path)
+    ]
     jump_to = [
       catalog_link('All resources', '/resources'),
       catalog_link('Compare mushaf layouts', '/resources/mushaf-layout'),
@@ -74,7 +92,11 @@ class SiteNav
     Menu.new(
       label: 'Resources', href: '/resources', overview: 'Browse all resources', inertia: @catalog,
       groups: [Group.new(heading: 'Resource types', links: types, wide: true)],
-      aside: [Group.new(heading: 'Jump to', links: jump_to), Group.new(heading: 'Cannot find it?', links: [@request])]
+      aside: [
+        Group.new(heading: 'Jump to', links: jump_to),
+        Group.new(heading: 'Cannot find it?', links: [@request]),
+        Group.new(heading: 'Spot a mistake?', links: fix_links)
+      ]
     )
   end
 
@@ -108,20 +130,24 @@ class SiteNav
   end
 
   def contribute_menu
-    tools = @tools.map { |tool| Link.new(label: tool.title, href: tool.url) }
-    community = [
-      doc_link('How to contribute data', 'contribute-data'),
-      Link.new(label: 'FAQ', href: routes.faq_path),
-      Link.new(label: 'Credits', href: routes.credits_path),
-      Link.new(label: 'Discord', href: DISCORD_URL, external: true),
-      github_link,
-      *apps_links
+    tools = ContributeTools.grouped(@tools).map do |heading, entries|
+      links = entries.map { |tool, icon, text| Link.new(label: tool.title, href: tool.url, icon:, description: text) }
+      Group.new(heading:, links:)
+    end
+    about = [
+      doc_link('How to contribute data', 'contribute-data', icon: 'book-open',
+                                                            description: 'A guide to fixing and adding data.'),
+      Link.new(label: 'FAQ', href: routes.faq_path, icon: 'circle-help', description: 'Answers to common questions.'),
+      Link.new(label: 'Credits', href: routes.credits_path, icon: 'award',
+               description: 'The sources and people behind the data.')
     ]
+    help = [@request, Link.new(label: 'Changelog', href: routes.change_logs_path)]
+    community = [*apps_links, Link.new(label: 'Discord', href: DISCORD_URL, external: true), github_link]
 
     Menu.new(
-      label: 'Contribute', href: routes.tools_path, overview: 'All contribution tools', inertia: false,
-      groups: [Group.new(heading: 'Contribution tools', links: tools, wide: true)],
-      aside: [Group.new(heading: 'Community', links: community)]
+      label: 'Contribute', href: routes.tools_path, overview: 'All contribution tools', inertia: false, dense: true,
+      groups: [*tools, Group.new(heading: 'About contributing', links: about)],
+      aside: [Group.new(heading: 'Help improve the data', links: help), Group.new(heading: 'Community', links: community)]
     )
   end
 

@@ -60,9 +60,13 @@ test.describe('site header and footer', () => {
 
     await main.getByRole('button', { name: 'Contribute' }).focus()
     await page.keyboard.press('Enter')
-    const tools = (await siteNav(page)).menus.find((menu) => menu.label === 'Contribute')!.groups[0].links
+    const contribute = (await siteNav(page)).menus.find((menu) => menu.label === 'Contribute')!
+    const tools = contribute.groups.flatMap((group) => group.links)
     expect(tools.length).toBeGreaterThan(10)
-    for (const tool of tools) await expect(main.getByRole('link', { name: tool.label, exact: true })).toBeVisible()
+    for (const group of contribute.groups) await expect(main.getByText(group.heading, { exact: true })).toBeVisible()
+    // A row's name is its label followed by its one-line description
+    for (const link of [...tools, ...contribute.aside.flatMap((group) => group.links)])
+      await expect(main.getByRole('link', { name: new RegExp(`^${escapeRegExp(link.label)}`) })).toBeVisible()
     await testInfo.attach('header-contribute-menu', {
       body: await page.screenshot({ clip: { x: 0, y: 0, width: 1280, height: 640 } }),
       contentType: 'image/png',

@@ -103,6 +103,12 @@ function usePopularResources() {
   return results
 }
 
+/** Forgets the popular resources, as a new page load would. For tests. */
+function forgetPopularResources() {
+  popularRequest = null
+  popularResults = null
+}
+
 // The answer for the latest query only: each new query aborts the request before it, and an
 // answer is kept with the query it is for, so an older query's results are never shown.
 function useSpotlightSearch(query: string) {
@@ -282,14 +288,13 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
       }
     : null
   const items = [...visible.flatMap((section) => section.items), ...(all ? [all] : [])]
-  // The highlight is kept on an item, not a position, so results that arrive later never move it
-  // and Enter opens what the user sees highlighted. It starts on the first quick link when
-  // nothing is typed (Enter on open goes to the catalog), else on the first item shown.
-  const kept = items.findIndex((item) => item.id === activeId)
+  // Until the visitor moves it, the highlight is on the first item as the list is now shown, so
+  // the top resource once the results arrive; with nothing typed, on the first quick link, so
+  // Enter on open goes to the catalog. Once moved, it follows that item, and results arriving
+  // never move it; if the item goes away, it is back on the first item.
+  const moved = items.findIndex((item) => item.id === activeId)
   const start = query ? 0 : Math.max(items.indexOf(quick[0]), 0)
-  const current = kept >= 0 ? kept : start
-  const currentId = items[current]?.id
-  if (currentId && currentId !== activeId) setActiveId(currentId)
+  const current = moved >= 0 ? moved : start
   const optionId = (index: number) => `${listId}-${index}`
 
   React.useEffect(() => {
@@ -484,4 +489,4 @@ function Spotlight({ open, onOpenChange }: SpotlightProps) {
   )
 }
 
-export { Spotlight, navSearchItems }
+export { Spotlight, forgetPopularResources, navSearchItems }

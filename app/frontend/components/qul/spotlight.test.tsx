@@ -8,7 +8,7 @@ import { nav } from '@/test/shell'
 import type { CatalogSpotlightResult, SiteNav, SiteNavGroup, SiteNavLink } from '@/types/serializers'
 
 import { SiteHeader } from './chrome'
-import { navSearchItems, Spotlight } from './spotlight'
+import { forgetPopularResources, navSearchItems, Spotlight } from './spotlight'
 
 const result = (id: number, name: string, options: Partial<CatalogSpotlightResult> = {}): CatalogSpotlightResult => ({
   id,
@@ -42,7 +42,18 @@ function answer(url: string) {
   return new Response(JSON.stringify({ results, total: results.length }), { status: 200 })
 }
 
+// A response the test sends when it chooses.
+function deferred() {
+  let respond: (response: Response) => void = () => {}
+  const promise = new Promise<Response>((resolve) => (respond = resolve))
+  return { promise, respond: (response: Response) => act(async () => respond(response)) }
+}
+
+const popularCalls = () => fetchMock.mock.calls.filter((call) => call[0] === '/spotlight')
+const queryCalls = () => fetchMock.mock.calls.filter((call) => String(call[0]).includes('?q='))
+
 beforeEach(() => {
+  forgetPopularResources()
   fetchMock = vi.fn((url: string) => Promise.resolve(answer(url)))
   vi.stubGlobal('fetch', fetchMock)
 })
@@ -125,18 +136,46 @@ describe('Spotlight', () => {
     expect(within(dialog()).queryByText('How to download')).toBeNull()
   })
 
-  it('asks for the popular resources at most once per page load', async () => {
-    openSpotlight()
-    await waitFor(() => group('Popular resources'))
-    fireEvent.click(within(dialog()).getByRole('button', { name: 'Close search' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Search resources' }))
+  describe('the popular resources', () => {
+    const close = () => fireEvent.click(within(dialog()).getByRole('button', { name: 'Close search' }))
+    const reopen = () => fireEvent.click(screen.getByRole('button', { name: 'Search resources' }))
 
-    expect(within(group('Popular resources')).getAllByRole('option')).toHaveLength(POPULAR.length)
-    expect(fetchMock.mock.calls.filter((call) => call[0] === '/spotlight').length).toBeLessThanOrEqual(1)
+    it('are asked for once: a second open shows them with no request', async () => {
+      openSpotlight()
+      await waitFor(() => group('Popular resources'))
+      close()
+      reopen()
+
+      expect(within(group('Popular resources')).getAllByRole('option')).toHaveLength(POPULAR.length)
+      expect(popularCalls()).toHaveLength(1)
+    })
+
+    it('share one request between two opens before it answers', async () => {
+      const popular = deferred()
+      fetchMock.mockImplementation(() => popular.promise)
+      openSpotlight()
+      close()
+      reopen()
+      await popular.respond(answer('/spotlight'))
+
+      await waitFor(() => group('Popular resources'))
+      expect(popularCalls()).toHaveLength(1)
+    })
+
+    it('are asked for again on the next open after a failed request', async () => {
+      fetchMock.mockImplementationOnce(() => Promise.resolve(new Response('', { status: 500 })))
+      openSpotlight()
+      await waitFor(() => expect(popularCalls()).toHaveLength(1))
+      expect(within(dialog()).queryByRole('group', { name: 'Popular resources' })).toBeNull()
+      close()
+      reopen()
+
+      await waitFor(() => group('Popular resources'))
+      expect(popularCalls()).toHaveLength(2)
+    })
   })
 
   it('aborts the request of an older query', async () => {
-    const queryCalls = () => fetchMock.mock.calls.filter((call) => String(call[0]).includes('?q='))
     openSpotlight()
 
     fireEvent.change(field(), { target: { value: 'ib' } })
@@ -172,28 +211,62 @@ describe('Spotlight', () => {
     expect(screen.queryByRole('dialog')).toBeNull()
   })
 
-  it('keeps the highlight on the same item when the resources arrive', async () => {
-    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
-    let respond: (response: Response) => void = () => {}
-    fetchMock.mockImplementation((url: string) =>
-      url.includes('?q=') ? new Promise<Response>((resolve) => (respond = resolve)) : Promise.resolve(answer(url)),
-    )
-    openSpotlight()
+  describe('the highlight with a query', () => {
+    const selected = () => within(dialog()).getByRole('option', { selected: true })
 
-    fireEvent.change(field(), { target: { value: 'tafsir' } })
-    const page = within(group('Pages')).getByRole('option', { name: /Tafsirs/ })
-    expect(page.getAttribute('aria-selected')).toBe('true')
-    await waitFor(() => expect(fetchMock.mock.calls.some((call) => String(call[0]).includes('?q='))).toBe(true))
-    await act(async () => respond(answer('/spotlight?q=tafsir')))
+    // Each query is answered when the test says so.
+    function answerQueriesLater() {
+      const pending: ReturnType<typeof deferred>[] = []
+      fetchMock.mockImplementation((url: string) => {
+        if (!url.includes('?q=')) return Promise.resolve(answer(url))
+        const later = deferred()
+        pending.push(later)
+        return later.promise
+      })
+      let answered = 0
+      // Answers the next query request, once the spotlight has sent it.
+      return async (url: string) => {
+        await waitFor(() => expect(pending.length).toBeGreaterThan(answered))
+        answered = pending.length
+        await pending.at(-1)!.respond(answer(url))
+      }
+    }
 
-    await waitFor(() => group('Resources'))
-    expect(
-      within(group('Pages'))
-        .getByRole('option', { name: /Tafsirs/ })
-        .getAttribute('aria-selected'),
-    ).toBe('true')
-    fireEvent.keyDown(field(), { key: 'Enter' })
-    expect(visit).toHaveBeenCalledWith('/resources/tafsir')
+    it('moves an untouched highlight to the top resource when the results arrive', async () => {
+      const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+      const respond = answerQueriesLater()
+      openSpotlight()
+
+      fireEvent.change(field(), { target: { value: 'tafsir' } })
+      expect(selected().textContent).toContain('Tafsirs')
+      await respond('/spotlight?q=tafsir')
+
+      await waitFor(() => expect(within(group('Resources')).getByRole('option', { selected: true })).toBeDefined())
+      expect(selected().textContent).toContain('Ibn Kathir')
+      fireEvent.keyDown(field(), { key: 'Enter' })
+      expect(visit).toHaveBeenCalledWith('/resources/tafsir/tafsir-1')
+    })
+
+    it('keeps a highlight the visitor placed when the results arrive, until a new query', async () => {
+      const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+      const respond = answerQueriesLater()
+      openSpotlight()
+
+      fireEvent.change(field(), { target: { value: 'tafsir' } })
+      fireEvent.keyDown(field(), { key: 'ArrowUp' })
+      expect(selected().textContent).toBe('All results for “tafsir”')
+      await respond('/spotlight?q=tafsir')
+
+      await waitFor(() => group('Resources'))
+      expect(selected().textContent).toBe('All 1 results for “tafsir”')
+
+      fireEvent.change(field(), { target: { value: 'ibn' } })
+      await respond('/spotlight?q=ibn')
+      await waitFor(() => group('Resources'))
+      expect(selected().textContent).toContain('Ibn Kathir')
+      fireEvent.keyDown(field(), { key: 'Enter' })
+      expect(visit).toHaveBeenCalledWith('/resources/tafsir/tafsir-1')
+    })
   })
 
   for (const [failure, respond] of [

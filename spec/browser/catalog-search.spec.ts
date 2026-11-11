@@ -240,18 +240,17 @@ test.describe('spotlight', () => {
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
       await expect(options(page).first()).toContainText(/kathir/i)
-      // No page or tool matches, so the highlight sat on the last row before the results came,
-      // and the results did not move it.
-      await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
-
-      await page.keyboard.press('ArrowDown')
+      // Untouched, the highlight is on the top result once the results are in.
       await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
+
       await page.keyboard.press('ArrowDown')
       await expect(options(page).nth(1)).toHaveAttribute('aria-selected', 'true')
       await expect(options(page).first()).toHaveAttribute('aria-selected', 'false')
       await page.keyboard.press('ArrowUp')
       await page.keyboard.press('ArrowUp')
       await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
+      await page.keyboard.press('ArrowDown')
+      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
 
       await page.keyboard.press('Escape')
       await expect(spotlight(page)).toBeHidden()
@@ -260,7 +259,6 @@ test.describe('spotlight', () => {
       await trigger.click()
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
-      await page.keyboard.press('ArrowDown')
       await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
       await page.keyboard.press('Enter')
       await expect(page).toHaveURL(/\/resources\/tafsir\/[^/?]+$/)
@@ -274,7 +272,11 @@ test.describe('spotlight', () => {
 
     await page.keyboard.press('ControlOrMeta+k')
     await spotlightField(page).fill('urdu')
+    // Resources, then the tools that match, then the last row: ArrowUp from the top resource
+    // wraps to the last row, however many tools match.
     await expect(options(page).last()).toHaveText(/^All \d+ results for “urdu”$/)
+    await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
+    await page.keyboard.press('ArrowUp')
     await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
     await page.keyboard.press('Enter')
 

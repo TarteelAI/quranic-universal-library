@@ -10,11 +10,13 @@ export interface PageHeaderProps {
   /** Resource count, shown small and muted after the title */
   count?: number
   description?: ReactNode
+  /** Buttons beside the title, e.g. a link to the format docs */
+  actions?: ReactNode
   className?: string
 }
 
-// From the v7 design (ds/src/components/qul/chrome.tsx), without the icon and actions slots.
-export function PageHeader({ breadcrumb, eyebrow, title, count, description, className }: PageHeaderProps) {
+// From the v7 design (ds/src/components/qul/chrome.tsx), without the icon slot.
+export function PageHeader({ breadcrumb, eyebrow, title, count, description, actions, className }: PageHeaderProps) {
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       {breadcrumb && (
@@ -33,17 +35,20 @@ export function PageHeader({ breadcrumb, eyebrow, title, count, description, cla
           ))}
         </nav>
       )}
-      <div className="flex flex-col gap-2">
-        {eyebrow && <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{eyebrow}</div>}
-        <h1 className="headline text-3xl sm:text-4xl">
-          {title}
-          {count !== undefined && (
-            <span className="ms-3 align-middle font-mono text-sm font-normal tracking-normal text-muted-foreground tabular-nums">
-              {count}
-            </span>
-          )}
-        </h1>
-        {description && <p className="max-w-2xl text-base text-pretty text-muted-foreground">{description}</p>}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="flex flex-1 flex-col gap-2">
+          {eyebrow && <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{eyebrow}</div>}
+          <h1 className="headline text-3xl sm:text-4xl">
+            {title}
+            {count !== undefined && (
+              <span className="ms-3 align-middle font-mono text-sm font-normal tracking-normal text-muted-foreground tabular-nums">
+                {count}
+              </span>
+            )}
+          </h1>
+          {description && <p className="max-w-2xl text-base text-pretty text-muted-foreground">{description}</p>}
+        </div>
+        {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
       </div>
     </div>
   )

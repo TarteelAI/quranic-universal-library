@@ -34,7 +34,7 @@ test.describe('home page', () => {
     page.on('console', (message) => {
       if (!['error', 'warning'].includes(message.type())) return
       // GA4's tag (an external script) can fail to load in a test run; it is not the page's.
-      if (message.location().url.includes('googletagmanager.com')) return
+      if (URL.parse(message.location().url)?.hostname === 'www.googletagmanager.com') return
       // Chromium's GPU driver notes (the renderer reads one pixel back to test Display P3).
       if (message.text().startsWith('[.WebGL-')) return
       messages.push(`${message.type()}: ${message.text()}`)

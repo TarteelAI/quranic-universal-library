@@ -89,6 +89,12 @@ RSpec.describe 'catalog review tasks' do
                 .each { |name| expect(report).not_to include(name) }
     end
 
+    it 'escapes backslashes as well as pipes in report cells, so a cell never splits or swallows a pipe' do
+      table = Catalog::ReviewReport.new.send(:table, ['Value'], [['a|b'], ['c\\|d'], ['e\\']])
+
+      expect(table.lines.drop(2)).to eq(["| a\\|b |\n", "| c\\\\\\|d |\n", "| e\\\\ |\n"])
+    end
+
     it 'refuses a path outside tmp/' do
       expect { run_task('catalog:review_report', Rails.root.join('review.md').to_s) }
         .to raise_error(ArgumentError, %r{tmp/})

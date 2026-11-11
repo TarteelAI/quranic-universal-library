@@ -36,6 +36,14 @@ describe('catalog/CatalogPage', () => {
     expect(screen.getByText('JSON · SQLite')).toBeDefined()
   })
 
+  it('opens a detail page from a card with an in-app visit', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    renderPage(CatalogPage, { props: catalogPageProps })
+
+    fireEvent.click(screen.getByRole('link', { name: 'Tafsir Ibn Kathir' }))
+    expect(visit).toHaveBeenCalledWith('/resources/tafsir/tafsir-ibn-kathir', expect.anything())
+  })
+
   it('shows the filters of the URL in the controls, as chips and in the paging links', () => {
     renderPage(CatalogPage, { props: filtered })
 

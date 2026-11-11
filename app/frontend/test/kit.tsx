@@ -72,7 +72,7 @@ const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
 const { RecommendedBadge, StatusBadge } = statusBadge
-const { ThemeToggle } = theme
+const { ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
 const { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } = card
@@ -217,8 +217,18 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   MobileNav: { element: <MobileNav menus={navProps.menus} url="/resources" />, text: 'Contribute' },
   NavAnchor: { element: <NavAnchor link={navProps.search}>Search</NavAnchor>, text: 'href="/resources"' },
   PageHeader: {
-    element: <PageHeader breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]} title="Fonts" />,
-    text: 'Fonts',
+    element: (
+      <PageHeader
+        breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]}
+        title="Fonts"
+        actions={
+          <Button variant="outline" asChild>
+            <a href="/docs/resource-fonts">Font format docs</a>
+          </Button>
+        }
+      />
+    ),
+    text: 'Font format docs',
   },
   ResourceCard: {
     element: <ResourceCard title="Sahih International" href="/resources/translation/1" facts={['Translation']} />,
@@ -235,7 +245,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'Syllables Transliteration',
   },
   RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
-  ThemeToggle: { element: <ThemeToggle />, text: 'theme' },
+  ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
   Spotlight: { element: <Spotlight open={false} onOpenChange={() => {}} />, text: 'Search resources' },
   FacetGroup: {
     element: (

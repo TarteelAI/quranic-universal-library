@@ -1,34 +1,41 @@
-import { MoonIcon, SunIcon } from 'lucide-react'
+import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
+import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 
-import { chooseTheme, type Theme, useTheme } from '@/lib/theme'
+import { chooseTheme, type ThemePreference, useThemePreference } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
-// The theme is unknown (null) on the server and while the page hydrates.
-function toggleLabel(theme: Theme | null) {
-  if (theme === 'dark') return 'Use the light theme'
-  if (theme === 'light') return 'Use the dark theme'
-  return 'Change the theme'
-}
+const OPTIONS = [
+  { value: 'light', label: 'Light theme', Icon: SunIcon },
+  { value: 'dark', label: 'Dark theme', Icon: MoonIcon },
+  { value: 'system', label: 'System theme', Icon: MonitorIcon },
+] as const
 
-// Switches between the light and dark theme and remembers the choice (lib/theme.ts).
-function ThemeToggle({ className }: { className?: string }) {
-  const theme = useTheme()
-  const label = toggleLabel(theme)
+// Light, dark or system (follows the operating-system setting), remembered in lib/theme.ts.
+// No option is checked on the server and while the page hydrates: only the browser knows the choice.
+function ThemeSwitch({ className }: { className?: string }) {
+  const preference = useThemePreference()
 
   return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      onClick={() => chooseTheme(theme === 'dark' ? 'light' : 'dark')}
-      className={cn(
-        'inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground [&_svg]:size-4',
-        className,
-      )}
+    <RadioGroupPrimitive.Root
+      aria-label="Theme"
+      orientation="horizontal"
+      value={preference ?? ''}
+      onValueChange={(value) => chooseTheme(value as ThemePreference)}
+      className={cn('inline-flex h-8 items-center gap-0.5 rounded-full border bg-card p-0.5', className)}
     >
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-    </button>
+      {OPTIONS.map(({ value, label, Icon }) => (
+        <RadioGroupPrimitive.Item
+          key={value}
+          value={value}
+          aria-label={label}
+          title={label}
+          className="inline-flex size-7 items-center justify-center rounded-full text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[state=checked]:bg-foreground/[0.09] data-[state=checked]:text-foreground [&_svg]:size-3.5"
+        >
+          <Icon />
+        </RadioGroupPrimitive.Item>
+      ))}
+    </RadioGroupPrimitive.Root>
   )
 }
 
-export { ThemeToggle }
+export { ThemeSwitch }

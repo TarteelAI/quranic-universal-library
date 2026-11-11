@@ -133,8 +133,7 @@ module Catalog
     end
 
     def guide_path
-      key = Taxonomy::GUIDES[resource.resource_type]
-      Rails.application.routes.url_helpers.docs_path(key) if key
+      Taxonomy.guide_path(resource.resource_type)
     end
 
     def licence

@@ -143,6 +143,24 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       end
     end
 
+    it "links each type to its format guide, the same page the detail page's Data tab links to" do
+      get '/resources/mushaf-layout'
+      expect(inertia.props[:guidePath]).to eq('/docs/resource-mushaf-layouts')
+
+      types.each do |type|
+        get "/resources/#{type}"
+        guide = Catalog::Taxonomy::GUIDES[type]
+        expect(inertia.props[:guidePath]).to eq(guide && "/docs/#{guide}"), type
+      end
+    end
+
+    it 'sends no guide for a type without one' do
+      stub_const('Catalog::Taxonomy::GUIDES', Catalog::Taxonomy::GUIDES.except('ayah-theme'))
+      get '/resources/ayah-theme'
+
+      expect(inertia.props[:guidePath]).to be_nil
+    end
+
     it 'sends the taxonomy as props: every type, with its category' do
       get '/resources/translation'
 

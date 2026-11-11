@@ -246,7 +246,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
-  Spotlight: { element: <Spotlight />, text: 'Search resources' },
+  Spotlight: { element: <Spotlight open={false} onOpenChange={() => {}} />, text: 'Search resources' },
   FacetGroup: {
     element: (
       <FacetGroup

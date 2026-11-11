@@ -181,9 +181,39 @@ test.describe('catalog search', () => {
 })
 
 test.describe('spotlight', () => {
-  const spotlight = (page: Page) => page.getByRole('dialog', { name: 'Search resources' })
+  const spotlight = (page: Page) => page.getByRole('dialog', { name: 'Search QUL' })
   const options = (page: Page) => spotlight(page).getByRole('option')
-  const spotlightField = (page: Page) => spotlight(page).getByRole('combobox', { name: 'Search resources' })
+  const spotlightField = (page: Page) => spotlight(page).getByRole('combobox', { name: 'Search QUL' })
+
+  test('opens on the most popular resources and the quick links, and groups pages and tools', async ({ page }) => {
+    await page.goto('/resources')
+    await hydrated(page)
+
+    await page.keyboard.press('ControlOrMeta+k')
+    const popular = spotlight(page).getByRole('group', { name: 'Popular resources' })
+    await expect(popular.getByRole('option')).toHaveCount(4)
+    await expect(spotlight(page).getByRole('group', { name: 'Quick links' })).toContainText('Browse all resources')
+
+    await spotlightField(page).fill('tajweed')
+    await expect(spotlight(page).getByRole('group', { name: 'Tools' }).getByRole('option').first()).toBeVisible()
+    await spotlightField(page).fill('tafsir')
+    await expect(spotlight(page).getByRole('group', { name: 'Pages' })).toContainText('Tafsirs')
+  })
+
+  test('a resource result is an Inertia visit', async ({ page }) => {
+    await page.goto('/resources')
+    await hydrated(page)
+    await markDocument(page)
+
+    await page.keyboard.press('ControlOrMeta+k')
+    await spotlightField(page).fill('ibn kathir')
+    const result = spotlight(page).getByRole('group', { name: 'Resources' }).getByRole('option').first()
+    await expect(result).toContainText(/kathir/i)
+    await result.click()
+
+    await expect(page).toHaveURL(/\/resources\/tafsir\/[^/?]+$/)
+    expect(await sameDocument(page)).toBe(true)
+  })
 
   for (const path of ['/resources/tafsir', '/resources']) {
     test(`on ${path}: opens with the shortcut and closes with Escape, restoring focus`, async ({ page }) => {
@@ -210,6 +240,7 @@ test.describe('spotlight', () => {
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
       await expect(options(page).first()).toContainText(/kathir/i)
+      // Untouched, the highlight is on the top result once the results are in.
       await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
 
       await page.keyboard.press('ArrowDown')
@@ -228,6 +259,7 @@ test.describe('spotlight', () => {
       await trigger.click()
       await spotlightField(page).fill('ibn kathir')
       await expect(options(page).last()).toHaveText(/^All \d+ results for “ibn kathir”$/)
+      await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
       await page.keyboard.press('Enter')
       await expect(page).toHaveURL(/\/resources\/tafsir\/[^/?]+$/)
     })
@@ -240,8 +272,12 @@ test.describe('spotlight', () => {
 
     await page.keyboard.press('ControlOrMeta+k')
     await spotlightField(page).fill('urdu')
+    // Resources, then the tools that match, then the last row: ArrowUp from the top resource
+    // wraps to the last row, however many tools match.
     await expect(options(page).last()).toHaveText(/^All \d+ results for “urdu”$/)
+    await expect(options(page).first()).toHaveAttribute('aria-selected', 'true')
     await page.keyboard.press('ArrowUp')
+    await expect(options(page).last()).toHaveAttribute('aria-selected', 'true')
     await page.keyboard.press('Enter')
 
     await expect(page).toHaveURL(/\/resources\?q=urdu$/)

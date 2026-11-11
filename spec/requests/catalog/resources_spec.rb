@@ -164,7 +164,29 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(body['results'].size).to eq(Catalog::SpotlightController::LIMIT)
       expect(body['results'].pluck('id')).to eq(expected.matches.first(Catalog::SpotlightController::LIMIT)
                                                          .map { |row| row.resource.id })
-      expect(body['results'].first.keys).to contain_exactly('id', 'name', 'type', 'typeLabel', 'toParam', 'language')
+      expect(body['results'].first.keys).to contain_exactly('id', 'name', 'type', 'typeLabel', 'category', 'toParam',
+                                                             'language', 'formats')
+    end
+
+    it 'names the category and the format labels of each result, and no download counts' do
+      get '/spotlight', params: { q: 'tafsir' }
+
+      row = Catalog::SearchQuery.new(Catalog::SearchFilters.from(q: 'tafsir')).call.matches.first
+      result = response.parsed_body['results'].first
+      expect(result['category']).to eq(Catalog::Taxonomy.type(row.resource.resource_type).category.key)
+      expect(result['formats']).to eq(row.formats.map { |key| Catalog::Taxonomy.label(Catalog::Taxonomy.formats, key) })
+      expect(response.body).not_to match(/download/i)
+    end
+
+    it 'returns the most popular resources, as the catalog sorts them, without a query' do
+      get '/spotlight'
+
+      expected = Catalog::SearchQuery.new(Catalog::SearchFilters.from(sort: 'popular')).call
+      body = response.parsed_body
+      expect(response.headers['X-Robots-Tag']).to eq('noindex')
+      expect(body['total']).to eq(expected.total)
+      expect(body['results'].pluck('id')).to eq(expected.matches.first(Catalog::SpotlightController::POPULAR_LIMIT)
+                                                         .map { |row| row.resource.id })
     end
 
     it 'finds an Arabic query' do

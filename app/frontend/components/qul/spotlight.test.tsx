@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { renderPage } from '@/test/inertia'
 import { nav } from '@/test/shell'
-import type { CatalogSpotlightResult } from '@/types/serializers'
+import type { CatalogSpotlightResult, SiteNav, SiteNavGroup, SiteNavLink } from '@/types/serializers'
 
 import { SiteHeader } from './chrome'
 import { navSearchItems, Spotlight } from './spotlight'
@@ -245,20 +245,100 @@ describe('Spotlight', () => {
   })
 })
 
-describe('navSearchItems', () => {
-  it('lists each page and tool once, without docs, and reads a menu with more fields', () => {
-    const extended = { ...nav, menus: nav.menus.map((menu) => ({ ...menu, badge: 'new' })) }
-    const items = navSearchItems(extended)
+const navLink = (label: string, href: string, options: Partial<SiteNavLink> = {}): SiteNavLink => ({
+  label,
+  href,
+  description: null,
+  category: null,
+  icon: null,
+  external: false,
+  inertia: false,
+  ...options,
+})
+const navGroup = (heading: string, links: SiteNavLink[], tools = false): SiteNavGroup => ({
+  heading,
+  wide: false,
+  tools,
+  links,
+})
 
-    expect(items.map((item) => [item.group, item.label])).toEqual([
-      ['Pages', 'Home'],
-      ['Pages', 'Browse all resources'],
-      ['Pages', 'Translations'],
-      ['Pages', 'Tafsirs'],
-      ['Tools', 'All contribution tools'],
-      ['Tools', 'Tajweed rules'],
-      ['Pages', 'GitHub'],
+// Shaped like SiteNav builds it: a tool address also linked from the Resources menu, /tools in
+// three places, FAQ and Credits in the Contribute menu's "About contributing" group.
+const [resourcesMenu, contributeMenu] = nav.menus
+const siteNav: SiteNav = {
+  ...nav,
+  menus: [
+    {
+      ...resourcesMenu,
+      aside: [
+        ...resourcesMenu.aside,
+        navGroup('Spot a mistake?', [
+          navLink('Fix a translation', '/translations'),
+          navLink('All contribution tools', '/tools'),
+        ]),
+      ],
+    },
+    {
+      ...contributeMenu,
+      groups: [
+        ...contributeMenu.groups,
+        navGroup('About contributing', [
+          navLink('FAQ', '/faq', { icon: 'circle-help' }),
+          navLink('Credits', '/credits', { icon: 'award' }),
+        ]),
+      ],
+    },
+  ],
+  footer: [...nav.footer, navGroup('Contribute', [navLink('Contribution tools', '/tools'), navLink('FAQ', '/faq')])],
+}
+
+describe('navSearchItems', () => {
+  it('lists the tools of the tools groups, then the pages, once each and without docs', () => {
+    const items = navSearchItems(nav)
+
+    expect(items.map((item) => [item.group, item.label, item.href])).toEqual([
+      ['Tools', 'Tajweed rules', '/tajweed_words'],
+      ['Tools', 'Ayah translations', '/translations'],
+      ['Tools', 'Tafsirs', '/tafsirs'],
+      ['Pages', 'Home', '/'],
+      ['Pages', 'Browse all resources', '/resources'],
+      ['Pages', 'Translations', '/resources/translation'],
+      ['Pages', 'Tafsirs', '/resources/tafsir'],
+      ['Pages', 'All contribution tools', '/tools'],
+      ['Pages', 'Changelog', '/change_logs'],
+      ['Pages', 'GitHub', 'https://github.com/TarteelAI/quranic-universal-library'],
     ])
+  })
+
+  it('reads a menu with more fields', () => {
+    const extended = { ...nav, menus: nav.menus.map((menu) => ({ ...menu, badge: 'new' })) }
+
+    expect(navSearchItems(extended)).toHaveLength(navSearchItems(nav).length)
+  })
+
+  it('makes FAQ and Credits pages, keeps a tool address as the tool, and lists /tools once', () => {
+    const items = navSearchItems(siteNav)
+    const byLabel = (label: string) => items.filter((item) => item.label === label)
+
+    expect(byLabel('FAQ').map((item) => item.group)).toEqual(['Pages'])
+    expect(byLabel('Credits').map((item) => item.group)).toEqual(['Pages'])
+    expect(byLabel('Ayah translations').map((item) => [item.group, item.href])).toEqual([['Tools', '/translations']])
+    expect(byLabel('Fix a translation')).toEqual([])
+    expect(items.filter((item) => item.href === '/tools')).toHaveLength(1)
+  })
+})
+
+describe('Spotlight on the site navigation', () => {
+  it('finds a tool by its name, with its own icon, and FAQ under pages', async () => {
+    openSpotlight({ props: {}, shared: { nav: siteNav } })
+
+    fireEvent.change(field(), { target: { value: 'ayah translations' } })
+    const tool = await waitFor(() => within(group('Tools')).getByRole('option', { name: /Ayah translations/ }))
+    expect(tool.querySelector('svg.lucide-languages')).not.toBeNull()
+
+    fireEvent.change(field(), { target: { value: 'faq' } })
+    await waitFor(() => within(group('Pages')).getByRole('option', { name: /FAQ/ }))
+    expect(within(dialog()).queryByRole('group', { name: 'Tools' })).toBeNull()
   })
 })
 

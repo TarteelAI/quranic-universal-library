@@ -119,6 +119,11 @@ const ICONS: Record<NonNullable<SiteNavLink['icon']>, LucideIcon> = {
   award: AwardIcon,
 }
 
+/** The glyph of a link's icon name (SiteNavLink#icon). */
+export function navIcon(name: NonNullable<SiteNavLink['icon']>): LucideIcon {
+  return ICONS[name]
+}
+
 function LinkIcon({ link }: { link: SiteNavLink }) {
   if (link.category) return <ResourceIcon category={link.category} size="sm" />
   if (!link.icon) return null

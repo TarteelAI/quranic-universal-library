@@ -26,9 +26,10 @@ import {
 } from '@/components/ui/overlays'
 import { cn } from '@/lib/utils'
 import { catalogResources, catalogSpotlight, detailResources } from '@/routes'
-import type { CatalogSpotlightResult, SiteNav, SiteNavLink } from '@/types/serializers'
+import type { CatalogSpotlightResult, SiteNav, SiteNavGroup, SiteNavLink } from '@/types/serializers'
 
 import { ResourceIcon } from './icons'
+import { navIcon } from './nav'
 
 // Typing waits this long for a pause before it asks the server.
 const DEBOUNCE_MS = 250
@@ -145,7 +146,19 @@ function resourceItem(result: CatalogSpotlightResult, inertia: boolean): Item {
   }
 }
 
-function navItem(link: SiteNavLink, group: NavItem['group'], keywords: string): NavItem {
+// The parts of a link a result is made from: a menu's overview link has only the first three.
+type NavLinkLike = Pick<SiteNavLink, 'label' | 'href' | 'inertia'> & Partial<SiteNavLink>
+
+function linkIcon(link: NavLinkLike, group: NavItem['group']) {
+  if (link.category) return <ResourceIcon category={link.category} size="sm" />
+  if (link.icon) {
+    const Icon = navIcon(link.icon)
+    return tile(<Icon />)
+  }
+  return tile(group === 'Tools' ? <WrenchIcon /> : <FileTextIcon />)
+}
+
+function navItem(link: NavLinkLike, group: NavItem['group'], keywords: string): NavItem {
   return {
     id: `nav:${link.href}`,
     label: link.label,
@@ -153,36 +166,33 @@ function navItem(link: SiteNavLink, group: NavItem['group'], keywords: string): 
     href: link.href,
     inertia: link.inertia,
     external: link.external,
-    icon: link.category ? (
-      <ResourceIcon category={link.category} size="sm" />
-    ) : (
-      tile(group === 'Tools' ? <WrenchIcon /> : <FileTextIcon />)
-    ),
+    icon: linkIcon(link, group),
     group,
     keywords,
   }
 }
 
 /**
- * The pages and contribution tools the site navigation links to, one item per address. The
- * links in the main groups of the Contribute menu are the contribution tools; every other link
- * is a page.
+ * The pages and contribution tools the site navigation links to, one item per address. A link
+ * is a tool exactly when its group is a tools group (SiteNavGroup#tools); every other link is a
+ * page. Tools are listed first, so an address that is both keeps the tool, with its own label.
  */
 function navSearchItems(nav: SiteNav): NavItem[] {
-  const items: NavItem[] = [navItem(nav.home, 'Pages', '')]
-  for (const menu of nav.menus) {
-    const main = /contribut/i.test(menu.label) ? 'Tools' : 'Pages'
-    const overview = { label: menu.overview, href: menu.href, inertia: menu.inertia }
-    items.push(navItem({ ...overview, description: null, category: null, external: false }, main, menu.label))
-    for (const group of menu.groups)
-      for (const link of group.links) items.push(navItem(link, main, `${menu.label} ${group.heading}`))
-    for (const group of menu.aside)
-      for (const link of group.links) items.push(navItem(link, 'Pages', `${menu.label} ${group.heading}`))
+  const tools: NavItem[] = []
+  const pages: NavItem[] = [navItem(nav.home, 'Pages', '')]
+  const add = (group: SiteNavGroup, keywords: string) => {
+    for (const link of group.links)
+      if (group.tools) tools.push(navItem(link, 'Tools', keywords))
+      else pages.push(navItem(link, 'Pages', keywords))
   }
-  for (const group of nav.footer) for (const link of group.links) items.push(navItem(link, 'Pages', group.heading))
+  for (const menu of nav.menus) {
+    pages.push(navItem({ label: menu.overview, href: menu.href, inertia: menu.inertia }, 'Pages', menu.label))
+    for (const group of [...menu.groups, ...menu.aside]) add(group, `${menu.label} ${group.heading}`)
+  }
+  for (const group of nav.footer) add(group, group.heading)
 
   const byHref = new Map<string, NavItem>()
-  for (const item of items) if (!isDocs(item) && !byHref.has(item.href)) byHref.set(item.href, item)
+  for (const item of [...tools, ...pages]) if (!isDocs(item) && !byHref.has(item.href)) byHref.set(item.href, item)
   return [...byHref.values()]
 }
 

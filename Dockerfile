@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:3.1.6
+FROM phusion/passenger-customizable:3.2.3
 
 # set correct environment variables
 ENV HOME /root
@@ -20,7 +20,7 @@ RUN corepack enable
 # the headers under /usr/local/rvm/rubies, so the tree is not needed at runtime.
 RUN /pd_build/ruby-3.3.*.sh && \
     rm -rf /usr/local/rvm/src /usr/local/rvm/archives /var/lib/apt/lists/*
-RUN bash -lc 'rvm --default use ruby-3.3.10'
+RUN bash -lc 'rvm --default use ruby-3.3.13'
 RUN /pd_build/redis.sh
 
 # set environment variables
@@ -179,9 +179,9 @@ RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump
 RUN apt-get update && apt-get install -y --no-install-recommends wget \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-    && apt-get --allow-releaseinfo-change update \
+    && wget --quiet -O /etc/apt/keyrings/pgdg.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
     && apt-get install -y --no-install-recommends postgresql-client-16 \
     && rm -rf /var/lib/apt/lists/*
 

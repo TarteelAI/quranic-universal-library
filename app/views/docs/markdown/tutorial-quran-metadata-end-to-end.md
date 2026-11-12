@@ -55,17 +55,18 @@ Practical meaning:
 
 1. Download metadata package (`json` or `sqlite`).
 2. Import structural tables/records.
-3. Normalize range fields to one format in your app.
+3. Read juz ranges from `first_verse_key` / `last_verse_key` (format `surah:ayah`).
 4. Build indexes by structure number (e.g., `juz_number`, `hizb_number`).
 5. Connect metadata filters to ayah queries.
 
 Starter integration snippet (JavaScript):
 
 ```javascript
-// Build lookup maps for fast structure-based navigation.
-const buildMetadataIndexes = ({ surahs, juzRanges }) => {
-  const surahById = new Map(surahs.map((s) => [s.surah_id, s]));
-  const juzByNumber = new Map(juzRanges.map((j) => [j.juz_number, j]));
+// The JSON exports are objects keyed by number ("1", "2", ...), not arrays.
+// surahs: quran-metadata-surah-name.json, juzs: quran-metadata-juz.json
+const buildMetadataIndexes = ({ surahs, juzs }) => {
+  const surahById = new Map(Object.values(surahs).map((s) => [s.id, s]));
+  const juzByNumber = new Map(Object.values(juzs).map((j) => [j.juz_number, j]));
   return { surahById, juzByNumber };
 };
 
@@ -74,8 +75,8 @@ const getJuzAyahRange = (juzByNumber, juzNumber) => {
   const record = juzByNumber.get(juzNumber);
   if (!record) return null;
   return {
-    from: `${record.from_surah}:${record.from_ayah}`,
-    to: `${record.to_surah}:${record.to_ayah}`
+    from: record.first_verse_key, // e.g. "78:1"
+    to: record.last_verse_key // e.g. "114:6"
   };
 };
 ```
@@ -108,21 +109,25 @@ You can edit this code for testing. Edits are not saved and may not persist afte
 ```playground-js
 // This sandbox shows how metadata powers structural browsing.
 
-const juzRanges = [
-  { juz_number: 1, from_surah: 1, from_ayah: 1, to_surah: 2, to_ayah: 141 },
-  { juz_number: 2, from_surah: 2, from_ayah: 142, to_surah: 2, to_ayah: 252 },
-  { juz_number: 30, from_surah: 78, from_ayah: 1, to_surah: 114, to_ayah: 6 }
-];
+// Trimmed sample in the same shape as the JSON exports (objects keyed by number).
+const juzs = {
+  "1": { juz_number: 1, verses_count: 148, first_verse_key: "1:1", last_verse_key: "2:141" },
+  "2": { juz_number: 2, verses_count: 111, first_verse_key: "2:142", last_verse_key: "2:252" },
+  "30": { juz_number: 30, verses_count: 564, first_verse_key: "78:1", last_verse_key: "114:6" }
+};
 
-const surahs = [
-  { surah_id: 1, name: "Al-Fatihah", revelation_place: "makkah" },
-  { surah_id: 2, name: "Al-Baqarah", revelation_place: "madinah" },
-  { surah_id: 78, name: "An-Naba", revelation_place: "makkah" },
-  { surah_id: 114, name: "An-Nas", revelation_place: "makkah" }
-];
+const surahs = {
+  "1": { id: 1, name_simple: "Al-Fatihah", revelation_place: "makkah", verses_count: 7 },
+  "2": { id: 2, name_simple: "Al-Baqarah", revelation_place: "madinah", verses_count: 286 },
+  "78": { id: 78, name_simple: "An-Naba", revelation_place: "makkah", verses_count: 40 },
+  "114": { id: 114, name_simple: "An-Nas", revelation_place: "makkah", verses_count: 6 }
+};
 
-const surahById = new Map(surahs.map((s) => [s.surah_id, s]));
-const juzByNumber = new Map(juzRanges.map((j) => [j.juz_number, j]));
+const surahById = new Map(Object.values(surahs).map((s) => [s.id, s]));
+const juzByNumber = new Map(Object.values(juzs).map((j) => [j.juz_number, j]));
+
+// "78:1" -> 78
+const surahOf = (verseKey) => Number(verseKey.split(":")[0]);
 
 const app = document.getElementById("app");
 const dropdownStyle = [
@@ -163,12 +168,13 @@ const render = () => {
     return;
   }
 
-  const fromSurah = surahById.get(range.from_surah)?.name || range.from_surah;
-  const toSurah = surahById.get(range.to_surah)?.name || range.to_surah;
+  const fromSurah = surahById.get(surahOf(range.first_verse_key))?.name_simple;
+  const toSurah = surahById.get(surahOf(range.last_verse_key))?.name_simple;
 
   result.innerHTML = `
-    <div><strong>From:</strong> ${range.from_surah}:${range.from_ayah} (${fromSurah})</div>
-    <div><strong>To:</strong> ${range.to_surah}:${range.to_ayah} (${toSurah})</div>
+    <div><strong>From:</strong> ${range.first_verse_key} (${fromSurah})</div>
+    <div><strong>To:</strong> ${range.last_verse_key} (${toSurah})</div>
+    <div><strong>Ayahs:</strong> ${range.verses_count}</div>
   `;
 };
 

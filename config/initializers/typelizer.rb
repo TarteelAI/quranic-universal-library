@@ -15,6 +15,7 @@ Typelizer.configure do |config|
     %r{\A/\z},
     %r{\A/spotlight\z},
     %r{\A/apps\z},
+    %r{\A/docs(/:key)?\z},
     # The catalog, its type pages, the resource detail pages and file downloads.
     lambda { |route|
       route[:verb] == 'get' &&

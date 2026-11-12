@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test'
 // (AGENTS.md, "Browser tests"). `yarn test:browser` starts Vite and Rails, or reuses the ones
 // already running on these ports (for example Rails in Docker).
 const baseURL = process.env.QUL_BROWSER_BASE_URL ?? 'http://localhost:3000'
-const pageGroups = process.env.QUL_PAGE_GROUPS ?? 'home,catalog,apps'
+const pageGroups = process.env.QUL_PAGE_GROUPS ?? 'home,catalog,apps,content'
 
 export default defineConfig({
   testDir: 'spec/browser',

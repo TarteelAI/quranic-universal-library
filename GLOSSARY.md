@@ -3,8 +3,9 @@
 Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
 
 - **Page group**: a set of URLs that switch together between the old ERB pages and the new
-  Inertia pages. The groups are `home`, `catalog` (`/resources` and below) and `apps`
-  (`PageGroups` in `app/services/page_groups.rb`).
+  Inertia pages. The groups are `home`, `catalog` (`/resources` and below), `apps` and
+  `content` (docs, FAQ, credits, the tools overview, the changelog) (`PageGroups` in
+  `app/services/page_groups.rb`).
 - **Page group setting**: one deploy-time setting, `QUL_PAGE_GROUPS`, that lists the page groups
   served by the new pages. A group that is not listed is served by the old views, which stay in
   the code.

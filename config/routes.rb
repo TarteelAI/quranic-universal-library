@@ -10,6 +10,15 @@ Rails.application.routes.draw do
     root to: 'site/home#show', as: :home_page
   end
   root to: 'landing#home'
+  # The new docs pages while the `content` page group is on, above the old docs routes below.
+  # Page loads and Inertia visits only (Content::DocsRequest): the old pages' help dialogs keep
+  # the old answer. The two constraints are nested blocks because a `constraints:` option on the
+  # route would replace the group's constraint instead of adding to it.
+  constraints(PageGroups.constraint(:content)) do
+    constraints(Content::DocsRequest) do
+      get '/docs/:key', to: 'content/docs#show', as: :docs_page, format: false
+    end
+  end
 
   get '/search', to: 'search#index', as: :search
 

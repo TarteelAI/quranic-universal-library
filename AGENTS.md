@@ -149,14 +149,18 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
-served by the old ERB views. A group takes over only the URLs that have a new page so far (for
+below), `apps` and `content` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
 page: off, it is a 404 and no new page links to it. Its entries are `config/apps.yml` (read through
 `AppDirectory`, icons in `public/app-icons`); the "Submit your app" links open the
 `app_submission.yml` issue form.
+`content` serves `/docs/:key` (`Content::DocsController`, body from `Content::DocPage`) for page
+loads and Inertia visits only (`Content::DocsRequest`): the old pages' help dialogs fetch
+`/docs/:key` with `fetch` (Accept `*/*`) or as XHR and keep the old answer, and so do the keys
+only an ERB partial under `app/views/docs` serves.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
@@ -296,9 +300,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).

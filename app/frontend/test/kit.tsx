@@ -4,6 +4,7 @@ import * as layout from '@/components/layout'
 import * as appIcon from '@/components/qul/app-icon'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
+import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
 import * as flash from '@/components/qul/flash'
 import * as icons from '@/components/qul/icons'
@@ -24,6 +25,7 @@ import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
 import { resourcePageProps } from './catalog'
+import { tutorialDoc } from './content'
 import { homePageProps } from './site'
 import { nav as navProps } from './shell'
 
@@ -32,6 +34,7 @@ const modules = {
   appIcon,
   catalog,
   chrome,
+  docs,
   downloadPanel,
   flash,
   icons,
@@ -64,6 +67,7 @@ const { AppIcon } = appIcon
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
+const { CodeBlock, DocBody, DocContents, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
 const { GitHubMark, QulIcon, ResourceIcon } = icons
@@ -207,6 +211,10 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: '5.1 MB',
   },
+  DocBody: { element: <DocBody segments={tutorialDoc.segments} />, text: 'What you will build' },
+  CodeBlock: { element: <CodeBlock label="Shell" code="bin/rails server" />, text: 'bin/rails server' },
+  Playground: { element: <Playground code="console.log(1)" />, text: 'console.log(1)' },
+  DocContents: { element: <DocContents contents={tutorialDoc.contents} />, text: 'Run the example' },
   WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
   AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
   ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },

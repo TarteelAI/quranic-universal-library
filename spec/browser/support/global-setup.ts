@@ -7,7 +7,7 @@ export default async function globalSetup(config: FullConfig) {
   const html = await response.text()
   if (!html.includes('data-page="app"')) {
     throw new Error(
-      `${baseURL}/resources/translation is not an Inertia page. Start Rails with QUL_PAGE_GROUPS=home,catalog,apps.`,
+      `${baseURL}/resources/translation is not an Inertia page. Start Rails with QUL_PAGE_GROUPS=home,catalog,apps,content.`,
     )
   }
 }

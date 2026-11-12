@@ -22,9 +22,15 @@ class DocsManifest
       titles[slug.to_s]
     end
 
+    # Every page in reading order: the categories in order, each page followed by its children.
+    def pages_in_order
+      @pages_in_order ||= load.values.flat_map { |category| flatten(category.pages) }
+    end
+
     def reload!
       @load = nil
       @titles = nil
+      @pages_in_order = nil
     end
 
     private
@@ -72,6 +78,10 @@ class DocsManifest
           children: build_pages(page.fetch("children", []))
         )
       end
+    end
+
+    def flatten(pages)
+      pages.flat_map { |page| [page, *flatten(page.children)] }
     end
 
     def page_matches?(page, slug)

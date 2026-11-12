@@ -110,3 +110,41 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Why:** CI has no database and the specs need the snapshot clones.
 - **Cost:** RSpec and Playwright depend on contributors running `bin/gate` and
   `yarn test:browser` before pushing.
+
+## Sprint 002: Content pages and guided setup
+
+### The apps directory moves into the CMS database
+
+- **Decision:** apps are rows in the CMS database, submitted through a form on `/apps` by
+  signed-in users and published by an editor. This replaces the sprint 001 decision "The apps
+  directory is a file in this repo"; `config/apps.yml` becomes the one-time import source.
+- **Why:** editors can approve, edit and feature apps without a commit and a deploy, and
+  submitters do not need a GitHub account.
+- **Cost:** a new table and CMS screen, an icon upload to storage, and no public review trail.
+
+### Public writes need sign-in and have a daily limit counted in the database
+
+- **Decision:** app submissions, requests and votes need a signed-in user. A user can send at
+  most 5 requests and 3 app submissions a day, counted from the user's own rows. A vote is one
+  row per user and request.
+- **Why:** development and test use a cache that stores nothing, so a cache-based limit could
+  not be proven locally; a row count is a model rule with request specs.
+- **Cost:** no limit by address, and one count query per submission.
+
+### Kits are a file in this repo, and the bundle lives in the browser
+
+- **Decision:** kits are a curated file read through one class; the bundle is a list kept in
+  the visitor's browser, and it downloads file by file through the existing download route. No
+  zip is built.
+- **Why:** kits are few and change with the catalog review, and a browser list needs no
+  account, no table and no change to the download rules or counts.
+- **Cost:** a kit change needs a commit and a deploy, a bundle does not follow the visitor to
+  another device, and a bundle of many files is many downloads.
+
+### Three more page groups
+
+- **Decision:** `content` (docs, FAQ, credits, the tools overview, the changelog), `start` (the
+  guided setup and kits) and `requests` join `home`, `catalog` and `apps`.
+- **Why:** content pages can go live before the write paths are agreed.
+- **Cost:** every group needs specs for both states, and links between groups must work with
+  any combination.

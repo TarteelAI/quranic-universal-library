@@ -1,0 +1,428 @@
+{
+  "sprint": "002-content-pages-and-guided-setup",
+  "branch": "sprint/002-content-pages-and-guided-setup",
+  "generatedAt": "2026-11-10T23:45:00Z",
+  "mode": "normal",
+  "stories": [
+    {
+      "id": "002-01",
+      "title": "Spike: docs through Inertia, and the `content` page group",
+      "description": "Answer spike S1: can the existing markdown renderer (`DocsPageService`, `DocsManifest`, `config/docs.yml`) feed a new docs page with server rendering, a contents list built from the headings, and the tutorials' runnable examples (`playground-js` blocks), without loosening the page's script rules? Deliver the answer as a thin working path, not a report: the `content` page group added to `PageGroups`, and three docs URLs served by a new Inertia page when the group is on (one tutorial with a runnable example, one resource guide, one tag page under `/docs/:key`). The content stays in the markdown files and is sent as props; nothing is copied into components. Old pages fetch `/docs/:key` without a layout for their help dialogs; that request keeps its old answer whatever the groups. Out of scope: the full docs layout, the other docs keys, search (002-05, 002-06).",
+      "deps": [],
+      "acceptanceCriteria": [
+        "With `content` on, the three chosen docs URLs return server-rendered HTML that holds the same headings, in the same order, as the old page for the same key. Evidence: a request spec inside `SsrServer.with_ssr` that compares heading lists.",
+        "With `content` off, the same three URLs render the old pages unchanged, and with `content` on an XHR request for `/docs/:key` still returns the old layout-free fragment. Evidence: request specs for both states and for the XHR case.",
+        "The runnable example on the chosen tutorial runs in the new page, or the fallback is taken (a code block with a copy button and a note) and recorded. Evidence: a Playwright check that runs the example and reads its output, or the fallback decision with its reason in the handoff.",
+        "The handoff records the answers later stories build on: the prop shape of a docs page (body, contents list, position in the manifest), how the rendered HTML is made safe to insert, how a tag page and a partial-backed key are handled, and whether runnable examples stay."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "`CommunityController#docs` resolves a key three ways: a markdown page, a resource tag (`DownloadableResourceTag`), or an ERB partial under `app/views/docs`. `app/views/docs/_tag.html.erb` renders editor-entered HTML and has an open code-scanning alert on main: the new tag page must not carry that pattern over. The prototype's docs pages (`../qul-redesign/ds/src/app/pages/docs.tsx`, `src/app/docs/ui.tsx`) are a layout reference only; their content describes an API that does not exist. The old route for `/docs/:key` is a protected surface: add the new route in the page-group block above it, do not edit the old controller."
+    },
+    {
+      "id": "002-02",
+      "title": "Spike: first write from an Inertia page (app submission slice)",
+      "description": "Answer spike S2 with the first real write path: a gated form on `/apps` that creates an unpublished app row with an icon. This story adds the apps table in the CMS database (name, link, platforms, resources used, contact, consent, featured, published, the submitting user, an icon attachment) and its model, the gated form component that later forms reuse, and the server rule. An anonymous visitor sees the whole form disabled with a sign-in prompt; after sign-in through Devise they return to the open form; a valid submit creates one unpublished row; invalid input shows the server's validation errors beside the fields. The directory itself keeps reading `config/apps.yml` until 002-14, which also adds the import, the CMS screens and the daily limit. Out of scope: showing database apps on `/apps`, removing the GitHub issue form.",
+      "deps": [],
+      "acceptanceCriteria": [
+        "An anonymous POST is refused by the server and creates no row; a signed-in valid POST creates exactly one row with `published` false and the icon attached; a signed-in invalid POST creates no row and returns the errors as Inertia props. Evidence: named request specs for the three cases, written first.",
+        "A submit enqueues no job and sends no mail. Evidence: a request spec asserting no enqueued jobs and no deliveries.",
+        "In a browser: an anonymous visitor sees the disabled form and the sign-in prompt, signs in, lands back on the open form, submits with an icon, and sees a confirmation; bad input shows field errors without losing the other fields. Evidence: a Playwright spec at both widths, real backend.",
+        "The migration is reversible and its rollback is named in the handoff; `db/schema.rb` gains only this story's lines. Evidence: `git diff db/schema.rb` and a migrate, rollback, migrate run on a clone.",
+        "The handoff records the answers later forms build on: how the gated form gets its disabled state from the `auth` shared prop, how CSRF and validation errors travel, how the sign-in return is built, and whether the upload went through Inertia or fell back to a plain form post."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "Mutating Inertia requests are new in this repo; `AGENTS.md` (Integration answers) records the XSRF cookie behaviour and the redirect rules. Attachments in development use the local disk service (see `has_one_attached` in `Contributor` and `DownloadableFile` for the service switch); production storage cannot be proven locally and is a named human step. Accept only image types and cap the size in the model. The contact field is private: it never reaches a public serializer. The prototype form is in `../qul-redesign/ds/src/app/pages/apps.tsx`. New migrations use the CMS connection only. This table needs the maintainers' agreement before cutover (human step)."
+    },
+    {
+      "id": "002-03",
+      "title": "Spike: card previews at catalog size",
+      "description": "Answer spike S3: can about 550 resource cards show a preview fitted to their type without slowing the catalog or loading every mushaf font? Build the preview-on-a-card mechanism on one type of each preview kind (a mushaf page thumbnail, an audio control, a line in a font or script, an ayah with its translation) and measure the catalog with it. The measure and the margin are decided here and written down: the catalog's first response time and transfer size against the same page on `qul-next`. If the margin cannot be met, take the fallback: previews on type pages and on the first screen of the catalog only, the other cards keep an icon and a summary. Out of scope: the finished card design and the remaining types (002-10).",
+      "deps": [],
+      "acceptanceCriteria": [
+        "The handoff states the baseline (first response time and transfer size of `/resources` on `qul-next`, measured on the development clones), the same numbers with card previews, and the margin chosen. Evidence: the captured measurements and the command that produced them.",
+        "A card's preview data and fonts are requested only when the card is on screen. Evidence: a Playwright spec that counts preview and font requests before and after scrolling.",
+        "The catalog page still renders on the server with previews enabled, and a card whose preview fails shows the card without it. Evidence: the SSR render test and a component test for the failed-preview state.",
+        "The handoff names the decision (previews everywhere, or the fallback) and the contract 002-10 builds on: where preview data comes from per kind and what a card needs in its props."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "The detail page already has a preview per type (sprint 001 stories 001-15 and 001-16: `app/frontend/components/previews`, `app/serializers/previews`); reuse their data sources at card size rather than writing second ones. Glyph-per-page layouts use one font file per page, so a naive thumbnail per card loads hundreds of fonts. Catalog search loads the whole published catalog per request (`DECISIONS.md`), so per-card queries multiply. Eight types have no per-resource sample data (sprint 001 `lessons.md`, Catalog data facts)."
+    },
+    {
+      "id": "002-04",
+      "title": "Ruby linting in the gate for changed files",
+      "description": "Ruby linting runs in this repo again and `bin/gate` runs it on the Ruby files changed against the branch the sprint was cut from, so later stories in this sprint are linted. Existing offences in untouched files are not fixed here. Out of scope: erblint on old views, a CI job.",
+      "deps": [],
+      "acceptanceCriteria": [
+        "`bundle exec rubocop` loads and runs on a file in this repo with the committed configuration. Evidence: the command and its output in the handoff.",
+        "`bin/gate` fails when a changed Ruby file has an offence and passes when none has. Evidence: both runs captured in the handoff.",
+        "`AGENTS.md` names the narrow lint command beside the others."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "RuboCop 1.31 from `Gemfile.lock` crashes on load under the Ruby in use (seen in the `qul-dev` container). Find the cause first: it is most likely the locked version against Ruby 3.3 or a cop in `.rubocop.yml` that the plugin versions no longer define. Prefer a config fix; if the gem must move, update only the rubocop gems in the development and test groups and check the lockfile diff holds nothing else. Changed files: `git diff --name-only --diff-filter=d $(git merge-base origin/qul-next HEAD) -- '*.rb' '*.rake'`. Do not add a Linux platform to `Gemfile.lock`. `lint-staged` in `package.json` already names the rubocop command; keep the two in step."
+    },
+    {
+      "id": "002-05",
+      "title": "Docs pages in the new layout",
+      "description": "Every page in `config/docs.yml` and every tag page under `/docs/:key` renders in the new site at its existing URL, from the existing markdown, in the prototype's docs layout: side navigation from the manifest, an on-page contents list, previous and next links, and a phone layout. The docs index (`/docs`) is rebuilt on the manifest's categories. Code blocks have a copy button. Runnable examples follow the answer of 002-01. The \"API: coming soon\" page stays a short notice. All of it sits behind the `content` group; with the group off every docs URL is the old page. Out of scope: search over the docs (002-06), correcting content (002-09), rewriting content or adding missing format docs.",
+      "deps": ["002-01"],
+      "acceptanceCriteria": [
+        "For every key in `config/docs.yml`, the new page returns 200 and holds the same headings in the same order as the old page for that key. Evidence: a parity request spec that iterates the manifest.",
+        "Every tag page that the old site serves under `/docs/:key` returns 200 in the new layout, and an unknown key is a 404 in the new layout. Evidence: request specs.",
+        "With `content` off, `/docs` and `/docs/:key` are the old pages, and the layout-free XHR answer is unchanged in both states. Evidence: request specs with `page_groups: []` and `page_groups: %w[content]`.",
+        "Each docs page has a title, description and canonical link in the HTML without SSR. Evidence: a request spec on the head.",
+        "In a browser at both widths: the side navigation marks the current page, the contents list follows the headings, previous and next lead to the neighbouring pages in manifest order, the phone layout opens the navigation, and the copy button copies a code block. Evidence: a Playwright spec, real backend.",
+        "The docs page and the docs index each have a component test and an SSR render test."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The manifest has nested pages (tutorials have children). Markdown bodies hold internal links to other docs and to resource pages: links to pages a new group serves should be in-app visits where that is cheap, and must at least work as plain links. Images and screenshots in the markdown stay as they are until 002-09."
+    },
+    {
+      "id": "002-06",
+      "title": "Docs search, and docs results in the search pop-up",
+      "description": "A visitor can search the docs from the docs layout, and the site-wide search pop-up lists matching docs pages as their own result group beside resources, pages and tools. Both read one index of the docs (title, headings and text per page) built on the server from the manifest and the markdown, fetched when first needed and matched in the browser. Docs results appear in the pop-up only while the `content` group is on. Out of scope: searching tag pages' editor content, ranking beyond title, heading, text order.",
+      "deps": ["002-05"],
+      "acceptanceCriteria": [
+        "The index endpoint returns one entry per manifest page with its title, headings and plain text, and no markup. Evidence: a request spec written first, including one page checked by content.",
+        "The index is not part of any page's first response and is requested once per page load, on first use. Evidence: a Playwright check on the network requests.",
+        "Typing a word that appears only in a heading of one docs page finds that page from the docs layout and from the search pop-up, and choosing it opens the page at that heading. Evidence: a Playwright spec at both widths.",
+        "With `content` off, the pop-up has no docs group and requests no index. Evidence: a component test and a request spec for the shared prop that carries the switch."
+      ],
+      "testFirst": true,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The pop-up (`app/frontend/components/qul/spotlight.tsx`) was extended by a sprint 001 fast-follow to group resources, pages and tools, with pages and tools matched in the browser from the `nav` shared prop. Add docs as a fourth group in that structure. Matching must fold case and work for the Arabic terms the docs use."
+    },
+    {
+      "id": "002-07",
+      "title": "FAQ, credits and the tools overview",
+      "description": "`/faq` and `/credits` are rebuilt on their existing data sources (`Faq.published`, and what the old credits page reads), and `/tools` is rebuilt as the prototype's tools overview: grouped cards that link to the old tools. All three sit behind the `content` group. The tools overview shows no per-user access state and no progress bars. The groups, icons and one-line descriptions of the tools already exist for the header's Contribute menu; the overview reads the same source. Out of scope: rebuilding any tool or tool help page.",
+      "deps": ["002-01"],
+      "acceptanceCriteria": [
+        "Each of the three URLs renders the new page with `content` on and the old page with it off. Evidence: request specs for both states per URL, with props checked against the data source.",
+        "The tools overview lists every tool `ToolsHelper#developer_tools` returns, each under a group, and a tool with no group fails a spec rather than disappearing. Evidence: a request spec.",
+        "FAQ answers and credits entries that hold editor-entered markup render as formatted text with no script or event-handler attribute surviving. Evidence: a serializer or request spec with a hostile sample, written first.",
+        "Each page has a component test, an SSR render test and head tags; a Playwright spec opens each at both widths and follows one tool card to its old page."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The tool groups and copy live in `SiteNav::ContributeTools` (added by a sprint 001 fast-follow). The prototype's overview is `../qul-redesign/ds/src/app/pages/more.tsx`. Some tools are visible only to signed-in users with access in the old page; the overview links to every tool and the old page keeps enforcing access."
+    },
+    {
+      "id": "002-08",
+      "title": "Changelog pages",
+      "description": "A changelog page lists the published change log entries, newest first, with paging, and each entry has its own page that links to the resource it belongs to. Both sit behind the `content` group at `/changelog` and `/changelog/:id`. With the group on, the old `/change_logs` URLs redirect there with a 301, and the detail page's Changelog tab links to the changelog; with it off the old pages answer. The page has no prototype design: compose it from existing components. Out of scope: entries that are not tied to a resource, a feed.",
+      "deps": ["002-01"],
+      "acceptanceCriteria": [
+        "The list shows only published entries, newest first, a fixed number per page, and an out-of-range page is a 404. Evidence: request specs written first.",
+        "An entry page shows the title, date and body and links to its resource's detail page when the resource is published, and has no link when it is not. Evidence: request specs for both cases.",
+        "With `content` on, `/change_logs` and `/change_logs/:id` answer 301 to the new URLs; with it off they are the old pages. Evidence: request specs for both states.",
+        "Entry bodies with editor-entered markup render with no script or event-handler attribute surviving. Evidence: a spec with a hostile sample.",
+        "Component and SSR tests for both pages, and a Playwright spec that pages through the list and opens an entry from a resource's Changelog tab."
+      ],
+      "testFirst": true,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "`ChangeLog` belongs to a `resource_content`, which lives in the content database; the resource link goes through `public_downloadable_resource`. Preload in two steps, never join. The design of this page needs a human look before cutover (human step)."
+    },
+    {
+      "id": "002-09",
+      "title": "Navigation without old content pages, and docs corrections",
+      "description": "Close the content block. No link in the new header, menus or footer opens an old content page while `content` is on: docs, FAQ, credits, the tools overview and the changelog are in-app visits, and the Developers menu and footer column point at the docs pages for project setup, contributing code and the API notice. Links to contributor tools, sign-in and the CMS still open old pages. Docs content is corrected only where it is outdated or no longer true because of the new site (old page names, old URLs, screenshots of old pages, steps that changed); each correction is listed in the handoff for human review and nothing is deleted without a note. The shared navigation is no longer frozen in an open tab: when the page group setting changes, an open tab picks up the new navigation on its next visit. A link sweep that follows every header, menu and footer link and records which pages are old is added to the browser suite. Out of scope: rewriting docs, the 9 missing format docs.",
+      "deps": ["002-05", "002-07", "002-08"],
+      "acceptanceCriteria": [
+        "With every page group on, the sweep finds no header, menu or footer link that lands on an old content page; the only old pages it reaches are contributor tools, sign-in and the CMS. Evidence: the Playwright sweep spec and its recorded list in the handoff.",
+        "`SiteNav` marks each content link as served by a new page exactly when `content` is on. Evidence: request specs on the `nav` shared prop for `content` on and off.",
+        "A tab that loaded the navigation under one page group setting shows the navigation for the new setting after its next Inertia visit, without a manual reload. Evidence: a request spec on how the prop is versioned or refreshed, and a component or browser test of the update.",
+        "Every docs correction is listed in the handoff with file, what changed and why, and the docs parity spec from 002-05 still passes or its expected headings are updated in the same commit with the reason.",
+        "With every new page group off, the header and footer of the old pages are unchanged. Evidence: the existing old-page request specs."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": true,
+      "passes": false,
+      "notes": "`nav` is a once prop today (`SharedPropsResource`), which is why an open tab keeps the old navigation. Whatever replaces that must not put the navigation back into every partial reload on the catalog. Docs corrections are a judgement: when in doubt leave the text and list it as a question."
+    },
+    {
+      "id": "002-10",
+      "title": "Resource cards with previews",
+      "description": "Resource cards on the catalog and on every type page show a preview fitted to the type, a type icon, the one-line summary, the status and the formats, as in the prototype, following the decision and contract of 002-03. Types with no per-resource sample data get the icon and summary without a preview. The type icon also goes into the type page and detail page headers. Status shows what the data holds: nothing is marked recommended by this story. Out of scope: catalog grouping and views (002-11), the add-to-bundle control (002-17).",
+      "deps": ["002-03"],
+      "acceptanceCriteria": [
+        "Every type's card renders with its preview kind, or with the no-preview form for the types without sample data, on the catalog and on its type page. Evidence: a Playwright spec that visits each type page at both widths, plus screenshots beside the prototype's in the handoff.",
+        "A card shows the summary, status and formats the serializer sends, and a missing summary or status leaves no empty gap. Evidence: component tests for the full, sparse and no-preview cards.",
+        "The catalog stays within the margin 002-03 set. Evidence: the same measurement command, with numbers in the handoff.",
+        "`Catalog::ResourceCardResource` stays free of controllers and the session and its generated type is current. Evidence: `bin/rails typelizer:check` and a serializer spec written first.",
+        "The kit registry has an entry for each exported card and preview component, and the SSR render tests of the catalog and type pages pass."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": false,
+      "passes": false,
+      "notes": "Cards already link with in-app visits (sprint 001 fast-follow). The prototype cards are `../qul-redesign/ds/src/components/qul/cards.tsx`. When several V4 Tajweed page fonts share a screen, one `@font-palette-values` rule must list them all (`AGENTS.md`). The translations type has about 200 cards on one page until 002-11 adds paging."
+    },
+    {
+      "id": "002-11",
+      "title": "Catalog grouping and views, and search on large type pages",
+      "description": "The catalog groups results by category when no sort and no search is active, and offers a grid view and a compact list view; the choice is kept in the URL with the other catalog state. Type pages with many resources get a search field, a language filter and paging, also in the URL. Type pages get the prototype's \"request a resource\" card; until 002-19 it points where the header's request link points. Out of scope: new filters, new sorts.",
+      "deps": ["002-10"],
+      "acceptanceCriteria": [
+        "With no sort and no query the catalog's results arrive grouped by category in taxonomy order; with either set they arrive as one list. Evidence: request specs written first for the three cases.",
+        "The view choice and a type page's query, language and page survive a reload and Back, and a shared URL opens the same view. Evidence: a Playwright spec at both widths.",
+        "On the translations type page, a search by language name and by resource name each narrow the list, the language filter lists only languages that have a resource of that type, and paging never shows a resource twice. Evidence: request specs over the clone.",
+        "A type page with few resources shows no search, filter or paging. Evidence: a request spec on the props and a component test.",
+        "The request card renders on every type page and on the catalog's empty search state. Evidence: component tests."
+      ],
+      "testFirst": true,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Catalog state rules are in `AGENTS.md` (Page groups): a filter change is a partial reload that adds a history entry, typing replaces it. Search runs in Ruby over the loaded catalog (`Catalog::ResourcesQuery`); extend that query object rather than adding a second one for type pages."
+    },
+    {
+      "id": "002-12",
+      "title": "Home page: showcase, category rows and tool cards",
+      "description": "The home page library section gets the prototype's tabbed showcase (recitation, mushaf layout, translation, morphology) on real data, the category list becomes the prototype's wide rows with a one-line hint and a count per category (replacing the built cards that list types), and the open-source section gets the contributor tool cards. The showcase reuses the detail page's previews for one chosen resource per tab; the choice is made on the server from stable fields, not hard-coded ids. Out of scope: goal cards, the kit row and the hero buttons (002-16), the MCP band (sprint 003).",
+      "deps": ["002-10"],
+      "acceptanceCriteria": [
+        "The home props hold one showcase entry per tab that points at a published resource, and a tab whose resource is missing is left out rather than failing the page. Evidence: request specs written first, including the missing-resource case.",
+        "Each category row shows the hint from the catalog taxonomy and the count of published resources in it, and links to the catalog filtered to that category. Evidence: a request spec that compares the counts with the catalog's facet counts.",
+        "In a browser at both widths: each tab shows its preview, the recitation tab plays and pauses, switching tabs stops playback, and the rows and tool cards link where they say. Evidence: a Playwright spec, real backend, plus screenshots beside the prototype's in the handoff.",
+        "The home page still renders on the server and its first response does not include the previews of the tabs that are not open. Evidence: the SSR render test and a request spec on deferred props."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The user chose the prototype's rows over the built cards knowing the rows lose the direct links to type pages; do not add type links inside the rows. Category hints belong in `Catalog::Taxonomy` with the other shared copy. The prototype home is `../qul-redesign/ds/src/app/pages/home.tsx`."
+    },
+    {
+      "id": "002-13",
+      "title": "Detail page: Data and Docs tabs, notices and the download panel",
+      "description": "The resource detail page comes up to the prototype. The Data tab shows what each file holds, the schema of each table or file, and one code sample. A separate Docs tab shows the per-type format guide; a type without a guide has no Docs tab. Both are sourced from the existing per-type format docs (`app/views/resources/docs`, 19 partials), turned into data the page can render; the content is not rewritten and is not copied into components. The translation and tafsir notices from the old detail page return. The download panel shows a copyable file URL, the version and the updated date. Out of scope: the 9 missing format docs, the prototype's \"Lines on this page\" list (the built preview is ahead of it), licence data.",
+      "deps": [],
+      "acceptanceCriteria": [
+        "For every type that has a format doc, the Data tab props hold at least one schema and one code sample and the Docs tab props hold the guide; for a type without one, the Data tab says so and there is no Docs tab. Evidence: a request spec that iterates the types, written first.",
+        "`?tab=docs` opens the Docs tab on load and on Back, and the old `/resources/:type/:id/:tab` URLs still redirect with a 301. Evidence: request specs and a Playwright check.",
+        "The copyable URL is the public download URL of the file (the route, not a storage URL), copying it puts that URL on the clipboard, and following it obeys the download mode. Evidence: a Playwright spec and request specs in both download modes.",
+        "The version and updated date come from the fields sprint 001 named (the export version where present, else the newest file date), and a resource with neither shows no empty label. Evidence: serializer specs for the three cases.",
+        "The translation and tafsir notices appear on resources of those types and nowhere else. Evidence: component tests.",
+        "Screenshots of the Data and Docs tabs at both widths sit beside the prototype's in the handoff, and the SSR render test passes."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "The format-doc partials are ERB with their own markup and some have sub-folders (`morphology`, `quran_metadata`); they are old views and stay untouched. The hard part is getting schema tables and samples out of them as data without a second copy of the content: decide the approach, state it in the handoff, and stop if it needs the partials rewritten. Version and date facts are in sprint 001 `lessons.md` (Catalog data facts)."
+    },
+    {
+      "id": "002-14",
+      "title": "Apps directory in the CMS",
+      "description": "Finish moving the apps directory into the CMS database on the table from 002-02. An idempotent task imports the entries of `config/apps.yml` and their icons as published rows, keyed on a stable field, and never overwrites a row an editor changed. `/apps` and the home page's apps band read published rows through the same serializer shape as before. The submission form gets its final fields and copy from the prototype and the daily limit: a user can send at most 3 submissions a day, counted from their own rows. Editors approve, edit, feature and remove apps in the CMS. The GitHub issue form for app submissions and the links to it are removed. Out of scope: notifying editors, email of any kind.",
+      "deps": ["002-02"],
+      "acceptanceCriteria": [
+        "On fresh clones: migrate, import, import again. The second import changes 0 rows, and a row edited between the runs keeps the edit. Evidence: a task spec written first and the captured run.",
+        "`/apps` lists exactly the published rows, featured first, and an unpublished submission is visible nowhere public, including the search pop-up and the home band. Evidence: request specs.",
+        "A fourth submission by the same user on the same day is refused with a message and creates no row; the first submission on the next day succeeds. Evidence: request specs with time travel, written first.",
+        "An editor can publish, edit, feature and remove an app in the CMS, and a non-admin cannot reach the screen. Evidence: request specs against the ActiveAdmin routes.",
+        "`.github/ISSUE_TEMPLATE/app_submission.yml` is gone and no page links to it. Evidence: `git grep` output in the handoff and the link sweep.",
+        "The Playwright spec from 002-02 passes against the final form at both widths."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "This replaces a sprint 001 decision; the new one is in `DECISIONS.md` (Sprint 002). `config/apps.yml` and `public/app-icons` stay as the import source; `AppDirectory` either reads the table or goes. The featured apps in the file are placeholders until the list is supplied. Backfill rules: idempotent, keyed on stable fields, because editors keep changing production. Protected surface: migrations and backfills."
+    },
+    {
+      "id": "002-15",
+      "title": "Guided setup",
+      "description": "`/start` is built from the prototype behind the new `start` page group: five steps (goal, platforms, features, script, languages), with the script step taking several scripts as in prototype v8. The answers live in the URL, so a setup can be resumed and shared. The flow ends on the catalog, filtered for the answers, with the \"filtered for your app\" banner, the needs checklist and a way back to edit the answers. The mapping from answers to catalog filters and to the checklist is one server-side object with no knowledge of controllers or the session, so kits and the API can reuse it. Out of scope: kits and the entry points on the home page and header (002-16), saving a setup to an account.",
+      "deps": ["002-11"],
+      "acceptanceCriteria": [
+        "The mapping returns, for each goal and for representative combinations of the other answers, the catalog filters and the checklist items. Evidence: table-driven specs written first, one row per goal at least.",
+        "Every filter value the mapping can produce is a value the catalog accepts, and each goal's result has at least one resource on the clone. Evidence: a spec that feeds each mapping result to `Catalog::ResourcesQuery`.",
+        "An unknown or partial set of answers in the URL opens the flow at the first unanswered step and never errors. Evidence: request specs.",
+        "In a browser, for each goal: answering the steps ends on the filtered catalog with the banner and checklist, the URL reopened in a new context shows the same result, and \"edit\" returns to the flow with the answers kept. Evidence: a Playwright spec per goal at both widths.",
+        "With `start` off, `/start` is a 404 and no new page links to it. Evidence: request specs for both states.",
+        "Component and SSR tests for the page."
+      ],
+      "testFirst": true,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "Prototype: `../qul-redesign/ds/src/app/pages/wizard.tsx`; the goal taxonomy is in `../qul-redesign/brief.md` section 3. The catalog already accepts several script families (`script[]=`). With nothing marked recommended the checklist names needs, not picks. `/start` has no old page, like `/apps`."
+    },
+    {
+      "id": "002-16",
+      "title": "Kits, and the ways into the guided setup",
+      "description": "Kits are a curated file in the repo, read through one class. A kits index and a kit page are built behind the `start` group: the kit page from the prototype (each item with its reason and an alternative), the index from the kit card on the prototype's home page. The home page gains the goal cards and the \"Start from a kit\" row; the header gains the \"Start building\" menu; the hero and the closing banner buttons point at the guided setup. With `start` off none of these appear and the home page is as before. Out of scope: a zip of a kit, an attribution file, kit defaults from recommended flags.",
+      "deps": ["002-15"],
+      "acceptanceCriteria": [
+        "Every kit item and alternative in the file names a resource by a stable key, and a spec fails when one does not resolve to a published resource on the clone. Evidence: the spec, written first.",
+        "A kit whose item later becomes unpublished still renders, without that item. Evidence: a request spec.",
+        "The kits index and each kit page return server-rendered HTML with head tags, and are 404 with `start` off. Evidence: request specs for both states.",
+        "The home goal cards open the guided setup with the goal answered; the kit row, the header menu and the hero and closing buttons lead where they say; with `start` off the home page and header show none of them. Evidence: request specs on the props for both states and a Playwright spec at both widths.",
+        "Component and SSR tests for both pages; screenshots of the kit page beside the prototype's in the handoff."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": true,
+      "passes": false,
+      "notes": "Kit items are named by hand and may point at resources the data team later replaces; the resolving spec is what catches that. The kits index has no prototype design and needs a human look before cutover (human step). `../qul-redesign/research/data-requirements.html` has the reasoning for kits as a file."
+    },
+    {
+      "id": "002-17",
+      "title": "Bundle tray",
+      "description": "A visitor collects resources into a bundle from any resource card, kit page or detail page. The header shows the count, the list survives a reload, and the tray lists each file with its own download link and offers the list as copyable text. The bundle is browser state only: its links are the same per-file download route as everywhere else, so the download rules and the counting are unchanged, and it builds no zip. Out of scope: syncing a bundle to an account, a bundle page URL.",
+      "deps": ["002-10", "002-16"],
+      "acceptanceCriteria": [
+        "Adding and removing from a card, a kit page and a detail page updates the header count, and the list is the same after a reload and in a second tab. Evidence: a Playwright spec at both widths.",
+        "Each file in the tray downloads through the per-file route in both download modes: in `public` mode the file redirect, in `sign_in` mode the sign-in page for an anonymous visitor. Evidence: Playwright specs for both modes.",
+        "A bundled resource that has since been unpublished or lost a file shows as unavailable instead of a dead link. Evidence: a request spec for the lookup and a component test.",
+        "The page renders on the server with an empty bundle and hydrates without a mismatch when the browser holds a bundle. Evidence: the kit hydration test and the SSR render tests.",
+        "The copied text lists each resource's name and download URL. Evidence: a component test."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": false,
+      "passes": false,
+      "notes": "The server never sees the bundle, so the tray needs a way to turn stored ids into current names and files: one small JSON endpoint that takes ids and returns only what the public catalog already shows. Storage can be blocked or empty: the header and pages must work without it. Prototype: `../qul-redesign/ds/src/components/qul/chrome.tsx` and `src/app/shell.tsx`."
+    },
+    {
+      "id": "002-18",
+      "title": "Requests: data, write rules and CMS screens",
+      "description": "Requests and votes become rows in the CMS database, with the rules enforced on the server. A request has a title, a description, a resource type, an optional language, a status set by editors, a hidden flag and its author. A vote is one row per user and request. A signed-in user can create a request (at most 5 a day, counted from their own rows), vote once on a request and take the vote back. The public page and the dialog come in 002-19; this story delivers the tables, models, the controller actions for create, vote and unvote, the query object for the public list (sorted by votes or date, hidden ones left out), and the CMS screens where editors set status and hide requests. Out of scope: any page or dialog (002-19), importing GitHub issues, email.",
+      "deps": ["002-02"],
+      "acceptanceCriteria": [
+        "Anonymous create, vote and unvote are refused by the server and change no row. Evidence: named request specs written first.",
+        "A signed-in create makes one row with the default status; a sixth create on the same day is refused; invalid input returns errors and makes no row. Evidence: request specs with time travel.",
+        "A second vote by the same user on the same request changes nothing, also when the two requests race, and unvote removes exactly that user's vote. Evidence: request specs and a unique index named in the handoff.",
+        "The list query returns visible requests with their vote counts in one query per page, sorted by votes or by date, and never returns a hidden request. Evidence: query specs written first.",
+        "No write path enqueues a job or sends mail. Evidence: request specs.",
+        "Editors can set status and hide a request in the CMS; a non-admin cannot. Evidence: request specs against the ActiveAdmin routes.",
+        "The migrations are reversible, their rollbacks are named, and `db/schema.rb` gains only this story's lines. Evidence: the handoff and `git diff db/schema.rb`."
+      ],
+      "testFirst": true,
+      "difficulty": "high",
+      "review": true,
+      "passes": false,
+      "notes": "Author identity is private: the public list shows no name, email or id of the author or the voters, only counts and whether the current user voted. The status values need plain labels a visitor understands. These tables need the maintainers' agreement before cutover (human step). Protected surface: migrations."
+    },
+    {
+      "id": "002-19",
+      "title": "Requests: the dialog and the public page",
+      "description": "The request dialog from the prototype is a gated form, built on the form from 002-02, opened from the catalog, the type pages' request card, the empty search state and the Contribute menu. A public requests page at `/requests`, behind the new `requests` page group, lists requests with status and vote count, sorted by votes or by date, and a signed-in user votes and takes the vote back in place. With `requests` on, every link to the GitHub request form in the new pages is replaced; with it off those links stay and `/requests` is a 404. The page has no prototype design: compose it from existing components. Out of scope: comments, notifications, \"email me when it ships\".",
+      "deps": ["002-18", "002-11"],
+      "acceptanceCriteria": [
+        "In a browser at both widths: an anonymous visitor opens the dialog from each of the four places and sees the whole form disabled with a sign-in prompt; after sign-in they return to the page with the dialog open; a valid submit shows the new request on the requests page; invalid input shows field errors. Evidence: a Playwright spec, real backend.",
+        "Voting and taking a vote back update the count in place without a full reload, and an anonymous click on vote asks for sign-in. Evidence: a Playwright spec.",
+        "The requests page returns server-rendered HTML with head tags, its sort lives in the URL, and it pages. Evidence: request specs.",
+        "`SiteNav`'s request link is an in-app link exactly when `requests` is on, and with it on no new page links to the GitHub request form. Evidence: request specs on the shared prop for both states and the link sweep.",
+        "Component and SSR tests for the page and the dialog."
+      ],
+      "testFirst": false,
+      "difficulty": "med",
+      "review": true,
+      "passes": false,
+      "notes": "This is the final implementation story, so its checkpoint covers the whole write surface. The dialog is in `../qul-redesign/ds/src/components/qul/chrome.tsx`. The requests list needs a human design look before cutover (human step)."
+    },
+    {
+      "id": "002-20",
+      "title": "Runtime validation on the production image and the local stack",
+      "description": "Prove the sprint's exit criteria on real surfaces and write `sprints/002-content-pages-and-guided-setup/VALIDATION.md`. The runs: the production image built from the sprint branch and run on snapshot clones with Sidekiq disabled and no SMTP variables; the whole Playwright suite with every page group on, phone and desktop, signed-in and anonymous, including the link sweep; docs parity for every key; switch-back with each new group off; the data replay for the apps import; and the write-path checks for app submissions, requests and votes. Defects found are fixed in this story when small, or listed with their owner.",
+      "deps": ["002-04", "002-06", "002-09", "002-12", "002-13", "002-14", "002-17", "002-19"],
+      "acceptanceCriteria": [
+        "The image builds for `linux/amd64` and, running on clones, returns server-rendered HTML for a docs page, the guided setup and the requests page. Evidence: the build log tail and the captured responses in `VALIDATION.md`.",
+        "The full Playwright suite passes at both widths with every group on. Evidence: the run summary and each spec's provenance line.",
+        "The link sweep's list of old pages reached from the new header, menus and footer holds only contributor tools, sign-in and the CMS. Evidence: the list in `VALIDATION.md`.",
+        "With each of `content`, `start` and `requests` off in turn, the old page (or the 404 where there is none) answers at each of its URLs, including the layout-free docs request. Evidence: the captured status and page marker per URL.",
+        "On fresh clones: migrate, import apps, import again changes 0 rows, and an app edited between runs is kept. Evidence: the captured output.",
+        "For app submissions, requests and votes on the running image: an anonymous attempt is refused, a signed-in submit creates one unpublished or default-status row, a second vote changes nothing, and nothing is enqueued or mailed. Evidence: the captured requests and row counts, with no user data in the file.",
+        "The icon upload is proven with the local disk service, and the production storage check is listed as a human step. Evidence: `VALIDATION.md`.",
+        "`bin/gate` passes, including Ruby linting. Evidence: the gate output."
+      ],
+      "testFirst": false,
+      "difficulty": "high",
+      "review": false,
+      "passes": false,
+      "notes": "`docker/README.md` has the image recipe. `VALIDATION.md` is public: describe behaviour, never data from user, download or admin tables, and no weaknesses of the running site. Use the fake accounts (`bin/rails dev:fake_accounts`) for signed-in runs."
+    },
+    {
+      "id": "002-21",
+      "title": "Docs write-back",
+      "description": "Bring the repo's own docs to what the sprint shipped: `AGENTS.md` (the three new page groups and what each serves, the docs pages and their index, gated forms and mutating Inertia requests, the bundle, the write limits, the Ruby lint command), `GLOSSARY.md` (content page, guided setup, kit, bundle, request, app submission, gated form), `DECISIONS.md` (check the Sprint 002 entries written at planning against what was built, and mark the superseded apps entry), `.env.sample`, `docker/README.md` if the image run changed, and the public docs page that tells people how to submit an app or request a resource. Graduate the cross-sprint entries of this sprint's `lessons.md` into `AGENTS.md`.",
+      "deps": ["002-20"],
+      "acceptanceCriteria": [
+        "Each doc named above matches the code: every command it names runs, every setting it names is read by the app, and every page group it names exists in `PageGroups`. Evidence: the list of checks in the handoff.",
+        "`GLOSSARY.md` defines the seven terms as the code uses them.",
+        "No doc still says apps are submitted through a GitHub issue form or that the directory is `config/apps.yml`. Evidence: `git grep` output."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "Seed targets: `AGENTS.md` sections \"Page groups\", \"Conventions for a new page\", \"Integration answers\" and \"Quality gate\"; `GLOSSARY.md`; `DECISIONS.md` line \"The apps directory is a file in this repo\" (add a line that the Sprint 002 entry replaces it; do not delete history); `sprints/README.md` if the file table changed. Keep the public-repo rule: rules and behaviour only."
+    },
+    {
+      "id": "002-22",
+      "title": "Handoff: merge to qul-next and list the human steps",
+      "description": "Merge the sprint branch into `qul-next`, update the draft PR against `main` (or open one), and write the handoff a person acts on. `main` is unchanged. The handoff lists every human step in one place.",
+      "deps": ["002-21"],
+      "acceptanceCriteria": [
+        "`qul-next` holds the sprint's commits, `origin/main` is unchanged, and the draft PR against `main` describes the new page groups, settings, migrations and the import order. Evidence: `git log`, the PR link.",
+        "CI on the branch is green and code scanning reports no alert in files this sprint created. Evidence: the PR checks.",
+        "The handoff lists the human steps: a design look at the kits index, the requests list and the changelog; review of the docs corrections; the maintainers' agreement on the apps, requests and votes tables; the production storage check for app icons; turning on `content`, `start` and `requests`; the data team's review that \"Which one should I pick?\" and kit picks depend on; merging to `main`."
+      ],
+      "testFirst": false,
+      "difficulty": "low",
+      "review": false,
+      "passes": false,
+      "notes": "Never commit on or push to `main`. Marking the PR ready and merging are human steps. The unmerged `origin/qiraat/*` stack touches `config/routes.rb` and `db/schema.rb`: repeat the trial merge sprint 001 did and record the result in the PR body."
+    }
+  ],
+  "interviewSummary": {
+    "scopeChanges": "Planned against prototype v8 and a fresh comparison of it with the built app. Moved out of the sprint into four sprint 001 fast-follow PRs on `qul-next`: resource cards as in-app visits, the comparison table at phone width, the three code-scanning alerts in sprint 001 files, plus shell polish (footer lockup, three-way theme switch), the grouped Contribute menu and the search pop-up's open state and page and tool results. Added: docs results in the search pop-up (002-06), a separate Docs tab on the detail page (002-13), the home category list as the prototype's rows (002-12), several scripts in the guided setup (002-15), the closing banner button (002-16), per-user daily limits on writes (002-14, 002-18). Named as not built: the prototype's \"Lines on this page\" list, the footer language picker, the header star count.",
+    "risks": [
+      "Size: 22 stories, larger than sprint 001. The order lets the sprint be cut after any block and stay shippable: content pages (002-05 to 002-09), sprint 001 pages (002-10 to 002-13), apps (002-14), guided setup and kits (002-15, 002-16), bundle (002-17), requests (002-18, 002-19).",
+      "The four fast-follow PRs must be merged into `qul-next` before the sprint branch is cut; stories 002-06, 002-07 and 002-10 build on them. Their browser specs were edited but not run in the PRs.",
+      "The format docs are ERB partials; turning them into schema and sample data for the Data and Docs tabs without a second copy of the content is unproven (002-13).",
+      "Card previews may not meet the margin; the fallback is previews on type pages and the first screen only (002-03).",
+      "New tables (apps, requests, votes) and CMS screens are a protected surface and need the maintainers' agreement before cutover.",
+      "The kits index, the requests list and the changelog have no prototype design.",
+      "Kits and the guided setup depend on data nobody has reviewed: nothing is marked recommended, so kit items are named by hand.",
+      "Icon storage in production cannot be proven locally.",
+      "The qiraat stack touches `config/routes.rb` and `db/schema.rb` and adds resource types that need taxonomy, kit and guided-setup entries.",
+      "RuboCop does not load today; if the fix needs a gem update it changes `Gemfile.lock`, which the qiraat stack also touches."
+    ],
+    "decisions": [
+      "The header menu keeps the name Contribute (user decision; the prototype was changed back to match).",
+      "The detail page gets a separate Docs tab for the per-type format guide; the Data tab keeps files, schemas and one code sample (user decision, matches the prototype).",
+      "Writes are limited per user per day, counted in the database: 5 requests and 3 app submissions. No cache-based throttling, because development and test caches store nothing (user decision).",
+      "Three new page groups: `content`, `start`, `requests`. The apps form stays in `apps`; the bundle and the changes to sprint 001 pages stay in `catalog` and `home` (user decision).",
+      "The home category list becomes the prototype's wide rows with a hint and a count, replacing the built cards that list types (user decision).",
+      "Apps move into the CMS database, replacing the sprint 001 decision; recorded in `DECISIONS.md` (from the PRD).",
+      "Docs search is one server-built index matched in the browser, shared by the docs layout and the search pop-up (planner's choice, not yet confirmed by the user).",
+      "The changelog lives at `/changelog` with 301 redirects from `/change_logs` while `content` is on (planner's choice, not yet confirmed by the user).",
+      "The first write spike uses the real apps table rather than a throwaway, so the spike's work is kept (planner's choice, not yet confirmed by the user)."
+    ]
+  }
+}

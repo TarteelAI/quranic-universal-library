@@ -166,6 +166,7 @@ Rails.application.routes.draw do
   end
   constraints(PageGroups.constraint(:apps)) do
     get '/apps', to: 'site/apps#index', as: :apps_directory, format: false
+    post '/apps', to: 'site/app_submissions#create', as: :app_submissions, format: false
   end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false

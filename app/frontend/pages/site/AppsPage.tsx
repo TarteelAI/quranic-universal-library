@@ -1,17 +1,18 @@
-import { router } from '@inertiajs/react'
-import { ArrowUpRightIcon, CheckIcon, PlusIcon } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { router, usePage } from '@inertiajs/react'
+import { ArrowUpRightIcon, PlusIcon } from 'lucide-react'
+import { useState, type ReactNode } from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
 import { AppIcon } from '@/components/qul/app-icon'
-import { EmptyState } from '@/components/qul/catalog'
+import { AppSubmissionDialog } from '@/components/qul/app-submission'
+import { EmptyState, FilterChip } from '@/components/qul/catalog'
 import { categoryTile } from '@/components/qul/icons'
 import { NavAnchor } from '@/components/qul/nav'
 import { PageHeader } from '@/components/qul/page-header'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { appsDirectory, catalogType } from '@/routes'
-import type { CatalogOption, SiteApp, SiteAppsIndex } from '@/types/serializers'
+import type { SiteApp, SiteAppsIndex } from '@/types/serializers'
 
 // The props a filter change reloads.
 const FILTER_PROPS = ['apps', 'filters']
@@ -44,9 +45,19 @@ function linkLabel(url: string) {
 }
 
 // /apps: the apps built with QUL, featured first, with platform and resource type filters in the
-// query string. From the v7 design (ds/src/app/pages/apps.tsx), with filters, resource type chips
-// that link to the type pages, and the submission issue form in place of the design's dialog.
-export default function AppsPage({ apps, total, filters, platforms, types, submitUrl, catalogPages }: SiteAppsIndex) {
+// query string. From the v7 design (ds/src/app/pages/apps.tsx), with filters and resource type chips
+// that link to the type pages. `?submit` in the URL opens the submission form (sign-in returns there).
+export default function AppsPage({
+  apps,
+  total,
+  filters,
+  platforms,
+  types,
+  submissionTypes,
+  catalogPages,
+}: SiteAppsIndex) {
+  const { url } = usePage()
+  const [submitting, setSubmitting] = useState(() => new URLSearchParams(url.split('?')[1]).has('submit'))
   const toggle = (patch: Partial<Filters>) => filter({ ...filters, ...patch })
   const filtered = filters.platform !== null || filters.type !== null
 
@@ -59,10 +70,8 @@ export default function AppsPage({ apps, total, filters, platforms, types, submi
             count={total}
             description="Quran readers, study apps, libraries and tools whose makers credit QUL for their data."
           />
-          <Button variant="outline" asChild>
-            <a href={submitUrl} target="_blank" rel="noreferrer">
-              <PlusIcon /> Submit your app
-            </a>
+          <Button variant="outline" onClick={() => setSubmitting(true)}>
+            <PlusIcon /> Submit your app
           </Button>
         </div>
 
@@ -115,16 +124,21 @@ export default function AppsPage({ apps, total, filters, platforms, types, submi
 
         <p className="mt-12 border-t pt-6 text-sm text-muted-foreground">
           Built something with QUL?{' '}
-          <a
-            href={submitUrl}
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={() => setSubmitting(true)}
             className="text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
           >
             Submit your app
-          </a>
+          </button>
           . The QUL team checks each app before it is listed.
         </p>
+        <AppSubmissionDialog
+          open={submitting}
+          onOpenChange={setSubmitting}
+          platforms={platforms}
+          types={submissionTypes}
+        />
       </Container>
     </SiteShell>
   )
@@ -136,23 +150,6 @@ function ChipGroup({ label, children }: { label: string; children: ReactNode }) 
       <span className="w-20 shrink-0 text-sm text-muted-foreground">{label}</span>
       {children}
     </div>
-  )
-}
-
-function FilterChip({ option, selected, onClick }: { option: CatalogOption; selected: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={selected}
-      className={cn(
-        'inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm transition-colors hover:border-foreground/30 [&_svg]:size-3.5',
-        selected && 'border-primary bg-primary text-primary-foreground hover:border-primary',
-      )}
-    >
-      {selected && <CheckIcon />}
-      {option.label}
-    </button>
   )
 }
 

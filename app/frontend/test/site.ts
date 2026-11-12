@@ -99,6 +99,11 @@ export const appsPageProps: SiteAppsIndex = {
     { key: 'quran-script', label: 'Quran script' },
     { key: 'translation', label: 'Translation' },
   ],
-  submitUrl: SUBMIT_URL,
+  submissionTypes: [
+    { key: 'recitation', label: 'Recitation' },
+    { key: 'mushaf-layout', label: 'Mushaf layout' },
+    { key: 'quran-script', label: 'Quran script' },
+    { key: 'translation', label: 'Translation' },
+  ],
   catalogPages: true,
 }

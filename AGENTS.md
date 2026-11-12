@@ -155,7 +155,9 @@ URL is served by the old ERB views. A group takes over only the URLs that have a
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
 page: off, it is a 404 and no new page links to it. Its entries are `config/apps.yml` (read through
-`AppDirectory`, icons in `public/app-icons`); the "Submit your app" links open the
+`AppDirectory`, icons in `public/app-icons`). Its "Submit your app" form (`?submit=1` opens it)
+posts to `POST /apps` (`Site::AppSubmissionsController`), which needs a signed-in user and stores
+an unpublished `App` row in the CMS database; the home page still links to the
 `app_submission.yml` issue form.
 `content` serves `/docs/:key` (`Content::DocsController`, body from `Content::DocPage`) for page
 loads and Inertia visits only (`Content::DocsRequest`): the old pages' help dialogs fetch
@@ -271,6 +273,22 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   (3.x) and `postcss`, including the copies Vite, Vitest and typescript-eslint ask for.
   Path-scoped resolutions crash yarn 1.22, so they are not used. The new tools work with those
   versions; typed linting with `allowDefaultProject` would not (it needs minimatch 10).
+
+### Forms that write (sprint 002, story 002-02)
+
+- A form only a signed-in user can send is a `GatedForm` (`components/qul/gated-form.tsx`): from
+  the `auth` shared prop it disables every field (a `<fieldset disabled>`) and shows a sign-in
+  link whose `user_return_to` is a URL that shows the form open. The server checks sign-in
+  itself; an anonymous Inertia submit gets `inertia_location` to sign-in (a full visit, since
+  sign-in is an old page).
+- Submit with `useForm(...).post` (the XSRF header as above). With a `File` in the data Inertia
+  sends multipart, otherwise JSON; `createInertiaApp` turns off `forceIndicesArrayFormatInFormData`
+  so arrays arrive as `field[]`, which Rails reads as arrays.
+- Validation errors: `redirect_back_or_to <path>, inertia: { errors: record.errors.to_hash(true) }`.
+  They reach the next page as the `errors` prop, arrays of full messages (`errorValueType`), and
+  `useForm` keeps the typed values because a post preserves state.
+- Attachments: build the blob with `metadata: { analyzed: true }` (see `App#icon_upload=`), or
+  attaching enqueues `ActiveStorage::AnalyzeJob`, and ActiveJob is Sidekiq outside test.
 
 ### Vite when Rails runs in Docker
 

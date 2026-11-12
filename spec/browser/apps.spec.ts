@@ -3,8 +3,6 @@ import { readFileSync } from 'node:fs'
 
 import { expect, test } from './support/test'
 
-const TEMPLATE = '.github/ISSUE_TEMPLATE/app_submission.yml'
-
 async function hydrated(page: Page) {
   await page.waitForFunction(() =>
     Object.keys(document.getElementById('app') ?? {}).some((key) => key.startsWith('__reactContainer')),
@@ -71,17 +69,77 @@ test.describe('apps directory', () => {
     await expect(page).toHaveURL(/\/resources\/mushaf-layout$/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Mushaf layouts')
   })
+})
 
-  test('the submit control opens the app submission issue form', async ({ page }) => {
-    // The form exists in the repo, so GitHub serves it at that URL.
-    expect(readFileSync(TEMPLATE, 'utf8')).toMatch(/^name: "Submit your app"$/m)
+// The submission form writes unpublished rows to the development clone: one per passing test.
+test.describe('app submission form', () => {
+  const READER = { email: 'reader@example.test', password: 'fake-account-password' }
+  const ICON = 'public/app-icons/bayaan.png'
+  const form = (page: Page) => page.getByRole('dialog', { name: 'Submit your app' })
+
+  async function signIn(page: Page) {
+    await page.locator('#user_email').fill(READER.email)
+    await page.locator('#user_password').fill(READER.password)
+    await page.getByRole('button', { name: 'Sign in' }).click()
+    await expect(page).toHaveURL(/\/apps\?submit=1$/)
+    await hydrated(page)
+  }
+
+  test('a signed-out visitor sees it disabled, signs in, comes back to it and submits with an icon', async ({
+    page,
+  }) => {
     await page.goto('/apps')
+    await hydrated(page)
+    await page.getByRole('main').getByRole('button', { name: 'Submit your app' }).first().click()
 
-    const submit = page.getByRole('main').getByRole('link', { name: 'Submit your app' }).first()
-    await expect(submit).toHaveAttribute(
-      'href',
-      'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=app_submission.yml',
-    )
-    await expect(submit).toHaveAttribute('target', '_blank')
+    for (const field of ['App name', 'Link', 'Icon (optional)', 'Contact email'])
+      await expect(form(page).getByLabel(field, { exact: true })).toBeDisabled()
+    await expect(form(page).getByRole('button', { name: 'iOS' })).toBeDisabled()
+    await expect(form(page).getByRole('button', { name: 'Submit app' })).toBeDisabled()
+    await form(page).getByRole('link', { name: 'Sign in' }).click()
+    await expect(page).toHaveURL(/\/users\/sign_in\?user_return_to=%2Fapps%3Fsubmit%3D1$/)
+    await signIn(page)
+
+    await expect(form(page).getByRole('link', { name: 'Sign in' })).toHaveCount(0)
+    await form(page).getByLabel('App name', { exact: true }).fill(`Browser spec app ${Date.now()}`)
+    await form(page).getByLabel('Link', { exact: true }).fill('https://example.test/browser-spec-app')
+    await chip(page, 'Platforms', 'iOS').click()
+    await chip(page, 'Which QUL resources does it use?', 'Translation').click()
+    await form(page).getByLabel('Icon (optional)', { exact: true }).setInputFiles(ICON)
+    await form(page).getByLabel('Contact email', { exact: true }).fill('maker@example.test')
+    await form(page).getByRole('checkbox').click()
+    await form(page).getByRole('button', { name: 'Submit app' }).click()
+
+    await expect(page.getByRole('dialog', { name: 'Thanks, we have your app' })).toBeVisible()
+    await expect(page).toHaveURL(/\/apps$/)
+  })
+
+  test('bad input shows the server errors beside the fields and keeps the other fields', async ({ page }) => {
+    await page.goto('/users/sign_in?user_return_to=%2Fapps%3Fsubmit%3D1')
+    await signIn(page)
+
+    const name = `Browser spec app ${Date.now()}`
+    await form(page).getByLabel('App name', { exact: true }).fill(name)
+    await form(page).getByLabel('Link', { exact: true }).fill('https://example.test/browser-spec-app')
+    await form(page).getByLabel('Contact email', { exact: true }).fill('maker@example.test')
+    await form(page)
+      .getByLabel('Icon (optional)', { exact: true })
+      .setInputFiles({ name: 'icon.png', mimeType: 'image/png', buffer: Buffer.from('not an image') })
+    await form(page).getByRole('button', { name: 'Submit app' }).click()
+
+    await expect(form(page).getByText('Platforms must include at least one platform')).toBeVisible()
+    await expect(form(page).getByText('Resources used must include at least one resource type')).toBeVisible()
+    await expect(form(page).getByText('Consent must be given to list the app')).toBeVisible()
+    await expect(form(page).getByText('Icon must be a PNG, JPEG or WebP image')).toBeVisible()
+    await expect(form(page).getByLabel('App name', { exact: true })).toHaveValue(name)
+    await expect(form(page).getByLabel('Link', { exact: true })).toHaveValue('https://example.test/browser-spec-app')
+    await expect(form(page).getByLabel('Contact email', { exact: true })).toHaveValue('maker@example.test')
+
+    await chip(page, 'Platforms', 'Web').click()
+    await chip(page, 'Which QUL resources does it use?', 'Mushaf layout').click()
+    await form(page).getByLabel('Icon (optional)', { exact: true }).setInputFiles(ICON)
+    await form(page).getByRole('checkbox').click()
+    await form(page).getByRole('button', { name: 'Submit app' }).click()
+    await expect(page.getByRole('dialog', { name: 'Thanks, we have your app' })).toBeVisible()
   })
 })

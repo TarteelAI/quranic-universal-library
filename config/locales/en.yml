@@ -31,3 +31,9 @@
 
 en:
   hello: "Hello world"
+  activerecord:
+    attributes:
+      app:
+        url: "Link"
+        uses: "Resources used"
+        contact: "Contact email"

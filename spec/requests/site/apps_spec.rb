@@ -30,7 +30,8 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       expect(inertia.props[:platforms].pluck(:key)).to eq(AppDirectory::PLATFORMS.keys)
       used = AppDirectory.apps.flat_map(&:uses).uniq
       expect(inertia.props[:types].pluck(:key)).to match_array(used)
-      expect(inertia.props[:submitUrl]).to end_with('/issues/new?template=app_submission.yml')
+      expect(inertia.props[:submissionTypes].pluck(:key)).to eq(Catalog::Taxonomy.types.map(&:key))
+      expect(inertia.props).not_to have_key(:submitUrl)
     end
 
     it 'narrows the list by platform and by resource type, from the query string' do

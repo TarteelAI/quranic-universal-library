@@ -1,10 +1,10 @@
-import { ArrowUpRightIcon } from 'lucide-react'
+import { ArrowUpRightIcon, CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import type { CatalogCategory, SiteNavLink } from '@/types/serializers'
+import type { CatalogCategory, CatalogOption, SiteNavLink } from '@/types/serializers'
 
 import { QulIcon, ResourceIcon, type IconName } from './icons'
 
@@ -124,4 +124,32 @@ function RequestCard({ link, className }: RequestCardProps) {
   )
 }
 
-export { FacetGroup, EmptyState, RequestCard }
+/* ---------------- FilterChip ---------------- */
+
+export interface FilterChipProps extends Omit<React.ComponentProps<'button'>, 'onClick'> {
+  option: CatalogOption
+  selected: boolean
+  onClick: () => void
+}
+
+/** A pill that toggles one value: the apps directory's filters and the app submission form. */
+function FilterChip({ option, selected, onClick, className, ...props }: FilterChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={cn(
+        'inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm transition-colors hover:border-foreground/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5',
+        selected && 'border-primary bg-primary text-primary-foreground hover:border-primary',
+        className,
+      )}
+      {...props}
+    >
+      {selected && <CheckIcon />}
+      {option.label}
+    </button>
+  )
+}
+
+export { FacetGroup, EmptyState, RequestCard, FilterChip }

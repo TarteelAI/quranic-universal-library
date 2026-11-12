@@ -2,9 +2,10 @@
 
 module Site
   # Props of the apps directory (Site::AppsController#index): the apps that match the filters,
-  # the number of apps in all, the filters applied and their options, and the submission form.
+  # the number of apps in all, the filters applied and their options, and the resource types the
+  # submission form offers.
   class AppsIndexResource < ApplicationResource
-    typelize total: :number, catalog_pages: :boolean, submit_url: :string
+    typelize total: :number, catalog_pages: :boolean
 
     many :apps, source: proc { AppDirectory.filter(self[:apps], self[:filters]) }, resource: AppResource
     attribute(:total) { |page| page[:apps].size }
@@ -17,7 +18,7 @@ module Site
       Catalog::Taxonomy.types.select { |type| used.include?(type.key) }
     }, resource: Catalog::OptionResource
 
-    attribute(:submit_url) { AppDirectory::SUBMIT_URL }
+    many :submission_types, source: proc { Catalog::Taxonomy.types }, resource: Catalog::OptionResource
     attribute(:catalog_pages) { PageGroups.enabled?(:catalog) }
   end
 end

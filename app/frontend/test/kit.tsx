@@ -2,11 +2,13 @@ import type { ReactElement } from 'react'
 
 import * as layout from '@/components/layout'
 import * as appIcon from '@/components/qul/app-icon'
+import * as appSubmission from '@/components/qul/app-submission'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
 import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
 import * as flash from '@/components/qul/flash'
+import * as gatedForm from '@/components/qul/gated-form'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
@@ -26,17 +28,19 @@ import * as tabs from '@/components/ui/tabs'
 
 import { resourcePageProps } from './catalog'
 import { tutorialDoc } from './content'
-import { homePageProps } from './site'
+import { appsPageProps, homePageProps } from './site'
 import { nav as navProps } from './shell'
 
 const modules = {
   layout,
   appIcon,
+  appSubmission,
   catalog,
   chrome,
   docs,
   downloadPanel,
   flash,
+  gatedForm,
   icons,
   nav,
   pageHeader,
@@ -64,12 +68,14 @@ export const componentNames = Object.values(modules)
 
 const { Container, SiteShell } = layout
 const { AppIcon } = appIcon
+const { AppSubmissionDialog } = appSubmission
 const { ShardRing } = shardRing
-const { EmptyState, FacetGroup, RequestCard } = catalog
+const { EmptyState, FacetGroup, FilterChip, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
 const { CodeBlock, DocBody, DocContents, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
+const { GatedForm } = gatedForm
 const { GitHubMark, QulIcon, ResourceIcon } = icons
 const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
@@ -270,6 +276,30 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'English',
   },
   EmptyState: { element: <EmptyState title="Nothing matches this search" />, text: 'Nothing matches this search' },
+  FilterChip: {
+    element: <FilterChip option={{ key: 'ios', label: 'iOS' }} selected onClick={() => {}} />,
+    text: 'aria-pressed="true"',
+  },
+  GatedForm: {
+    element: (
+      <GatedForm returnTo="/apps?submit=1" purpose="submit your app">
+        <Input aria-label="App name" />
+      </GatedForm>
+    ),
+    text: 'user_return_to=%2Fapps%3Fsubmit%3D1',
+  },
+  AppSubmissionDialog: {
+    element: (
+      <AppSubmissionDialog
+        open
+        onOpenChange={() => {}}
+        platforms={appsPageProps.platforms}
+        types={appsPageProps.submissionTypes}
+      />
+    ),
+    text: '',
+    openText: 'Which QUL resources does it use?',
+  },
   RequestCard: { element: <RequestCard link={navProps.request} />, text: 'resource_request.yml' },
   Badge: { element: <Badge variant="brand">Recommended</Badge>, text: 'Recommended' },
   Button: { element: <Button variant="outline">Download</Button>, text: 'Download' },

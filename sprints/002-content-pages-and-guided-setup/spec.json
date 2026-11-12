@@ -420,9 +420,9 @@
       "Three new page groups: `content`, `start`, `requests`. The apps form stays in `apps`; the bundle and the changes to sprint 001 pages stay in `catalog` and `home` (user decision).",
       "The home category list becomes the prototype's wide rows with a hint and a count, replacing the built cards that list types (user decision).",
       "Apps move into the CMS database, replacing the sprint 001 decision; recorded in `DECISIONS.md` (from the PRD).",
-      "Docs search is one server-built index matched in the browser, shared by the docs layout and the search pop-up (planner's choice, not yet confirmed by the user).",
-      "The changelog lives at `/changelog` with 301 redirects from `/change_logs` while `content` is on (planner's choice, not yet confirmed by the user).",
-      "The first write spike uses the real apps table rather than a throwaway, so the spike's work is kept (planner's choice, not yet confirmed by the user)."
+      "Docs search is one server-built index matched in the browser, shared by the docs layout and the search pop-up (planner's choice, confirmed by the user on 2026-11-12).",
+      "The changelog lives at `/changelog` with 301 redirects from `/change_logs` while `content` is on (planner's choice, confirmed by the user on 2026-11-12).",
+      "The first write spike uses the real apps table rather than a throwaway, so the spike's work is kept (planner's choice, confirmed by the user on 2026-11-12)."
     ]
   }
 }

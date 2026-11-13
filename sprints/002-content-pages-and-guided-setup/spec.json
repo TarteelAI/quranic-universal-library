@@ -927,7 +927,7 @@
       "difficulty": "high",
       "review": false,
       "passes": false,
-      "notes": "`docker/README.md` has the image recipe. `VALIDATION.md` is public: describe behaviour, never data from user, download or admin tables, and no weaknesses of the running site. Use the fake accounts (`bin/rails dev:fake_accounts`) for signed-in runs."
+      "notes": "`docker/README.md` has the image recipe. `VALIDATION.md` is public: describe behaviour, never data from user, download or admin tables, and no weaknesses of the running site. Use the fake accounts (`bin/rails dev:fake_accounts`) for signed-in runs.\n\n- **From 002-16 review (driver).** PLAUSIBLE: the 002-15 results page (`/resources?goal=…`) runs one full catalog search per need × picked language, and nothing caps the languages in the URL. Before measuring on the production image, cap the languages (the setup step offers a fixed list) or load the catalog once per request, and include a many-languages URL in the timing run. Also measure `/docs/search-index` (rebuilt per request, ~83 KB, from 002-06).\n- **Cutover order (driver).** `catalog:backfill` must run before `start` is on (kits show empty otherwise); `apps:import` runs once after the 002-14 migration and before `home` or `apps` serves traffic."
     },
     {
       "id": "002-21",

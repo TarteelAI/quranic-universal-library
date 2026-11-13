@@ -619,7 +619,7 @@
       "description": "The resource detail page comes up to the prototype. The Data tab shows what each file holds, the schema of each table or file, and one code sample. A separate Docs tab shows the per-type format guide; a type without a guide has no Docs tab. Both are sourced from the existing per-type format docs (`app/views/resources/docs`, 19 partials), turned into data the page can render; the content is not rewritten and is not copied into components. The translation and tafsir notices from the old detail page return. The download panel shows a copyable file URL, the version and the updated date. Out of scope: the 9 missing format docs, the prototype's \"Lines on this page\" list (the built preview is ahead of it), licence data.",
       "deps": [],
       "acceptanceCriteria": [
-        "For every type that has a format doc, the Data tab props hold at least one schema and one code sample and the Docs tab props hold the guide; for a type without one, the Data tab says so and there is no Docs tab. Evidence: a request spec that iterates the types, written first.",
+        "For every type that has a format doc, the Data tab props hold the schemas and code samples that doc has, and the Docs tab props hold the guide; where the doc has no schema or no code sample, the Data tab says so; for a type without a doc, the Data tab says so and there is no Docs tab. Evidence: a request spec that iterates the types, written first.",
         "`?tab=docs` opens the Docs tab on load and on Back, and the old `/resources/:type/:id/:tab` URLs still redirect with a 301. Evidence: request specs and a Playwright check.",
         "The copyable URL is the public download URL of the file (the route, not a storage URL), copying it puts that URL on the clipboard, and following it obeys the download mode. Evidence: a Playwright spec and request specs in both download modes.",
         "The version and updated date come from the fields sprint 001 named (the export version where present, else the newest file date), and a resource with neither shows no empty label. Evidence: serializer specs for the three cases.",
@@ -629,8 +629,8 @@
       "testFirst": true,
       "difficulty": "high",
       "review": true,
-      "passes": false,
-      "notes": "The format-doc partials are ERB with their own markup and some have sub-folders (`morphology`, `quran_metadata`); they are old views and stay untouched. The hard part is getting schema tables and samples out of them as data without a second copy of the content: decide the approach, state it in the handoff, and stop if it needs the partials rewritten. Version and date facts are in sprint 001 `lessons.md` (Catalog data facts).\n\n- **From 002-09 (driver).** The 14 tutorial pages and step 4 of `tutorials.md` name the old detail page tabs (\"Translation Preview\", \"Help\"). Once this story renames the tabs, update those references in `app/views/docs/markdown` to the new tab names; keep headings unchanged so the 002-05 heading parity spec holds.",
+      "passes": true,
+      "notes": "The format-doc partials are ERB with their own markup and some have sub-folders (`morphology`, `quran_metadata`); they are old views and stay untouched. The hard part is getting schema tables and samples out of them as data without a second copy of the content: decide the approach, state it in the handoff, and stop if it needs the partials rewritten. Version and date facts are in sprint 001 `lessons.md` (Catalog data facts).\n\n- **From 002-09 (driver).** The 14 tutorial pages and step 4 of `tutorials.md` name the old detail page tabs (\"Translation Preview\", \"Help\"). Once this story renames the tabs, update those references in `app/views/docs/markdown` to the new tab names; keep headings unchanged so the 002-05 heading parity spec holds.\n\n- **User decision (2026-11-13).** AC1 amended to \"the schemas and code samples the doc has\": the format docs of recitation, font and surah-info have no schema, and those of surah-info, ayah-topics and ayah-theme have no code block. Docs rewrites stay out of scope. The new tafsir content notice ships and goes to the content owners for review before cutover.",
       "handoff": {
         "done": [
           "Catalog::FormatDoc (app/services/catalog/format_doc.rb): renders the old format-doc partial (resources/docs/<preview_partial>) with a ResourcePresenter on a minimal context and ResourcesController.render, then parses it with Nokogiri: .docs-code blocks and bare pre become Content::DocPage code segments (label from .docs-code-header span), callouts become blockquotes, wrapper divs are unwrapped, and Content::DocPage.new builds the Docs tab segments. Schemas: tables whose first header is Column/Field (Type, Description/What it holds mapped by header) and ul lists of 3+ items each `<code>name</code>: description` (or a dash), named by the heading above. Sample: the first code segment. Partials untouched.",
@@ -663,10 +663,13 @@
           "Mushaf layout's format doc is the DB tag description (DownloadableResourceTag 'mushaf-layout'): its sample is a long page-rendering script that says 'Click on Run button', which the new page does not have. Content, not code; left as is.",
           "Public download mode on the copied URL is proven by request specs only; the Playwright copy test ran against a sign-in-mode server.",
           "Each detail page request now renders one old ERB partial (a few extra content-db reads for fonts and scripts); not measured under production load.",
-          "Owner check: the old site had one content notice (resources/_content_notice, about translations, shown on /resources), not separate translation and tafsir notices on the detail page. The tafsir wording is new copy."
+          "Owner check: the old site had one content notice (resources/_content_notice, about translations, shown on /resources), not separate translation and tafsir notices on the detail page. The tafsir wording is new copy.",
+          "Human step: write the missing schemas (recitation, font, surah-info; also verse translations and SVG-image fonts) and code samples (surah-info, ayah-topics, ayah-theme) into the format partials in a later content change.",
+          "Human step: content owners review the new tafsir notice wording (`CONTENT_NOTICES` in app/frontend/pages/catalog/ResourcePage.tsx) before cutover."
         ]
       },
-      "filesChanged": 40
+      "filesChanged": 40,
+      "completedAt": "2026-11-13T20:04:44Z"
     },
     {
       "id": "002-14",

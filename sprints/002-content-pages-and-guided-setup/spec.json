@@ -540,7 +540,7 @@
       "difficulty": "high",
       "review": true,
       "passes": false,
-      "notes": "The format-doc partials are ERB with their own markup and some have sub-folders (`morphology`, `quran_metadata`); they are old views and stay untouched. The hard part is getting schema tables and samples out of them as data without a second copy of the content: decide the approach, state it in the handoff, and stop if it needs the partials rewritten. Version and date facts are in sprint 001 `lessons.md` (Catalog data facts)."
+      "notes": "The format-doc partials are ERB with their own markup and some have sub-folders (`morphology`, `quran_metadata`); they are old views and stay untouched. The hard part is getting schema tables and samples out of them as data without a second copy of the content: decide the approach, state it in the handoff, and stop if it needs the partials rewritten. Version and date facts are in sprint 001 `lessons.md` (Catalog data facts).\n\n- **From 002-09 (driver).** The 14 tutorial pages and step 4 of `tutorials.md` name the old detail page tabs (\"Translation Preview\", \"Help\"). Once this story renames the tabs, update those references in `app/views/docs/markdown` to the new tab names; keep headings unchanged so the 002-05 heading parity spec holds."
     },
     {
       "id": "002-14",

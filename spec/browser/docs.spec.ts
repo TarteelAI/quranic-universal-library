@@ -109,6 +109,77 @@ test.describe('docs layout', () => {
   })
 })
 
+test.describe('docs search', () => {
+  // "hierarchy" is only in the "Quran Hierarchy" heading of the data model page.
+  const HEADING_ONLY = 'hierarchy'
+  const indexRequests = (page: Page) => {
+    const urls: string[] = []
+    page.on('request', (request) => {
+      if (new URL(request.url()).pathname === '/docs/search-index') urls.push(request.url())
+    })
+    return urls
+  }
+
+  async function expectAtHeading(page: Page) {
+    await expect(page).toHaveURL(/\/docs\/data-model#quran-hierarchy$/)
+    const heading = page.getByRole('heading', { name: 'Quran Hierarchy' })
+    await expect(heading).toBeInViewport()
+    // Below the sticky header, not under it.
+    expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(64)
+  }
+
+  test('the docs layout finds a heading-only word and opens the page at that heading', async ({ page }, testInfo) => {
+    const isPhone = testInfo.project.name === 'phone'
+    const requests = indexRequests(page)
+    await page.goto(TUTORIAL)
+    await hydrated(page)
+    expect(requests).toEqual([])
+
+    const nav = await sideNav(page, isPhone)
+    const field = nav.getByRole('combobox', { name: 'Search the docs' })
+    await field.fill(HEADING_ONLY)
+    const results = nav.getByRole('listbox', { name: 'Docs results' }).getByRole('option')
+    await expect(results).toHaveCount(1)
+    await expect(results.first()).toContainText('Quran Hierarchy')
+    await results.first().click()
+
+    await expectAtHeading(page)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    expect(await page.evaluate(() => performance.getEntriesByType('navigation').length)).toBe(1)
+
+    // A later search on this page load uses the index it has.
+    const again = await sideNav(page, isPhone)
+    await again.getByRole('combobox', { name: 'Search the docs' }).fill('recitation')
+    await expect(again.getByRole('option').first()).toBeVisible()
+    expect(requests).toHaveLength(1)
+  })
+
+  test('the search pop-up lists docs as their own group and opens the page at the heading', async ({ page }) => {
+    const requests = indexRequests(page)
+    await page.goto('/resources')
+    await hydrated(page)
+
+    await page.keyboard.press('ControlOrMeta+k')
+    const spotlight = page.getByRole('dialog', { name: 'Search QUL' })
+    await expect(spotlight.getByRole('group', { name: 'Popular resources' })).toBeVisible()
+    expect(requests).toEqual([])
+
+    const field = spotlight.getByRole('combobox', { name: 'Search QUL' })
+    await field.fill(HEADING_ONLY)
+    const docs = spotlight.getByRole('group', { name: 'Docs' }).getByRole('option')
+    await expect(docs).toHaveCount(1)
+    await expect(docs.first()).toContainText('Quran Hierarchy')
+    await field.fill('recitation')
+    await expect(docs.first()).toBeVisible()
+    await field.fill(HEADING_ONLY)
+    await docs.first().click()
+
+    await expectAtHeading(page)
+    expect(await page.evaluate(() => performance.getEntriesByType('navigation').length)).toBe(1)
+    expect(requests).toHaveLength(1)
+  })
+})
+
 test.describe('docs pages', () => {
   test("the tutorial's example runs in its sandboxed frame, and again with edited code", async ({ page }) => {
     await page.goto(TUTORIAL)

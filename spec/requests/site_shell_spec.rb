@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type: :request do
   let(:page_path) { '/resources/translation' }
 
   def create_user
-    User.new(email: 'spec-shell@example.test', first_name: 'Spec', last_name: 'Shell', password: 'spec-password').tap do |user|
+    User.new(email: 'spec-shell@example.test', first_name: 'Spec', last_name: 'Shell',
+             password: 'spec-password',).tap do |user|
       user.skip_confirmation!
       user.save!
     end
@@ -19,7 +22,7 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       nav[:footer].flat_map { |group| group[:links] } + [nav[:search]]
   end
 
-  describe 'with the catalog page group on', page_groups: %w[catalog] do
+  describe 'with the catalog page group on', page_groups: ['catalog'] do
     it 'sends a signed-out visitor no user' do
       get page_path
 
@@ -36,12 +39,13 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
     it 'sends the navigation once: on the first load, not on later Inertia visits that already have it' do
       get page_path
-      expect(props[:nav].keys).to eq(%i[home menus search footer request])
+      expect(props[:nav].keys).to eq([:home, :menus, :search, :footer, :request, :docsSearch])
       expect(props[:nav][:request]).to include(href: SiteNav::REQUEST_URL, external: true)
       expect(inertia).to have_once_props(nav: { prop: 'nav' })
 
-      get '/resources/tafsir', headers: { 'X-Inertia' => 'true', 'X-Inertia-Version' => InertiaRails.configuration.version.to_s,
-                                          'X-Inertia-Except-Once-Props' => 'nav' }
+      get '/resources/tafsir', headers: { 'X-Inertia' => 'true',
+                                          'X-Inertia-Version' => InertiaRails.configuration.version.to_s,
+                                          'X-Inertia-Except-Once-Props' => 'nav', }
       expect(inertia).to render_component('catalog/TypePage')
       expect(inertia).to have_props(auth: { user: nil })
       expect(inertia).to have_no_prop(:nav)
@@ -51,11 +55,13 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       get page_path
       menus = props[:nav][:menus]
 
-      expect(menus.pluck(:label)).to eq(%w[Resources Docs Developers Contribute])
+      expect(menus.pluck(:label)).to eq(['Resources', 'Docs', 'Developers', 'Contribute'])
       expect(menus.pluck(:dense)).to eq([false, false, false, true])
       tools = menus.last[:groups][0...-1].flat_map { |group| group[:links] }
       expect(tools.pluck(:href)).to match_array(controller.helpers.developer_tools.map(&:url))
-      expect(menus.first[:groups].first[:links].pluck(:href)).to eq(Catalog::Taxonomy.types.map { |t| "/resources/#{t.key}" })
+      expect(menus.first[:groups].first[:links].pluck(:href)).to eq(Catalog::Taxonomy.types.map do |t|
+                                                                      "/resources/#{t.key}"
+                                                                    end)
     end
 
     it 'groups the contributor tools, each with an icon and a one-line description' do
@@ -74,7 +80,7 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       nav = props[:nav]
       contribute = nav[:menus].last
 
-      expect(contribute[:groups].pluck(:tools)).to eq([true] * SiteNav::ContributeTools::GROUPS.size + [false])
+      expect(contribute[:groups].pluck(:tools)).to eq(([true] * SiteNav::ContributeTools::GROUPS.size) + [false])
       others = nav[:menus][0...-1].flat_map { |menu| menu[:groups] + menu[:aside] } + contribute[:aside] + nav[:footer]
       expect(others.pluck(:tools)).to all(be(false))
     end
@@ -85,7 +91,7 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
       expect(aside.pluck(:heading)).to eq(['Help improve the data', 'Community'])
       expect(aside.first[:links].pluck(:href)).to eq([SiteNav::REQUEST_URL, '/change_logs'])
-      expect(aside.last[:links].pluck(:label)).to eq(%w[Discord GitHub])
+      expect(aside.last[:links].pluck(:label)).to eq(['Discord', 'GitHub'])
     end
 
     it 'adds a "Spot a mistake?" group to the Resources menu, linking the translation tool and all tools' do
@@ -93,7 +99,7 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       group = props[:nav][:menus].first[:aside].find { |g| g[:heading] == 'Spot a mistake?' }
 
       expect(group[:links].pluck(:label, :href)).to eq([['Fix a translation', '/translations'],
-                                                         ['All contribution tools', '/tools']])
+                                                        ['All contribution tools', '/tools'],])
       expect(group[:links].pluck(:inertia)).to all(be(false))
     end
 
@@ -103,7 +109,9 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
       inertia_hrefs = links.select { |link| link[:inertia] }.pluck(:href).uniq
       expect(inertia_hrefs).to all(match(%r{\A/resources(/[a-z-]+)?\z}))
-      expect(links.reject { |link| link[:inertia] }.pluck(:href)).to all(satisfy { |href| !href.start_with?('/resources') })
+      expect(links.reject { |link| link[:inertia] }.pluck(:href)).to all(satisfy do |href|
+                                                                           !href.start_with?('/resources')
+                                                                         end)
     end
 
     it 'shows a notice set before a redirect to a new page once' do
@@ -121,10 +129,12 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
     it 'sets the theme before the first paint: a stored light or dark, else (none or system) the system setting' do
       get page_path
-      script = Nokogiri::HTML(response.body).css('head script:not([src])').map(&:text).find { |s| s.include?('qul-theme') }
+      script = Nokogiri::HTML(response.body).css('head script:not([src])').map(&:text).find do |s|
+        s.include?('qul-theme')
+      end
 
       expect(script).to include("localStorage.getItem('qul-theme')", 'prefers-color-scheme: dark',
-                                "stored === 'light' || stored === 'dark'")
+                                "stored === 'light' || stored === 'dark'",)
     end
   end
 
@@ -140,17 +150,17 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
       contribute = props[:nav][:menus].last
 
       expect(contribute[:dense]).to be(true)
-      expect(contribute[:aside].last[:links].pluck(:label)).to eq(%w[Discord GitHub])
+      expect(contribute[:aside].last[:links].pluck(:label)).to eq(['Discord', 'GitHub'])
       expect(props[:nav][:menus].first[:aside].pluck(:heading)).to include('Spot a mistake?')
     end
   end
 
-  describe 'with the apps page group on', page_groups: %w[catalog apps] do
+  describe 'with the apps page group on', page_groups: ['catalog', 'apps'] do
     it 'links the apps directory from the Contribute menu' do
       get page_path
 
       community = props[:nav][:menus].last[:aside].last[:links]
-      expect(community.pluck(:label, :href).first).to eq(['Apps built with QUL', '/apps'])
+      expect(community.pick(:label, :href)).to eq(['Apps built with QUL', '/apps'])
     end
   end
 end

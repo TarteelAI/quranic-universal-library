@@ -1,11 +1,22 @@
 import { Link, router } from '@inertiajs/react'
-import { BookOpenIcon, CheckIcon, ChevronDownIcon, CopyIcon, MenuIcon, PlayIcon, RotateCcwIcon } from 'lucide-react'
-import { type MouseEvent, type ReactNode, useCallback, useEffect, useState } from 'react'
+import {
+  BookOpenIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  CopyIcon,
+  MenuIcon,
+  PlayIcon,
+  RotateCcwIcon,
+  SearchIcon,
+} from 'lucide-react'
+import { type KeyboardEvent, type MouseEvent, type ReactNode, useCallback, useEffect, useId, useState } from 'react'
 
 import { Container } from '@/components/layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/overlays'
+import { searchDocs, useDocsIndex } from '@/lib/docs-search'
 import { cn } from '@/lib/utils'
 import { docsIndexPage, docsPage } from '@/routes'
 import type { ContentDocHeading, ContentDocNavCategory, ContentDocSegment } from '@/types/serializers'
@@ -250,7 +261,96 @@ function DocsNavLink({
   )
 }
 
-// The docs side navigation: the docs index, then each category of config/docs.yml with its pages
+// At most this many docs pages are listed for a query.
+const SEARCH_LIMIT = 8
+
+// Search over the docs search index, which is fetched when the field first gets focus. A result
+// opens its page, at the heading that matched when one did.
+function DocsSearch({ onNavigate }: { onNavigate?: () => void }) {
+  const [wanted, setWanted] = useState(false)
+  const [input, setInput] = useState('')
+  const [active, setActive] = useState(0)
+  const pages = useDocsIndex(wanted)
+  const listId = useId()
+  const query = input.trim()
+  const hits = query && pages ? searchDocs(pages, query, SEARCH_LIMIT) : []
+  const current = Math.min(active, hits.length - 1)
+
+  const choose = (href: string) => {
+    setInput('')
+    onNavigate?.()
+    router.visit(href)
+  }
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (!hits.length) return
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      setActive((current + (event.key === 'ArrowDown' ? 1 : -1) + hits.length) % hits.length)
+    } else if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+      event.preventDefault()
+      choose(hits[current].href)
+    }
+  }
+
+  let status: string | null = null
+  if (query && !pages) status = 'Loading the docs…'
+  else if (query && !hits.length) status = `No docs match “${query}”.`
+
+  return (
+    <div role="search" className="flex flex-col gap-1">
+      <div className="relative">
+        <SearchIcon className="pointer-events-none absolute start-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          type="search"
+          role="combobox"
+          aria-label="Search the docs"
+          aria-expanded={hits.length > 0}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-activedescendant={hits.length ? `${listId}-${current}` : undefined}
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="Search the docs"
+          className="ps-8"
+          value={input}
+          onFocus={() => setWanted(true)}
+          onChange={(event) => {
+            setInput(event.target.value)
+            setActive(0)
+          }}
+          onKeyDown={onKeyDown}
+        />
+      </div>
+      {status && (
+        <p role="status" className="px-2.5 py-1 text-sm text-muted-foreground">
+          {status}
+        </p>
+      )}
+      <ul id={listId} role="listbox" aria-label="Docs results" className="flex flex-col gap-0.5">
+        {hits.map((hit, index) => (
+          <li
+            key={hit.key}
+            id={`${listId}-${index}`}
+            role="option"
+            aria-selected={index === current}
+            onMouseMove={() => index !== current && setActive(index)}
+            onClick={() => choose(hit.href)}
+            className={cn(
+              'flex cursor-pointer flex-col rounded-md px-2.5 py-1.5 text-sm',
+              index === current && 'bg-secondary',
+            )}
+          >
+            <span className="truncate font-medium text-foreground">{hit.title}</span>
+            {hit.detail && <span className="truncate text-[13px] text-muted-foreground">{hit.detail}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// The docs side navigation: the search field, the docs index, then each category of config/docs.yml with its pages
 // in reading order. `current` is the key of the page shown (null on the index).
 export function DocsNav({
   navigation,
@@ -263,6 +363,7 @@ export function DocsNav({
 }) {
   return (
     <nav aria-label="Docs" className="flex flex-col gap-6">
+      <DocsSearch onNavigate={onNavigate} />
       <DocsNavLink href={docsIndexPage().url} isCurrent={current === null} onClick={onNavigate}>
         <BookOpenIcon className="size-4" />
         All docs

@@ -290,8 +290,35 @@
       "testFirst": true,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "The pop-up (`app/frontend/components/qul/spotlight.tsx`) was extended by a sprint 001 fast-follow to group resources, pages and tools, with pages and tools matched in the browser from the `nav` shared prop. Add docs as a fourth group in that structure. Matching must fold case and work for the Arabic terms the docs use."
+      "passes": true,
+      "notes": "The pop-up (`app/frontend/components/qul/spotlight.tsx`) was extended by a sprint 001 fast-follow to group resources, pages and tools, with pages and tools matched in the browser from the `nav` shared prop. Add docs as a fourth group in that structure. Matching must fold case and work for the Arabic terms the docs use.",
+      "completedAt": "2026-11-13T01:12:09Z",
+      "handoff": {
+        "done": [
+          "`GET /docs/search-index` (`Content::DocsSearchController`, route `docs_search_index`, typed helper `docsSearchIndex`) inside the `content` group constraint but outside `Content::DocsRequest`, so it answers JSON. Body `{ pages: [{ key, title, category, headings: [{id,text,level}], text }] }` from `Content::DocsSearchIndex.entries`: every `DocsManifest.pages_in_order` page through `Content::DocPage.find`, headings = the page's contents list (h2/h3, same ids as the page), text = prose segments with headings removed, squished; code blocks and examples left out. `X-Robots-Tag: noindex`. About 83 KB, ~0.5 s to build in development; nothing cached.",
+          "Switch: `SiteNavResource` gained `docsSearch` (`PageGroups.enabled?(:content)`), computed in the serializer so `app/services/site_nav.rb` stays untouched.",
+          "`app/frontend/lib/docs-search.ts`: `useDocsIndex(wanted)` (one shared request per page load, a failure is not kept), `fold` (lower case, NFKD and strip combining marks, so Arabic harakat and Latin accents go; ʾ ʿ and tatweel removed; أ إ آ ٱ -> ا, ى -> ي, ة -> ه), `searchDocs` (every word must appear; title hits, then heading hits linking to `/docs/<key>#<id>`, then text hits, in reading order). Unit tests in `lib/docs-search.test.ts` (4).",
+          "Docs layout: a 'Search the docs' combobox at the top of `DocsNav` (side nav and phone sheet) with a results listbox under it; it fetches the index on first focus; arrows and Enter, a click is an Inertia visit and closes the phone sheet. Spotlight: a 'Docs' group after Resources while `nav.docsSearch` is on, fetching the index on the first query; the placeholder and the no-match message name docs only then.",
+          "RSpec `spec/requests/content/docs_search_spec.rb` (written first, red, then 6/6 green): one entry per manifest page in order with no markup; the recitation tutorial checked by content (title, category, headings = DocPage contents, prose sentences, no heading or code text); content off has no index; `nav.docsSearch` true with content on, false off. `spec/requests/content` + `site_shell_spec.rb`: 41 examples, 0 failures. RuboCop clean on every changed Ruby file; `typelizer:check` current.",
+          "Vitest: full suite 329 passed (new: spotlight docs-off asserts no Docs group and no index request; docs-on asserts one request on the first query, a heading hit, the Inertia visit to `#live-ayah-highlighting`, the message; DocsPage asserts fetch on first focus only, Enter visits `/docs/datasets#sqlite-schema`, the no-match message). typecheck, lint:frontend, format:frontend clean.",
+          "Playwright `spec/browser/docs.spec.ts` 'docs search', desktop and phone, real backend (Rails on :3001 in qul-dev with home,catalog,apps,content): no index request after load; typing 'hierarchy' (only in the 'Quran Hierarchy' heading of data-model) finds that page from the docs layout and from the pop-up; choosing it lands on `/docs/data-model#quran-hierarchy` with the heading in view below the header, without a full load; a second search reuses the index (exactly 1 request). 4/4 passed. The rest of docs.spec.ts, catalog-search.spec.ts and shell.spec.ts passed in the same run."
+        ],
+        "decisions": [
+          "The index path is `/docs/search-index` rather than a `/docs/:key` lookup: it sits above the DocsRequest block, and while `content` is off nothing requests it.",
+          "`DocsSearchEntryResource` reuses `DocHeadingResource` (id, text, level) instead of a new heading serializer.",
+          "The pop-up fetches the index on the first typed query, not on open, so opening the pop-up stays one request; the docs field fetches on focus.",
+          "Heading hits use the page's h2/h3 contents list only; a word in an h4 matches through the text and opens the top of the page.",
+          "`DocsSearch` is not exported (only `DocsNav` uses it), so it needs no kit fixture; `DocsNav`'s kit fixtures render it.",
+          "Touching `site_shell_spec.rb` (nav keys) brought it into the gate's RuboCop set, so its existing offences were fixed (autocorrect plus a frozen-string comment, one wrapped line, `pick`)."
+        ],
+        "concerns": [
+          "The index is rebuilt on every request (~0.5 s in development, not cached, since the cache is null_store locally). Fine for one request per page load; an HTTP cache header may be worth adding once docs change only on deploy.",
+          "Tag pages are not in the index (out of scope, per the story).",
+          "shell.spec.ts theme test failed once at desktop in a 5-worker run on the shared server and passed on rerun at both widths; looks like load flake, not this change.",
+          "Not checked on the production image or with SSR from the production bundle; no design review of the search field placement."
+        ]
+      },
+      "filesChanged": 24
     },
     {
       "id": "002-07",

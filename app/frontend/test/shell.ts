@@ -91,6 +91,7 @@ export const nav: SiteNav = {
     'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
     { external: true },
   ),
+  docsSearch: false,
 }
 
 export const signedInAuth: Auth = { user: { initials: 'FR', name: 'Fake' } }

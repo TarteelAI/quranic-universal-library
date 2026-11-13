@@ -1,7 +1,8 @@
 import { router } from '@inertiajs/react'
-import { act, fireEvent, screen, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { forgetDocsIndex } from '@/lib/docs-search'
 import { docsNavigation, docsPageProps, tagDoc } from '@/test/content'
 import { hydratePage, renderPage } from '@/test/inertia'
 
@@ -61,6 +62,59 @@ describe('content/DocsPage', () => {
 
     fireEvent.click(within(screen.getByRole('article')).getByRole('link', { name: 'highlights' }))
     expect(visit).toHaveBeenCalledWith('/docs/datasets')
+  })
+
+  describe('the docs search', () => {
+    const index = {
+      pages: [
+        {
+          key: 'datasets',
+          title: 'Datasets',
+          category: 'Download Resources',
+          headings: [
+            { id: 'formats', text: 'Formats', level: 2 },
+            { id: 'sqlite-schema', text: 'SQLite schema', level: 3 },
+          ],
+          text: 'Every dataset is a download.',
+        },
+      ],
+    }
+    let fetchMock: ReturnType<typeof vi.fn>
+
+    beforeEach(() => {
+      forgetDocsIndex()
+      fetchMock = vi.fn(() => Promise.resolve(new Response(JSON.stringify(index), { status: 200 })))
+      vi.stubGlobal('fetch', fetchMock)
+    })
+    afterEach(() => vi.unstubAllGlobals())
+
+    const field = () => within(screen.getAllByRole('navigation', { name: 'Docs' })[0]).getByRole('combobox')
+
+    it('asks for the index on first focus only, and opens a heading hit at its heading', async () => {
+      const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+      renderPage(DocsPage, { props: docsPageProps })
+      expect(fetchMock).not.toHaveBeenCalled()
+
+      fireEvent.focus(field())
+      fireEvent.change(field(), { target: { value: 'sqlite' } })
+      const option = await waitFor(() => screen.getByRole('option'))
+      expect(option.textContent).toBe('SQLite schemaDatasets')
+      fireEvent.blur(field())
+      fireEvent.focus(field())
+      expect(fetchMock.mock.calls.map((call) => call[0])).toEqual(['/docs/search-index'])
+
+      fireEvent.keyDown(field(), { key: 'Enter' })
+      expect(visit).toHaveBeenCalledWith('/docs/datasets#sqlite-schema')
+      expect((field() as HTMLInputElement).value).toBe('')
+    })
+
+    it('says when nothing matches', async () => {
+      renderPage(DocsPage, { props: docsPageProps })
+
+      fireEvent.focus(field())
+      fireEvent.change(field(), { target: { value: 'tafsir' } })
+      await waitFor(() => expect(screen.getByRole('status').textContent).toBe('No docs match “tafsir”.'))
+    })
   })
 
   it('copies a code block', async () => {

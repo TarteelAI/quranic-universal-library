@@ -3,6 +3,7 @@ import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import * as React from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { forgetDocsIndex } from '@/lib/docs-search'
 import { renderPage } from '@/test/inertia'
 import { nav } from '@/test/shell'
 import type { CatalogSpotlightResult, SiteNav, SiteNavGroup, SiteNavLink } from '@/types/serializers'
@@ -34,8 +35,23 @@ const POPULAR = [
 
 let fetchMock: ReturnType<typeof vi.fn>
 
-// Answers /spotlight like Catalog::SpotlightController: popular resources without a query.
+// Shaped like Content::DocsSearchController's answer.
+const DOCS_INDEX = {
+  pages: [
+    {
+      key: 'tutorial-recitation-end-to-end',
+      title: 'Tutorial 1: Recitation End-to-End',
+      category: 'Download Resources',
+      headings: [{ id: 'live-ayah-highlighting', text: 'Live Ayah Highlighting', level: 2 }],
+      text: 'Download recitation data.',
+    },
+  ],
+}
+
+// Answers /spotlight like Catalog::SpotlightController (popular resources without a query), and
+// the docs search index.
 function answer(url: string) {
+  if (url === '/docs/search-index') return new Response(JSON.stringify(DOCS_INDEX), { status: 200 })
   const q = new URL(url, 'http://localhost').searchParams.get('q')
   const matches = (r: CatalogSpotlightResult) => `${r.name} ${r.typeLabel}`.toLowerCase().includes(q!.toLowerCase())
   const results = q ? POPULAR.filter(matches) : POPULAR
@@ -50,10 +66,12 @@ function deferred() {
 }
 
 const popularCalls = () => fetchMock.mock.calls.filter((call) => call[0] === '/spotlight')
+const docsIndexCalls = () => fetchMock.mock.calls.filter((call) => call[0] === '/docs/search-index')
 const queryCalls = () => fetchMock.mock.calls.filter((call) => String(call[0]).includes('?q='))
 
 beforeEach(() => {
   forgetPopularResources()
+  forgetDocsIndex()
   fetchMock = vi.fn((url: string) => Promise.resolve(answer(url)))
   vi.stubGlobal('fetch', fetchMock)
 })
@@ -134,6 +152,49 @@ describe('Spotlight', () => {
       expect(within(dialog()).getByRole('status').textContent).toBe('No resources, pages or tools match “download”.'),
     )
     expect(within(dialog()).queryByText('How to download')).toBeNull()
+    expect(within(dialog()).queryByRole('group', { name: 'Docs' })).toBeNull()
+    expect(docsIndexCalls()).toEqual([])
+  })
+
+  describe('with the docs search on', () => {
+    const docsOn = { props: {}, shared: { nav: { ...nav, docsSearch: true } } }
+
+    it('asks for the docs index once, on the first query, and lists a heading hit as a docs result', async () => {
+      openSpotlight(docsOn)
+      await waitFor(() => group('Popular resources'))
+      expect(docsIndexCalls()).toEqual([])
+      expect(field().getAttribute('placeholder')).toBe('Search resources, docs, pages and tools…')
+
+      fireEvent.change(field(), { target: { value: 'highlight' } })
+      const docs = await waitFor(() => group('Docs'))
+      const option = within(docs).getByRole('option')
+      expect(option.textContent).toContain('Live Ayah Highlighting')
+      expect(option.textContent).toContain('Tutorial 1: Recitation End-to-End')
+
+      fireEvent.change(field(), { target: { value: 'recitation' } })
+      await waitFor(() => expect(within(group('Docs')).getByRole('option').textContent).toContain('Download Resources'))
+      expect(docsIndexCalls()).toHaveLength(1)
+    })
+
+    it('opens a docs result at its heading as an Inertia visit', async () => {
+      const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+      openSpotlight(docsOn)
+
+      fireEvent.change(field(), { target: { value: 'ayah highlighting' } })
+      fireEvent.click(await waitFor(() => within(group('Docs')).getByRole('option')))
+      expect(visit).toHaveBeenCalledWith('/docs/tutorial-recitation-end-to-end#live-ayah-highlighting')
+    })
+
+    it('names the docs when nothing matches', async () => {
+      openSpotlight(docsOn)
+
+      fireEvent.change(field(), { target: { value: 'zzz' } })
+      await waitFor(() =>
+        expect(within(dialog()).getByRole('status').textContent).toBe(
+          'No resources, docs, pages or tools match “zzz”.',
+        ),
+      )
+    })
   })
 
   describe('the popular resources', () => {

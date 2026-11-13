@@ -165,7 +165,10 @@ an unpublished `App` row in the CMS database; the home page still links to the
 `Content::DocPage`, side navigation from `Content::DocsNavigation`, both read from
 `config/docs.yml`) for page loads and Inertia visits only (`Content::DocsRequest`): the old pages'
 help dialogs fetch `/docs/:key` with `fetch` (Accept `*/*`) or as XHR and keep the old answer, and
-so do the keys only an ERB partial under `app/views/docs` serves.
+so do the keys only an ERB partial under `app/views/docs` serves. The docs search index
+`/docs/search-index` (`Content::DocsSearchIndex`, JSON) belongs to the group too: the docs layout's
+search field and the spotlight's Docs group fetch it once per page load, on first use, and match in
+the browser (`lib/docs-search.ts`); the shared `nav.docsSearch` says whether it exists.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

@@ -13,10 +13,12 @@ Rails.application.routes.draw do
   end
   root to: 'landing#home'
   # The new docs index and docs pages while the `content` page group is on, above the old docs
-  # routes below. Page loads and Inertia visits only (Content::DocsRequest): the old pages' help
-  # dialogs keep the old answer. The two constraints are nested blocks because a `constraints:`
-  # option on the route would replace the group's constraint instead of adding to it.
+  # routes below, and the docs search index (JSON) the new pages fetch. The pages answer page loads
+  # and Inertia visits only (Content::DocsRequest): the old pages' help dialogs keep the old answer.
+  # The two constraints are nested blocks because a `constraints:` option on the route would
+  # replace the group's constraint instead of adding to it.
   constraints(PageGroups.constraint(:content)) do
+    get '/docs/search-index', to: 'content/docs_search#index', as: :docs_search_index, format: false
     constraints(Content::DocsRequest) do
       get '/docs', to: 'content/docs#index', as: :docs_index_page, format: false
       get '/docs/:key', to: 'content/docs#show', as: :docs_page, format: false

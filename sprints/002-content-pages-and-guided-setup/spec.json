@@ -336,8 +336,36 @@
       "testFirst": false,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "The tool groups and copy live in `SiteNav::ContributeTools` (added by a sprint 001 fast-follow). The prototype's overview is `../qul-redesign/ds/src/app/pages/more.tsx`. Some tools are visible only to signed-in users with access in the old page; the overview links to every tool and the old page keeps enforcing access."
+      "passes": true,
+      "notes": "The tool groups and copy live in `SiteNav::ContributeTools` (added by a sprint 001 fast-follow). The prototype's overview is `../qul-redesign/ds/src/app/pages/more.tsx`. Some tools are visible only to signed-in users with access in the old page; the overview links to every tool and the old page keeps enforcing access.",
+      "completedAt": "2026-11-13T01:25:07Z",
+      "handoff": {
+        "done": [
+          "Routes `/faq` (`faq_page`), `/credits` (`credits_page`), `/tools` (`tools_page`) -> `Content::PagesController#faq|credits|tools`, inside the `content` constraint block in config/routes.rb above the old CommunityController routes. No DocsRequest constraint: no old page fetches these paths. No typed route helpers added (no page links to them yet; 002-09 owns nav links).",
+          "Props: `Content::PagesFaqResource` { items: [{ id, question, answer }] } from `Faq.published`; `Content::PagesCreditsResource` { organizations: [{ name, url, description, logoUrl }] from `Contributor.published.with_attached_logo.order(:id)`, acknowledgements: [{ entities: [{ name, url }], description }] from `ApplicationHelper#contributors` (single or `multiple`), codeContributors: [{ login, url, avatarUrl, contributions }] from `GithubService.fetch_contributors(limit: 20)` }; `Content::PagesToolsResource` { groups: [{ heading, summary, tools: SiteNavLink[] }] } from the new `SiteNav::ContributeTools.overview` (same grouping as the Contribute menu, tools carry the helper's long description) plus new `ContributeTools::SUMMARIES`.",
+          "`Content::Prose.sanitize` (app/services/content/prose.rb): removes script/style with their text, then SafeListSanitizer to `DocPage::PROSE_TAGS` with href/title only. Used for FAQ answers and Contributor descriptions. Questions stay plain text (React escapes them; the snapshot holds no markup in questions).",
+          "Pages app/frontend/pages/content/FaqPage.tsx (native <details> per item with id `faq-<id>` so old anchors work; the hash opens and scrolls to the item on load and on hashchange), CreditsPage.tsx (organizations grid, people and projects list joining several with 'and', code contributors grid, hidden when GitHub returns none), ToolsPage.tsx (v8 more.tsx layout: group heading + summary column, two-column tool cards with nav icon; plain <a> to old tool pages; 'How to contribute data' Inertia link to /docs/contribute-data; no access state, no progress).",
+          "spec/requests/content/pages_spec.rb, 7 examples, 0 failures (qul-dev, test clones): props vs data source per page with SSR HTML checks, hostile FAQ and Contributor samples (script, onclick/onerror, javascript: href, img, iframe, target) reduced to `Read this and that.kept` with only the safe href; every developer_tools entry listed exactly once under a heading in ContributeTools::GROUPS (so a tool in the fallback group fails); head title/description/canonical; content off -> CommunityController for all three. The hostile example failed first on script text left as prose, which led to the script/style removal.",
+          "Neighbouring specs spec/services/site_nav_spec.rb, spec/requests/site_shell_spec.rb, spec/requests/content: 52 examples, 0 failures. typelizer:check clean. RuboCop clean on every changed Ruby file (contribute_tools.rb autocorrected for its pre-existing trailing-comma offences).",
+          "Vitest: FaqPage/CreditsPage/ToolsPage component tests (incl. hydration without mismatch) and SSR tests; full `yarn test:frontend` 36 files, 343 tests passed; `yarn typecheck`, ESLint and Prettier clean.",
+          "Playwright spec/browser/content-pages.spec.ts, desktop and phone, real backend (Rails in qul-dev on :3001 with QUL_PAGE_GROUPS=home,catalog,apps,content): FAQ opens a question and a `#faq-<id>` link opens that one; credits regions render; tools card 'Surah info' lands on old /surah_infos (no Inertia app); no sideways scroll. 6 passed. Screenshots of /faq, /tools (desktop) and /credits (phone) checked by eye.",
+          "AGENTS.md page groups paragraph documents the three pages."
+        ],
+        "decisions": [
+          "One `Content::PagesController` for the three pages, serializers named `Content::Pages<Action>Resource` per the convention.",
+          "Tool cards reuse `SiteNavLinkResource` (and its icon enum), so the page maps icons with the existing `navIcon`. The cards show the helper's long description; the menu keeps its one-liners.",
+          "Group summaries drop the prototype's access wording ('Open to anyone signed in', 'Needs approval'): the story rules out access state, and the old tool pages enforce access. The page header says some tools need access and to ask for it in the tool.",
+          "Credits keeps the GitHub code contributors section, as the old page has it; the request spec stubs `GithubService.fetch_contributors` so no spec reaches GitHub. Organizations are ordered by id for a stable order (the old page used the unordered scope).",
+          "Page titles: 'FAQ - QUL', 'Credits - QUL', 'Contribution tools - QUL', new descriptions in plain words; canonical URLs unchanged paths."
+        ],
+        "concerns": [
+          "Organization logos are ActiveStorage blobs on `qul_exports` in production and `:local` in development; locally the files are missing, so the credits screenshots show empty logo circles. Production logo URLs (`rails_blob_path` redirect) were not verified.",
+          "The credits page calls GitHub on each load wherever the cache is null_store (development), as the old page does; production caches it for an hour.",
+          "Header, menu and footer links to /faq, /credits and /tools are still plain links (`inertia: false`); 002-09 makes them in-app visits.",
+          "The pages' designs (FAQ and credits have no prototype) need a human look before cutover. Not checked on the production image."
+        ]
+      },
+      "filesChanged": 36
     },
     {
       "id": "002-08",

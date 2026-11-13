@@ -169,6 +169,10 @@ so do the keys only an ERB partial under `app/views/docs` serves. The docs searc
 `/docs/search-index` (`Content::DocsSearchIndex`, JSON) belongs to the group too: the docs layout's
 search field and the spotlight's Docs group fetch it once per page load, on first use, and match in
 the browser (`lib/docs-search.ts`); the shared `nav.docsSearch` says whether it exists.
+`content` also serves `/faq`, `/credits` and the tools overview `/tools` (`Content::PagesController`).
+They read what the old pages read; FAQ answers and credits descriptions are editor HTML reduced to
+prose on the server (`Content::Prose`). The tools overview groups `ToolsHelper#developer_tools` as
+the Contribute menu does (`SiteNav::ContributeTools.overview`) and links to the old tool pages.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

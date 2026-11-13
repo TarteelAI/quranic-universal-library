@@ -1,4 +1,12 @@
-import type { ContentDoc, ContentDocNavCategory, ContentDocsIndex, ContentDocsShow } from '@/types/serializers'
+import type {
+  ContentDoc,
+  ContentDocNavCategory,
+  ContentDocsIndex,
+  ContentDocsShow,
+  ContentPagesCredits,
+  ContentPagesFaq,
+  ContentPagesTools,
+} from '@/types/serializers'
 
 // Shaped like Content::DocResource for a tutorial: prose, a code block and a runnable example.
 export const tutorialDoc: ContentDoc = {
@@ -87,3 +95,85 @@ export const docsNavigation: ContentDocNavCategory[] = [
 export const docsPageProps: ContentDocsShow = { doc: tutorialDoc, navigation: docsNavigation }
 
 export const docsIndexProps: ContentDocsIndex = { navigation: docsNavigation }
+
+// Shaped like Content::PagesFaqResource: answers are prose HTML the server sanitized.
+export const faqProps: ContentPagesFaq = {
+  items: [
+    { id: 1, question: 'What is QUL?', answer: '<p>A library of <strong>Quran resources</strong>.</p>' },
+    { id: 7, question: 'Who is behind QUL?', answer: '<p>See the <a href="/credits">Credits page</a>.</p>' },
+  ],
+}
+
+// Shaped like Content::PagesCreditsResource.
+export const creditsProps: ContentPagesCredits = {
+  organizations: [
+    {
+      name: 'Tafsir Center',
+      url: 'https://tafsir.net/',
+      description: '<p>A research center for <em>Quranic studies</em>.</p>',
+      logoUrl: '/rails/active_storage/blobs/redirect/abc/logo.png',
+    },
+    { name: 'No Logo Foundation', url: null, description: '<p>Text.</p>', logoUrl: null },
+  ],
+  acknowledgements: [
+    {
+      entities: [{ name: 'Tanzil', url: 'https://tanzil.net/' }],
+      description: 'For preparing and auditing the Quran text.',
+    },
+    {
+      entities: [
+        { name: 'Sami Rifai', url: null },
+        { name: 'ReciteQuran.com', url: 'https://recitequran.com' },
+      ],
+      description: 'For providing recitations.',
+    },
+  ],
+  codeContributors: [
+    { login: 'octocat', url: 'https://github.com/octocat', avatarUrl: 'https://example.com/a.png', contributions: 1 },
+  ],
+}
+
+// Shaped like Content::PagesToolsResource: two groups of SiteNav::ContributeTools.overview.
+export const toolsProps: ContentPagesTools = {
+  groups: [
+    {
+      heading: 'Translations & tafsir',
+      summary: 'Read and fix translations, tafsirs and surah introductions.',
+      tools: [
+        {
+          label: 'Ayah translations',
+          href: '/translations',
+          description: 'Proofread and suggest fixes for ayah translations in many languages.',
+          category: null,
+          icon: 'languages',
+          external: false,
+          inertia: false,
+        },
+      ],
+    },
+    {
+      heading: 'Mushaf & scripts',
+      summary: 'Page layouts, Quran scripts and tajweed.',
+      tools: [
+        {
+          label: 'Mushaf layouts',
+          href: '/mushaf_layouts',
+          description: 'Build and proofread Mushaf page layouts.',
+          category: null,
+          icon: 'layout-panel-top',
+          external: false,
+          inertia: false,
+        },
+        {
+          label: 'Tajweed rules',
+          href: '/tajweed_words',
+          description: 'Proofread and fix the tajweed rules.',
+          category: null,
+          icon: 'palette',
+          external: false,
+          inertia: false,
+        },
+      ],
+    },
+  ],
+}

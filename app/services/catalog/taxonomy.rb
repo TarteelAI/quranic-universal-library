@@ -260,5 +260,10 @@ module Catalog
 
       FORMATS.any? { |format| format.key == type } ? type : 'other'
     end
+
+    # The formats of a set of file types, each once, in vocabulary order.
+    def self.formats_of(file_types)
+      FORMATS.map(&:key) & file_types.map { |file_type| format_for(file_type) }
+    end
   end
 end

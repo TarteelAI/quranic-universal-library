@@ -29,7 +29,16 @@ describe('catalog/TypePage', () => {
     )
     expect(screen.getByText('Translation · English · Ayah by Ayah')).toBeDefined()
     expect(screen.getByText('Translation · Word by word')).toBeDefined()
-    expect(screen.getByText('1 file')).toBeDefined()
+    expect(screen.getByText('JSON · SQLite')).toBeDefined()
+    expect(screen.getByText('English translation of the Quran, ayah by ayah.')).toBeDefined()
+    expect(within(cards[0]).getByTestId('card-preview').dataset.kind).toBe('text')
+  })
+
+  it('shows the type icon in the header', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
+    expect(header.querySelector('.bg-cat-translation-subtle svg')).not.toBeNull()
   })
 
   it('opens a detail page from a card with an in-app visit', () => {

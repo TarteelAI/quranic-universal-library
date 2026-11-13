@@ -30,7 +30,8 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       )
       expect(inertia.props[:results].size).to eq(Catalog::SearchQuery::PER_PAGE)
       expect(inertia.props[:results].first.keys).to contain_exactly(
-        'id', 'name', 'type', 'toParam', 'language', 'granularity', 'formats', 'status', 'recommended', 'previewKind',
+        'id', 'name', 'type', 'toParam', 'summary', 'language', 'granularity', 'formats', 'status', 'recommended',
+        'previewKind',
       )
       expect(inertia.props[:facets].keys).to contain_exactly('type', 'language', 'script', 'format', 'granularity',
                                                              'status',)

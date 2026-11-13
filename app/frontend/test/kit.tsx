@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react'
 
 import * as layout from '@/components/layout'
+import * as cardPreview from '@/components/previews/card-preview'
 import * as appIcon from '@/components/qul/app-icon'
 import * as appSubmission from '@/components/qul/app-submission'
 import * as catalog from '@/components/qul/catalog'
@@ -33,6 +34,7 @@ import { nav as navProps } from './shell'
 
 const modules = {
   layout,
+  cardPreview,
   appIcon,
   appSubmission,
   catalog,
@@ -67,6 +69,7 @@ export const componentNames = Object.values(modules)
   .sort()
 
 const { Container, SiteShell } = layout
+const { CardPreview } = cardPreview
 const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
 const { ShardRing } = shardRing
@@ -243,6 +246,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     element: (
       <PageHeader
         breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]}
+        icon={<ResourceIcon category="script" size="xl" />}
         title="Fonts"
         actions={
           <Button variant="outline" asChild>
@@ -254,8 +258,22 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'Font format docs',
   },
   ResourceCard: {
-    element: <ResourceCard title="Sahih International" href="/resources/translation/1" facts={['Translation']} />,
-    text: 'Sahih International',
+    element: (
+      <ResourceCard
+        title="Sahih International"
+        href="/resources/translation/1"
+        category="translation"
+        facts={['Translation']}
+        summary="English translation of the Quran, ayah by ayah."
+        formats={['JSON', 'SQLite']}
+        preview={<CardPreview kind="text" url="/resources/translation/1/preview" />}
+      />
+    ),
+    text: 'JSON · SQLite',
+  },
+  CardPreview: {
+    element: <CardPreview kind="font" url="/resources/font/qpc-hafs/preview" />,
+    text: 'data-state="waiting"',
   },
   StatusBadge: {
     element: (

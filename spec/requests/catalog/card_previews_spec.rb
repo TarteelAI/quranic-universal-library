@@ -35,7 +35,8 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(results.flat_map(&:keys).uniq.map(&:to_sym)).not_to include(:preview)
 
       { 'mushaf-layout' => 'layout', 'recitation' => 'recitation', 'quran-script' => 'script',
-        'translation' => 'text', 'tafsir' => nil, 'font' => nil, }.each do |type, kind|
+        'translation' => 'text', 'tafsir' => 'text', 'transliteration' => 'text', 'font' => 'font',
+        'surah-info' => nil, 'morphology' => nil, }.each do |type, kind|
         get "/resources/#{type}"
         expect(inertia.props[:resources].pluck(:previewKind).uniq).to eq([kind]), type
       end
@@ -91,6 +92,42 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(preview[:entry][:ayahs]).to eq([{ key: '1:2', text: Verse.find_by!(verse_key: '1:2').text_uthmani }])
     end
 
+    it "gives a tafsir's entry for ayah 1:2 cut to the card's length, without footnotes" do
+      tafsir = published('tafsir').find do |resource|
+        Previews.for(resource, Previews::Card::QUERY).entries.any? { |entry| entry.text.to_s.size > 1000 }
+      end
+      preview = card_preview(tafsir)
+
+      expect(preview).to include(kind: 'text', granularity: 'ayah')
+      expect(preview[:entry][:ayahs].pluck(:key)).to include('1:2')
+      expect(preview[:entry]).to include(truncated: true, footnotes: [])
+      expect(preview[:entry][:text].size).to be <= Previews::Card::TEXT_LIMIT
+    end
+
+    it 'gives ayah 1:2 of a transliteration in Latin letters' do
+      preview = card_preview(published('transliteration').find { |resource| !resource.resource_content.one_word? })
+
+      expect(preview).to include(kind: 'text', granularity: 'ayah')
+      expect(preview[:entry]).to include(key: '1:2', text: be_present)
+    end
+
+    it "gives the start of a font's sample in the font" do
+      font = named('font', 'QPC Hafs')
+      preview = card_preview(font)
+
+      expect(preview).to include(kind: 'font', fontCode: nil)
+      expect(preview[:font][:family]).to be_present
+      expect(preview[:text].split.size).to be_between(1, Previews::CardFontResource::SAMPLE_WORDS)
+    end
+
+    it "gives a page font's first line of page 1 in the file of page 1" do
+      preview = card_preview(named('font', 'QPC V2 Font'))
+
+      expect(preview).to include(kind: 'font', fontCode: 'v2')
+      expect(preview[:font]).to include(family: 'v2-p1', perPage: true)
+      expect(preview[:text]).to be_present
+    end
+
     it 'is internal and kept by the browser, not by shared caches' do
       get preview_path(named('mushaf-layout', 'KFGQPC V2 layout'))
 
@@ -102,7 +139,7 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
     it 'is a 404 for a type without card previews, a layout without a font, a wrong type and an unknown slug' do
       layout = named('mushaf-layout', 'KFGQPC V2 layout')
       paths = [
-        preview_path(published('tafsir').first),
+        preview_path(published('surah-info').first),
         preview_path(named('mushaf-layout', 'Ligature Basd SVG Mushaf')),
         preview_path(layout, type: 'translation'),
         '/resources/translation/no-such-resource/preview',
@@ -115,7 +152,7 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       end
     end
 
-    it 'answers for every published resource of the four kinds, or says there is none' do
+    it 'answers for every published resource of the types with card previews, or says there is none' do
       counts = Hash.new(0)
       published(Previews::Card::KINDS.keys).each do |resource|
         preview = Previews::Card.for(resource)
@@ -127,7 +164,7 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       RSpec.configuration.reporter.message("Card previews: #{counts.sort.map do |key, count|
                                                                "#{key} #{count}"
                                                              end.join(', ')}")
-      expect(counts.keys.grep(/preview\z/).size).to eq(4)
+      expect(counts.keys.grep(/preview\z/).map { |key| key.split.first }).to match_array(Previews::Card::KINDS.keys)
     end
   end
 

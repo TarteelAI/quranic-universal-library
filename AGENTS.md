@@ -199,9 +199,13 @@ carry only each card's `previewKind` (`Previews::Card.kind`); the card fetches t
 from `/resources/:type/:slug/preview` (`Catalog::PreviewsController`, catalog group) once it comes
 within 200 px of the viewport (`components/previews/card-preview.tsx`), so its fonts are declared
 and downloaded only then. The JSON is the detail page's provider (`Previews.for`) asked for the
-start of the Quran and cut by a card serializer (`Previews::Card*Resource`). A 404 or an
-unexpected kind removes the preview well and the card shows without it. Types with no entry in
-`Previews::Card::KINDS` have no preview.
+start of the Quran and cut by a card serializer (`Previews::Card*Resource`): a layout's page 1,
+a recitation's Al-Fatihah, ayah 1:2 of a script, translation, transliteration or tafsir (text cut
+to `Previews::Card::TEXT_LIMIT`), and a line in a font. A 404 or an unexpected kind removes the
+preview well and the card shows without it. The record types have no entry in
+`Previews::Card::KINDS`: their cards show the type icon beside the title instead. Each card
+names its own V4 colour palette (`paletteName` of `FontFaces`), so the cards of one page do not
+replace each other's palette rule.
 
 ### Downloads
 
@@ -382,7 +386,7 @@ this file and local Vite builds out of the image.
   by position first. Use `reorder` whenever the order matters.
 - **Font palettes.** `@font-palette-values` rules with the same name do not merge per family: the
   last one wins. When several V4 Tajweed page fonts share a screen, emit one rule whose
-  `font-family` lists all of them.
+  `font-family` lists all of them, or give each preview's rule its own name (the resource cards).
 - **Dependencies.** The Dockerfile installs no devDependencies (`NODE_ENV=production`): build
   tools are regular dependencies, test and lint tools are devDependencies. The `resolutions` in
   `package.json` apply to every copy of a package, so check `yarn.lock` after `yarn add` and run

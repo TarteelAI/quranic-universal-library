@@ -1,5 +1,6 @@
 import type {
   FontFiles,
+  PreviewsCardFont,
   PreviewsCardLayout,
   PreviewsCardRecitation,
   PreviewsCardScript,
@@ -254,4 +255,19 @@ export const cardTextPreview: PreviewsCardText = {
   granularity: 'ayah',
   locale: translationPreview.locale,
   entry: translationPreview.entries[0],
+}
+
+export const cardFontPreview: PreviewsCardFont = {
+  kind: 'font',
+  fontCode: null,
+  text: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ',
+  font: font('qpc-hafs', 'hafs/qpc-hafs'),
+}
+
+// A V4 Tajweed page font: a line of page 1 in the file of page 1.
+export const cardV4FontPreview: PreviewsCardFont = {
+  kind: 'font',
+  fontCode: 'v4-tajweed',
+  text: 'ﱁ ﱂ ﱃ ﱄ',
+  font: font('v4-p1', 'v4/p1', true),
 }

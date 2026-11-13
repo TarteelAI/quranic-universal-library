@@ -4,10 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ResourceCard } from '@/components/qul/resource-card'
 import {
   cardAyahRecitationPreview,
+  cardFontPreview,
   cardLayoutPreview,
   cardRecitationPreview,
   cardScriptPreview,
   cardTextPreview,
+  cardV4FontPreview,
 } from '@/test/previews'
 
 import { CardPreview, type CardPreviewKind } from './card-preview'
@@ -53,6 +55,7 @@ function card(kind: CardPreviewKind) {
     <ResourceCard
       title="Sahih International"
       href="/resources/translation/sahih-international"
+      category="translation"
       preview={<CardPreview kind={kind} url="/resources/translation/sahih-international/preview" />}
     />
   )
@@ -134,6 +137,45 @@ describe('CardPreview', () => {
     scrollOnScreen()
     const text = await screen.findByText('الم')
     expect(text.closest('[lang="ur"]')?.getAttribute('dir')).toBe('rtl')
+  })
+
+  it('draws a line of a font in that font', async () => {
+    respond(cardFontPreview)
+    render(card('font'))
+    scrollOnScreen()
+
+    const line = await screen.findByText(cardFontPreview.text)
+    expect(line.style.fontFamily).toBe('"qpc-hafs"')
+    expect(css()).toContain("font-family:'qpc-hafs'")
+    expect(css()).not.toContain('@font-palette-values')
+  })
+
+  it('gives each V4 Tajweed card its own palette, so the cards of one page keep their colours', async () => {
+    const v4Layout = { ...cardLayoutPreview, page: { ...cardLayoutPreview.page, fontCode: 'v4-tajweed' } }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        Promise.resolve(new Response(JSON.stringify(url.includes('layout') ? v4Layout : cardV4FontPreview))),
+      ),
+    )
+    render(
+      <>
+        <CardPreview kind="layout" url="/resources/mushaf-layout/v4/preview" />
+        <CardPreview kind="font" url="/resources/font/v4/preview" />
+      </>,
+    )
+    scrollOnScreen()
+    await waitFor(() =>
+      expect(screen.getAllByTestId('card-preview').map((well) => well.dataset.state)).toEqual(['loaded', 'loaded']),
+    )
+
+    const palettes = Array.from(document.querySelectorAll<HTMLElement>('[style*="font-palette"]')).map(
+      (element) => element.style.fontPalette,
+    )
+    expect(palettes).toHaveLength(2)
+    expect(new Set(palettes).size).toBe(2)
+    expect(css()).toContain(`@font-palette-values ${palettes[0]}{font-family:'v2-p2'`)
+    expect(css()).toContain(`@font-palette-values ${palettes[1]}{font-family:'v4-p1'`)
   })
 
   it('leaves the card without a preview when the preview cannot be loaded', async () => {

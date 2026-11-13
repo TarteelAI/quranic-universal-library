@@ -8,6 +8,7 @@ import { SearchInput } from '@/components/qul/chrome'
 import { PageHeader } from '@/components/qul/page-header'
 import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
+import { StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
@@ -241,8 +242,8 @@ export default function CatalogPage({
       result.language,
       result.granularity && labelOf(vocabularies.granularities, result.granularity),
     ].filter((fact): fact is string => Boolean(fact))
-  const formats = (result: CatalogSearchResult) =>
-    result.formats.map((format) => labelOf(vocabularies.formats, format)).join(' · ') || undefined
+  const categoryOf = (result: CatalogSearchResult) =>
+    vocabularies.types.find((type) => type.key === result.type)?.category.key ?? 'metadata'
 
   const pageLink = (target: number) => ({
     href: searchUrl({ ...filters, page: target }),
@@ -352,8 +353,16 @@ export default function CatalogPage({
                     className="flex-1"
                     title={result.name}
                     href={detailResources({ type: result.type, id: result.toParam }).url}
+                    category={categoryOf(result)}
                     facts={facts(result)}
-                    footnote={formats(result)}
+                    summary={result.summary}
+                    status={
+                      result.status !== 'stable' && (
+                        <StatusBadge status={result.status} label={labelOf(vocabularies.statuses, result.status)} />
+                      )
+                    }
+                    formats={result.formats.map((format) => labelOf(vocabularies.formats, format))}
+                    muted={result.status === 'legacy' || result.status === 'superseded'}
                     preview={
                       result.previewKind && (
                         <CardPreview

@@ -73,7 +73,7 @@ module Catalog
               *resource.downloadable_resource_tags.map(&:name)]
       Row.new(
         resource: resource, language: language,
-        formats: files.map { |file| Taxonomy.format_for(file.file_type) }.uniq,
+        formats: Taxonomy.formats_of(files.map(&:file_type)),
         downloads: files.sum(&:total_download_count),
         updated_at: files.map(&:updated_at).max || resource.updated_at,
         text: text.filter_map { |part| TextKey.call(part).presence }.uniq.join(' | ')

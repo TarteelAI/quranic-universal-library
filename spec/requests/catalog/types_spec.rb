@@ -171,7 +171,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       )
     end
 
-    it 'gives each card its detail path, language and granularity' do
+    it 'gives each card its detail path, language, granularity, summary and formats' do
       get '/resources/translation'
 
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
@@ -182,7 +182,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         toParam: resource.to_param,
         language: resource.language.name,
         granularity: resource.humanize_cardinality_type,
-        filesCount: resource.files_count
+        summary: resource.short_summary.presence,
+        formats: Catalog::Taxonomy.formats_of(resource.downloadable_files.where(published: true).pluck(:file_type))
       )
     end
 

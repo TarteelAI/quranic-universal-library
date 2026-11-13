@@ -6,15 +6,16 @@ import type {CatalogResourceRef} from '@/types/serializers'
 type CatalogResourceCard = {
   id: number;
   toParam: string;
-  filesCount: number;
   status: 'stable' | 'beta' | 'legacy' | 'superseded';
   name: string;
   type: string;
+  summary: string | null;
+  formats: Array<'json' | 'sqlite' | 'csv' | 'docx' | 'font' | 'svg' | 'image' | 'other'>;
   language: string | null;
   granularity: string | null;
   scriptFamily: string | null;
   recommendation: 'reviewed' | 'drafted' | null;
-  previewKind: 'layout' | 'recitation' | 'script' | 'text' | null;
+  previewKind: 'layout' | 'recitation' | 'script' | 'font' | 'text' | null;
   supersededBy: CatalogResourceRef | null;
 }
 

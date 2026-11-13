@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react'
 import { ChevronDownIcon } from 'lucide-react'
 
 import { Container, SiteShell } from '@/components/layout'
+import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
 import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
@@ -20,10 +21,6 @@ import type {
   CatalogType,
   CatalogTypesShow,
 } from '@/types/serializers'
-
-function filesLabel(count: number) {
-  return count === 1 ? '1 file' : `${count} files`
-}
 
 function detailHref(resource: CatalogResourceRef) {
   return detailResources({ type: resource.type, id: resource.toParam }).url
@@ -48,11 +45,13 @@ function Cards({
   type,
   resources,
   statuses,
+  formats,
 }: {
   label: string
   type: CatalogType
   resources: CatalogResourceCard[]
   statuses: CatalogOption[]
+  formats: CatalogOption[]
 }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label={label}>
@@ -79,9 +78,12 @@ function Cards({
               className="flex-1"
               title={resource.name}
               href={detailHref(resource)}
+              category={type.category.key}
               facts={cardFacts(type, resource)}
-              badges={badges.length > 0 ? badges : undefined}
-              footnote={filesLabel(resource.filesCount)}
+              summary={resource.summary}
+              status={badges.length > 0 ? badges : undefined}
+              formats={resource.formats.map((format) => labelOf(formats, format))}
+              muted={isOlder(resource)}
               preview={
                 resource.previewKind && (
                   <CardPreview
@@ -199,7 +201,16 @@ function ComparisonTable({
 // /resources/:type: the type's description and a link to its format docs; where the type has
 // status data, which one to pick, with recommended resources first and older versions collapsed;
 // the comparison table for layouts, scripts and fonts; and a card for each published resource.
-export default function TypePage({ type, types, resources, statuses, pick, guidePath, comparison }: CatalogTypesShow) {
+export default function TypePage({
+  type,
+  types,
+  resources,
+  statuses,
+  formats,
+  pick,
+  guidePath,
+  comparison,
+}: CatalogTypesShow) {
   const recommended = pick ? resources.filter((resource) => resource.recommendation) : []
   const older = pick ? resources.filter((resource) => !resource.recommendation && isOlder(resource)) : []
   const current = resources.filter((resource) => !recommended.includes(resource) && !older.includes(resource))
@@ -209,6 +220,7 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
       <Container className="pt-10 pb-2 sm:pt-12">
         <PageHeader
           breadcrumb={[{ label: 'Resources', href: catalog.index().url }, { label: type.title }]}
+          icon={<ResourceIcon category={type.category.key} size="xl" />}
           eyebrow={type.category.label === type.title ? undefined : type.category.label}
           title={type.title}
           count={resources.length}
@@ -234,7 +246,7 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
               <p className="mt-2 max-w-2xl text-muted-foreground">{pick}</p>
             </div>
             {recommended.length > 0 && (
-              <Cards label="Recommended" type={type} resources={recommended} statuses={statuses} />
+              <Cards label="Recommended" type={type} resources={recommended} statuses={statuses} formats={formats} />
             )}
           </section>
         )}
@@ -253,7 +265,7 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
                 <span className="font-mono text-xs font-normal text-muted-foreground">{current.length}</span>
               </h2>
             )}
-            <Cards label={type.title} type={type} resources={current} statuses={statuses} />
+            <Cards label={type.title} type={type} resources={current} statuses={statuses} formats={formats} />
           </section>
         )}
 
@@ -264,7 +276,7 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
               Older versions ({older.length}), kept for apps that already use them
             </summary>
             <div className="pt-4">
-              <Cards label="Older versions" type={type} resources={older} statuses={statuses} />
+              <Cards label="Older versions" type={type} resources={older} statuses={statuses} formats={formats} />
             </div>
           </details>
         )}

@@ -31,7 +31,7 @@ RSpec.describe Catalog::ResourcesQuery do
                                      'category' => { 'key' => 'tafsir', 'label' => 'Tafsir and commentary' },)
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
-      'id', 'name', 'type', 'toParam', 'filesCount', 'language', 'granularity', 'status', 'scriptFamily',
+      'id', 'name', 'type', 'toParam', 'summary', 'formats', 'language', 'granularity', 'status', 'scriptFamily',
       'recommendation', 'previewKind', 'supersededBy',
     )
     expect(props['resources']).to all(include('language' => be_present))

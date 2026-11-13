@@ -34,19 +34,28 @@ function fontFace(font: FontFiles): string {
 }
 
 // One rule for every family: a later rule with the same name would replace it.
-function v4Palette(fonts: FontFiles[]): string {
+function v4Palette(fonts: FontFiles[], name: string): string {
   const families = fonts.map((font) => `'${font.family}'`).join(',')
   const colors = V4_LIGHT_COLORS.map((color, index) => `${index} ${color}`).join(',')
-  return `@font-palette-values ${V4_PALETTE}{font-family:${families};base-palette:0;override-colors:${colors};}`
+  return `@font-palette-values ${name}{font-family:${families};base-palette:0;override-colors:${colors};}`
 }
 
 // The @font-face rules of the fonts a preview shows, and nothing else. The element is
 // re-rendered with the next page's rules when the preview pages, so rules never pile up, and
 // the browser only downloads the files of the fonts the page uses. It renders the same on the
 // server. React escapes quotes in <style> text children, hence the inner HTML. `palette` lists
-// the V4 Tajweed fonts, which get the light colour palette (V4_PALETTE).
-export function FontFaces({ fonts, palette = [] }: { fonts: FontFiles[]; palette?: FontFiles[] }) {
-  const css = [...fonts.map(fontFace), ...(palette.length > 0 ? [v4Palette(palette)] : [])].join('\n')
+// the V4 Tajweed fonts, which get the light colour palette, named `paletteName` (V4_PALETTE
+// unless several previews share the page).
+export function FontFaces({
+  fonts,
+  palette = [],
+  paletteName = V4_PALETTE,
+}: {
+  fonts: FontFiles[]
+  palette?: FontFiles[]
+  paletteName?: string
+}) {
+  const css = [...fonts.map(fontFace), ...(palette.length > 0 ? [v4Palette(palette, paletteName)] : [])].join('\n')
   return <style dangerouslySetInnerHTML={{ __html: css }} />
 }
 

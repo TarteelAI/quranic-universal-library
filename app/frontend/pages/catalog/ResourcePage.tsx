@@ -113,6 +113,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             { label: type.title, href: catalogType(type.key).url },
             { label: resource.name },
           ]}
+          icon={<ResourceIcon category={type.category.key} size="xl" />}
           eyebrow={
             <>
               <span className="inline-flex items-center gap-1.5 font-medium text-foreground">

@@ -4,19 +4,25 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import type {
   CatalogSearchResult,
+  PreviewsCardFont,
   PreviewsCardLayout,
   PreviewsCardRecitation,
   PreviewsCardScript,
   PreviewsCardText,
 } from '@/types/serializers'
 
-import { FontFaces, V4_PALETTE } from './fonts'
+import { FontFaces } from './fonts'
 import { MushafLine, pageFonts } from './mushaf-page'
 import { AyahText } from './script-preview'
 import { Html } from './text-preview'
 
 export type CardPreviewKind = NonNullable<CatalogSearchResult['previewKind']>
-type CardPreviewData = PreviewsCardLayout | PreviewsCardRecitation | PreviewsCardScript | PreviewsCardText
+type CardPreviewData =
+  | PreviewsCardLayout
+  | PreviewsCardRecitation
+  | PreviewsCardScript
+  | PreviewsCardFont
+  | PreviewsCardText
 
 type State = { status: 'pending' | 'failed' } | { status: 'loaded'; data: CardPreviewData }
 
@@ -25,6 +31,7 @@ const HEIGHT: Record<CardPreviewKind, string> = {
   layout: 'h-40',
   recitation: 'h-14',
   script: 'h-14',
+  font: 'h-14',
   text: 'h-28',
 }
 
@@ -52,18 +59,25 @@ function useSeen(ref: React.RefObject<HTMLElement | null>) {
   return seen
 }
 
+// Palette rules with the same name do not merge per family: the last one wins. Each card names
+// its own palette, so V4 Tajweed cards on one page keep their colours.
+function usePaletteName() {
+  return `--qul-v4-card-${React.useId().replace(/[^\w-]/g, '')}`
+}
+
 function LayoutThumbnail({ preview }: { preview: PreviewsCardLayout }) {
   const { page } = preview
   const v4 = page.textFont !== null && page.fontCode === 'v4-tajweed'
+  const palette = usePaletteName()
   return (
     <div className="flex h-full justify-center overflow-hidden">
-      <FontFaces fonts={pageFonts(page)} palette={v4 && page.textFont ? [page.textFont] : []} />
+      <FontFaces fonts={pageFonts(page)} palette={v4 && page.textFont ? [page.textFont] : []} paletteName={palette} />
       <div
         dir="rtl"
         className="h-max w-max rounded-sm bg-white px-3 py-2 text-[9px] leading-[1.85] text-black shadow-xs"
         style={{
           fontFamily: page.textFont ? `'${page.textFont.family}'` : undefined,
-          fontPalette: v4 ? V4_PALETTE : undefined,
+          fontPalette: v4 ? palette : undefined,
         }}
       >
         {page.lines.map((line) => (
@@ -130,9 +144,10 @@ function RecitationControl({ preview }: { preview: PreviewsCardRecitation }) {
 
 function ScriptLine({ preview }: { preview: PreviewsCardScript }) {
   const v4 = preview.fontCode === 'v4-tajweed'
+  const palette = usePaletteName()
   return (
     <>
-      <FontFaces fonts={preview.fonts} palette={v4 ? preview.fonts : []} />
+      <FontFaces fonts={preview.fonts} palette={v4 ? preview.fonts : []} paletteName={palette} />
       <p
         dir="rtl"
         className={cn(
@@ -140,9 +155,29 @@ function ScriptLine({ preview }: { preview: PreviewsCardScript }) {
           preview.rendering === 'html' && 'tajweed',
           preview.rendering === 'image' && '[&_img]:h-7',
         )}
-        style={{ fontPalette: v4 ? V4_PALETTE : undefined }}
+        style={{ fontPalette: v4 ? palette : undefined }}
       >
         <AyahText ayah={preview.ayah} rendering={preview.rendering} />
+      </p>
+    </>
+  )
+}
+
+// A line in the font: the start of its sample, or a line of page 1 in a page font's file. A line
+// longer than the card starts at its right edge and runs out of view.
+function FontLine({ preview }: { preview: PreviewsCardFont }) {
+  const { font } = preview
+  const v4 = preview.fontCode === 'v4-tajweed'
+  const palette = usePaletteName()
+  return (
+    <>
+      <FontFaces fonts={[font]} palette={v4 ? [font] : []} paletteName={palette} />
+      <p
+        dir="rtl"
+        className="flex h-full items-center justify-center-safe overflow-hidden text-2xl leading-loose whitespace-nowrap"
+        style={{ fontFamily: `'${font.family}'`, fontPalette: v4 ? palette : undefined }}
+      >
+        {preview.text}
       </p>
     </>
   )
@@ -175,6 +210,8 @@ function Body({ data }: { data: CardPreviewData }) {
       return <RecitationControl preview={data} />
     case 'script':
       return <ScriptLine preview={data} />
+    case 'font':
+      return <FontLine preview={data} />
     case 'text':
       return <TextAyah preview={data} />
   }

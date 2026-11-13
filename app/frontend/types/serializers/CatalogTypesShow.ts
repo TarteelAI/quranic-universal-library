@@ -8,6 +8,7 @@ type CatalogTypesShow = {
   types: Array<CatalogType>;
   resources: Array<CatalogResourceCard>;
   statuses: Array<CatalogOption>;
+  formats: Array<CatalogOption>;
   pick: string | null;
   guidePath: string | null;
   comparison: CatalogComparison | null;

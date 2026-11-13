@@ -34,6 +34,10 @@ describe('catalog/CatalogPage', () => {
     )
     expect(screen.getByText('Translation · English · Ayah by ayah')).toBeDefined()
     expect(screen.getByText('JSON · SQLite')).toBeDefined()
+    expect(screen.getByText('English translation of the Quran, ayah by ayah.')).toBeDefined()
+    // The tafsir has no card preview here: its type icon is a tile beside the title.
+    expect(cards[1].querySelector('[data-testid="card-preview"]')).toBeNull()
+    expect(cards[1].querySelector('.bg-cat-tafsir-subtle svg')).not.toBeNull()
   })
 
   it('opens a detail page from a card with an in-app visit', () => {

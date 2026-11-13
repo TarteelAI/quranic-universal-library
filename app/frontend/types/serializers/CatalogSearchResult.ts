@@ -7,12 +7,13 @@ type CatalogSearchResult = {
   name: string;
   type: string;
   toParam: string;
+  summary: string | null;
   language: string | null;
   granularity: string | null;
   formats: Array<'json' | 'sqlite' | 'csv' | 'docx' | 'font' | 'svg' | 'image' | 'other'>;
   status: 'stable' | 'beta' | 'legacy' | 'superseded';
   recommended: boolean;
-  previewKind: 'layout' | 'recitation' | 'script' | 'text' | null;
+  previewKind: 'layout' | 'recitation' | 'script' | 'font' | 'text' | null;
 }
 
 export default CatalogSearchResult;

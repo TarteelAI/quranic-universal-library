@@ -268,7 +268,8 @@
           "SiteNav still marks the Docs menu and footer docs links `inertia: false` (plain links that load the new pages in full); that is 002-09's scope.",
           "The sticky desktop side navigation is taller than the viewport and scrolls on its own; no 'scroll the current page into view' behaviour.",
           "Breadcrumb and phone bar both show the trail on phones (slight duplication), and the playground frame is still white in dark mode (002-01 concern). No design review yet.",
-          "Browser runs need the second server reached from the host: only :3000 is published from qul-dev (see lessons.md). Not checked on the production image."
+          "Browser runs need the second server reached from the host: only :3000 is published from qul-dev (see lessons.md). Not checked on the production image.",
+          "Checkpoint review (clean) noted, unverified: a link in a tag description to a partial-only key (e.g. /docs/timestamp) would be sent as an Inertia visit by DocBody and the old page would open in Inertia's modal. No markdown body links to such a key; tag data was not checked."
         ]
       },
       "filesChanged": 28

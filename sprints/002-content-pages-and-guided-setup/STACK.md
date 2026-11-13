@@ -8,6 +8,7 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 | --- | --- | --- | --- | --- | --- |
 | 1 | `stack/002-01-spikes` | #1044 | `qul-next` | 002-03 | 94 |
 | 2 | `stack/002-02-content-pages` | #1045 | layer 1 | 002-08 | 122 |
+| 3 | `stack/002-03-catalog-detail-apps` | #1046 | layer 2 | 002-14 (+ RuboCop fix bdeca7bf) | 142 |
 
 ## Notes
 
@@ -19,3 +20,6 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 - The gate ran the same split at the layer 2 head (002-08): every step passed (standalone 245
   runs, RuboCop 63 files, RSpec 347 examples, Vitest 352 tests). Cut before 002-09 to stay under
   the 150-file cap.
+- The gate at the layer 3 head first failed only at RuboCop (147 offences in sprint-001 catalog
+  files the layer touched); bdeca7bf clears them. Then every step passed (RuboCop 107 files,
+  RSpec 399 examples, Vitest 387 tests).

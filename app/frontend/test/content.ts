@@ -1,4 +1,6 @@
 import type {
+  ContentChangelogIndex,
+  ContentChangelogShow,
   ContentDoc,
   ContentDocNavCategory,
   ContentDocsIndex,
@@ -176,4 +178,39 @@ export const toolsProps: ContentPagesTools = {
       ],
     },
   ],
+}
+
+// Shaped like Content::ChangelogIndexResource: page 2 of 3, one entry whose resource is not published.
+export const changelogProps: ContentChangelogIndex = {
+  page: 2,
+  pages: 3,
+  entries: [
+    {
+      id: 31,
+      title: 'Updated the Diyanet Turkish translation',
+      excerpt: 'Updated 6,218 ayah translations.',
+      date: '4 March 2026',
+      path: '/changelog/31',
+      resource: { name: 'Diyanet Isleri', path: '/resources/translation/diyanet-isleri' },
+    },
+    {
+      id: 29,
+      title: 'Fixed spacing in the QPC v1 font',
+      excerpt: 'Fixed missing spacing on page 244.',
+      date: '2 January 2026',
+      path: '/changelog/29',
+      resource: { name: 'QPC v1 glyphs', path: null },
+    },
+  ],
+}
+
+// Shaped like Content::ChangelogShowResource: the body is prose HTML the server sanitized.
+export const changelogEntryProps: ContentChangelogShow = {
+  entry: {
+    id: 31,
+    title: 'Updated the Diyanet Turkish translation',
+    date: '4 March 2026',
+    body: '<ul><li><p>Updated <strong>6,218</strong> ayah translations.</p></li></ul>',
+    resource: { name: 'Diyanet Isleri', path: '/resources/translation/diyanet-isleri' },
+  },
 }

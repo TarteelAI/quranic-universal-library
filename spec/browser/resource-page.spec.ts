@@ -200,7 +200,7 @@ test('a resource with changelog entries has the Changelog tab with them', async 
   await expect(page).toHaveURL(/\?tab=changelog$/)
   const entries = page.getByRole('list', { name: 'Changelog' }).getByRole('listitem')
   expect(await entries.count()).toBeGreaterThan(0)
-  await expect(entries.first().getByRole('link')).toHaveAttribute('href', /^\/change_logs\/\d+$/)
+  await expect(entries.first().getByRole('link')).toHaveAttribute('href', /^\/changelog\/\d+$/)
 })
 
 test('the page fits the phone width and reports no hydration error', async ({ page }) => {

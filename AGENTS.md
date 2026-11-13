@@ -173,6 +173,9 @@ the browser (`lib/docs-search.ts`); the shared `nav.docsSearch` says whether it 
 They read what the old pages read; FAQ answers and credits descriptions are editor HTML reduced to
 prose on the server (`Content::Prose`). The tools overview groups `ToolsHelper#developer_tools` as
 the Contribute menu does (`SiteNav::ContributeTools.overview`) and links to the old tool pages.
+`content` also serves the changelog `/changelog` and `/changelog/:id` (`Content::ChangelogController`,
+entries from `Content::Changelog`, 20 per page, an out-of-range `?page=` is a 404); the old
+`/change_logs` URLs answer 301 there, and the detail page's Changelog tab links to the new entries.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

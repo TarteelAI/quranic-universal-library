@@ -385,8 +385,36 @@
       "testFirst": true,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "`ChangeLog` belongs to a `resource_content`, which lives in the content database; the resource link goes through `public_downloadable_resource`. Preload in two steps, never join. The design of this page needs a human look before cutover (human step)."
+      "passes": true,
+      "notes": "`ChangeLog` belongs to a `resource_content`, which lives in the content database; the resource link goes through `public_downloadable_resource`. Preload in two steps, never join. The design of this page needs a human look before cutover (human step).",
+      "completedAt": "2026-11-13T01:38:45Z",
+      "handoff": {
+        "done": [
+          "Routes in the `content` constraint block (config/routes.rb): `/changelog` (`changelog_page`) and `/changelog/:id` (`changelog_entry_page`, digits only) -> `Content::ChangelogController#index|show`; `/change_logs` 301 -> `/changelog` keeping the query string; `/change_logs/:id` (digits) 301 -> `/changelog/:id`. Old `resources :change_logs` untouched and answers with the group off. Typed helpers `changelogPage`, `changelogEntryPage` (typelizer include `/changelog(/:id)?`).",
+          "`Content::Changelog` (app/services/content/changelog.rb): `ChangeLog.published` ordered `created_at desc, id desc`, PER_PAGE 20; `page(param)` 404s (RecordNotFound) unless the value is all digits and within 1..pages (pages is at least 1, so an empty changelog has page 1); `find(id)` published only. Three separate queries: entries, `preload(:resource_content)` (content database), then `DownloadableResource.published.where(resource_content_id:)` first by id. Entry resource = `{ name: resource_content.name, path: catalog_resource_path(type, to_param) | null }`; null when the entry has no resource content.",
+          "Props: `Content::ChangelogIndexResource` { page, pages, entries: [{ id, title, excerpt, date ('%-d %B %Y'), path, resource|null }] }; `Content::ChangelogShowResource` { entry: { id, title, date, body, resource|null } }, body = `Content::Prose.sanitize(text)`. Head titles 'Changelog - QUL' and '<title> - Changelog - QUL' (description = excerpt).",
+          "`Catalog::ResourceChangeResource#path` (the detail page's Changelog tab) is `/changelog/:id` while `content` is on, `/change_logs/:id` otherwise.",
+          "Pages app/frontend/pages/content/ChangelogPage.tsx (PageHeader, dated list `ol[aria-label=Changelog]`, Inertia links to entries, Newer/Older pager like the catalog's, empty state) and ChangelogEntryPage.tsx (breadcrumb, date eyebrow, title, resource line, `.docs-prose` body); shared `ChangelogResource` in components/qul/changelog.tsx (plain <a> to the detail page, a span when unpublished).",
+          "spec/requests/content/changelog_spec.rb written first and seen red (7 failing), now 9 examples, 0 failures: list order/paging/drafts excluded with SSR HTML, 404 for page out of range, 0, -1, 'two', '1.5' and `page[]`; entry with published resource link and SSR; unpublished resource -> path null; draft/unknown entry 404; hostile body (script, onclick, javascript: href, img, iframe) reduced; 301s incl. query; catalog+content tab path; content off -> ChangeLogsController for both old URLs. Neighbouring spec/requests/content, catalog/resource_pages_spec, site_shell_spec, services/site_nav_spec: 82 examples, 0 failures. RuboCop clean on every changed Ruby file; `typelizer:check` clean.",
+          "Vitest: ChangelogPage (4) / ChangelogEntryPage (3) component tests incl. hydration, and both SSR tests; full `yarn test:frontend` 40 files, 352 tests passed; typecheck, ESLint, Prettier clean.",
+          "Playwright spec/browser/changelog.spec.ts against Rails in qul-dev on :3001 (QUL_PAGE_GROUPS=home,catalog,apps,content), desktop and phone, real backend: pages Older to `?page=2` and Newer back; opens an entry from a resource's Changelog tab, lands on /changelog/:id with the title, body and a link back to the resource. 4 passed. spec/browser/resource-page.spec.ts now expects `/changelog/\\d+` from the tab (13 passed, 3 public-mode skips, with QUL_BROWSER_RAILS_RUNNER='docker exec qul-dev bin/rails runner'). Screenshots of /changelog (desktop) and /changelog/31 (desktop, phone) checked by eye.",
+          "AGENTS.md page groups paragraph documents the changelog."
+        ],
+        "decisions": [
+          "Entries with no resource content are listed with `resource: null` rather than filtered out (the snapshot has none); nothing else is built for them, per the story's out-of-scope note.",
+          "The resource name is the resource content's name (as on the old page), linked only to a published DownloadableResource; the old helper fell back to an unpublished one.",
+          "A malformed page (not digits, array) is a 404 like an out-of-range one, instead of clamping as the catalog does, to meet the 404 criterion with one rule.",
+          "Redirects use block form (`redirect(status: 301) { ... }`): the `%{id}` string form trips RuboCop's Style/FormatStringToken, and `/change_logs` keeps its query so old paged links land on the same page.",
+          "The header/footer 'Changelog' nav link still points at /change_logs (it now 301s); nav links to content pages are 002-09's.",
+          "No prototype design: composed from PageHeader, Button and the catalog pager; resource links underlined so they read as links."
+        ],
+        "concerns": [
+          "The page design needs a human look before cutover (story note).",
+          "The Playwright paging test needs more than 20 published entries on the development clone (31 today).",
+          "Not checked on the production image."
+        ]
+      },
+      "filesChanged": 32
     },
     {
       "id": "002-09",

@@ -12,16 +12,25 @@ Rails.application.routes.draw do
     root to: 'site/home#show', as: :home_page
   end
   root to: 'landing#home'
-  # The new FAQ, credits, tools overview, docs index and docs pages while the `content` page group
-  # is on, above the old routes below, and the docs search index (JSON) the new pages fetch. The
-  # docs pages answer page loads and Inertia visits only (Content::DocsRequest): the old pages'
-  # help dialogs keep the old answer.
+  # The new FAQ, credits, tools overview, changelog, docs index and docs pages while the `content`
+  # page group is on, above the old routes below, and the docs search index (JSON) the new pages
+  # fetch. The old /change_logs URLs redirect to the changelog, keeping the query. The docs pages
+  # answer page loads and Inertia visits only (Content::DocsRequest): the old pages' help dialogs
+  # keep the old answer.
   # The two constraints are nested blocks because a `constraints:` option on the route would
   # replace the group's constraint instead of adding to it.
   constraints(PageGroups.constraint(:content)) do
     get '/faq', to: 'content/pages#faq', as: :faq_page, format: false
     get '/credits', to: 'content/pages#credits', as: :credits_page, format: false
     get '/tools', to: 'content/pages#tools', as: :tools_page, format: false
+    get '/changelog', to: 'content/changelog#index', as: :changelog_page, format: false
+    get '/changelog/:id', to: 'content/changelog#show', as: :changelog_entry_page, format: false,
+                          constraints: { id: /\d+/ }
+    get '/change_logs', format: false, to: redirect(status: 301) { |_params, request|
+      ['/changelog', request.query_string.presence].compact.join('?')
+    }
+    get '/change_logs/:id', to: redirect(status: 301) { |params, _request| "/changelog/#{params[:id]}" },
+                            format: false, constraints: { id: /\d+/ }
     get '/docs/search-index', to: 'content/docs_search#index', as: :docs_search_index, format: false
     constraints(Content::DocsRequest) do
       get '/docs', to: 'content/docs#index', as: :docs_index_page, format: false

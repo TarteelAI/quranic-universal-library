@@ -2,7 +2,7 @@
 # Ralph Constitution: Quranic Universal Library (QUL)
 
 This is the policy every Ralph skill applies in this repo: the planner (`create-sprint`,
-`ralph-plan`), the builder, the reviewers (`ralph-polish`, `story-review`) and the orchestrator
+`ralph-plan`), the builder, the reviewer (`story-review`) and the orchestrator
 (`ralph-loop`). Project-wide coding rules stay in the `rule_docs`; this file holds only what is
 specific to building autonomously here. The loop mechanics (signals, handoff, state, checkpoint
 steps) are the plugin's protocol. Don't restate them here.
@@ -113,7 +113,7 @@ change to the production database, and production config and credentials.
 
 ## Load-bearing code
 
-`ralph-polish` never simplifies these without first proving them dead:
+Builders and `story-review` never simplify these without first proving them dead:
 
 - The double `assets:precompile` in the `Dockerfile` (a known workaround).
 - `find_by_slug_or_id!` and its `find` fallback (all-digit slugs are invalid because of it).

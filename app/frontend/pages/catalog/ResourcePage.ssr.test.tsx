@@ -17,4 +17,20 @@ describe('catalog/ResourcePage on the server', () => {
     expect(body).toContain('5.1 MB')
     expect(body).toContain('Fixed footnotes')
   })
+
+  it('renders the Data and Docs tabs from the format doc', async () => {
+    const data = await renderPageOnServer(ResourcePage, {
+      props: { ...resourcePageProps, tab: 'data' },
+      url: '/resources/tafsir/tafsir-ibn-kathir?tab=data',
+    })
+    expect(data.body).toContain('the ayah this row is for.')
+    // The download URL has no origin on the server; the browser adds it after hydration.
+    expect(data.body).toContain('>/resources/tafsir/tafsir-ibn-kathir/download/11<')
+
+    const docs = await renderPageOnServer(ResourcePage, {
+      props: { ...resourcePageProps, tab: 'docs' },
+      url: '/resources/tafsir/tafsir-ibn-kathir?tab=docs',
+    })
+    expect(docs.body).toContain('About tafsir data')
+  })
 })

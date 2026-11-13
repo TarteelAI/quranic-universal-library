@@ -72,7 +72,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       end
 
       it 'redirects the old tab and copyright URLs to the page and the tab that holds what they showed' do
-        { 'docs' => '?tab=data', 'licence' => '?tab=licence', 'ligatures' => '?view=ligatures',
+        { 'docs' => '?tab=docs', 'licence' => '?tab=licence', 'ligatures' => '?view=ligatures',
           'glyphs' => '?view=glyphs' }.each do |old, query|
           get "/resources/tafsir/#{resource.id}/#{old}"
           expect(response).to have_http_status(:moved_permanently)
@@ -188,12 +188,86 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       end
 
       it 'opens the tab the query names' do
-        %w[data licence preview].each do |tab|
+        ['data', 'docs', 'licence', 'preview'].each do |tab|
           get page_path(resource, "tab=#{tab}")
           expect(props[:tab]).to eq(tab)
         end
         get page_path(resource, 'tab=nonsense')
         expect(props[:tab]).to eq('preview')
+      end
+    end
+
+    describe 'Data and Docs tabs (the format doc of the type, app/views/resources/docs)' do
+      # The format docs of these types (the first published resource of each) describe no table or
+      # file, or hold no code block. The content is not rewritten here (sprint 002 PRD).
+      doc_without_schema = ['recitation', 'font', 'surah-info']
+      doc_without_sample = ['surah-info', 'ayah-topics', 'ayah-theme']
+
+      it 'gives every type its format guide for the Docs tab, and its schemas and a code sample for the Data tab' do
+        DownloadableResource::RESOURCE_TYPES.each do |type|
+          published = DownloadableResource.published.where(resource_type: type).order(:id).first
+          expect(published).to be_present, "no published #{type} on the clone"
+
+          get page_path(published, 'tab=docs')
+
+          expect(props[:tab]).to eq('docs'), type
+          expect(props[:formatGuide]&.pluck(:kind)).to include('html'), "#{type}: no format guide"
+          expect(props[:schemas].present?).to eq(doc_without_schema.exclude?(type)), "#{type}: schemas"
+          expect(props[:schemas]).to all(include(name: be_present, columns: be_present))
+          expect(props[:codeSample].present?).to eq(doc_without_sample.exclude?(type)), "#{type}: code sample"
+          expect(props[:codeSample]).to include(kind: 'code', code: be_present) if props[:codeSample]
+        end
+      end
+
+      it 'reads the schema of a table and of a column list, and gives the first code block as the sample' do
+        get page_path(resource)
+
+        columns = [
+          ['ayah_key', 'the ayah this row is for.'],
+          ['group_ayah_key', 'the ayah key holding the shared tafsir text.'],
+          ['from_ayah / to_ayah', 'first and last ayah of the passage, for convenience.'],
+          ['ayah_keys', 'comma-separated list of every ayah the passage covers.'],
+          ['text', 'the tafsir. When it is blank, read the text from group_ayah_key instead.'],
+        ]
+        expect(props[:schemas]).to eq(
+          [{ name: 'SQLite columns', columns: columns.map { |name, text| { name:, type: nil, description: text } } }],
+        )
+        expect(props[:codeSample]).to include(kind: 'code', label: 'JSON', code: start_with("{\n  \"2:3\": {"))
+      end
+
+      it 'has no guide, schema or code sample for a resource whose format doc is missing, and no Docs tab' do
+        resource.update_columns(resource_type: 'morphology')
+
+        get page_path(resource, 'tab=docs')
+
+        expect(props).to include(formatGuide: nil, schemas: [], codeSample: nil, tab: 'preview')
+      end
+    end
+
+    describe 'the copyable download URL' do
+      def download_path_from_props
+        "/resources/#{props[:resource][:type]}/#{props[:resource][:toParam]}/download/#{props[:files].first[:id]}"
+      end
+
+      it 'is the download route, which sends an anonymous visitor to sign in first in sign-in mode' do
+        get page_path(resource)
+        path = download_path_from_props
+
+        get path
+
+        expect(response).to have_http_status(:found)
+        expect(URI(response.location).path).to eq('/users/sign_in')
+        expect(json_file.reload.anonymous_download_count.to_i).to eq(0)
+      end
+
+      it 'is the download route, which sends the file in public mode', download_mode: 'public' do
+        get page_path(resource)
+        path = download_path_from_props
+
+        get path
+
+        expect(response).to redirect_to(json_file.file.url)
+        expect(json_file.reload.anonymous_download_count).to eq(1)
       end
     end
 
@@ -269,7 +343,8 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
     # a new prop is a decision: no data source, changelog author, download count or user field.
     allowed_keys = %i[
       resource type statuses files facts worksWith changelog licence tab downloadMode download issueUrl
-      canDownload restriction updatedOn guidePath
+      canDownload restriction release version updatedOn guidePath formatGuide schemas codeSample
+      kind html language code columns
       id name toParam status scriptFamily language granularity summary info recommendation reviewed
       supersededBy recommended rendering
       key label title description category

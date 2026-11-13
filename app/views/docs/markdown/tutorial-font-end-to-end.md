@@ -29,8 +29,8 @@ Use font resources when you are building:
 1. Open [https://qul.tarteel.ai/resources/font](https://qul.tarteel.ai/resources/font).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Glyph Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download files (`woff`, `woff2`, `ttf`).
 
 This keeps onboarding concrete without hardcoded resource IDs.
@@ -39,10 +39,10 @@ This keeps onboarding concrete without hardcoded resource IDs.
 
 On the font detail page:
 
-- `Glyph Preview` tab:
+- `Preview` tab:
   - Shows font glyph behavior on sample Quran text
   - Helps validate readability and shaping before download
-- `Help` tab:
+- `Docs` tab:
   - Shows practical usage notes
   - Includes live preview guidance for the selected font
 

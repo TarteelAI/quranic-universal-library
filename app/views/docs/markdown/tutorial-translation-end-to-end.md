@@ -30,8 +30,8 @@ Use translation data when you are building:
 1. Open [https://qul.tarteel.ai/resources/translation](https://qul.tarteel.ai/resources/translation).
 2. Keep the default listing order and open the first published card.
 3. Confirm the resource detail page includes:
-   - `Translation Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download formats shown on the page:
    - `simple.json`
    - `simple.sqlite`
@@ -43,11 +43,11 @@ This keeps onboarding concrete without hardcoding a resource ID.
 
 On the translation detail page:
 
-- `Translation Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah` selector
   - Previous/next ayah navigation
   - Arabic ayah block + translated text block
-- `Help` tab:
+- `Docs` tab:
   - Export format examples
   - Simple structures (nested array, key-value)
   - Footnote structures (tags, inline notes, text chunks)
@@ -148,7 +148,7 @@ Interactive preview (temporary sandbox):
 You can edit this code for testing. Edits are not saved and may not persist after refresh.
 
 ```playground-js
-// This playground mirrors the Translation Preview + Help format ideas.
+// This playground mirrors the Preview + Docs format ideas.
 // It demonstrates simple text, footnote-tags, and chunk-based translation data.
 
 const arabicByAyah = {
@@ -167,7 +167,7 @@ const translationByAyah = {
     " is for Allah, Lord of all worlds."
   ],
 
-  // 3) Footnote-tags format from Help concepts: { t, f }.
+  // 3) Footnote-tags format from Docs concepts: { t, f }.
   "73:4": {
     t: "and recite the Qur'an in a measured way <sup foot_note=\"77646\">1</sup>.",
     f: {

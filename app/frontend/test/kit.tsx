@@ -6,6 +6,8 @@ import * as appIcon from '@/components/qul/app-icon'
 import * as appSubmission from '@/components/qul/app-submission'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
+import * as copyButton from '@/components/qul/copy-button'
+import * as data from '@/components/qul/data'
 import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
 import * as flash from '@/components/qul/flash'
@@ -40,6 +42,8 @@ const modules = {
   appSubmission,
   catalog,
   chrome,
+  copyButton,
+  data,
   docs,
   downloadPanel,
   flash,
@@ -77,6 +81,8 @@ const { AppSubmissionDialog } = appSubmission
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, FilterChip, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
+const { CopyButton } = copyButton
+const { SchemaTable } = data
 const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
@@ -236,6 +242,8 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'Page body',
   },
+  CopyButton: { element: <CopyButton text={() => 'copied'} label="Copy link" />, text: 'aria-label="Copy link"' },
+  SchemaTable: { element: <SchemaTable schema={resourcePageProps.schemas[0]} />, text: 'the ayah this row is for.' },
   WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
   AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
   ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },

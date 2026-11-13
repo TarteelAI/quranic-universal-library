@@ -36,8 +36,8 @@ Use tafsir data when you are building:
 1. Open [https://qul.tarteel.ai/resources/tafsir](https://qul.tarteel.ai/resources/tafsir).
 2. Keep the default listing order and open the first published card.
 3. Confirm the resource detail page includes:
-   - `Tafsir Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available downloads on the detail page:
    - `json`
    - `sqlite`
@@ -48,11 +48,11 @@ This keeps onboarding concrete without hardcoding a resource ID.
 
 On the tafsir detail page:
 
-- `Tafsir Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah` selector
   - Previous/next ayah navigation
   - Arabic ayah block + tafsir text block
-- `Help` tab:
+- `Docs` tab:
   - JSON export model for grouped tafsir
   - SQLite columns for grouped/shared commentary
   - Notes about tafsir text including formatting tags
@@ -140,7 +140,7 @@ Interactive preview (temporary sandbox):
 You can edit this code for testing. Edits are not saved and may not persist after refresh.
 
 ```playground-js
-// This playground mirrors the Help model shown on tafsir detail pages:
+// This playground mirrors the Docs model shown on tafsir detail pages:
 // object = main tafsir group, string = pointer to main group ayah key.
 
 const arabicByAyah = {
@@ -198,7 +198,7 @@ const dropdownStyle = [
 
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Tafsir Preview (Grouped Ayah Aware)</h3>
-  <p style="margin:0 0 12px;color:#475569;">Demonstrates object + pointer tafsir mapping from the Help format</p>
+  <p style="margin:0 0 12px;color:#475569;">Demonstrates object + pointer tafsir mapping from the Docs format</p>
   <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
   <select id="ayah" style="${dropdownStyle}">
     <option value="2:3">2:3</option>

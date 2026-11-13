@@ -356,6 +356,27 @@ export const resourcePageProps: CatalogResourcesShow = {
     },
   ],
   licence: null,
+  release: { version: '1703808000', updatedOn: '29 December 2023' },
+  formatGuide: [
+    {
+      kind: 'html',
+      html: '<h2 id="about-tafsir-data">About tafsir data</h2><p>Tafsir is available as <strong>JSON</strong>.</p>',
+      language: null,
+      label: null,
+      code: null,
+    },
+    { kind: 'code', html: null, language: null, label: 'JSON', code: '{ "2:4": "2:3" }' },
+  ],
+  schemas: [
+    {
+      name: 'SQLite columns',
+      columns: [
+        { name: 'ayah_key', type: null, description: 'the ayah this row is for.' },
+        { name: 'text', type: null, description: 'the tafsir.' },
+      ],
+    },
+  ],
+  codeSample: { kind: 'code', html: null, language: null, label: 'JSON', code: '{ "2:4": "2:3" }' },
   tab: 'preview',
   downloadMode: 'sign_in',
   download: null,
@@ -363,6 +384,5 @@ export const resourcePageProps: CatalogResourcesShow = {
     'https://github.com/TarteelAI/quranic-universal-library/issues/new?resource_link=https%3A%2F%2Fqul.tarteel.ai%2Fresources%2Ftafsir%2Ftafsir-ibn-kathir&resource_name=Tafsir+Ibn+Kathir&resource_type=Tafsir&template=content_issue.yml',
   canDownload: true,
   restriction: null,
-  updatedOn: '29 December 2023',
   guidePath: '/docs/resource-tafsirs',
 }

@@ -1,17 +1,9 @@
 import { Link, router } from '@inertiajs/react'
-import {
-  BookOpenIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  CopyIcon,
-  MenuIcon,
-  PlayIcon,
-  RotateCcwIcon,
-  SearchIcon,
-} from 'lucide-react'
+import { BookOpenIcon, ChevronDownIcon, MenuIcon, PlayIcon, RotateCcwIcon, SearchIcon } from 'lucide-react'
 import { type KeyboardEvent, type MouseEvent, type ReactNode, useCallback, useEffect, useId, useState } from 'react'
 
 import { Container } from '@/components/layout'
+import { CopyButton } from '@/components/qul/copy-button'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,9 +26,18 @@ function visitDocsLink(event: MouseEvent<HTMLDivElement>) {
 }
 
 // A docs body (Content::DocPage): prose HTML the server sanitized, code blocks and runnable examples.
-export function DocBody({ segments, className }: { segments: ContentDocSegment[]; className?: string }) {
+// `visitLinks` is false where the docs pages may be old pages (a page outside the content group).
+export function DocBody({
+  segments,
+  visitLinks = true,
+  className,
+}: {
+  segments: ContentDocSegment[]
+  visitLinks?: boolean
+  className?: string
+}) {
   return (
-    <div className={cn('docs-prose', className)} onClick={visitDocsLink}>
+    <div className={cn('docs-prose', className)} onClick={visitLinks ? visitDocsLink : undefined}>
       {segments.map((segment, index) => {
         if (segment.kind === 'code') return <CodeBlock key={index} label={segment.label} code={segment.code ?? ''} />
         if (segment.kind === 'playground') return <Playground key={index} code={segment.code ?? ''} />
@@ -44,27 +45,6 @@ export function DocBody({ segments, className }: { segments: ContentDocSegment[]
         return <div key={index} className="contents" dangerouslySetInnerHTML={{ __html: segment.html ?? '' }} />
       })}
     </div>
-  )
-}
-
-function CopyButton({ text }: { text: () => string }) {
-  const [copied, setCopied] = useState(false)
-  useEffect(() => {
-    if (!copied) return
-    const timer = setTimeout(() => setCopied(false), 1500)
-    return () => clearTimeout(timer)
-  }, [copied])
-
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => navigator.clipboard.writeText(text()).then(() => setCopied(true))}
-      aria-label={copied ? 'Copied' : 'Copy code'}
-    >
-      {copied ? <CheckIcon /> : <CopyIcon />}
-      {copied ? 'Copied' : 'Copy'}
-    </Button>
   )
 }
 

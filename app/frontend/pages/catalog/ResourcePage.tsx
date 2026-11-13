@@ -5,6 +5,8 @@ import * as React from 'react'
 import { Container, SiteShell } from '@/components/layout'
 import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navigation'
 import { Preview } from '@/components/previews/preview'
+import { SchemaTable } from '@/components/qul/data'
+import { CodeBlock, DocBody } from '@/components/qul/docs'
 import { DownloadPanel, WorksWith } from '@/components/qul/download-panel'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
@@ -16,7 +18,46 @@ import type { CatalogResourcesShow } from '@/types/serializers'
 
 type Tab = CatalogResourcesShow['tab']
 
-const TAB_LABELS: Record<Tab, string> = { preview: 'Preview', data: 'Data', licence: 'Licence', changelog: 'Changelog' }
+const TAB_LABELS: Record<Tab, string> = {
+  preview: 'Preview',
+  data: 'Data',
+  docs: 'Docs',
+  licence: 'Licence',
+  changelog: 'Changelog',
+}
+
+// The notice the old pages showed with translations and tafsirs (resources/_content_notice).
+const CONTENT_NOTICES: Partial<Record<string, string>> = {
+  translation:
+    "No translation of the Qur'an can fully capture its deeper meanings, and translations may have limitations based on the translator's understanding. Please use these translations as references, not definitive interpretations.",
+  tafsir:
+    "No tafsir can fully capture the Qur'an's deeper meanings, and each one is limited by its author's understanding. Please use this tafsir as a reference, not a definitive interpretation.",
+}
+
+function ContentNotice({ type, issueUrl }: { type: string; issueUrl: string }) {
+  const notice = CONTENT_NOTICES[type]
+  if (!notice) return null
+
+  return (
+    <aside
+      aria-label="Important notice"
+      className="flex max-w-prose flex-col gap-2 rounded-xl bg-secondary p-4 text-sm"
+    >
+      <p className="font-medium">Important notice</p>
+      <p>
+        The information on this page comes from external sources and may contain errors. While we aim for accuracy, we
+        cannot guarantee all content is complete or correct. {notice}
+      </p>
+      <p>
+        If you find a problem with this resource,{' '}
+        <a href={issueUrl} target="_blank" rel="noopener" className="font-medium underline underline-offset-2">
+          please report it to us
+        </a>
+        . Your feedback helps us improve the quality and accuracy of the Quranic content.
+      </p>
+    </aside>
+  )
+}
 
 function NotYetReviewed() {
   return <span className="text-xs text-muted-foreground">(not yet reviewed)</span>
@@ -39,12 +80,19 @@ function pageUrl(resource: CatalogResourcesShow['resource'], tab: Tab, query: Pr
 }
 
 // /resources/:type/:slug: one resource with its files and download control, what it works with,
-// and the Preview, Data, Licence and Changelog tabs. The open tab is `?tab=` (none for Preview).
+// and the Preview, Data, Docs, Licence and Changelog tabs. The open tab is `?tab=` (none for
+// Preview). Data and Docs come from the type's format doc; without one there is no Docs tab.
 export default function ResourcePage(props: CatalogResourcesShow) {
-  const { resource, type, statuses, files, facts, worksWith, changelog, licence, tab } = props
+  const { resource, type, statuses, files, facts, worksWith, changelog, licence, release, formatGuide, tab } = props
   const { url, props: shared } = usePage()
 
-  const tabs: Tab[] = ['preview', 'data', 'licence', ...(changelog.length > 0 ? (['changelog'] as const) : [])]
+  const tabs: Tab[] = [
+    'preview',
+    'data',
+    ...(formatGuide ? (['docs'] as const) : []),
+    'licence',
+    ...(changelog.length > 0 ? (['changelog'] as const) : []),
+  ]
   const statusLabel = statuses.find((status) => status.key === resource.status)?.label ?? resource.status
 
   // The download sign-in returned for (`?download=<file id>`) runs in a hidden frame, so the
@@ -176,6 +224,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             <Deferred data="preview" fallback={<Skeleton className="h-64 rounded-xl" />}>
               <Preview preview={props.preview} navigation={navigation} />
             </Deferred>
+            <ContentNotice type={resource.type} issueUrl={props.issueUrl} />
           </TabsContent>
 
           <TabsContent value="data" className="flex flex-col gap-6 pt-6">
@@ -187,6 +236,32 @@ export default function ResourcePage(props: CatalogResourcesShow) {
                 </React.Fragment>
               ))}
             </dl>
+            {formatGuide ? (
+              <>
+                {props.schemas.length > 0 ? (
+                  props.schemas.map((schema, index) => <SchemaTable key={index} schema={schema} />)
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    The format guide does not list the fields of these files.
+                  </p>
+                )}
+                {props.codeSample && (
+                  <section aria-label="Example" className="flex flex-col gap-2 [&_pre]:max-h-96">
+                    <h2 className="text-sm text-muted-foreground">Example</h2>
+                    <CodeBlock label={props.codeSample.label} code={props.codeSample.code ?? ''} />
+                  </section>
+                )}
+                <p className="text-sm">
+                  The{' '}
+                  <button type="button" onClick={() => selectTab('docs')} className="underline underline-offset-2">
+                    Docs tab
+                  </button>{' '}
+                  has the whole format guide.
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">There is no format guide for this resource yet.</p>
+            )}
             {props.guidePath && (
               <p className="text-sm">
                 How the files are laid out and how to use them:{' '}
@@ -197,6 +272,12 @@ export default function ResourcePage(props: CatalogResourcesShow) {
               </p>
             )}
           </TabsContent>
+
+          {formatGuide && (
+            <TabsContent value="docs" className="pt-6">
+              <DocBody segments={formatGuide} visitLinks={shared.nav.docsSearch} />
+            </TabsContent>
+          )}
 
           <TabsContent value="licence" className="flex max-w-prose flex-col gap-3 pt-6">
             {licence ? (
@@ -266,7 +347,8 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             signInHref={signInHref}
             facts={[
               { label: 'Licence', value: licence ? licence.name : 'Not yet confirmed' },
-              ...(props.updatedOn ? [{ label: 'Updated', value: props.updatedOn }] : []),
+              ...(release.version ? [{ label: 'Version', value: release.version }] : []),
+              ...(release.updatedOn ? [{ label: 'Updated', value: release.updatedOn }] : []),
             ]}
           />
           <WorksWith groups={worksWith} />

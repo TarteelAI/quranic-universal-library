@@ -260,7 +260,11 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   measurement id, so each page view leaves the browser twice.
 - The detail page (`Catalog::ResourcesController#show`, props from `Catalog::ResourcePage`) is the
   only URL of a resource: an id URL, a wrong type and the old `/:tab` and `/copyright` URLs
-  redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`).
+  redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`). The Data and
+  Docs tabs come from the old format-doc partial of the resource (`app/views/resources/docs`),
+  rendered with the old presenter and parsed by `Catalog::FormatDoc`: the whole doc as docs
+  segments for Docs, its column tables and lists and its first code block for Data. The partials
+  stay the only copy; a resource whose partial is missing has no Docs tab.
 - Links to old pages (contributor tools, sign-in, a page whose group is off) are plain `<a>` with
   the typed route helpers; links between new pages are Inertia `<Link>`.
 - Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the

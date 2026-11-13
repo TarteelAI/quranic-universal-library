@@ -29,8 +29,8 @@ Use transliteration data when you are building:
 1. Open [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Transliteration Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm downloads (`json`, `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -39,11 +39,11 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On transliteration detail pages:
 
-- `Transliteration Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah`
   - Previous/next ayah navigation
   - Arabic line + transliteration line
-- `Help` tab:
+- `Docs` tab:
   - Data shape keyed by `ayah_key`
   - Field examples for app integration
 

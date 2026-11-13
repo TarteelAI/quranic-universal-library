@@ -16,7 +16,7 @@ module Catalog
     Licence = Data.define(:name, :url, :summary)
     Change = Data.define(:id, :title, :excerpt, :date)
 
-    TABS = %w[preview data licence changelog].freeze
+    TABS = ['preview', 'data', 'docs', 'licence', 'changelog'].freeze
 
     # Relation groups of "Works with", in this order. A link is listed from the resource that
     # holds it (`from`) or, for links that read the same both ways, from either end.
@@ -91,12 +91,25 @@ module Catalog
       resource.short_summary.presence || type.summary
     end
 
-    # The content row's export version (a unix time) where it has one, else the newest file.
-    def updated_on
+    # The content row's export version (a unix time, which the asset manifest and the CDN file
+    # names use as the version), or nil.
+    def version
       exported = resource.resource_content&.meta_value('exported-version').to_s
-      time = Time.zone.at(exported.to_i) if exported.match?(/\A\d+\z/)
+      exported if exported.match?(/\A\d+\z/)
+    end
+
+    # The date of the export version where there is one, else of the newest file.
+    def updated_on
+      time = Time.zone.at(version.to_i) if version
       time ||= published_files.filter_map { |file| file.file.blob.created_at }.max
       time&.to_date
+    end
+
+    # The format doc of the old Docs tab (Catalog::FormatDoc), or nil.
+    def format_doc
+      return @format_doc if defined?(@format_doc)
+
+      @format_doc = FormatDoc.for(resource)
     end
 
     def works_with
@@ -152,7 +165,7 @@ module Catalog
 
     # The tab to show: a known tab the page has, else the preview.
     def tab(key)
-      tabs = TABS - (changelog.empty? ? ['changelog'] : [])
+      tabs = TABS - (changelog.empty? ? ['changelog'] : []) - (format_doc ? [] : ['docs'])
       tabs.include?(key) ? key : 'preview'
     end
 

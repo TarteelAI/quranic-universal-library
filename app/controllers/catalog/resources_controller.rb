@@ -15,7 +15,7 @@ module Catalog
   class ResourcesController < InertiaController
     # The old tabs and the query of the new page that shows what they showed.
     OLD_TABS = {
-      'docs' => { tab: 'data' }, 'licence' => { tab: 'licence' },
+      'docs' => { tab: 'docs' }, 'licence' => { tab: 'licence' },
       'ligatures' => { view: 'ligatures' }, 'glyphs' => { view: 'glyphs' }
     }.freeze
 

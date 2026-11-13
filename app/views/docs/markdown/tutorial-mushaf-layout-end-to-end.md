@@ -22,7 +22,7 @@ Use mushaf layout data when you are building:
 
 ## Why Mushaf Layout Is Different (and Helpful)
 
-The Help sample code and preview on a detail page (for example [https://qul.tarteel.ai/resources/mushaf-layout/12](https://qul.tarteel.ai/resources/mushaf-layout/12)) show a key difference:
+The sample code on the Docs tab and the preview on a detail page (for example [https://qul.tarteel.ai/resources/mushaf-layout/12](https://qul.tarteel.ai/resources/mushaf-layout/12)) show a key difference:
 
 - `mushaf-layout` is a rendering-structure resource, not only a content resource.
 - It tells your app *how* to render a page (`line_number`, `line_type`, `is_centered`, `first_word_id`, `last_word_id`).
@@ -39,8 +39,8 @@ Why this is useful:
 1. Open [https://qul.tarteel.ai/resources/mushaf-layout](https://qul.tarteel.ai/resources/mushaf-layout).
 2. Keep the default listing order and open the first published card.
 3. Confirm the resource detail page includes:
-   - `Mushaf Page Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download formats shown on the page (commonly `images`, `sqlite`, `docx`).
 
 This keeps onboarding concrete without depending on a fixed resource ID.
@@ -49,11 +49,11 @@ This keeps onboarding concrete without depending on a fixed resource ID.
 
 On the mushaf layout detail page, preview helps you validate page rendering behavior before download:
 
-- `Mushaf Page Preview` tab:
+- `Preview` tab:
   - `Jump to page` selector
   - Previous/next page navigation
   - Rendered page output with line and word structure
-- `Help` tab:
+- `Docs` tab:
   - Required data to render a page (layout + script + font)
   - `pages` table schema (for line mapping)
   - `words` table schema expectations (for word ranges)
@@ -140,7 +140,7 @@ Interactive preview (temporary sandbox):
 You can edit this code for testing. Edits are not saved and may not persist after refresh.
 
 ```playground-js
-// This playground follows the Help section sample pattern from:
+// This playground follows the Docs tab sample pattern from:
 // https://qul.tarteel.ai/resources/mushaf-layout/12
 
 // Surah labels used by line_type = "surah_name".
@@ -186,7 +186,7 @@ const getSurahName = (number) => `سورۃ ${SurahNames[number] || ""}`;
 const app = document.getElementById("app");
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Mushaf Page Preview (Simulated)</h3>
-  <p style="margin:0 0 12px;color:#475569;">Aligned with Help sample logic: page lines + word ID ranges</p>
+  <p style="margin:0 0 12px;color:#475569;">Aligned with Docs sample logic: page lines + word ID ranges</p>
   <div id="page" dir="rtl" style="border:1px solid #e2e8f0;border-radius:10px;padding:14px;background:#fff;font-size:1.1rem;line-height:1.85;"></div>
 `;
 
@@ -214,7 +214,7 @@ const renderPage = () => {
         lineEl.style.textAlign = "justify";
       }
 
-      // Choose content by line_type like the Help sample.
+      // Choose content by line_type like the Docs sample.
       switch (line.line_type) {
         case "surah_name":
           lineEl.textContent = getSurahName(line.surah_number);

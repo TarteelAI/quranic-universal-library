@@ -25,7 +25,9 @@ test.describe('starter kits and the ways into the guided setup (002-16)', () => 
     await page.goto('/')
     await hydrated(page)
 
-    await main(page).getByRole('link', { name: /^Audio and recitation/ }).click()
+    await main(page)
+      .getByRole('link', { name: /^Audio and recitation/ })
+      .click()
     await expect(page).toHaveURL(/\/start\?goal=audio$/)
     await expect(page.getByRole('heading', { name: 'Where will it run?' })).toBeVisible()
     await page.getByRole('button', { name: 'Goal' }).click()
@@ -49,7 +51,9 @@ test.describe('starter kits and the ways into the guided setup (002-16)', () => 
     await page.goto('/')
     await hydrated(page)
     await fitsScreen(page, 'main section a[href^="/kits/"]')
-    await main(page).getByRole('link', { name: /Madani reader/ }).click()
+    await main(page)
+      .getByRole('link', { name: /Madani reader/ })
+      .click()
     await expect(page).toHaveURL(/\/kits\/madani-reader$/)
     await expect(page.getByRole('heading', { level: 1, name: 'Madani reader' })).toBeVisible()
 

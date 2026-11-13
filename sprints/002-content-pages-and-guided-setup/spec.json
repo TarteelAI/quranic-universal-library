@@ -356,7 +356,8 @@
           "Tool cards reuse `SiteNavLinkResource` (and its icon enum), so the page maps icons with the existing `navIcon`. The cards show the helper's long description; the menu keeps its one-liners.",
           "Group summaries drop the prototype's access wording ('Open to anyone signed in', 'Needs approval'): the story rules out access state, and the old tool pages enforce access. The page header says some tools need access and to ask for it in the tool.",
           "Credits keeps the GitHub code contributors section, as the old page has it; the request spec stubs `GithubService.fetch_contributors` so no spec reaches GitHub. Organizations are ordered by id for a stable order (the old page used the unordered scope).",
-          "Page titles: 'FAQ - QUL', 'Credits - QUL', 'Contribution tools - QUL', new descriptions in plain words; canonical URLs unchanged paths."
+          "Page titles: 'FAQ - QUL', 'Credits - QUL', 'Contribution tools - QUL', new descriptions in plain words; canonical URLs unchanged paths.",
+          "Checkpoint review (story-review over 4dad6006..HEAD): one CONFIRMED finding fixed in this story, FaqPage decoded the URL hash with decodeURIComponent, which throws on a malformed hash such as #% and blanks the page; the ids are faq-<number>, so the hash is used as is."
         ],
         "concerns": [
           "Organization logos are ActiveStorage blobs on `qul_exports` in production and `:local` in development; locally the files are missing, so the credits screenshots show empty logo circles. Production logo URLs (`rails_blob_path` redirect) were not verified.",

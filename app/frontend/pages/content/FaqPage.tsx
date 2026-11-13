@@ -9,7 +9,7 @@ const ISSUES_URL = 'https://github.com/TarteelAI/quranic-universal-library/issue
 
 // Opens the question the URL's hash names (`#faq-<id>`, the old page's anchors) and scrolls to it.
 function openLinkedQuestion() {
-  const item = document.getElementById(decodeURIComponent(window.location.hash.slice(1)))
+  const item = document.getElementById(window.location.hash.slice(1))
   if (!(item instanceof HTMLDetailsElement)) return
   item.open = true
   item.scrollIntoView({ block: 'start' })

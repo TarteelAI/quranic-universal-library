@@ -9,6 +9,7 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 | 1 | `stack/002-01-spikes` | #1044 | `qul-next` | 002-03 | 94 |
 | 2 | `stack/002-02-content-pages` | #1045 | layer 1 | 002-08 | 122 |
 | 3 | `stack/002-03-catalog-detail-apps` | #1046 | layer 2 | 002-14 (+ RuboCop fix bdeca7bf) | 142 |
+| 4 | `stack/002-04-setup-bundle-requests` | #1048 | layer 3 | 002-19 (+ Prettier fix) | 123 |
 
 ## Notes
 
@@ -23,3 +24,6 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 - The gate at the layer 3 head first failed only at RuboCop (147 offences in sprint-001 catalog
   files the layer touched); bdeca7bf clears them. Then every step passed (RuboCop 107 files,
   RSpec 399 examples, Vitest 387 tests).
+- The gate at the layer 4 head failed only at Prettier (`spec/browser/kits.spec.ts`, formatting
+  from before this layer); 252ed82c formats it. Then every step passed (RuboCop 143 files, RSpec
+  505 examples, Vitest 444 tests).

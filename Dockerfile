@@ -23,6 +23,9 @@ RUN /pd_build/ruby-3.3.*.sh && \
     apt-get remove -y rustc && apt-get autoremove -y && \
     rm -rf /usr/local/rvm/src /usr/local/rvm/archives /var/lib/apt/lists/*
 RUN bash -lc 'rvm --default use ruby-3.3.13'
+# As app, the user Passenger runs QUL as: it looks in that user's ~/.passenger. Otherwise every
+# app process start compiles it under /tmp (extconf.rb + make in a shell).
+RUN setuser app bash -lc 'passenger-config build-native-support' && rm -f /tmp/passenger_native_support-*.log
 RUN /pd_build/redis.sh
 
 # set environment variables

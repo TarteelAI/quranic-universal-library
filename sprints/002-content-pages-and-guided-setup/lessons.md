@@ -27,3 +27,18 @@ Sprint 001's `lessons.md` applies unchanged: the database safety rules, the publ
 ## Gotchas & Patterns
 
 _Append new entries at the END. Heading: `### <short topic> — <STORY_ID>`. Never edit or reorder existing entries._
+
+### Running the gate split between qul-dev and the host — 002-03
+
+`bin/gate` cannot run whole in one place. In `qul-dev`, plain `ruby` lacks activesupport (run the
+standalone step with `RUBYOPT=-rbundler/setup`), and there is no yarn and only Node 18. On the
+host, Ruby is the macOS system 2.6, so `bin/vite` fails. Run the Ruby steps in `qul-dev`
+(standalone tests, `bin/rails typelizer:check`, the RuboCop step, `VITE_RUBY_AUTO_BUILD=false
+bundle exec rspec`) and the yarn steps plus `node_modules/.bin/vite build --ssr` on the host,
+the SSR build before RSpec.
+
+### `catalog.spec.ts` "a new page links out to an old page" — 002-01
+
+With the `content` group on, `/docs/resource-tafsirs` is a new page, so this Playwright test
+fails. It needs a link that still goes to an old page; whichever story next touches docs links
+fixes it.

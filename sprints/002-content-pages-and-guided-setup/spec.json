@@ -721,7 +721,8 @@
           "Icons are served through /rails/active_storage/blobs/redirect/... (one Rails request per icon per page view, then the storage URL); fine for 24 apps, worth a CDN or proxy URL if the list grows.",
           "The limit is a count then insert, not locked: two submissions sent at the same instant by one user could both pass at the third slot. Acceptable for a form; noted.",
           "Browser runs: with both widths in parallel at load average 300-440, unrelated directory tests and the desktop submission test timed out (5 s expect timeouts while the server was busy); every test passed when rerun one width at a time with one worker (desktop needed that rerun twice). The submission tests take 20-50 s each under this load.",
-          "public/app-icons stays as the import source and is still served at /app-icons, though no page reads it now."
+          "public/app-icons stays as the import source and is still served at /app-icons, though no page reads it now.",
+          "Checkpoint review (fresh context, 35fe42a6..d1125615): no CONFIRMED findings. PLAUSIBLE: the home page's apps band reads published rows whenever the home group is on, so between the migration and apps:import it shows an empty grid and '0+ readers…'. Run apps:import right after the migration, before home or apps serves traffic (put this in the PR's human steps)."
         ]
       },
       "filesChanged": 31

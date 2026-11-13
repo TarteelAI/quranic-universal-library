@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_13_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -885,6 +885,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_120000) do
     t.index ["licence_id"], name: "index_resource_permissions_on_licence_id"
   end
 
+  create_table "resource_request_votes", force: :cascade do |t|
+    t.bigint "resource_request_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_request_id", "user_id"], name: "index_resource_request_votes_unique", unique: true
+    t.index ["user_id"], name: "index_resource_request_votes_on_user_id"
+  end
+
+  create_table "resource_requests", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.string "resource_type", null: false
+    t.string "language"
+    t.string "status", default: "open", null: false
+    t.boolean "hidden", default: false, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_resource_requests_on_user_id"
+  end
+
   create_table "segment_pipeline_draft_deliveries", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "audio_recitation_id"
@@ -1085,6 +1107,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_120000) do
   add_foreign_key "apps", "users", on_delete: :nullify
   add_foreign_key "downloadable_files", "downloadable_resources"
   add_foreign_key "downloadable_resources", "downloadable_resources", column: "superseded_by_id", on_delete: :nullify
+  add_foreign_key "resource_request_votes", "resource_requests", on_delete: :cascade
+  add_foreign_key "resource_request_votes", "users", on_delete: :cascade
+  add_foreign_key "resource_requests", "users", on_delete: :nullify
   add_foreign_key "user_downloads", "downloadable_files"
   add_foreign_key "user_downloads", "users"
 end

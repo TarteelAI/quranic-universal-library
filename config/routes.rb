@@ -202,6 +202,13 @@ Rails.application.routes.draw do
     get '/apps', to: 'site/apps#index', as: :apps_directory, format: false
     post '/apps', to: 'site/app_submissions#create', as: :app_submissions, format: false
   end
+  # Resource requests have no old page: with the `requests` group off, these are 404s.
+  constraints(PageGroups.constraint(:requests)) do
+    post '/requests', to: 'requests/requests#create', as: :resource_requests, format: false
+    post '/requests/:id/vote', to: 'requests/requests#vote', as: :resource_request_vote, format: false,
+                               constraints: { id: /\d+/ }
+    delete '/requests/:id/vote', to: 'requests/requests#unvote', format: false, constraints: { id: /\d+/ }
+  end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false
   # File downloads, whatever the groups. The token path is the old download URL, declared again

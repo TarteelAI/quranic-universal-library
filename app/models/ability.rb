@@ -21,6 +21,7 @@ class Ability
     cannot :read, Contributor
     cannot :read, Licence
     cannot :read, App
+    cannot :read, ResourceRequest
     cannot :read, ActiveAdmin::Page, name: 'Analytics'
 
     can :read, User, id: user.id
@@ -38,6 +39,7 @@ class Ability
       can :manage, Draft::FootNote
       can :manage, Faq
       can :manage, App
+      can :manage, ResourceRequest
 
       can :manage, Reciter
       can :manage, Tafsir

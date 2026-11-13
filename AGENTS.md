@@ -151,7 +151,7 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below), `apps`, `content` and `start` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+below), `apps`, `content`, `start` and `requests` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
 URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
@@ -193,6 +193,14 @@ sets of resources in `config/kits.yml`, read through `Kits`, which name each res
 of its kit). With `start` on, the home page shows the goal cards (each opens `/start?goal=…`) and the
 first three kits, its hero and closing buttons open `/start`, and the header has the Start building
 menu; with it off, none of them appear.
+`requests` serves the write paths of resource requests, which have no old page (off, they are 404s):
+`POST /requests` creates one, `POST /requests/:id/vote` votes and `DELETE /requests/:id/vote` takes the
+vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
+from and enqueues nothing; a user sends at most `ResourceRequest::DAILY_LIMIT` requests a day. A vote
+is one row per user and request (unique index `index_resource_request_votes_unique`, inserted with
+ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
+and whether the current user voted, by votes or by date, one query a page, and no author or voter.
+Editors set the status and hide requests in the CMS (`/cms/resource_requests`, admins only).
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

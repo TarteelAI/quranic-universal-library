@@ -71,6 +71,13 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
 
         expect(response.headers['X-Inertia-Location']).to eq('/users/sign_in')
       end
+
+      it 'keeps a Referer that is only a path as the return path' do
+        submit(valid_request, headers: inertia_headers.merge('Referer' => '/resources/tafsir?language=bn'))
+
+        expect(response.headers['X-Inertia-Location'])
+          .to eq('/users/sign_in?user_return_to=%2Fresources%2Ftafsir%3Flanguage%3Dbn')
+      end
     end
 
     describe 'a signed-in user creating a request' do

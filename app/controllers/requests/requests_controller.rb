@@ -39,9 +39,14 @@ module Requests
     def require_sign_in
       return if user_signed_in?
 
-      return_to = url_from(request.referer)&.then { |url| URI(url).request_uri }
-      sign_in_path = new_user_session_path(user_return_to: return_to)
+      sign_in_path = new_user_session_path(user_return_to: referer_path)
       request.inertia? ? inertia_location(sign_in_path) : redirect_to(sign_in_path)
+    end
+
+    # The Referer's path and query when it is on this site (`url_from` also takes a bare path).
+    def referer_path
+      uri = url_from(request.referer)&.then { |url| URI(url) }
+      [uri.path, uri.query].compact.join('?') if uri
     end
 
     def visible_request

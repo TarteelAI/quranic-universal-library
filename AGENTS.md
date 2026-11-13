@@ -151,7 +151,7 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below), `apps` and `content` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+below), `apps`, `content` and `start` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
 URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
@@ -180,6 +180,13 @@ the Contribute menu does (`SiteNav::ContributeTools.overview`) and links to the 
 entries from `Content::Changelog`, 20 per page, an out-of-range `?page=` is a 404). The old
 `/change_logs` URLs answer 301 there (an old page of 10 goes to the new page holding its entries),
 and the detail page's Changelog tab links to the new entries.
+`start` serves the guided setup `/start` (`Start::SetupController`), which has no old page: off,
+it is a 404 and no new page links to it. Its answers are in the query string (`goal`, `platform`,
+`feature`, `script`, `lang`, comma lists; `GuidedSetup::Answers`), and it opens at the first
+unanswered step. It ends on `/resources?goal=…`, which the routes send to the setup's results
+while `start` and `catalog` are both on: a section per need (`GuidedSetup.result`, which maps the
+answers to checklist items, each with the catalog filters that list it) with its first cards and a
+link to that catalog search. With `catalog` off the setup ends on a plain link to `/resources`.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
@@ -365,9 +372,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps,content`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content,start`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).

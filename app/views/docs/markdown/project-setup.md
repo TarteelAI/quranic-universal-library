@@ -39,7 +39,7 @@ bin/dev
 
 This boots the Rails server together with the asset watchers and the Vite dev server. The app is then available at [http://localhost:3000](http://localhost:3000), and the admin interface is built with Active Admin.
 
-The new website pages replace the old ones one group of pages at a time. Locally they show only for the groups listed in `QUL_PAGE_GROUPS` (for example `QUL_PAGE_GROUPS=home,catalog,apps,content` in `.env`); see `.env.sample`.
+The new website pages replace the old ones one group of pages at a time. Locally they show only for the groups listed in `QUL_PAGE_GROUPS` (for example `QUL_PAGE_GROUPS=home,catalog,apps,content,start` in `.env`); see `.env.sample`.
 
 ## Next Steps
 

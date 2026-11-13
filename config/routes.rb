@@ -174,6 +174,13 @@ Rails.application.routes.draw do
   # routes must stay above the old ones for the same paths: when a group is off, its constraint
   # fails and the old route below answers.
   constraints(PageGroups.constraint(:catalog)) do
+    # The guided setup's results: the catalog with the setup's answers in the query string
+    # (GuidedSetup), while the `start` group is on too.
+    constraints(PageGroups.constraint(:start)) do
+      constraints(->(request) { request.query_parameters.key?('goal') }) do
+        get '/resources', to: 'start/setup#results', as: :start_results, format: false
+      end
+    end
     get '/resources', to: 'catalog/resources#index', as: :catalog_resources, format: false
     get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
     # The old copyright and tab URLs answer with the resource page.
@@ -182,6 +189,10 @@ Rails.application.routes.draw do
     get '/resources/:type/:slug/preview', to: 'catalog/previews#show', as: :catalog_resource_preview, format: false
     get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
                                        constraints: { tab: /docs|licence|ligatures|glyphs/ }
+  end
+  # The guided setup has no old page: with the `start` group off, /start is a 404.
+  constraints(PageGroups.constraint(:start)) do
+    get '/start', to: 'start/setup#show', as: :start_setup, format: false
   end
   constraints(PageGroups.constraint(:apps)) do
     get '/apps', to: 'site/apps#index', as: :apps_directory, format: false

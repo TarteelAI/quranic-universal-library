@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Apps directory (/apps)', type: :request do
-  describe 'with the apps page group on', page_groups: %w[apps catalog] do
+  describe 'with the apps page group on', page_groups: ['apps', 'catalog'] do
     it 'renders every app of the data file, featured first, server-rendered' do
       SsrServer.with_ssr { get '/apps' }
 
@@ -25,7 +27,7 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       quranwbw = inertia.props[:apps].find { |app| app[:id] == 'quranwbw' }
       expect(quranwbw).to include(name: 'QuranWBW', url: 'https://quranwbw.com', iconUrl: '/app-icons/quranwbw.png',
                                   platforms: ['Web'], featured: true,
-                                  uses: [{ key: 'translation', label: 'Translation', category: 'translation' }])
+                                  uses: [{ key: 'translation', label: 'Translation', category: 'translation' }],)
       expect(inertia.props[:apps].find { |app| app[:id] == 'quran-validator' }[:iconUrl]).to be_nil
       expect(inertia.props[:platforms].pluck(:key)).to eq(AppDirectory::PLATFORMS.keys)
       used = AppDirectory.apps.flat_map(&:uses).uniq
@@ -37,7 +39,9 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
     it 'narrows the list by platform and by resource type, from the query string' do
       get '/apps', params: { platform: 'android', type: 'mushaf-layout' }
 
-      expected = AppDirectory.apps.select { |app| app.platforms.include?('android') && app.uses.include?('mushaf-layout') }
+      expected = AppDirectory.apps.select do |app|
+        app.platforms.include?('android') && app.uses.include?('mushaf-layout')
+      end
       expect(expected).not_to be_empty
       expect(inertia.props[:apps].pluck(:id)).to eq(expected.map(&:id))
       expect(inertia.props[:filters]).to include(platform: 'android', type: 'mushaf-layout')
@@ -62,11 +66,11 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       expect(html.at('meta[property="og:title"]')['content']).to eq('Apps built with QUL')
       json_ld = JSON.parse(html.at('script[type="application/ld+json"]').text)
       expect(json_ld).to include('@type' => 'CollectionPage', 'url' => 'https://qul.tarteel.ai/apps',
-                                 'isPartOf' => include('@type' => 'WebSite'))
+                                 'isPartOf' => include('@type' => 'WebSite'),)
     end
   end
 
-  describe 'with the apps page group off', page_groups: %w[home catalog] do
+  describe 'with the apps page group off', page_groups: ['home', 'catalog'] do
     it 'is a 404, as on main' do
       get '/apps'
 

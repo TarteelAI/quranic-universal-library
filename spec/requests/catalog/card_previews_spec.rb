@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 # Card previews (Previews::Card): the kind each catalog and type page card carries, and the JSON
@@ -23,17 +25,17 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
     response.parsed_body.deep_symbolize_keys
   end
 
-  describe 'with the catalog page group on', page_groups: %w[catalog] do
+  describe 'with the catalog page group on', page_groups: ['catalog'] do
     it 'gives each catalog result and type page card its preview kind, and no preview data' do
       get '/resources', params: { sort: 'name', page: 1 }
       results = inertia.props[:results]
-      expect(results.map { |result| result[:previewKind] }).to eq(
-        results.map { |result| Previews::Card::KINDS[result[:type]] }
+      expect(results.pluck(:previewKind)).to eq(
+        results.map { |result| Previews::Card::KINDS[result[:type]] },
       )
       expect(results.flat_map(&:keys).uniq.map(&:to_sym)).not_to include(:preview)
 
       { 'mushaf-layout' => 'layout', 'recitation' => 'recitation', 'quran-script' => 'script',
-        'translation' => 'text', 'tafsir' => nil, 'font' => nil }.each do |type, kind|
+        'translation' => 'text', 'tafsir' => nil, 'font' => nil, }.each do |type, kind|
         get "/resources/#{type}"
         expect(inertia.props[:resources].pluck(:previewKind).uniq).to eq([kind]), type
       end
@@ -56,13 +58,13 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       preview = card_preview(recitation)
 
       expect(preview).to include(kind: 'recitation', granularity: 'surah',
-                                 surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 })
+                                 surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 },)
       expect(preview[:tracks].size).to eq(1)
       expect(preview[:tracks]).to all(start_with('https://'))
       expect(preview.keys).not_to include(:ayahs, :surahs)
     end
 
-    it "gives an ayah-by-ayah recitation one Al-Fatihah file per ayah, in order" do
+    it 'gives an ayah-by-ayah recitation one Al-Fatihah file per ayah, in order' do
       preview = card_preview(published('recitation').find { |resource| resource.resource_content.one_ayah? })
 
       expect(preview).to include(kind: 'recitation', granularity: 'ayah')
@@ -103,7 +105,7 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
         preview_path(published('tafsir').first),
         preview_path(named('mushaf-layout', 'Ligature Basd SVG Mushaf')),
         preview_path(layout, type: 'translation'),
-        '/resources/translation/no-such-resource/preview'
+        '/resources/translation/no-such-resource/preview',
       ]
 
       paths.each do |path|
@@ -122,7 +124,9 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
         counts["#{resource.resource_type} #{preview ? 'preview' : 'none'}"] += 1
       end
 
-      RSpec.configuration.reporter.message("Card previews: #{counts.sort.map { |key, count| "#{key} #{count}" }.join(', ')}")
+      RSpec.configuration.reporter.message("Card previews: #{counts.sort.map do |key, count|
+                                                               "#{key} #{count}"
+                                                             end.join(', ')}")
       expect(counts.keys.grep(/preview\z/).size).to eq(4)
     end
   end

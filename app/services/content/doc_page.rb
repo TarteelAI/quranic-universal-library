@@ -16,11 +16,9 @@ module Content
     Link = Data.define(:key, :title)
     Position = Data.define(:category, :previous, :next)
 
-    PROSE_TAGS = %w[
-      h1 h2 h3 h4 h5 h6 p br hr ul ol li pre code blockquote strong em b i u a
-      table thead tbody tr th td
-    ].freeze
-    PROSE_ATTRIBUTES = %w[href title].freeze
+    PROSE_TAGS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 'ul', 'ol', 'li', 'pre', 'code', 'blockquote',
+                  'strong', 'em', 'b', 'i', 'u', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td',].freeze
+    PROSE_ATTRIBUTES = ['href', 'title'].freeze
     CONTENTS_LEVELS = [2, 3].freeze
     NO_POSITION = Position.new(category: nil, previous: nil, next: nil)
 
@@ -36,7 +34,7 @@ module Content
 
     def self.from_markdown(page)
       new(key: page.slug, kind: 'page', title: page.title, description: page.description, html: page.html,
-          position: position(page.slug))
+          position: position(page.slug),)
     end
 
     # A tag page holds what the old one holds: the editor's description, the glossary link and
@@ -44,7 +42,7 @@ module Content
     def self.from_tag(tag)
       description = Rails::HTML5::FullSanitizer.new.sanitize(tag.description.to_s).squish
       new(key: tag.slug, kind: 'tag', title: tag.name, description: description.truncate(160, separator: ' ').presence,
-          html: TagBody.new(tag).html, position: NO_POSITION)
+          html: TagBody.new(tag).html, position: NO_POSITION,)
     end
 
     def self.position(key)
@@ -56,7 +54,7 @@ module Content
       Position.new(
         category: Link.new(key: category.slug, title: category.title),
         previous: (link(pages[index - 1]) if index.positive?),
-        next: link(pages[index + 1])
+        next: link(pages[index + 1]),
       )
     end
 
@@ -101,12 +99,12 @@ module Content
 
       if node.classes.include?('tw-docs-playground')
         Segment.new(kind: 'playground', html: nil, language: 'javascript', label: 'JavaScript',
-                    code: node.at_css('textarea').text)
+                    code: node.at_css('textarea').text,)
       elsif node.classes.include?('tw-docs-code-block')
         code = node.at_css('pre code') || node.at_css('pre')
         language = code['class'].to_s[/\blanguage-(\S+)/, 1]
         Segment.new(kind: 'code', html: nil, language:, label: node.at_css('.tw-docs-code-language')&.text,
-                    code: code.text)
+                    code: code.text,)
       end
     end
 
@@ -140,7 +138,7 @@ module Content
 
       def html
         description = Rails::HTML5::SafeListSanitizer.new.sanitize(@tag.description.to_s, tags: PROSE_TAGS,
-                                                                                          attributes: PROSE_ATTRIBUTES)
+                                                                                          attributes: PROSE_ATTRIBUTES,)
         [description, glossary, related].join
       end
 
@@ -150,7 +148,7 @@ module Content
         return if @tag.glossary_term.blank?
 
         tag.p(safe_join(['Read more about ', link_to(@tag.name, "#{GLOSSARY}/#{@tag.glossary_term}"),
-                         ' in the ', link_to('Tarteel glossary', GLOSSARY), '.']))
+                         ' in the ', link_to('Tarteel glossary', GLOSSARY), '.',]))
       end
 
       # Groups in catalog order, resources by name (the catalog's display name).
@@ -158,15 +156,20 @@ module Content
         resources = @tag.downloadable_resources.published.to_a
         return if resources.empty?
 
+        heading = tag.h2(safe_join(['Resources related to ', tag.strong(@tag.name), ' tag']))
+        safe_join([heading, *in_catalog_order(resources).map { |_type, rows| related_group(rows) }])
+      end
+
+      def in_catalog_order(resources)
         order = Catalog::Taxonomy.types.map(&:key)
-        groups = resources.group_by(&:resource_type).sort_by { |type, _| order.index(type) || order.size }
-        sections = groups.map do |_type, rows|
-          items = rows.sort_by(&:display_name).map do |row|
-            tag.li(link_to(row.display_name, catalog_resource_path(row.resource_type, row.to_param)))
-          end
-          safe_join([tag.h3(rows.first.group_name), tag.ul(safe_join(items))])
+        resources.group_by(&:resource_type).sort_by { |type, _| order.index(type) || order.size }
+      end
+
+      def related_group(rows)
+        items = rows.sort_by(&:display_name).map do |row|
+          tag.li(link_to(row.display_name, catalog_resource_path(row.resource_type, row.to_param)))
         end
-        safe_join([tag.h2(safe_join(['Resources related to ', tag.strong(@tag.name), ' tag'])), *sections])
+        safe_join([tag.h3(rows.first.group_name), tag.ul(safe_join(items))])
       end
     end
   end

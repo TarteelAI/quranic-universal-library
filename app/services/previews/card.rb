@@ -15,14 +15,14 @@ module Previews
       'mushaf-layout' => 'layout',
       'recitation' => 'recitation',
       'quran-script' => 'script',
-      'translation' => 'text'
+      'translation' => 'text',
     }.freeze
 
     SERIALIZERS = {
       MushafLayout::Preview => CardLayoutResource,
       Recitation::Preview => CardRecitationResource,
       Script::Preview => CardScriptResource,
-      Text::Preview => CardTextResource
+      Text::Preview => CardTextResource,
     }.freeze
 
     def self.kind(type)

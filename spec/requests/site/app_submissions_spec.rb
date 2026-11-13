@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 require_relative '../../support/download_files'
 
@@ -9,17 +11,17 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
   include Devise::Test::IntegrationHelpers
 
   let(:inertia_headers) { { 'X-Inertia' => 'true' } }
-  let(:icon) { Rack::Test::UploadedFile.new(Rails.root.join('public/app-icons/bayaan.png'), 'image/png') }
+  let(:icon) { Rack::Test::UploadedFile.new(Rails.public_path.join('app-icons/bayaan.png'), 'image/png') }
   let(:valid_app) do
-    { name: 'Spec Reader', url: 'https://example.test/spec-reader', platforms: %w[ios web],
-      uses: %w[translation recitation], contact: 'maker@example.test', consent: '1' }
+    { name: 'Spec Reader', url: 'https://example.test/spec-reader', platforms: ['ios', 'web'],
+      uses: ['translation', 'recitation'], contact: 'maker@example.test', consent: '1', }
   end
 
   def submit(app, headers: inertia_headers)
     post '/apps', params: { app: app }, headers: headers
   end
 
-  describe 'with the apps page group on', page_groups: %w[apps] do
+  describe 'with the apps page group on', page_groups: ['apps'] do
     it 'refuses an anonymous Inertia submit with a full visit to sign-in that returns to the open form' do
       expect { submit(valid_app.merge(icon: icon)) }.not_to change(App, :count)
 
@@ -42,12 +44,13 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       expect(response).to redirect_to('/apps')
       app = App.last
       expect(app).to have_attributes(name: 'Spec Reader', url: 'https://example.test/spec-reader',
-                                     platforms: %w[ios web], uses: %w[translation recitation],
+                                     platforms: ['ios', 'web'], uses: ['translation', 'recitation'],
                                      contact: 'maker@example.test', consent: true,
-                                     published: false, featured: false, user: user)
+                                     published: false, featured: false, user: user,)
       expect(app.icon).to be_attached
-      expect(app.icon.blob).to have_attributes(content_type: 'image/png', filename: ActiveStorage::Filename.new('icon.png'),
-                                               byte_size: File.size(Rails.root.join('public/app-icons/bayaan.png')))
+      expect(app.icon.blob).to have_attributes(content_type: 'image/png',
+                                               filename: ActiveStorage::Filename.new('icon.png'),
+                                               byte_size: File.size(Rails.public_path.join('app-icons/bayaan.png')),)
       expect(app.icon.blob.service_name).to eq('test')
     end
 
@@ -86,9 +89,9 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
     it 'creates no row for invalid input and returns the errors as Inertia props on the page it goes back to' do
       sign_in create_account
       not_an_image = Rack::Test::UploadedFile.new(StringIO.new('<html>not an image</html>'), 'image/png',
-                                                  original_filename: 'icon.png')
-      invalid = { name: '', url: 'javascript:alert(1)', platforms: %w[palm-os], uses: %w[hadith],
-                  contact: 'not an address', consent: '0', icon: not_an_image }
+                                                  original_filename: 'icon.png',)
+      invalid = { name: '', url: 'javascript:alert(1)', platforms: ['palm-os'], uses: ['hadith'],
+                  contact: 'not an address', consent: '0', icon: not_an_image, }
 
       expect { submit(invalid, headers: inertia_headers.merge('Referer' => 'http://localhost/apps?platform=web')) }
         .not_to change(App, :count)
@@ -103,7 +106,7 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
         'uses' => ['Resources used must be chosen from the list'],
         'contact' => ['Contact email must be an email address'],
         'consent' => ['Consent must be given to list the app'],
-        'icon' => ['Icon must be a PNG, JPEG or WebP image']
+        'icon' => ['Icon must be a PNG, JPEG or WebP image'],
       )
     end
 
@@ -119,7 +122,8 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
     it 'asks for at least one platform and one resource type, and caps the icon size' do
       sign_in create_account
       big = Rack::Test::UploadedFile.new(
-        StringIO.new("\x89PNG\r\n\x1A\n".b + ("\0" * App::ICON_MAX_SIZE).b), 'image/png', true, original_filename: 'big.png'
+        StringIO.new("\x89PNG\r\n\x1A\n".b + ("\0" * App::ICON_MAX_SIZE).b), 'image/png', true,
+        original_filename: 'big.png',
       )
 
       expect { submit(valid_app.merge(platforms: [], uses: [], icon: big)) }.not_to change(App, :count)
@@ -127,11 +131,11 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       follow_redirect!(headers: inertia_headers)
       expect(inertia.props[:errors]).to include('platforms' => ['Platforms must include at least one platform'],
                                                 'uses' => ['Resources used must include at least one resource type'],
-                                                'icon' => ['Icon must be 1 MB or smaller'])
+                                                'icon' => ['Icon must be 1 MB or smaller'],)
     end
   end
 
-  describe 'with the apps page group off', page_groups: %w[home catalog] do
+  describe 'with the apps page group off', page_groups: ['home', 'catalog'] do
     it 'has no submission route' do
       sign_in create_account
 

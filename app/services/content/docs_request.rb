@@ -8,7 +8,7 @@ module Content
   # serves (help dialog text), keep the old answer. The new page answers page loads (Accept
   # names text/html) and Inertia visits.
   module DocsRequest
-    PARTIALS = Rails.root.join('app/views/docs')
+    PARTIALS = Rails.root.join('app', 'views', 'docs')
     KEY = /\A[a-z0-9_-]+\z/
 
     def self.matches?(request)

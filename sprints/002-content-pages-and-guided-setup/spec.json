@@ -174,8 +174,56 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "RuboCop 1.31 from `Gemfile.lock` crashes on load under the Ruby in use (seen in the `qul-dev` container). Find the cause first: it is most likely the locked version against Ruby 3.3 or a cop in `.rubocop.yml` that the plugin versions no longer define. Prefer a config fix; if the gem must move, update only the rubocop gems in the development and test groups and check the lockfile diff holds nothing else. Changed files: `git diff --name-only --diff-filter=d $(git merge-base origin/qul-next HEAD) -- '*.rb' '*.rake'`. Do not add a Linux platform to `Gemfile.lock`. `lint-staged` in `package.json` already names the rubocop command; keep the two in step."
+      "passes": true,
+      "notes": "RuboCop 1.31 from `Gemfile.lock` crashes on load under the Ruby in use (seen in the `qul-dev` container). Find the cause first: it is most likely the locked version against Ruby 3.3 or a cop in `.rubocop.yml` that the plugin versions no longer define. Prefer a config fix; if the gem must move, update only the rubocop gems in the development and test groups and check the lockfile diff holds nothing else. Changed files: `git diff --name-only --diff-filter=d $(git merge-base origin/qul-next HEAD) -- '*.rb' '*.rake'`. Do not add a Linux platform to `Gemfile.lock`. `lint-staged` in `package.json` already names the rubocop command; keep the two in step.",
+      "completedAt": "2026-11-13T00:32:45Z",
+      "filesChanged": [
+        ".rubocop.yml",
+        "AGENTS.md",
+        "app/controllers/content/docs_controller.rb",
+        "app/models/app.rb",
+        "app/serializers/catalog/resource_card_resource.rb",
+        "app/serializers/content/doc_resource.rb",
+        "app/serializers/content/doc_segment_resource.rb",
+        "app/serializers/previews/card_layout_resource.rb",
+        "app/serializers/previews/card_recitation_resource.rb",
+        "app/serializers/previews/card_script_resource.rb",
+        "app/serializers/previews/card_text_resource.rb",
+        "app/services/content/doc_page.rb",
+        "app/services/content/docs_request.rb",
+        "app/services/docs_manifest.rb",
+        "app/services/page_groups.rb",
+        "app/services/previews/card.rb",
+        "bin/gate",
+        "config/initializers/typelizer.rb",
+        "config/routes.rb",
+        "spec/requests/catalog/card_previews_spec.rb",
+        "spec/requests/catalog/resources_spec.rb",
+        "spec/requests/content/docs_spec.rb",
+        "spec/requests/site/app_submissions_spec.rb",
+        "spec/requests/site/apps_spec.rb",
+        "spec/services/catalog/resources_query_spec.rb"
+      ],
+      "handoff": {
+        "done": [
+          "`docker exec qul-dev bundle exec rubocop app/models/faq.rb` now loads and runs: `1 file inspected, 3 offenses detected` (was `cannot load such file -- rubocop-minitest`).",
+          "`bin/gate` has a RuboCop step after the standalone tests: `git diff -z --name-only --diff-filter=d $(git merge-base origin/qul-next HEAD) -- *.rb *.rake | xargs -0 -r bundle exec rubocop --force-exclusion`.",
+          "Step run in qul-dev on the clean branch: `31 files inspected, no offenses detected`, exit 0. With `x = \"bad\"` appended to app/services/page_groups.rb: `2 offenses detected`, exit 123 (gate aborts under set -euo pipefail).",
+          "Fixed every offence in the 31 Ruby files already changed on this branch vs qul-next (safe autocorrect plus hand fixes: Rails.root.join args, two AbcSize extractions in Content::DocsController#show and Content::DocPage#related, two long spec lines). Request+service specs: 290 examples, 0 failures; typelizer:check up to date.",
+          "AGENTS.md: narrow `bundle exec rubocop path/to/file.rb` line and the gate summary mention RuboCop."
+        ],
+        "decisions": [
+          "Config fix, no gem move: `.rubocop.yml` dropped `rubocop-minitest` (not in the Gemfile; the load crash) and its Minitest cops, set TargetRubyVersion 3.2 (newest 1.31 knows), and requires `stringio` (1.31 alignment correctors use StringIO unrequired; under Ruby 3.3 they crashed and silently skipped offences).",
+          "Disabled Rails/I18nLocaleTexts (five models write inline validation messages) and taught Rails/UnknownEnv about `local` (Rails.env.local?, a false positive in 2.15); Naming/VariableNumber allows `v1` (the API namespace).",
+          "Lint runs in qul-dev, where the gate other Ruby steps run; xargs -r is GNU."
+        ],
+        "concerns": [
+          "The standalone-test step (first in bin/gate) still fails in qul-dev with `cannot load such file -- active_support/inflector` (pre-existing; RUBYOPT=-rbundler/setup works), so whole bin/gate was not run; the RuboCop step was run on its own with the exact lines.",
+          "Root fix is moving the rubocop gems to a Ruby-3.3-aware version; then remove the stringio require and restore TargetRubyVersion 3.3. Expect new offences under NewCops: enable.",
+          "This commit reformats files from 002-01..03 (lint fixes only; specs green after).",
+          "package.json lint-staged rubocop command unchanged and still consistent."
+        ]
+      }
     },
     {
       "id": "002-05",

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # An app built with QUL. Rows come from the submission form on /apps (Site::AppSubmissionsController),
 # unpublished until an editor approves them. `contact` is for the QUL team only: no public
 # serializer reads it.
@@ -35,7 +37,7 @@ class App < ApplicationRecord
     type = Marcel::Magic.by_magic(file)&.type
     extension = ICON_TYPES[type]
     icon.attach(io: file, filename: extension ? "icon.#{extension}" : 'icon',
-                content_type: type || 'application/octet-stream', metadata: { analyzed: true })
+                content_type: type || 'application/octet-stream', metadata: { analyzed: true },)
   end
 
   private

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   # Redirect old admin paths to new CMS paths
   get '/admin', to: redirect('/cms', status: 301)
@@ -87,12 +89,12 @@ Rails.application.routes.draw do
   get :faq, to: 'community#faq', as: :faq
   get :compare_ayah, to: 'verses#compare', as: :compare_ayah
 
-  get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
-  get 'foot_notes/:id', to: "foot_notes#show"
+  get 'arabic_transliterations/:surah_number/export', to: 'arabic_transliterations#render_surah'
+  get 'foot_notes/:id', to: 'foot_notes#show'
 
   devise_for :users, controllers: {
     registrations: 'users/registrations',
-    sessions: 'users/sessions'
+    sessions: 'users/sessions',
   }
 
   resource :profile, only: [:show, :edit, :update]
@@ -144,9 +146,9 @@ Rails.application.routes.draw do
 
     get 'treebank', to: 'treebank#index', as: :treebank_index
     get 'treebank/:chapter/:verse', to: 'treebank#show', as: :treebank_ayah,
-        constraints: { chapter: /\d+/, verse: /\d+/ }
+                                    constraints: { chapter: /\d+/, verse: /\d+/ }
     get 'treebank/:chapter/:verse/data', to: 'treebank#data', as: :treebank_ayah_data,
-        constraints: { chapter: /\d+/, verse: /\d+/ }
+                                         constraints: { chapter: /\d+/, verse: /\d+/ }
   end
 
   resources :user_projects, except: [:index, :destroy]
@@ -178,7 +180,7 @@ Rails.application.routes.draw do
   get '/resources/:type/:token/download', to: 'catalog/downloads#token', as: :catalog_token_download
 
   resources :resources do
-    get '/:token/download', action: 'download' , as: :download_file
+    get '/:token/download', action: 'download', as: :download_file
 
     member do
       get :copyright
@@ -238,21 +240,21 @@ Rails.application.routes.draw do
   end
   resources :translations, except: :destroy
   resources :transliterations, except: :destroy
-  resources :word_transliterations, only: %i[index show edit update]
+  resources :word_transliterations, only: [:index, :show, :edit, :update]
   resources :tafsirs, except: :destroy do
     get :range_preview, on: :collection
   end
-  resources :topics, only: %i[index show edit update]
+  resources :topics, only: [:index, :show, :edit, :update]
   # ayah_theme is taken by /ayah/:key/theme
-  resources :themes, path: 'ayah_themes', controller: 'ayah_themes', only: %i[index show edit update]
+  resources :themes, path: 'ayah_themes', controller: 'ayah_themes', only: [:index, :show, :edit, :update]
   # root is the home page
-  resources :arabic_roots, path: 'roots', controller: 'roots', only: %i[index show edit update]
-  resources :stems, only: %i[index show edit update]
-  resources :lemmas, only: %i[index show edit update]
-  resources :word_roots, only: %i[index show edit update] do
+  resources :arabic_roots, path: 'roots', controller: 'roots', only: [:index, :show, :edit, :update]
+  resources :stems, only: [:index, :show, :edit, :update]
+  resources :lemmas, only: [:index, :show, :edit, :update]
+  resources :word_roots, only: [:index, :show, :edit, :update] do
     get :options, on: :collection
   end
-  resources :similar_ayahs, only: %i[index show edit update]
+  resources :similar_ayahs, only: [:index, :show, :edit, :update]
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource
@@ -278,7 +280,7 @@ Rails.application.routes.draw do
       # Validate segments of any reciters/surahs: live, drafts, sources, runs.
       get 'validation', to: 'validations#show', as: :validation
       # QUD deliveries imported as drafts that have no QUL recitation yet.
-      resources :deliveries, only: %i[index show] do
+      resources :deliveries, only: [:index, :show] do
         collection do
           get :search_recitations
         end
@@ -314,7 +316,7 @@ Rails.application.routes.draw do
     end
 
     namespace :audio_repair do
-      resources :sessions, only: %i[index create edit] do
+      resources :sessions, only: [:index, :create, :edit] do
         member do
           get :data
           get :candidates
@@ -336,11 +338,11 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :polarity, only: %i[index create show] do
+      resources :polarity, only: [:index, :create, :show] do
         member { post :fix }
       end
 
-      resources :ingests, only: %i[index create show destroy] do
+      resources :ingests, only: [:index, :create, :show, :destroy] do
         collection { get :preview }
         member do
           get :data

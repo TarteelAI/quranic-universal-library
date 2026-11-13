@@ -3,9 +3,9 @@
 module Previews
   # A Quran script on a card (Previews::Card): one ayah in the script's text and fonts.
   class CardScriptResource < ApplicationResource
-    typelize kind: [:string, { enum: %w[script] }],
-             granularity: [:string, { enum: %w[word ayah] }],
-             rendering: [:string, { enum: %w[text html image] }],
+    typelize kind: [:string, { enum: ['script'] }],
+             granularity: [:string, { enum: ['word', 'ayah'] }],
+             rendering: [:string, { enum: ['text', 'html', 'image'] }],
              font_code: [:string, { nullable: true }]
     attribute(:kind) { 'script' }
     attributes :granularity, :rendering, :font_code

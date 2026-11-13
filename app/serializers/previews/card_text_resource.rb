@@ -4,7 +4,7 @@ module Previews
   # A translation on a card (Previews::Card): one ayah with its text, in the text's language
   # and direction.
   class CardTextResource < ApplicationResource
-    typelize kind: [:string, { enum: %w[text] }], granularity: [:string, { enum: %w[word ayah] }]
+    typelize kind: [:string, { enum: ['text'] }], granularity: [:string, { enum: ['word', 'ayah'] }]
     attribute(:kind) { 'text' }
     attributes :granularity
 

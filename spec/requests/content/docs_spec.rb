@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Docs pages (/docs/:key)', type: :request do
@@ -17,8 +19,8 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
 
   def headings(html, article)
     Nokogiri::HTML(html).at(article)
-            .xpath('.//*[self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6]')
-            .map { |heading| heading.text.squish }
+      .xpath('.//*[self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6]')
+      .map { |heading| heading.text.squish }
   end
 
   def old_headings(key)
@@ -27,7 +29,7 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
     headings(response.body, 'article.tw-docs')
   end
 
-  describe 'with the content page group on', page_groups: %w[content catalog] do
+  describe 'with the content page group on', page_groups: ['content', 'catalog'] do
     it 'server-renders the tutorial, the resource guide and the tag page with the old headings, in order' do
       [tutorial, guide, tag].each do |key|
         expected = old_headings(key)
@@ -64,7 +66,7 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
       expect(doc[:position].to_h.deep_symbolize_keys).to eq(
         category: { key: 'download-resources', title: 'Download Resources' },
         previous: { key: 'tutorials', title: 'Tutorials' },
-        next: { key: 'tutorial-mushaf-layout-end-to-end', title: 'Mushaf Layout' }
+        next: { key: 'tutorial-mushaf-layout-end-to-end', title: 'Mushaf Layout' },
       )
     end
 
@@ -92,7 +94,7 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
       DownloadableResourceTag.create!(
         name: 'Spec tag', slug: 'spec-tag',
         description: '<p onclick="x()">Text <a href="javascript:alert(1)">bad</a> <a href="/docs">good</a></p>' \
-                     '<script>alert(1)</script><div class="tw-docs-playground"><textarea>alert(2)</textarea></div>'
+                     '<script>alert(1)</script><div class="tw-docs-playground"><textarea>alert(2)</textarea></div>',
       )
       get '/docs/spec-tag', headers: html_page
 
@@ -115,7 +117,7 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
 
     it 'answers an Inertia visit with the new page' do
       get "/docs/#{guide}", headers: { 'X-Inertia' => 'true', 'X-Inertia-Version' => InertiaRails.configuration.version,
-                                       'X-Requested-With' => 'XMLHttpRequest' }
+                                       'X-Requested-With' => 'XMLHttpRequest', }
 
       expect(response).to have_http_status(:ok)
       expect(response.parsed_body).to include('component' => 'content/DocsPage')
@@ -154,7 +156,7 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
     end
   end
 
-  describe 'with the content page group off', page_groups: %w[home catalog apps] do
+  describe 'with the content page group off', page_groups: ['home', 'catalog', 'apps'] do
     it 'renders the old pages, unchanged' do
       [tutorial, guide, tag].each do |key|
         get "/docs/#{key}", headers: html_page

@@ -14,8 +14,9 @@ describe the rules the code follows rather than weaknesses of the running site.
 ## Quality gate
 
 ```bash
-bin/gate                 # standalone tests, generated-types drift check, tsc, ESLint + Prettier,
-                         # RSpec and Vitest; needs fresh test clones and the development clones
+bin/gate                 # standalone tests, RuboCop on changed files, generated-types drift check,
+                         # tsc, ESLint + Prettier, RSpec and Vitest; needs fresh test clones and
+                         # the development clones
 ```
 
 Narrow checks while working:
@@ -23,6 +24,7 @@ Narrow checks while working:
 ```bash
 ruby -Itest test/path/to/file_test.rb        # standalone tests: no bundler, no database
 bundle exec rspec spec/path/to/file_spec.rb  # specs: Rails on the test clones
+bundle exec rubocop path/to/file.rb          # RuboCop (.rubocop.yml); bin/gate runs it on changed files
 bin/rails typelizer:check                    # generated TypeScript is current (development env)
 yarn typecheck                               # tsc on app/frontend
 yarn lint:frontend && yarn format:frontend   # ESLint and Prettier on app/frontend

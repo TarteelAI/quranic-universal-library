@@ -75,19 +75,29 @@ function LayoutThumbnail({ preview }: { preview: PreviewsCardLayout }) {
 }
 
 // A play button over the card's link. The <audio> element gets its source only when the
-// listener presses play, so nothing is downloaded before that.
+// listener presses play, so nothing is downloaded before that. An ayah-by-ayah recitation has
+// one track per ayah, played one after the other.
 function RecitationControl({ preview }: { preview: PreviewsCardRecitation }) {
   const audio = React.useRef<HTMLAudioElement>(null)
   const [playing, setPlaying] = React.useState(false)
+  const track = React.useRef(0)
 
   function toggle() {
     const element = audio.current!
     if (playing) {
       element.pause()
     } else {
-      if (!element.getAttribute('src')) element.src = preview.track
+      if (!element.getAttribute('src')) element.src = preview.tracks[track.current]
       void element.play()
     }
+  }
+
+  function next() {
+    const element = audio.current!
+    track.current = (track.current + 1) % preview.tracks.length
+    element.src = preview.tracks[track.current]
+    if (track.current === 0) setPlaying(false)
+    else void element.play()
   }
 
   return (
@@ -103,7 +113,8 @@ function RecitationControl({ preview }: { preview: PreviewsCardRecitation }) {
       <div className="min-w-0 text-sm">
         <p className="truncate font-medium">Surah {preview.surah.name}</p>
         <p className="text-xs text-muted-foreground">
-          {preview.surah.versesCount} ayahs{preview.highlights && ' · ayah timings'}
+          {preview.surah.versesCount} ayahs
+          {preview.granularity === 'ayah' ? ' · one file per ayah' : preview.highlights && ' · ayah timings'}
         </p>
       </div>
       <audio
@@ -111,7 +122,7 @@ function RecitationControl({ preview }: { preview: PreviewsCardRecitation }) {
         preload="none"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
+        onEnded={next}
       />
     </div>
   )

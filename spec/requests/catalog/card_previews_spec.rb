@@ -49,13 +49,25 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(preview[:page].keys).not_to include(:surahs, :pagesCount)
     end
 
-    it "gives a recitation's Al-Fatihah track and nothing of its ayahs" do
-      recitation = published('recitation').find { |resource| Previews.for(resource, 'surah' => '1').respond_to?(:tracks) }
+    it "gives a surah recitation's Al-Fatihah file and nothing of its ayahs" do
+      recitation = published('recitation').find do |resource|
+        resource.resource_content.chapter? && Previews.for(resource, 'surah' => '1').respond_to?(:tracks)
+      end
       preview = card_preview(recitation)
 
-      expect(preview).to include(kind: 'recitation', surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 })
-      expect(preview[:track]).to start_with('https://')
-      expect(preview.keys).not_to include(:ayahs, :tracks, :surahs)
+      expect(preview).to include(kind: 'recitation', granularity: 'surah',
+                                 surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 })
+      expect(preview[:tracks].size).to eq(1)
+      expect(preview[:tracks]).to all(start_with('https://'))
+      expect(preview.keys).not_to include(:ayahs, :surahs)
+    end
+
+    it "gives an ayah-by-ayah recitation one Al-Fatihah file per ayah, in order" do
+      preview = card_preview(published('recitation').find { |resource| resource.resource_content.one_ayah? })
+
+      expect(preview).to include(kind: 'recitation', granularity: 'ayah')
+      expect(preview[:tracks].size).to eq(7)
+      expect(preview[:tracks]).to all(start_with('https://'))
     end
 
     it 'gives ayah 1:2 of a Quran script in its text and font' do

@@ -230,8 +230,14 @@ export const cardRecitationPreview: PreviewsCardRecitation = {
   kind: 'recitation',
   granularity: recitationPreview.granularity,
   highlights: recitationPreview.highlights,
-  track: recitationPreview.tracks[0],
+  tracks: recitationPreview.tracks,
   surah: recitationPreview.surah,
+}
+
+export const cardAyahRecitationPreview: PreviewsCardRecitation = {
+  ...cardRecitationPreview,
+  granularity: 'ayah',
+  tracks: ayahRecitationPreview.tracks,
 }
 
 export const cardScriptPreview: PreviewsCardScript = {

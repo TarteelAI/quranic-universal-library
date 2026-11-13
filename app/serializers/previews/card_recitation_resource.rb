@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module Previews
-  # A recitation on a card (Previews::Card): the first track of its surah, which the card plays.
+  # A recitation on a card (Previews::Card): the tracks of its surah, one file for a surah
+  # recitation or one per ayah for an ayah-by-ayah one, which the card plays in order.
   class CardRecitationResource < ApplicationResource
     typelize kind: [:string, { enum: %w[recitation] }],
              granularity: [:string, { enum: %w[surah ayah] }],
-             highlights: :boolean, track: :string
+             highlights: :boolean, tracks: [:string, { multi: true }]
     attribute(:kind) { 'recitation' }
-    attributes :granularity, :highlights
-    attribute(:track) { |preview| preview.tracks.first }
+    attributes :granularity, :highlights, :tracks
 
     one :surah, resource: ScriptSurahResource
   end

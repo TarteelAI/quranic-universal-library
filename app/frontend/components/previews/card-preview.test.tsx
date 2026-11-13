@@ -2,7 +2,13 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ResourceCard } from '@/components/qul/resource-card'
-import { cardLayoutPreview, cardRecitationPreview, cardScriptPreview, cardTextPreview } from '@/test/previews'
+import {
+  cardAyahRecitationPreview,
+  cardLayoutPreview,
+  cardRecitationPreview,
+  cardScriptPreview,
+  cardTextPreview,
+} from '@/test/previews'
 
 import { CardPreview, type CardPreviewKind } from './card-preview'
 
@@ -96,8 +102,23 @@ describe('CardPreview', () => {
     expect(audio.getAttribute('preload')).toBe('none')
 
     fireEvent.click(button)
-    expect(audio.getAttribute('src')).toBe(cardRecitationPreview.track)
+    expect(audio.getAttribute('src')).toBe(cardRecitationPreview.tracks[0])
     expect(play).toHaveBeenCalledTimes(1)
+  })
+
+  it('plays an ayah-by-ayah recitation one ayah after the other', async () => {
+    respond(cardAyahRecitationPreview)
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
+    render(card('recitation'))
+    scrollOnScreen()
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Play Surah Al-Fatihah' }))
+    const audio = document.querySelector('audio')!
+    expect(audio.getAttribute('src')).toBe(cardAyahRecitationPreview.tracks[0])
+    fireEvent.ended(audio)
+    expect(audio.getAttribute('src')).toBe(cardAyahRecitationPreview.tracks[1])
+    expect(play).toHaveBeenCalledTimes(2)
+    expect(screen.getByText(/one file per ayah/)).toBeDefined()
   })
 
   it('shows a script ayah in its fonts, and a translation in its language and direction', async () => {

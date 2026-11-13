@@ -25,7 +25,7 @@ git switch -c docs/your-topic
 
 ## Documentation Contributions
 
-- Edit files in `docs/` first (source of truth).
+- Edit the markdown files in `app/views/docs/markdown` (source of truth). `config/docs.yml` lists the pages, their titles and their order.
 - Ensure links are valid in both GitHub and website docs rendering.
 - Update root `README.md` only when entrypoint links or quick-start instructions change.
 

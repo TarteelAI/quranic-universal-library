@@ -249,14 +249,17 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 - The detail page (`Catalog::ResourcesController#show`, props from `Catalog::ResourcePage`) is the
   only URL of a resource: an id URL, a wrong type and the old `/:tab` and `/copyright` URLs
   redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`).
-- Links to old pages (`/`, docs, tools) are plain `<a>` with the typed route helpers; links
-  between new pages are Inertia `<Link>`.
+- Links to old pages (contributor tools, sign-in, a page whose group is off) are plain `<a>` with
+  the typed route helpers; links between new pages are Inertia `<Link>`.
 - Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the
   flash messages (`notice` and `alert`), the page and the footer. The header and footer links
   come from the server (`SiteNav`, shared prop `nav`, a once prop), and each link says whether a
   new page serves it (`inertia`), which depends on the page groups; `NavAnchor` renders an
-  Inertia `<Link>` or a plain `<a>` from that. The contributor tools in the Contribute menu are
-  `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
+  Inertia `<Link>` or a plain `<a>` from that. The Inertia version names the page groups
+  (`config/initializers/inertia_rails.rb`), so a tab loaded under another setting reloads in full
+  on its next visit and gets the current navigation. With `content` on, the only old pages the
+  header, menus and footer link are the contributor tools and sign-in. The contributor tools in
+  the Contribute menu are `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
   or `{ user: null }`; sign-in links pass the current path as `user_return_to`.
 - Theme: light and dark tokens in `app/frontend/styles/inertia.css`, switched by the `dark`
   class on `<html>`. An inline script in the layout sets it before the first paint from the

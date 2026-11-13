@@ -436,8 +436,33 @@
       "testFirst": false,
       "difficulty": "med",
       "review": true,
-      "passes": false,
-      "notes": "`nav` is a once prop today (`SharedPropsResource`), which is why an open tab keeps the old navigation. Whatever replaces that must not put the navigation back into every partial reload on the catalog. Docs corrections are a judgement: when in doubt leave the text and list it as a question."
+      "passes": true,
+      "notes": "`nav` is a once prop today (`SharedPropsResource`), which is why an open tab keeps the old navigation. Whatever replaces that must not put the navigation back into every partial reload on the catalog. Docs corrections are a judgement: when in doubt leave the text and list it as a question.",
+      "completedAt": "2026-11-13T02:02:13Z",
+      "handoff": {
+        "done": [
+          "`SiteNav` (app/services/site_nav.rb): new `content_link` sets `inertia` to `PageGroups.enabled?(:content)` for every docs link (`doc_link`), FAQ, credits, the tools overview ('All contribution tools', footer 'Contribution tools') and the changelog; the Docs, Developers and Contribute menu headers follow the same flag. The changelog link is `/changelog` with content on, `/change_logs` off. Contributor tools and 'Fix a translation' (/translations) stay plain links. Menu builders split into small helpers (`resources_aside`, `contribute_tool_groups`, `footer_docs/resources/community`) so the file is RuboCop clean (it had 4 pre-existing Metrics offences).",
+          "Navigation refresh: `config/initializers/inertia_rails.rb` sets `config.version` to a lambda `<ViteRuby.digest at boot>-<enabled page groups>`. `nav` stays a once prop (not resent on partial reloads); a tab whose version names another setting gets inertia_rails' 409 + X-Inertia-Location on its next Inertia GET (to new or old pages alike) and reloads in full with the current nav.",
+          "spec/requests/site_shell_spec.rb +6 examples (20 total, 0 failures): content on -> every content link inertia, /changelog not /change_logs, all four menus inertia, Developers menu = /docs/api, /docs/project-setup, /docs/contribute-code, every other non-catalog link plain; content off -> content links plain, /change_logs; version differs between settings and is the page version; same version keeps nav out of the response; other version -> 409 to the same URL then a fresh nav; a visit to /faq with content now off -> 409 too. spec/requests + spec/services: 326 examples, 0 failures (includes the old-page specs and the 002-05 docs heading parity spec, unchanged).",
+          "spec/browser/shell.spec.ts: the existing link sweep now records whether each landing page is old (no `script[data-page=app]`) and fails when an old page is not a contributor tool or /translations. Run against Rails on :3001 in qul-dev with home,catalog,apps,content: 74 links, 48 Inertia visits, all 200; old pages: /translations /transliterations /tafsirs /surah_infos /mushaf_layouts /tajweed_words /word_texts /surah_audio_files /ayah_audio_files /gapless-ayah-extractor /word_translations/select_resource /word_transliterations /arabic_transliterations /word_roots /word_concordance_labels /morphology/dependency-graphs /morphology_phrases /similar_ayahs /topics /ayah_themes /quran_scripts_comparison /compare-font /compare-audio /compare_ayah /community/chars_info (all Contribute-menu tools plus the translation tool).",
+          "New browser test 'a tab loaded under another page group setting gets the current navigation on its next Inertia visit' (desktop and phone, mixed: the first document is rewritten to an older version and a footer heading 'Old docs'): clicking the footer FAQ link (an Inertia link) ends in a full load of /faq showing the current footer. shell.spec.ts 13 passed, 5 width skips. docs, content-pages, changelog and catalog specs: 33 passed, 2 failed (GA4 page-view test, see concerns).",
+          "Docs corrections (app/views/docs/markdown): project-setup.md 'Ruby `3.3.3` (see .ruby-version)' -> 'Ruby (the version in .ruby-version)' because .ruby-version is 3.3.5; Node now points at .node-version; `bin/dev` sentence adds the Vite dev server (Procfile.dev runs it); new paragraph: the new website pages show locally only for the groups in QUL_PAGE_GROUPS (see .env.sample). contributing.md 'Edit files in `docs/` first' -> edit `app/views/docs/markdown`, `config/docs.yml` lists pages, titles and order (there is no docs/ folder). No headings changed; nothing deleted.",
+          "AGENTS.md shell paragraph documents the version/page-group link and which old pages the nav still links."
+        ],
+        "decisions": [
+          "Refresh by Inertia version, not by a per-setting once-prop key: alba-inertia takes static once options, and a version mismatch also covers the case a key cannot: a stale Inertia link whose page went back to the old views would otherwise open the old HTML in Inertia's modal. Cost: one full reload per tab after a page-group change (rare: it needs a restart).",
+          "The browser test simulates the stale tab by rewriting the first document's version; a real setting change needs a server restart mid-test. The request spec proves the version changes with the setting; the browser test proves a different version ends in the current navigation.",
+          "The sweep's allowed old pages are the Contribute tool groups (`tools: true`) plus /translations; sign-in and the CMS are not menu or footer links (sign-in is the header account control, covered by the sign-in test).",
+          "Tutorials' 'Preview tab / Help tab' steps left unchanged (judgement, see concerns)."
+        ],
+        "concerns": [
+          "Docs questions for human review, left unchanged: (1) the 14 tutorial-*-end-to-end.md pages and tutorials.md step 4 name the old detail page's tabs ('Translation Preview', 'Help'); the new detail page has Preview, Data, Licence, Changelog, and 002-13 adds a Docs tab, so that wording should be revised once 002-13 lands. (2) contribute-data.md says data contribution happens 'through the QUL CMS'; the contributor tools (/tools) may be the better pointer. (3) tutorial-mushaf-layout-end-to-end.md links /resources/mushaf-layout/12, an id URL that 301s to the slug.",
+          "catalog.spec.ts 'sends one GA4 page view…' failed at both widths: no page view arrives even on the first load; googletagmanager.com answers 404 for the tag from this machine (the spec needs the real gtag.js). Not caused by this story; not verified elsewhere.",
+          "The version lambda runs PageGroups.enabled per request (an ENV read and split): negligible, but it is on every Inertia request.",
+          "Not checked on the production image."
+        ]
+      },
+      "filesChanged": 7
     },
     {
       "id": "002-10",

@@ -2,14 +2,16 @@
 
 # The header menus and the footer links of the new pages (the v7 site shell). Each link says
 # whether a new page serves it: `inertia` links are Inertia visits, the rest are plain links
-# to the old pages (docs, tools, the home page), which load in full.
+# to the old pages (contributor tools, sign-in, the CMS, and any page whose group is off),
+# which load in full.
 class SiteNav
   # The icon names a link can carry (the frontend maps each to a lucide icon): the contribution
   # tools (SiteNav::ContributeTools) and the help links of the Contribute menu.
-  ICONS = %w[
-    languages case-sensitive book-open-text info layout-panel-top palette type audio-waveform timer
-    scissors workflow mic whole-word split sprout tags network repeat copy list-tree layers git-compare
-    file-diff audio-lines columns hash book-open circle-help award
+  ICONS = [
+    'languages', 'case-sensitive', 'book-open-text', 'info', 'layout-panel-top', 'palette', 'type', 'audio-waveform',
+    'timer', 'scissors', 'workflow', 'mic', 'whole-word', 'split', 'sprout', 'tags', 'network', 'repeat', 'copy',
+    'list-tree', 'layers', 'git-compare', 'file-diff', 'audio-lines', 'columns', 'hash', 'book-open', 'circle-help',
+    'award',
   ].freeze
 
   Link = Data.define(:label, :href, :description, :category, :icon, :external, :inertia) do
@@ -45,10 +47,11 @@ class SiteNav
   def initialize(tools:)
     @catalog = PageGroups.enabled?(:catalog)
     @apps = PageGroups.enabled?(:apps)
+    @content = PageGroups.enabled?(:content)
     @home = Link.new(label: 'Home', href: '/', inertia: PageGroups.enabled?(:home))
     @tools = tools
     @request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
-                        description: 'Ask for a translation, tafsir or recitation that is missing.')
+                        description: 'Ask for a translation, tafsir or recitation that is missing.',)
     @menus = [resources_menu, docs_menu, developers_menu, contribute_menu]
     @footer = footer_groups
     @search = catalog_link('Search resources', '/resources')
@@ -68,8 +71,18 @@ class SiteNav
     catalog_link(type.title, "/resources/#{type.key}", **options)
   end
 
+  # Docs, FAQ, credits, the tools overview and the changelog: new pages while `content` is on.
+  def content_link(label, href, **options)
+    Link.new(label:, href:, inertia: @content, **options)
+  end
+
   def doc_link(label, slug, **options)
-    Link.new(label:, href: routes.docs_path(slug), **options)
+    content_link(label, routes.docs_path(slug), **options)
+  end
+
+  # The old changelog URL redirects to the new one while `content` is on.
+  def changelog_link
+    content_link('Changelog', @content ? routes.changelog_page_path : routes.change_logs_path)
   end
 
   def github_link
@@ -85,24 +98,27 @@ class SiteNav
     types = Catalog::Taxonomy.types.map do |type|
       type_link(type, description: type.summary, category: type.category.key)
     end
-    fix_links = [
-      Link.new(label: 'Fix a translation', href: routes.translations_path),
-      Link.new(label: 'All contribution tools', href: routes.tools_path)
-    ]
+    Menu.new(
+      label: 'Resources', href: '/resources', overview: 'Browse all resources', inertia: @catalog,
+      groups: [Group.new(heading: 'Resource types', links: types, wide: true)], aside: resources_aside,
+    )
+  end
+
+  def resources_aside
     jump_to = [
       catalog_link('All resources', '/resources'),
       catalog_link('Compare mushaf layouts', '/resources/mushaf-layout'),
-      doc_link('How to download', 'downloading-data')
+      doc_link('How to download', 'downloading-data'),
     ]
-    Menu.new(
-      label: 'Resources', href: '/resources', overview: 'Browse all resources', inertia: @catalog,
-      groups: [Group.new(heading: 'Resource types', links: types, wide: true)],
-      aside: [
-        Group.new(heading: 'Jump to', links: jump_to),
-        Group.new(heading: 'Cannot find it?', links: [@request]),
-        Group.new(heading: 'Spot a mistake?', links: fix_links)
-      ]
-    )
+    fix_links = [
+      Link.new(label: 'Fix a translation', href: routes.translations_path),
+      content_link('All contribution tools', routes.tools_path),
+    ]
+    [
+      Group.new(heading: 'Jump to', links: jump_to),
+      Group.new(heading: 'Cannot find it?', links: [@request]),
+      Group.new(heading: 'Spot a mistake?', links: fix_links),
+    ]
   end
 
   def docs_menu
@@ -110,12 +126,12 @@ class SiteNav
       doc_link('Getting started', 'getting-started', description: 'Find a resource, download it and use it.'),
       doc_link('Data model', 'data-model', description: 'How resources, files and Quran data fit together.'),
       doc_link('Resource guides', 'resource-guides-index', description: 'One guide for each resource type.'),
-      doc_link('Tutorials', 'tutorials', description: 'Build a feature with each resource type, step by step.')
+      doc_link('Tutorials', 'tutorials', description: 'Build a feature with each resource type, step by step.'),
     ]
 
     Menu.new(
-      label: 'Docs', href: routes.docs_index_path, overview: 'All docs', inertia: false,
-      groups: [Group.new(heading: 'Learn', links:, wide: true)], aside: []
+      label: 'Docs', href: routes.docs_index_path, overview: 'All docs', inertia: @content,
+      groups: [Group.new(heading: 'Learn', links:, wide: true)], aside: [],
     )
   end
 
@@ -123,69 +139,81 @@ class SiteNav
     links = [
       doc_link('API', 'api', description: 'Get Quran data over HTTP as JSON.'),
       doc_link('Run QUL on your computer', 'project-setup',
-               description: 'Set up the code and a database for local work.'),
-      doc_link('Contribute code', 'contribute-code', description: 'How to send a change to the QUL code.')
+               description: 'Set up the code and a database for local work.',),
+      doc_link('Contribute code', 'contribute-code', description: 'How to send a change to the QUL code.'),
     ]
 
     Menu.new(
-      label: 'Developers', href: routes.docs_path('api'), overview: 'API docs', inertia: false,
+      label: 'Developers', href: routes.docs_path('api'), overview: 'API docs', inertia: @content,
       groups: [Group.new(heading: 'Build with QUL', links:)],
-      aside: [Group.new(heading: 'Source code', links: [github_link])]
+      aside: [Group.new(heading: 'Source code', links: [github_link])],
     )
   end
 
-  def contribute_menu
-    tools = ContributeTools.grouped(@tools).map do |heading, entries|
+  def contribute_tool_groups
+    ContributeTools.grouped(@tools).map do |heading, entries|
       links = entries.map { |tool, icon, text| Link.new(label: tool.title, href: tool.url, icon:, description: text) }
       Group.new(heading:, links:, tools: true)
     end
+  end
+
+  def contribute_menu
     about = [
       doc_link('How to contribute data', 'contribute-data', icon: 'book-open',
-                                                            description: 'A guide to fixing and adding data.'),
-      Link.new(label: 'FAQ', href: routes.faq_path, icon: 'circle-help', description: 'Answers to common questions.'),
-      Link.new(label: 'Credits', href: routes.credits_path, icon: 'award', description: 'Who made the data and tools.')
+                                                            description: 'A guide to fixing and adding data.',),
+      content_link('FAQ', routes.faq_path, icon: 'circle-help', description: 'Answers to common questions.'),
+      content_link('Credits', routes.credits_path, icon: 'award', description: 'Who made the data and tools.'),
     ]
-    help = [@request, Link.new(label: 'Changelog', href: routes.change_logs_path)]
+    help = [@request, changelog_link]
     community = [*apps_links, Link.new(label: 'Discord', href: DISCORD_URL, external: true), github_link]
 
     Menu.new(
-      label: 'Contribute', href: routes.tools_path, overview: 'All contribution tools', inertia: false, dense: true,
-      groups: [*tools, Group.new(heading: 'About contributing', links: about)],
+      label: 'Contribute', href: routes.tools_path, overview: 'All contribution tools', inertia: @content, dense: true,
+      groups: [*contribute_tool_groups, Group.new(heading: 'About contributing', links: about)],
       aside: [
         Group.new(heading: 'Help improve the data', links: help),
-        Group.new(heading: 'Community', links: community)
-      ]
+        Group.new(heading: 'Community', links: community),
+      ],
     )
   end
 
-  def footer_groups
-    resources = [
+  def footer_resources
+    [
       catalog_link('All resources', '/resources'),
-      *%w[translation tafsir recitation mushaf-layout].map { |key| type_link(Catalog::Taxonomy.type(key)) }
+      *['translation', 'tafsir', 'recitation', 'mushaf-layout'].map { |key| type_link(Catalog::Taxonomy.type(key)) },
     ]
-    docs = [
-      doc_link('Getting started', 'getting-started'),
-      doc_link('Resource guides', 'resource-guides-index'),
-      doc_link('API', 'api'),
-      Link.new(label: 'All docs', href: routes.docs_index_path)
-    ]
-    contribute = [
-      Link.new(label: 'Contribution tools', href: routes.tools_path),
-      Link.new(label: 'FAQ', href: routes.faq_path),
-      Link.new(label: 'Credits', href: routes.credits_path)
-    ]
-    community = [
+  end
+
+  def footer_community
+    [
       *apps_links,
       github_link,
       Link.new(label: 'Discord', href: DISCORD_URL, external: true),
-      Link.new(label: 'Tarteel', href: 'https://tarteel.ai', external: true)
+      Link.new(label: 'Tarteel', href: 'https://tarteel.ai', external: true),
+    ]
+  end
+
+  def footer_docs
+    [
+      doc_link('Getting started', 'getting-started'),
+      doc_link('Resource guides', 'resource-guides-index'),
+      doc_link('API', 'api'),
+      content_link('All docs', routes.docs_index_path),
+    ]
+  end
+
+  def footer_groups
+    contribute = [
+      content_link('Contribution tools', routes.tools_path),
+      content_link('FAQ', routes.faq_path),
+      content_link('Credits', routes.credits_path),
     ]
 
     [
-      Group.new(heading: 'Resources', links: resources),
-      Group.new(heading: 'Docs', links: docs),
+      Group.new(heading: 'Resources', links: footer_resources),
+      Group.new(heading: 'Docs', links: footer_docs),
       Group.new(heading: 'Contribute', links: contribute),
-      Group.new(heading: 'Community', links: community)
+      Group.new(heading: 'Community', links: footer_community),
     ]
   end
 end

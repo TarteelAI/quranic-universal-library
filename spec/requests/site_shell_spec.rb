@@ -155,6 +155,91 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
     end
   end
 
+  describe 'content links' do
+    let(:content_path) { %r{\A/(docs(/[a-z0-9-]+)?|faq|credits|tools|changelog|change_logs)\z} }
+
+    def content_links
+      nav = props[:nav]
+      all_links(nav).select { |link| link[:href].match?(content_path) }
+    end
+
+    it 'are Inertia visits while the content group is on, and the changelog is the new one',
+       page_groups: ['catalog', 'content'] do
+      get page_path
+      links = content_links
+
+      expect(links.pluck(:href)).to include('/docs', '/docs/api', '/faq', '/credits', '/tools', '/changelog')
+      expect(links.pluck(:href)).not_to include('/change_logs')
+      expect(links.pluck(:inertia)).to all(be(true))
+      expect(props[:nav][:menus].pluck(:label, :inertia))
+        .to eq([['Resources', true], ['Docs', true], ['Developers', true], ['Contribute', true]])
+      developers = props[:nav][:menus].find { |menu| menu[:label] == 'Developers' }
+      expect(developers[:groups].first[:links].pluck(:href)).to eq(['/docs/api', '/docs/project-setup',
+                                                                    '/docs/contribute-code',])
+      # Contributor tools, the translation tool and outside links stay plain links
+      expect((all_links(props[:nav]) - links).reject { |link| link[:href].start_with?('/resources') })
+        .to all(include(inertia: false))
+    end
+
+    it 'are plain links to the old pages while the content group is off', page_groups: ['catalog'] do
+      get page_path
+      links = content_links
+
+      expect(links.pluck(:href)).to include('/docs', '/faq', '/credits', '/tools', '/change_logs')
+      expect(links.pluck(:href)).not_to include('/changelog')
+      expect(links.pluck(:inertia)).to all(be(false))
+      expect(props[:nav][:menus].pluck(:inertia)).to eq([true, false, false, false])
+    end
+  end
+
+  describe 'a tab loaded under another page group setting' do
+    def version_under(setting)
+      original = ENV.fetch('QUL_PAGE_GROUPS', nil)
+      ENV['QUL_PAGE_GROUPS'] = setting
+      InertiaRails.configuration.version.to_s
+    ensure
+      ENV['QUL_PAGE_GROUPS'] = original
+    end
+
+    def visit(path, version)
+      get path, headers: { 'X-Inertia' => 'true', 'X-Inertia-Version' => version,
+                           'X-Inertia-Except-Once-Props' => 'nav', }
+    end
+
+    it 'names the page groups in the page version, so the version changes with the setting',
+       page_groups: ['catalog', 'content'] do
+      visit page_path, version_under('catalog,content')
+
+      expect(response.parsed_body['version']).to eq(version_under('catalog,content'))
+      expect(version_under('catalog')).not_to eq(version_under('catalog,content'))
+    end
+
+    it 'keeps the navigation it has while the setting is the same', page_groups: ['catalog', 'content'] do
+      visit '/resources/tafsir', version_under('catalog,content')
+
+      expect(response).to have_http_status(:ok)
+      expect(inertia).to have_no_prop(:nav)
+    end
+
+    it 'reloads in full on its next Inertia visit, which sends the new navigation',
+       page_groups: ['catalog', 'content'] do
+      visit '/resources/tafsir', version_under('catalog')
+
+      expect(response).to have_http_status(:conflict)
+      expect(response.headers['X-Inertia-Location']).to eq('http://localhost/resources/tafsir')
+
+      get '/resources/tafsir'
+      expect(props[:nav][:menus].pluck(:inertia)).to all(be(true))
+    end
+
+    it 'reloads in full when the visit lands on an old page because a group was turned off', page_groups: ['catalog'] do
+      visit '/faq', version_under('catalog,content')
+
+      expect(response).to have_http_status(:conflict)
+      expect(response.headers['X-Inertia-Location']).to eq('http://localhost/faq')
+    end
+  end
+
   describe 'with the apps page group on', page_groups: ['catalog', 'apps'] do
     it 'links the apps directory from the Contribute menu' do
       get page_path

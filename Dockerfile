@@ -18,7 +18,9 @@ RUN corepack enable
 # customizing passenger-customizable image
 # rvm builds Ruby from source and keeps the build tree; gems compile against
 # the headers under /usr/local/rvm/rubies, so the tree is not needed at runtime.
+# The script also installs rustc (plus LLVM) only to compile YJIT, and leaves it behind.
 RUN /pd_build/ruby-3.3.*.sh && \
+    apt-get remove -y rustc && apt-get autoremove -y && \
     rm -rf /usr/local/rvm/src /usr/local/rvm/archives /var/lib/apt/lists/*
 RUN bash -lc 'rvm --default use ruby-3.3.13'
 RUN /pd_build/redis.sh

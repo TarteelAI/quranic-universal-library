@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   root to: 'landing#home'
   # The new FAQ, credits, tools overview, changelog, docs index and docs pages while the `content`
   # page group is on, above the old routes below, and the docs search index (JSON) the new pages
-  # fetch. The old /change_logs URLs redirect to the changelog, keeping the query. The docs pages
+  # fetch. The old /change_logs URLs redirect to the changelog, on the same entries. The docs pages
   # answer page loads and Inertia visits only (Content::DocsRequest): the old pages' help dialogs
   # keep the old answer.
   # The two constraints are nested blocks because a `constraints:` option on the route would
@@ -27,7 +27,7 @@ Rails.application.routes.draw do
     get '/changelog/:id', to: 'content/changelog#show', as: :changelog_entry_page, format: false,
                           constraints: { id: /\d+/ }
     get '/change_logs', format: false, to: redirect(status: 301) { |_params, request|
-      ['/changelog', request.query_string.presence].compact.join('?')
+      Content::Changelog.path_for_old_page(request.query_parameters['page'])
     }
     get '/change_logs/:id', to: redirect(status: 301) { |params, _request| "/changelog/#{params[:id]}" },
                             format: false, constraints: { id: /\d+/ }

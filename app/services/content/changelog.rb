@@ -7,6 +7,8 @@ module Content
   # (content database) are loaded in separate queries.
   class Changelog
     PER_PAGE = 20
+    # Entries a page on the old /change_logs list (ApplicationPresenter#per_page).
+    OLD_PER_PAGE = 10
 
     Entry = Data.define(:id, :title, :excerpt, :text, :date, :resource)
     Resource = Data.define(:name, :path)
@@ -19,6 +21,12 @@ module Content
       raise ActiveRecord::RecordNotFound unless number.between?(1, pages)
 
       Page.new(entries: entries(scope.offset((number - 1) * PER_PAGE).limit(PER_PAGE)), page: number, pages:)
+    end
+
+    # Where an old /change_logs?page= link goes: the page holding that old page's first entry.
+    def self.path_for_old_page(param)
+      page = (((param.to_s[/\A\d+\z/].to_i - 1) * OLD_PER_PAGE) / PER_PAGE) + 1
+      page > 1 ? "/changelog?page=#{page}" : '/changelog'
     end
 
     def self.find(id)

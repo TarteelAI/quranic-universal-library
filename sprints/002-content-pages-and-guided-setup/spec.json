@@ -404,9 +404,10 @@
           "Entries with no resource content are listed with `resource: null` rather than filtered out (the snapshot has none); nothing else is built for them, per the story's out-of-scope note.",
           "The resource name is the resource content's name (as on the old page), linked only to a published DownloadableResource; the old helper fell back to an unpublished one.",
           "A malformed page (not digits, array) is a 404 like an out-of-range one, instead of clamping as the catalog does, to meet the 404 criterion with one rule.",
-          "Redirects use block form (`redirect(status: 301) { ... }`): the `%{id}` string form trips RuboCop's Style/FormatStringToken, and `/change_logs` keeps its query so old paged links land on the same page.",
+          "Redirects use block form (`redirect(status: 301) { ... }`; the `%{id}` string form trips RuboCop Style/FormatStringToken). `/change_logs?page=N` maps the old page (10 entries, ApplicationPresenter#per_page) to the new page holding its first entry (`Content::Changelog.path_for_old_page`); a missing or malformed page goes to /changelog, other query keys are dropped.",
           "The header/footer 'Changelog' nav link still points at /change_logs (it now 301s); nav links to content pages are 002-09's.",
-          "No prototype design: composed from PageHeader, Button and the catalog pager; resource links underlined so they read as links."
+          "No prototype design: composed from PageHeader, Button and the catalog pager; resource links underlined so they read as links.",
+          "Checkpoint review (story-review over f1e44e41..HEAD): one CONFIRMED finding fixed in this story, the redirect kept `?page=N` unchanged although the old list pages by 10 and the new by 20, so old page 3 or 4 links 404d; now mapped, request spec covers 2, 3, 6 and abc."
         ],
         "concerns": [
           "The page design needs a human look before cutover (story note).",

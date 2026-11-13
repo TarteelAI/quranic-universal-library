@@ -117,13 +117,17 @@ RSpec.describe 'The changelog (/changelog, /changelog/:id)', type: :request do
       expect(fragment.text).to eq('Read this and that.kept')
     end
 
-    it 'redirects the old URLs permanently, keeping the page' do
+    it 'redirects the old URLs permanently, to the page with the same entries' do
       get '/change_logs'
       expect(response).to redirect_to('/changelog')
       expect(response).to have_http_status(:moved_permanently)
 
-      get '/change_logs?page=2'
-      expect(response).to redirect_to('/changelog?page=2')
+      # The old list holds 10 entries a page, the new one 20.
+      { '2' => '/changelog', '3' => '/changelog?page=2', '6' => '/changelog?page=3', 'abc' => '/changelog' }
+        .each do |old, new|
+          get '/change_logs', params: { page: old }
+          expect(response).to redirect_to(new), old
+        end
 
       get '/change_logs/31'
       expect(response).to redirect_to('/changelog/31')

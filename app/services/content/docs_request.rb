@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Content
-  # Route constraint for the new docs page at /docs/:key (inside the `content` page group). The
-  # old pages' help dialogs (ajax-modal) fetch /docs/:key with `fetch` (Accept */*) and read
-  # #title and #body out of the old page, and other old code asks for it as XHR to get the
-  # layout-free fragment. Those requests, and keys that only an ERB partial under app/views/docs
+  # Route constraint for the new docs pages at /docs and /docs/:key (inside the `content` page
+  # group). The old pages' help dialogs (ajax-modal) fetch /docs/:key with `fetch` (Accept */*)
+  # and read #title and #body out of the old page, and other old code asks for /docs and
+  # /docs/:key as XHR to get the layout-free fragment. Those requests, and keys that only an ERB partial under app/views/docs
   # serves (help dialog text), keep the old answer. The new page answers page loads (Accept
   # names text/html) and Inertia visits.
   module DocsRequest

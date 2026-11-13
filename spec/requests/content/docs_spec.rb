@@ -30,6 +30,96 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
   end
 
   describe 'with the content page group on', page_groups: ['content', 'catalog'] do
+    it 'server-renders every page of config/docs.yml with the old headings, in order' do
+      keys = DocsManifest.pages_in_order.map(&:slug)
+      expect(keys).to include('api', 'project-setup', tutorial)
+
+      SsrServer.with_ssr do
+        keys.each do |key|
+          expected = old_headings(key)
+          get "/docs/#{key}", headers: html_page
+
+          expect(response).to have_http_status(:ok), key
+          expect(inertia).to render_component('content/DocsPage')
+          expect(expected).not_to be_empty, key
+          expect(headings(response.body, '#app[data-server-rendered="true"] article')).to eq(expected), key
+        end
+      end
+    end
+
+    it 'puts a title, description and canonical link in the head of every docs page, without SSR' do
+      DocsManifest.pages_in_order.map(&:slug).each do |key|
+        get "/docs/#{key}", headers: html_page
+
+        head = Nokogiri::HTML(response.body)
+        category = DocsManifest.category_for_page(key)
+        expect(head.at('title').text).to match(/\A(.+ — )?#{Regexp.escape(category.title)} — QUL Documentation\z/), key
+        expect(head.at('meta[name="description"]')['content']).to be_present, key
+        expect(head.at('link[rel="canonical"]')['href']).to eq("https://qul.tarteel.ai/docs/#{key}")
+        expect(response.body).not_to include('data-server-rendered')
+      end
+    end
+
+    it 'renders every tag page the old site serves in the new layout' do
+      slugs = DownloadableResourceTag.pluck(:slug).compact_blank.uniq
+      slugs -= DocsManifest.pages_in_order.map(&:slug)
+      slugs.reject! { |slug| Content::DocsRequest.partial_only?(slug) }
+      expect(slugs).not_to be_empty
+
+      slugs.each do |slug|
+        get "/docs/#{slug}", headers: html_page
+
+        expect(response).to have_http_status(:ok), slug
+        expect(inertia).to render_component('content/DocsPage')
+        expect(inertia.props[:doc][:kind]).to eq('tag'), slug
+      end
+    end
+
+    it 'sends the docs navigation: the categories of config/docs.yml with their pages in reading order' do
+      get "/docs/#{tutorial}", headers: html_page
+
+      navigation = inertia.props[:navigation]
+      expect(navigation.pluck(:key)).to eq(DocsManifest.categories.map(&:slug))
+      expect(navigation.flat_map { |category| category[:pages].pluck(:key) })
+        .to eq(DocsManifest.pages_in_order.map(&:slug))
+      tutorials = navigation.first[:pages]
+      expect(tutorials.find { |page| page[:key] == tutorial }).to include(title: 'Recitation', depth: 1)
+      expect(tutorials.find { |page| page[:key] == 'tutorials' }).to include(depth: 0)
+      expect(navigation.find { |category| category[:key] == 'api' }).to include(badge: 'Coming soon')
+    end
+
+    it 'serves the docs index from the manifest, with the old title and description' do
+      get '/docs', headers: html_page
+
+      expect(response).to have_http_status(:ok)
+      expect(controller).to be_a(Content::DocsController)
+      expect(inertia).to render_component('content/DocsIndexPage')
+      expect(inertia.props[:navigation].pluck(:title)).to eq(DocsManifest.categories.map(&:title))
+      head = Nokogiri::HTML(response.body)
+      expect(head.at('title').text).to eq('QUL Documentation — Guides, Datasets & API Reference')
+      expect(head.at('meta[name="description"]')['content']).to eq(CommunityPresenter::DOCS_INDEX_DESCRIPTION)
+      expect(head.at('link[rel="canonical"]')['href']).to eq('https://qul.tarteel.ai/docs')
+    end
+
+    it 'server-renders the docs index and the side navigation of a page' do
+      SsrServer.with_ssr do
+        get '/docs', headers: html_page
+        index = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
+        expect(index.css('h2 a').map { |link| link.text.squish }).to eq(DocsManifest.categories.map(&:title))
+
+        get "/docs/#{tutorial}", headers: html_page
+        current = Nokogiri::HTML(response.body).css('#app nav[aria-label="Docs"] a[aria-current="page"]')
+        expect(current.map { |link| link['href'] }.uniq).to eq(["/docs/#{tutorial}"])
+      end
+    end
+
+    it 'keeps the old layout-free docs index for an XHR request' do
+      get '/docs', xhr: true
+
+      expect(controller).to be_a(CommunityController)
+      expect(response.body).not_to include('<html')
+    end
+
     it 'server-renders the tutorial, the resource guide and the tag page with the old headings, in order' do
       [tutorial, guide, tag].each do |key|
         expected = old_headings(key)
@@ -157,6 +247,17 @@ RSpec.describe 'Docs pages (/docs/:key)', type: :request do
   end
 
   describe 'with the content page group off', page_groups: ['home', 'catalog', 'apps'] do
+    it 'renders the old docs index, and its layout-free fragment for an XHR request' do
+      get '/docs', headers: html_page
+      expect(controller).to be_a(CommunityController)
+      expect(response.body).to include('QUL Documentation')
+      expect(response.body).not_to include('data-page="app"')
+
+      get '/docs', xhr: true
+      expect(controller).to be_a(CommunityController)
+      expect(response.body).not_to include('<html')
+    end
+
     it 'renders the old pages, unchanged' do
       [tutorial, guide, tag].each do |key|
         get "/docs/#{key}", headers: html_page

@@ -243,8 +243,35 @@
       "testFirst": false,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "The manifest has nested pages (tutorials have children). Markdown bodies hold internal links to other docs and to resource pages: links to pages a new group serves should be in-app visits where that is cheap, and must at least work as plain links. Images and screenshots in the markdown stay as they are until 002-09."
+      "passes": true,
+      "notes": "The manifest has nested pages (tutorials have children). Markdown bodies hold internal links to other docs and to resource pages: links to pages a new group serves should be in-app visits where that is cheap, and must at least work as plain links. Images and screenshots in the markdown stay as they are until 002-09.",
+      "completedAt": "2026-11-13T00:51:42Z",
+      "handoff": {
+        "done": [
+          "`/docs` index joins the `content` group: route `get '/docs'` -> `Content::DocsController#index` (`docs_index_page`, typed helper `docsIndexPage`) inside the same nested `PageGroups`/`Content::DocsRequest` block as `/docs/:key`; XHR and Accept */* still get the old page. Page `pages/content/DocsIndexPage.tsx`: one card per manifest category (title links to its overview page, description, badge, top-level pages). Head keeps the old title 'QUL Documentation — Guides, Datasets & API Reference' and `CommunityPresenter::DOCS_INDEX_DESCRIPTION`.",
+          "`Content::DocsNavigation` (app/services/content/docs_navigation.rb) flattens config/docs.yml into categories `{ key, title, description, badge, pages: [{ key, title, depth }] }` (tutorials depth 1). Both docs actions send it as the `navigation` prop (`DocNavCategoryResource`, `DocNavPageResource`, `DocsIndexResource`; `DocsShowResource` gained `navigation`).",
+          "Docs layout in `components/qul/docs.tsx`: `DocsNav` (All docs link, categories with badge, pages as Inertia links, current marked `aria-current=page`) and `DocsLayout` (sticky side navigation from lg; below lg a sticky bar 'Open the docs menu' showing Docs / category / title that opens the nav in a bottom sheet, closed on every Inertia visit; contents list beside the article from xl, in an 'On this page' <details> above it below xl). `DocContents` now marks the heading being read (`aria-current=location`, scroll position). `DocBody` turns clicks on body links to `/docs` and `/docs/<key>` into Inertia visits; other links load in full. Kit fixtures for DocsNav and DocsLayout.",
+          "`DocsPage.tsx` uses the layout; breadcrumb 'Docs' is now an Inertia link to the new index. The API page stays the short markdown notice; its category carries the 'Coming soon' badge in the nav and index.",
+          "RSpec spec/requests/content/docs_spec.rb, 21 examples, 0 failures in qul-dev: SSR heading parity for all 30 manifest keys against the old `article.tw-docs`; head title/description/canonical for every manifest key without SSR; every tag slug on the clone (minus manifest keys and partial-only keys) is 200 as a `tag` DocsPage; navigation props match the manifest order; index props, head and SSR; XHR to `/docs` keeps the old fragment with content on; content off serves the old index and its XHR fragment. All of spec/requests: 215 examples, 0 failures. RuboCop clean on the changed Ruby. `typelizer:check` current.",
+          "Vitest: DocsPage (8 tests: side nav current page, phone sheet, in-app body link, plus the earlier ones), DocsPage SSR (asserts the nav's current link), DocsIndexPage (3) and its SSR test; full suite 320 passed. typecheck, lint:frontend, format:frontend clean.",
+          "Playwright spec/browser/docs.spec.ts, desktop and phone, real backend (Rails on :3001 in qul-dev with home,catalog,apps,content): side nav marks the current page and visits another without a reload (phone via the sheet, which closes); contents list matches the h2/h3s, marks the first, a click lands on the heading and marks it; previous/next follow manifest order; docs index cards open pages; no sideways scroll on phone for the tutorial, index and API page; example and copy tests still pass. 13 passed, 1 skipped (phone-only test on desktop).",
+          "Fixed the stale catalog.spec.ts test: the tafsir guide link now lands on a new docs page, and the old page it leaves for is sign-in (contributor tools, sign-in and the CMS stay old per 002-09). 8 passed at both widths."
+        ],
+        "decisions": [
+          "Navigation is a flat page list with `depth` instead of nested children, so the serializer and types are not recursive; the manifest nests only one level.",
+          "Below xl the contents list is a native <details> above the article (works before hydration and on phones); the prototype hides it there. Only one 'On this page' nav is visible at any width.",
+          "Body links to docs pages are Inertia visits via one click handler on the body, not rewritten markup: the prose stays the sanitized server HTML. No markdown body links to a partial-only key (checked by grep), which would not work as an Inertia visit.",
+          "The docs index is rebuilt on the manifest's categories only, not the prototype's landing (search box, featured tutorial, format list): those describe content this sprint does not have; search is 002-06.",
+          "Heading parity runs inside one `SsrServer.with_ssr` for all keys (13 s for the file); one server per key took 24 s."
+        ],
+        "concerns": [
+          "SiteNav still marks the Docs menu and footer docs links `inertia: false` (plain links that load the new pages in full); that is 002-09's scope.",
+          "The sticky desktop side navigation is taller than the viewport and scrolls on its own; no 'scroll the current page into view' behaviour.",
+          "Breadcrumb and phone bar both show the trail on phones (slight duplication), and the playground frame is still white in dark mode (002-01 concern). No design review yet.",
+          "Browser runs need the second server reached from the host: only :3000 is published from qul-dev (see lessons.md). Not checked on the production image."
+        ]
+      },
+      "filesChanged": 28
     },
     {
       "id": "002-06",

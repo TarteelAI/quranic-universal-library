@@ -42,3 +42,12 @@ the SSR build before RSpec.
 With the `content` group on, `/docs/resource-tafsirs` is a new page, so this Playwright test
 fails. It needs a link that still goes to an old page; whichever story next touches docs links
 fixes it.
+
+### A second Rails server in qul-dev for browser runs — 002-05
+
+`qul-dev` publishes only port 3000, so a server started inside it on 3001 is not on the host's
+`localhost:3001`. OrbStack routes the container's own IP (`docker inspect -f
+'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' qul-dev`) to the host, but the app
+answers only a `localhost` Host (`config/initializers/hosts.rb`). Forward a host port with
+a few lines of Node (`net.createServer` piping `localhost:3001` to `<ip>:3001`; the host has no
+`socat`) and run `QUL_BROWSER_BASE_URL=http://localhost:3001 yarn test:browser …`.

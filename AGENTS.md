@@ -161,10 +161,11 @@ page: off, it is a 404 and no new page links to it. Its entries are `config/apps
 posts to `POST /apps` (`Site::AppSubmissionsController`), which needs a signed-in user and stores
 an unpublished `App` row in the CMS database; the home page still links to the
 `app_submission.yml` issue form.
-`content` serves `/docs/:key` (`Content::DocsController`, body from `Content::DocPage`) for page
-loads and Inertia visits only (`Content::DocsRequest`): the old pages' help dialogs fetch
-`/docs/:key` with `fetch` (Accept `*/*`) or as XHR and keep the old answer, and so do the keys
-only an ERB partial under `app/views/docs` serves.
+`content` serves the docs index `/docs` and `/docs/:key` (`Content::DocsController`, body from
+`Content::DocPage`, side navigation from `Content::DocsNavigation`, both read from
+`config/docs.yml`) for page loads and Inertia visits only (`Content::DocsRequest`): the old pages'
+help dialogs fetch `/docs/:key` with `fetch` (Accept `*/*`) or as XHR and keep the old answer, and
+so do the keys only an ERB partial under `app/views/docs` serves.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

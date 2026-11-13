@@ -27,7 +27,7 @@ import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
 import { resourcePageProps } from './catalog'
-import { tutorialDoc } from './content'
+import { docsNavigation, tutorialDoc } from './content'
 import { appsPageProps, homePageProps } from './site'
 import { nav as navProps } from './shell'
 
@@ -72,7 +72,7 @@ const { AppSubmissionDialog } = appSubmission
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, FilterChip, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
-const { CodeBlock, DocBody, DocContents, Playground } = docs
+const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
 const { GatedForm } = gatedForm
@@ -221,6 +221,15 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   CodeBlock: { element: <CodeBlock label="Shell" code="bin/rails server" />, text: 'bin/rails server' },
   Playground: { element: <Playground code="console.log(1)" />, text: 'console.log(1)' },
   DocContents: { element: <DocContents contents={tutorialDoc.contents} />, text: 'Run the example' },
+  DocsNav: { element: <DocsNav navigation={docsNavigation} current="datasets" />, text: 'aria-current="page"' },
+  DocsLayout: {
+    element: (
+      <DocsLayout navigation={docsNavigation} current="datasets" trail={['Download Resources', 'Datasets']}>
+        Page body
+      </DocsLayout>
+    ),
+    text: 'Page body',
+  },
   WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
   AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
   ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },

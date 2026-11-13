@@ -1,4 +1,4 @@
-import type { ContentDoc, ContentDocsShow } from '@/types/serializers'
+import type { ContentDoc, ContentDocNavCategory, ContentDocsIndex, ContentDocsShow } from '@/types/serializers'
 
 // Shaped like Content::DocResource for a tutorial: prose, a code block and a runnable example.
 export const tutorialDoc: ContentDoc = {
@@ -60,4 +60,30 @@ export const tagDoc: ContentDoc = {
   position: { category: null, previous: null, next: null },
 }
 
-export const docsPageProps: ContentDocsShow = { doc: tutorialDoc }
+// Shaped like Content::DocNavCategoryResource: two categories of config/docs.yml, cut short.
+export const docsNavigation: ContentDocNavCategory[] = [
+  {
+    key: 'download-resources',
+    title: 'Download Resources',
+    description: 'Discover, download, and integrate QUL datasets.',
+    badge: null,
+    pages: [
+      { key: 'download-resources', title: 'Overview', depth: 0 },
+      { key: 'datasets', title: 'Datasets', depth: 0 },
+      { key: 'tutorials', title: 'Tutorials', depth: 0 },
+      { key: 'tutorial-recitation-end-to-end', title: 'Recitation', depth: 1 },
+      { key: 'tutorial-mushaf-layout-end-to-end', title: 'Mushaf Layout', depth: 1 },
+    ],
+  },
+  {
+    key: 'api',
+    title: 'API',
+    description: 'A REST API to access every QUL resource.',
+    badge: 'Coming soon',
+    pages: [{ key: 'api', title: 'Overview', depth: 0 }],
+  },
+]
+
+export const docsPageProps: ContentDocsShow = { doc: tutorialDoc, navigation: docsNavigation }
+
+export const docsIndexProps: ContentDocsIndex = { navigation: docsNavigation }

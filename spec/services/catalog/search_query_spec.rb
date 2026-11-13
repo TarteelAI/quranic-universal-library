@@ -158,7 +158,7 @@ RSpec.describe Catalog::SearchQuery do
                       status: 'gone', sort: 'random', page: 'two')
 
       expect(result.filters.to_h).to include(type: nil, language: nil, script: ['madani'], format: nil,
-                                             granularity: nil, status: nil, sort: 'popular', page: 1)
+                                             granularity: nil, status: nil, sort: nil, page: 1)
       expect(ids(result)).to match_array(published.where(script_family: 'madani').ids)
     end
   end
@@ -207,9 +207,8 @@ RSpec.describe Catalog::SearchQuery do
                .sum('COALESCE(f.download_count, 0) + COALESCE(f.anonymous_download_count, 0)')
     end
 
-    it 'orders by the combined download totals by default (popular)' do
-      result = search
-      expect(result.filters.sort).to eq('popular')
+    it 'orders by the combined download totals (popular)' do
+      result = search(sort: 'popular')
 
       totals = ids(result).map { |id| direct_totals.fetch(id) }
       expect(totals).to eq(direct_totals.values.sort.reverse)
@@ -217,19 +216,19 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'counts anonymous downloads in the popular order' do
-      least = ids(search).last
+      least = ids(search(sort: 'popular')).last
       DownloadableFile.create!(downloadable_resource_id: least, file_type: 'csv', anonymous_download_count: 10**9)
 
-      expect(ids(search).first).to eq(least)
+      expect(ids(search(sort: 'popular')).first).to eq(least)
     end
 
     it 'never counts unpublished files, and never shows unpublished resources' do
-      least = ids(search).last
+      least = ids(search(sort: 'popular')).last
       file = DownloadableFile.create!(downloadable_resource_id: least, file_type: 'csv', published: false,
                                       download_count: 10**9)
       hidden = create_resource('Zyxwv hidden tafsir', published: false)
 
-      result = search
+      result = search(sort: 'popular')
       expect(ids(result).last).to eq(least)
       expect(ids(result)).not_to include(hidden.id)
       expect(ids(search(q: 'zyxwv hidden'))).to be_empty

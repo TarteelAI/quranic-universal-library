@@ -2,10 +2,13 @@
 
 module Catalog
   # The input of Catalog::SearchQuery: a text query, one value for each filter except the script
-  # family (any number of those), a sort and a page. .from builds it from a plain hash such as a
-  # query string; values outside the vocabularies are dropped, never an error.
-  class SearchFilters < Data.define(:q, :type, :language, :script, :format, :granularity, :status, :sort, :page)
+  # family (any number of those), a sort (none groups the results by category) and a page. .from
+  # builds it from a plain hash such as a query string; values outside the vocabularies are
+  # dropped, never an error. `view` is how the catalog page lays the results out; search ignores it.
+  class SearchFilters < Data.define(:q, :type, :language, :script, :format, :granularity, :status, :sort, :page,
+                                    :view,)
     MAX_QUERY_LENGTH = 200
+    VIEWS = ['grid', 'list'].freeze
 
     def self.from(input)
       input = input.to_h.transform_keys(&:to_s)
@@ -17,8 +20,9 @@ module Catalog
         format: pick(input['format'], Taxonomy.formats),
         granularity: pick(input['granularity'], Taxonomy.granularities),
         status: pick(input['status'], Taxonomy.statuses),
-        sort: pick(input['sort'], Taxonomy.sorts) || Taxonomy.sorts.first.key,
-        page: [input['page'].to_s[/\A\d+\z/].to_i, 1].max
+        sort: pick(input['sort'], Taxonomy.sorts),
+        page: [input['page'].to_s[/\A\d+\z/].to_i, 1].max,
+        view: VIEWS.include?(input['view']) ? input['view'] : VIEWS.first
       )
     end
 

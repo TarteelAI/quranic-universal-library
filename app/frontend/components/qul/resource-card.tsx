@@ -24,6 +24,8 @@ export interface ResourceCardProps {
   preview?: ReactNode
   /** Legacy and superseded resources: the preview is dimmed */
   muted?: boolean
+  /** `compact` is a list row: the type icon, the title, the status and facts, and the formats; no preview or summary */
+  density?: 'default' | 'compact'
   className?: string
 }
 
@@ -42,8 +44,45 @@ export function ResourceCard({
   formats = [],
   preview,
   muted = false,
+  density = 'default',
   className,
 }: ResourceCardProps) {
+  const titleLink = (
+    <Link
+      href={href}
+      className="outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:underline"
+    >
+      {title}
+    </Link>
+  )
+
+  if (density === 'compact')
+    return (
+      <article
+        className={cn(
+          'group relative flex min-w-0 items-center gap-4 rounded-xl bg-card px-4 py-3 shadow-xs transition-shadow hover:shadow-md',
+          className,
+        )}
+        data-testid="resource-card"
+      >
+        <ResourceIcon category={category} size="md" className={cn(muted && 'grayscale')} />
+        <div className="min-w-0 flex-1">
+          <h3 className="truncate text-[15px] leading-snug font-medium">{titleLink}</h3>
+          {(status || facts.length > 0) && (
+            <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+              {status}
+              {facts.length > 0 && <span className="truncate">{facts.join(' · ')}</span>}
+            </div>
+          )}
+        </div>
+        {formats.length > 0 && (
+          <span className="hidden font-mono text-[11px] tracking-wide text-muted-foreground uppercase sm:inline">
+            {formats.join(' · ')}
+          </span>
+        )}
+      </article>
+    )
+
   return (
     <article
       className={cn(
@@ -57,14 +96,7 @@ export function ResourceCard({
         <div className="flex items-start gap-3">
           {!preview && <ResourceIcon category={category} size="md" />}
           <div className="min-w-0 flex-1">
-            <h3 className="text-base leading-snug font-medium tracking-tight">
-              <Link
-                href={href}
-                className="outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:underline"
-              >
-                {title}
-              </Link>
-            </h3>
+            <h3 className="text-base leading-snug font-medium tracking-tight">{titleLink}</h3>
             {facts.length > 0 && (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                 {preview && <ResourceIcon category={category} variant="plain" className="[&_svg]:size-3.5" />}

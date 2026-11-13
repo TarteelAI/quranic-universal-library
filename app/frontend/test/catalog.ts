@@ -70,6 +70,8 @@ export const typePageProps: CatalogTypesShow = {
     { key: 'json', label: 'JSON' },
     { key: 'sqlite', label: 'SQLite' },
   ],
+  total: 2,
+  search: null,
   pick: null,
   guidePath: '/docs/resource-translations',
   comparison: null,
@@ -121,6 +123,7 @@ export const layoutPageProps: CatalogTypesShow = {
       supersededBy: { id: 10, name: 'KFGQPC V2 layout', type: 'mushaf-layout', toParam: 'kfgqpc-v2-layout' },
     }),
   ],
+  total: 5,
   pick: 'Use the layout of the printed mushaf that your readers know.',
   comparison: {
     columns: [
@@ -175,7 +178,9 @@ export const catalogPageProps: CatalogResourcesIndex = {
     status: null,
     sort: 'popular',
     page: 1,
+    view: 'grid',
   },
+  groups: null,
   results: [
     {
       id: 1,

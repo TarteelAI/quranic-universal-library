@@ -26,7 +26,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
         total: published.count,
         page: 1,
         filters: { q: '', type: nil, language: nil, script: [], format: nil, granularity: nil, status: nil,
-                   sort: 'popular', page: 1, },
+                   sort: nil, page: 1, view: 'grid', },
       )
       expect(inertia.props[:results].size).to eq(Catalog::SearchQuery::PER_PAGE)
       expect(inertia.props[:results].first.keys).to contain_exactly(
@@ -82,7 +82,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(inertia.props[:filters]).to include(type: nil, script: ['madani'], format: nil, language: nil,
-                                                 status: nil, sort: 'popular', page: 1, granularity: nil,)
+                                                 status: nil, sort: nil, page: 1, granularity: nil,)
       expect(inertia.props[:total]).to eq(published.where(script_family: 'madani').count)
     end
 
@@ -142,6 +142,67 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(inertia.props[:total]).to eq(0)
       expect([filtered, empty]).to all(eq(unfiltered))
       expect(unfiltered).to be <= 8
+    end
+  end
+
+  describe 'GET /resources: grouping by category', page_groups: ['catalog'] do
+    let(:category_order) { Catalog::Taxonomy::CATEGORIES.keys }
+
+    def category_of(result)
+      Catalog::Taxonomy.type(result[:type]).category.key
+    end
+
+    it 'groups the results by category in taxonomy order with no sort and no query, across pages' do
+      ranks = [1, 6, 7].flat_map do |page|
+        get '/resources', params: { page: page }
+
+        expect(inertia.props[:filters]).to include(sort: nil, q: '')
+        groups = inertia.props[:groups]
+        categories = inertia.props[:results].map { |result| category_of(result) }
+        expect(groups.map { |group| group[:category][:key] }).to eq(categories.uniq)
+        expect(groups.sum { |group| group[:count] }).to eq(inertia.props[:results].size)
+        groups.each do |group|
+          key = group[:category][:key]
+          expect(group[:category][:label]).to eq(Catalog::Taxonomy::CATEGORIES.fetch(key).label)
+          expect(group[:total]).to eq(
+            published.where(resource_type: Catalog::Taxonomy.types.select { |t| t.category.key == key }.map(&:key))
+                     .count,
+          )
+        end
+        categories.map { |key| category_order.index(key) }
+      end
+      expect(ranks).to eq(ranks.sort)
+      expect(ranks.uniq.size).to be > 1
+    end
+
+    it 'sends one list, most downloaded first, when a sort is chosen' do
+      get '/resources', params: { sort: 'popular' }
+
+      expect(inertia.props[:filters]).to include(sort: 'popular')
+      expect(inertia.props[:groups]).to be_nil
+      expected = Catalog::SearchQuery.new(Catalog::SearchFilters.from(sort: 'popular')).call
+      expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
+    end
+
+    it 'sends one list when there is a query' do
+      get '/resources', params: { q: 'english' }
+
+      expect(inertia.props[:groups]).to be_nil
+      expected = Catalog::SearchQuery.new(Catalog::SearchFilters.from(q: 'english', sort: 'popular')).call
+      expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
+      categories = inertia.props[:results].map { |result| category_order.index(category_of(result)) }
+      expect(categories).not_to eq(categories.sort)
+    end
+
+    it 'keeps the view in the filters: grid unless the URL asks for the list' do
+      get '/resources'
+      expect(inertia.props[:filters]).to include(view: 'grid')
+
+      get '/resources', params: { view: 'list', q: 'english' }
+      expect(inertia.props[:filters]).to include(view: 'list', q: 'english')
+
+      get '/resources', params: { view: 'table' }
+      expect(inertia.props[:filters]).to include(view: 'grid')
     end
   end
 

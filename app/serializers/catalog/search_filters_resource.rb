@@ -10,8 +10,8 @@ module Catalog
              format: [:string, { nullable: true, enum: Taxonomy.formats.map(&:key) }],
              granularity: [:string, { nullable: true, enum: Taxonomy.granularities.map(&:key) }],
              status: [:string, { nullable: true, enum: Taxonomy.statuses.map(&:key) }],
-             sort: [:string, { enum: Taxonomy.sorts.map(&:key) }],
-             page: :number
-    attributes :q, :type, :language, :script, :format, :granularity, :status, :sort, :page
+             sort: [:string, { nullable: true, enum: Taxonomy.sorts.map(&:key) }],
+             page: :number, view: [:string, { enum: SearchFilters::VIEWS }]
+    attributes :q, :type, :language, :script, :format, :granularity, :status, :sort, :page, :view
   end
 end

@@ -25,7 +25,9 @@ async function pageProps(page: Page) {
 }
 
 test.describe('type pages', () => {
-  test('every type page has one card per published resource, each with a title', async ({ page }, testInfo) => {
+  test('every type page has one card per published resource (on its first page), each with a title', async ({
+    page,
+  }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'one width is enough for the sweep')
     test.setTimeout(120_000)
 
@@ -37,8 +39,9 @@ test.describe('type pages', () => {
       await page.goto(`/resources/${type}`)
       const count = Number(await page.getByRole('heading', { level: 1 }).locator('span').textContent())
       expect(count, type).toBe(published)
+      // A type with more than 48 resources shows them 24 to a page (002-11).
       const cards = page.locator('main article')
-      await expect(cards, type).toHaveCount(published)
+      await expect(cards, type).toHaveCount(published > 48 ? 24 : published)
       const titles = await cards.locator('h3').allTextContents()
       expect(
         titles.filter((title) => title.trim() === ''),

@@ -100,7 +100,8 @@ test('the catalog asks for the previews of the first screen only, and a failed o
   await page.goto('/resources')
   await settled(page)
 
-  const cards = await wells(page, 'Resources')
+  // No sort and no query: the first page is the Audio group.
+  const cards = await wells(page, 'Audio')
   expect(cards).toHaveLength(24)
   expect(seen.previews.length).toBeGreaterThan(0)
   expect(seen.previews.length).toBeLessThan(cards.filter((card) => card.state !== 'none').length)

@@ -3,7 +3,7 @@ import type { Page, Request } from '@playwright/test'
 import { expect, test } from './support/test'
 
 const REQUEST_FORM = 'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml'
-const SEARCH_PROPS = 'filters,results,facets,total,page,pages'
+const SEARCH_PROPS = 'filters,results,groups,facets,total,page,pages'
 
 // React has taken over the server-rendered page, so its handlers respond.
 async function hydrated(page: Page) {
@@ -82,7 +82,11 @@ test.describe('catalog search', () => {
 
     await expect(page).toHaveURL(/\/resources\?type=tafsir$/)
     await expect.poll(() => resultCount(page)).toBeLessThan(before)
-    const facts = await page.getByRole('list', { name: 'Resources' }).locator('article h3 + p').allTextContents()
+    // No sort and no query: the results come under their category's heading.
+    const facts = await page
+      .getByRole('list', { name: 'Tafsir and commentary' })
+      .locator('article h3 + p')
+      .allTextContents()
     expect(facts.every((fact) => fact.startsWith('Tafsir'))).toBe(true)
     expect(await sameDocument(page)).toBe(true)
   })

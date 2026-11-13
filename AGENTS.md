@@ -180,10 +180,15 @@ and the detail page's Changelog tab links to the new entries.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
-- The catalog page (`/resources`) keeps every filter, the query, the sort and the page in the
-  query string. A filter change is a partial reload (`only` the search props, `preserveState`)
-  that adds a history entry; typing searches after a pause and replaces the entry. Back restores
-  the page from history and remounts it, so local state starts again from the props.
+- The catalog page (`/resources`) keeps every filter, the query, the sort, the page and the view
+  (`view=list`; grid is the default) in the query string. A filter change is a partial reload
+  (`only` the search props, `preserveState`) that adds a history entry; typing searches after a
+  pause and replaces the entry. Back restores the page from history and remounts it, so local
+  state starts again from the props. With no sort and no query the results are ordered by
+  category (taxonomy order, most downloaded first in each) and `groups` names the category runs
+  on the page; with either, they are one list. A type page with more than
+  `Catalog::TypesController::SEARCH_ABOVE` resources is searched the same way (`q`, `language`,
+  `page` in the query string, through `Catalog::SearchQuery`), 24 cards to a page.
 
 - New routes go in the one block in `config/routes.rb` that wraps them in
   `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same

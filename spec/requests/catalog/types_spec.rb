@@ -15,7 +15,13 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         expect(inertia).to render_component('catalog/TypePage')
         expect(inertia.props[:type]).to include(key: type)
         published = DownloadableResource.published.where(resource_type: type)
-        expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids), type
+        expect(inertia.props[:total]).to eq(published.count)
+        if published.count > Catalog::TypesController::SEARCH_ABOVE
+          expect(inertia.props[:resources].size).to eq(Catalog::TypesController::PER_PAGE), type
+          expect(published.ids).to include(*inertia.props[:resources].pluck(:id)), type
+        else
+          expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids), type
+        end
         expect(inertia.props[:resources].pluck(:name)).to all(be_present)
       end
     end
@@ -172,9 +178,9 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
 
     it 'gives each card its detail path, language, granularity, summary and formats' do
-      get '/resources/translation'
-
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
+      get '/resources/translation', params: { q: resource.display_name }
+
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card).to include(
         name: resource.display_name,
@@ -192,7 +198,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
                                      .find { |r| r.resource_content&.language }
       skip 'every published translation has a language on its resource row' unless resource
 
-      get '/resources/translation'
+      get '/resources/translation', params: { q: resource.display_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card[:language]).to eq(resource.resource_content.language.name)
@@ -256,13 +262,97 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(app).to be_present
       expect(app.at('h1').text).to start_with('Tafsirs')
       card_names = app.css('article h3').map(&:text)
-      tafsirs = DownloadableResource.published.where(resource_type: 'tafsir')
-      expect(card_names).to match_array(tafsirs.map(&:display_name))
+      expect(card_names).to eq(inertia.props[:resources].pluck(:name))
+      expect(card_names.size).to eq(Catalog::TypesController::PER_PAGE)
+      expect(app.at('input[type="search"]')).to be_present
+      expect(app.at('nav[aria-label="Pages"]')).to be_present
 
       head = Nokogiri::HTML(response.body).at('head')
       expect(head.at('title').text).to eq('Tafsirs - QUL')
       expect(head.at('link[rel="canonical"]')['href']).to eq('https://qul.tarteel.ai/resources/tafsir')
       expect(JSON.parse(head.at('script[type="application/ld+json"]').text)).to include('@type' => 'CollectionPage')
+    end
+  end
+
+  describe 'search, language filter and pages on a type with many resources', page_groups: ['catalog'] do
+    let(:translations) { DownloadableResource.published.where(resource_type: 'translation').to_a }
+    let(:per_page) { Catalog::TypesController::PER_PAGE }
+
+    def language_of(resource)
+      resource.language || resource.resource_content&.language
+    end
+
+    it 'sends the first page of cards, the total and the search state' do
+      get '/resources/translation'
+
+      expect(inertia.props[:total]).to eq(translations.size)
+      expect(inertia.props[:resources].size).to eq(per_page)
+      expect(inertia.props[:search]).to include(q: '', language: nil, page: 1, matches: translations.size,
+                                                pages: (translations.size / per_page.to_f).ceil,)
+    end
+
+    it 'never shows a resource twice across the pages, and shows each one' do
+      get '/resources/translation'
+      pages = inertia.props[:search][:pages]
+
+      ids = (1..pages).flat_map do |page|
+        get '/resources/translation', params: { page: page }
+        expect(inertia.props[:search][:page]).to eq(page)
+        inertia.props[:resources].pluck(:id)
+      end
+      expect(ids.size).to eq(ids.uniq.size)
+      expect(ids).to match_array(translations.map(&:id))
+    end
+
+    it 'narrows the list by a language name' do
+      get '/resources/translation', params: { q: 'urdu' }
+
+      urdu = translations.select { |resource| language_of(resource)&.name == 'Urdu' }
+      expect(urdu.size).to be > 1
+      expect(inertia.props[:search]).to include(q: 'urdu', matches: urdu.size)
+      expect(inertia.props[:resources].pluck(:id)).to match_array(urdu.map(&:id).first(per_page))
+      expect(inertia.props[:resources].pluck(:language)).to all(eq('Urdu'))
+    end
+
+    it 'narrows the list by a resource name' do
+      resource = translations.max_by { |r| r.display_name.length }
+      get '/resources/translation', params: { q: resource.display_name }
+
+      expect(inertia.props[:resources].pluck(:id)).to include(resource.id)
+      expect(inertia.props[:search][:matches]).to be < translations.size
+    end
+
+    it 'lists only the languages that have a translation, and filters by one' do
+      get '/resources/translation'
+
+      languages = translations.filter_map { |resource| language_of(resource) }
+      offered = inertia.props[:search][:languages]
+      expect(offered.pluck(:key)).to match_array(languages.map(&:iso_code).uniq)
+      expect(offered.find { |language| language[:key] == 'ur' }).to include(
+        name: 'Urdu', count: languages.count { |language| language.iso_code == 'ur' },
+      )
+
+      get '/resources/translation', params: { language: 'ur' }
+
+      expect(inertia.props[:search]).to include(language: 'ur')
+      expect(inertia.props[:resources].pluck(:language)).to all(eq('Urdu'))
+      expect(inertia.props[:search][:matches]).to eq(languages.count { |language| language.iso_code == 'ur' })
+    end
+
+    it 'takes only the query, language and page from the query string' do
+      get '/resources/translation', params: { type: 'tafsir', format: 'docx', sort: 'updated' }
+
+      expect(inertia.props[:search][:matches]).to eq(translations.size)
+    end
+
+    it 'sends no search state and every card for a type with few resources' do
+      get '/resources/font', params: { q: 'zzzz', page: 2 }
+
+      expect(inertia.props[:search]).to be_nil
+      published = DownloadableResource.published.where(resource_type: 'font')
+      expect(published.count).to be <= Catalog::TypesController::SEARCH_ABOVE
+      expect(inertia.props[:total]).to eq(published.count)
+      expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids)
     end
   end
 

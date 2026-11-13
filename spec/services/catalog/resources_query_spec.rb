@@ -23,7 +23,7 @@ RSpec.describe Catalog::ResourcesQuery do
     type = Catalog::Taxonomy.type('surah-info')
     resources = described_class.new(type: type.key).call
     props = Catalog::TypesShowResource.new(
-      { type: type, types: Catalog::Taxonomy.types, resources: resources,
+      { type: type, types: Catalog::Taxonomy.types, resources: resources, total: resources.size, search: nil,
         comparison: Catalog::Comparison.new(type, resources).call, },
     ).serializable_hash
 

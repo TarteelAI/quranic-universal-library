@@ -8,13 +8,14 @@ async function isInertiaPage(page: Page) {
 
 test.describe('type pages', () => {
   test('a type page shows the type and one card per resource, without sideways scrolling', async ({ page }) => {
-    await page.goto('/resources/translation')
+    await page.goto('/resources/transliteration')
 
     const heading = page.getByRole('heading', { level: 1 })
-    await expect(heading).toContainText('Translations')
+    await expect(heading).toContainText('Transliterations')
     const count = Number(await heading.locator('span').textContent())
     expect(count).toBeGreaterThan(0)
-    await expect(page.getByRole('list', { name: 'Translations' }).getByRole('article')).toHaveCount(count)
+    // A type with few resources (transliterations) shows them all on one page; the old version is collapsed.
+    await expect(page.locator('main article')).toHaveCount(count)
     await expect(page.locator('#app[data-server-rendered="true"]')).toHaveCount(1)
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)

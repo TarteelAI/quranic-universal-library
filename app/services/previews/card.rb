@@ -37,14 +37,23 @@ module Previews
     end
 
     # The card preview props, or nil when the type has no card preview or this resource cannot
-    # be shown (Previews::Unavailable, or a tafsir with no entry for the ayah).
+    # be shown (Previews::Unavailable, a tafsir with no entry for the ayah, or a page font whose
+    # page 1 has no words).
     def self.for(resource)
       return unless kind(resource.resource_type)
 
       preview = Previews.for(resource, QUERY)
-      return if preview.is_a?(Text::Preview) && preview.entries.empty?
+      return if empty?(preview)
 
       SERIALIZERS[preview.class]&.new(preview)&.serializable_hash
+    end
+
+    def self.empty?(preview)
+      case preview
+      when Text::Preview then preview.entries.empty?
+      when Font::Preview then preview.page&.lines&.none? { |line| line.words.any? }
+      else false
+      end
     end
   end
 end

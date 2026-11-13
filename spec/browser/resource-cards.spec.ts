@@ -40,7 +40,7 @@ function cards(page: Page) {
         href: card.querySelector('h3 a')!.getAttribute('href')!,
         kind: well?.dataset.kind ?? null,
         state: well?.dataset.state ?? 'none',
-        tile: card.querySelector('.size-10 > svg') !== null,
+        tile: card.querySelector('span.size-10 > svg') !== null,
       }
     }),
   )
@@ -77,13 +77,20 @@ function expectOwnPalettes(drawn: Awaited<ReturnType<typeof palettes>>) {
 }
 
 async function settled(page: Page) {
-  await expect(page.locator('[data-testid="card-preview"][data-state="loading"]')).toHaveCount(0)
+  // A type page asks for a screenful of previews at once; on a busy machine that takes a while.
+  await expect(page.locator('[data-testid="card-preview"][data-state="loading"]')).toHaveCount(0, { timeout: 30_000 })
   await page.waitForLoadState('networkidle')
 }
 
-async function loadFirst(page: Page, list: Locator) {
+// Until the page hydrates no card watches the viewport, and a card scrolled past by then stays
+// waiting, so each card is held on screen until it has seen it.
+async function loadFirst(page: Page, list: Locator, count = LOADED) {
   const shown = await list.count()
-  for (let index = 0; index < Math.min(LOADED, shown); index++) await list.nth(index).scrollIntoViewIfNeeded()
+  for (let index = 0; index < Math.min(count, shown); index++) {
+    const card = list.nth(index)
+    await card.scrollIntoViewIfNeeded()
+    await expect(card.locator('[data-testid="card-preview"][data-state="waiting"]')).toHaveCount(0, { timeout: 30_000 })
+  }
   await settled(page)
 }
 
@@ -154,18 +161,17 @@ test.describe('resource cards', () => {
     await page.screenshot({ path: `tmp/playwright/resource-cards/catalog-${testInfo.project.name}.png` })
   })
 
+  // Each type has one V4 Tajweed card; a search for v4 shows the layout, script and font ones.
   test('the V4 Tajweed cards of one page each keep their own colour palette', async ({ page }) => {
-    await page.goto('/resources/mushaf-layout')
+    await page.goto('/resources?q=v4')
     const list = page.locator('[data-testid="resource-card"]:visible')
     await expect(list.first()).toBeVisible()
-    const shown = await list.count()
-    for (let index = 0; index < shown; index++) await list.nth(index).scrollIntoViewIfNeeded()
-    await settled(page)
+    await loadFirst(page, list, await list.count())
 
     const drawn = await palettes(page)
     expect(drawn.length).toBeGreaterThan(1)
     expectOwnPalettes(drawn)
     expect(new Set(drawn.map((palette) => palette.name)).size).toBe(drawn.length)
-    console.log(`[resource cards] V4 palettes on /resources/mushaf-layout: ${drawn.length}`)
+    console.log(`[resource cards] V4 palettes on /resources?q=v4: ${drawn.length}`)
   })
 })

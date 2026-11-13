@@ -13,8 +13,8 @@ module Catalog
 
     def call
       scope = DownloadableResource.published.preload(
-        :language, :superseded_by, :downloadable_files, resource_content: :language,
-        downloadable_related_resources: :related_resource
+        :language, :superseded_by, :downloadable_files,
+        resource_content: :language, downloadable_related_resources: :related_resource,
       )
       scope = scope.where(resource_type: @type) if @type
       scope.sort_by { |resource| resource.name.downcase }

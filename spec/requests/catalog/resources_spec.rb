@@ -44,6 +44,8 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
 
       vocabularies = inertia.props[:vocabularies]
       expect(vocabularies[:types].pluck(:key)).to eq(Catalog::Taxonomy.types.map(&:key))
+      # Only what the filters and cards show: the type pages carry each type's copy.
+      expect(vocabularies[:types].first.keys).to contain_exactly('key', 'label', 'category')
       expect(vocabularies[:formats].pluck(:key)).to eq(Catalog::Taxonomy.formats.map(&:key))
       expect(vocabularies[:scriptFamilies].pluck(:key)).to eq(DownloadableResource.script_families.keys)
       expect(vocabularies[:statuses].pluck(:key)).to eq(DownloadableResource.statuses.keys)

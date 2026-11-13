@@ -481,8 +481,36 @@
       "testFirst": false,
       "difficulty": "high",
       "review": false,
-      "passes": false,
-      "notes": "Cards already link with in-app visits (sprint 001 fast-follow). The prototype cards are `../qul-redesign/ds/src/components/qul/cards.tsx`. When several V4 Tajweed page fonts share a screen, one `@font-palette-values` rule must list them all (`AGENTS.md`). The translations type has about 200 cards on one page until 002-11 adds paging."
+      "passes": true,
+      "notes": "Cards already link with in-app visits (sprint 001 fast-follow). The prototype cards are `../qul-redesign/ds/src/components/qul/cards.tsx`. When several V4 Tajweed page fonts share a screen, one `@font-palette-values` rule must list them all (`AGENTS.md`). The translations type has about 200 cards on one page until 002-11 adds paging.",
+      "completedAt": "2026-11-13T17:22:01Z",
+      "handoff": {
+        "done": [
+          "Cards (components/qul/resource-card.tsx): `ResourceCard` takes `category`, `summary`, `status`, `formats`, `muted` and a `preview` slot. With a preview the type icon is small, beside the facts; without one (the record types: surah-info, morphology, mutashabihat, similar-ayah, ayah-topics, ayah-theme, quran-metadata) it is a tile beside the title. A missing summary, status or formats renders nothing. CatalogPage and TypePage pass them; the status badge shows only a non-default status (as the type page already did), and nothing is marked recommended by this story.",
+          "Previews extended (Previews::Card::KINDS): tafsir and transliteration join translation as `text` (tafsir entry for 1:2 cut to Card::TEXT_LIMIT, no footnotes), and fonts as `font` (new `Previews::CardFontResource`: the first 8 words of the sample, or for a per-page font the first line with words on page 1 in that page's file). Each preview names its own V4 palette (`usePaletteName`, `paletteName` of `FontFaces`). `Card.empty?` returns nil (404) for a tafsir with no entry or a page font whose page 1 has no words.",
+          "Serializers: `Catalog::ResourceCardResource` adds `summary` and `formats` (from preloaded `downloadable_files`, `Taxonomy.formats_of`), drops `filesCount`; `SearchResultResource` adds `summary`; `TypesShowResource` adds `formats`; the catalog's `VocabulariesResource` types use the new `Catalog::TypeOptionResource` (key, label, category) instead of `TypeResource`, to keep the first response within 002-03's margin. Types regenerated with `bin/rails typelizer:generate`; `typelizer:check` up to date.",
+          "Headers: `PageHeader` takes an `icon`; the type page and detail page pass `<ResourceIcon size=\"xl\" />`.",
+          "RSpec (qul-dev, test clones, VITE_RUBY_AUTO_BUILD=false after host `vite build --ssr` and `RAILS_ENV=test vite build`): spec/serializers/catalog/resource_card_resource_spec.rb (3, written first by the previous builder, now run green); spec/requests/catalog + spec/services/catalog + spec/serializers 216 examples, 0 failures. Card preview sweep: font 26, mushaf-layout 11 (+1 none), quran-script 30, recitation 133, tafsir 107 (+1 none), translation 204, transliteration 10 previews.",
+          "Vitest 362 passed (41 files) incl. resource-card.test.tsx (full, sparse, no-preview, formats-only, muted), card-preview.test.tsx, kit SSR/hydration tests with ResourceCard and CardPreview entries, CatalogPage/TypePage SSR tests; `yarn typecheck`, ESLint and Prettier clean; RuboCop clean on the Ruby files this story added to or changed lines in.",
+          "Playwright spec/browser/resource-cards.spec.ts against a second Rails server on :3001 (QUL_PAGE_GROUPS=home,catalog,apps,content, host forward), desktop and phone, real backend: all 14 type pages show their kind or the no-preview tile and the header icon, the catalog's cards take their type's form with formats, and /resources?q=v4 draws 3 V4 Tajweed cards (layout, script, font) each with its own palette rule: 30 passed. card-previews.spec.ts and type-pages.spec.ts passed in the same runs (one in-app-visit test timed out once under load and passed on rerun). Screenshots: tmp/playwright/resource-cards/<type>-<desktop|phone>.png and catalog-*.png (not committed; tmp is ignored).",
+          "Catalog first response (/resources, :3001 with 002-03's groups home,catalog,apps, gzip -9): 165,099 B, 21,829 B gzip = +867 B (+4.1%) over 002-03's 20,962 B baseline, within its +5% margin (before the vocabulary trim it was 22,548 B, +7.6%). The state before this story measured 142,242 B / 21,132 B the same way. Page JS+CSS gzip (RAILS_ENV=test vite build, manifest walk): catalog 222,160 B (+8,127 over 214,033; limit +10 KB), type page 211,281 B. Type pages: /resources/translation 521,618 B / 31,032 B gzip (was 281,385 / 27,348), /resources/mushaf-layout 102,791 / 16,624 (was 89,295 / 15,925)."
+        ],
+        "decisions": [
+          "Slimmed the catalog's vocabulary types to key, label and category (new `Catalog::TypeOptionResource`): the summary and type icon this story adds cost about 1.1 KB gzip on 24 cards, which put the catalog at +7.6% over the +5% margin; the catalog page never read the types' title, summary or description, and the trim saves about 770 B gzip. Type pages and the detail page still get the full `TypeResource`.",
+          "The tafsir excerpt spec measures the shown text (`Nokogiri::HTML5.fragment(text).text.size`): `Previews.excerpt` escapes its plain-text fallback, so the HTML can exceed TEXT_LIMIT (420 for Ibn Kathir's 400 shown characters) while the card shows 400.",
+          "The V4 palette browser test uses /resources?q=v4, not /resources/mushaf-layout: each type page holds only one V4 Tajweed card, so the per-card palette names are only exercised where the layout, script and font cards meet.",
+          "resource-cards.spec.ts holds each card on screen until its well leaves `waiting` (up to 30 s) and allows 30 s for previews to load: before hydration no card observes the viewport, so a card scrolled past then stays waiting. The no-preview tile check matches `span.size-10 > svg`, since the recitation play button is also `size-10`.",
+          "Status badge stays hidden for the default `stable` status on both pages (the type page's existing rule); the prototype shows Stable on every card."
+        ],
+        "concerns": [
+          "TTFB could not be compared reliably: load average was 250 to 540 during the runs. Interleaved runs on the same server gave /resources medians of 390 and 388 ms with the story and 348 and 534 ms without it, so the noise is larger than any difference.",
+          "Type pages grew more than the catalog: /resources/translation is +13.5% gzip (204 cards each with summary, formats and an inline SVG icon). 002-11 adds paging; the margin was set for the catalog only.",
+          "A card whose preview fails (404 or another kind) keeps the small icon in its facts line, not the tile; with no facts it would show no icon. Not seen in the data (every card has facts).",
+          "`Card.empty?` for a page font with no words on page 1 is not covered by a spec: no snapshot font hits it.",
+          "Not verified: the production image and a real phone; screenshots are Playwright's Pixel 7 emulation."
+        ]
+      },
+      "filesChanged": 39
     },
     {
       "id": "002-11",

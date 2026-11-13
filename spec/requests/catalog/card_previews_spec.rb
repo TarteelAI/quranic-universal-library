@@ -101,7 +101,7 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(preview).to include(kind: 'text', granularity: 'ayah')
       expect(preview[:entry][:ayahs].pluck(:key)).to include('1:2')
       expect(preview[:entry]).to include(truncated: true, footnotes: [])
-      expect(preview[:entry][:text].size).to be <= Previews::Card::TEXT_LIMIT
+      expect(Nokogiri::HTML5.fragment(preview[:entry][:text]).text.size).to be <= Previews::Card::TEXT_LIMIT
     end
 
     it 'gives ayah 1:2 of a transliteration in Latin letters' do

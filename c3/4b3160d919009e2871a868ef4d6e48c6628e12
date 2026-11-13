@@ -1,0 +1,20 @@
+Dockerfile
+  s_d22462eddb72cd::t_7d59f788e0146c 28
+  s_d22462eddb72cd::t_a9356019b88070 26-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c34b3160d919009e2871a868ef4d6e48c6628e12",
+  "prompts": {},
+  "sessions": {
+    "s_d22462eddb72cd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a40c662-76a3-40a2-ba08-6511d360fa98",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yunus Andreasson <yunus@edenmind.com>"
+    }
+  }
+}

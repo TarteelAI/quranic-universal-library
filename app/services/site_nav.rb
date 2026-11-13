@@ -56,11 +56,18 @@ class SiteNav
     @content = PageGroups.enabled?(:content)
     @home = Link.new(label: 'Home', href: '/', inertia: PageGroups.enabled?(:home))
     @tools = tools
-    @request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
-                        description: 'Ask for a translation, tafsir or recitation that is missing.',)
+    @requests = PageGroups.enabled?(:requests)
+    @request = request_link
     @menus = [*start_menu, resources_menu, docs_menu, developers_menu, contribute_menu]
     @footer = footer_groups
     @search = catalog_link('Search resources', '/resources')
+  end
+
+  # The kinds of resource the request form offers: every catalog type, then Other.
+  def request_types
+    return [] unless @requests
+
+    [*Catalog::Taxonomy.types, Catalog::Taxonomy::Option.new(key: ResourceRequest::OTHER_TYPE, label: 'Other')]
   end
 
   private
@@ -89,6 +96,23 @@ class SiteNav
   # The old changelog URL redirects to the new one while `content` is on.
   def changelog_link
     content_link('Changelog', @content ? routes.changelog_page_path : routes.change_logs_path)
+  end
+
+  # The request form: the requests page's dialog while `requests` is on (`?request=new` opens it
+  # on any new page), else the GitHub issue form.
+  def request_link
+    target = if @requests
+               { href: routes.requests_page_path(request: 'new'), inertia: true }
+             else
+               { href: REQUEST_URL, external: true }
+             end
+    Link.new(label: 'Request a resource', description: 'Ask for a translation, tafsir or recitation that is missing.',
+             **target,)
+  end
+
+  # The public requests list has no old page, so there is no link to it while its group is off.
+  def requests_links
+    @requests ? [Link.new(label: 'All requests', href: routes.requests_page_path, inertia: true)] : []
   end
 
   def github_link
@@ -197,7 +221,7 @@ class SiteNav
       content_link('FAQ', routes.faq_path, icon: 'circle-help', description: 'Answers to common questions.'),
       content_link('Credits', routes.credits_path, icon: 'award', description: 'Who made the data and tools.'),
     ]
-    help = [@request, changelog_link]
+    help = [@request, *requests_links, changelog_link]
     community = [*apps_links, Link.new(label: 'Discord', href: DISCORD_URL, external: true), github_link]
 
     Menu.new(

@@ -16,6 +16,7 @@ import * as gatedForm from '@/components/qul/gated-form'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
+import * as requestDialog from '@/components/qul/request-dialog'
 import * as resourceCard from '@/components/qul/resource-card'
 import * as shardRing from '@/components/qul/shard-ring'
 import * as spotlight from '@/components/qul/spotlight'
@@ -55,6 +56,7 @@ const modules = {
   icons,
   nav,
   pageHeader,
+  requestDialog,
   resourceCard,
   shardRing,
   spotlight,
@@ -85,7 +87,8 @@ const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
 const { AddToBundle, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
-const { EmptyState, FacetGroup, FilterChip, RequestCard } = catalog
+const { EmptyState, FacetGroup, FilterChip } = catalog
+const { RequestButton, RequestCard, RequestDialogProvider } = requestDialog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
 const { CopyButton } = copyButton
 const { SchemaTable } = data
@@ -377,6 +380,15 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     openText: 'Which QUL resources does it use?',
   },
   RequestCard: { element: <RequestCard link={navProps.request} />, text: 'resource_request.yml' },
+  RequestButton: { element: <RequestButton link={navProps.request} />, text: 'resource_request.yml' },
+  RequestDialogProvider: {
+    element: (
+      <RequestDialogProvider>
+        <p>Page under the request dialog</p>
+      </RequestDialogProvider>
+    ),
+    text: 'Page under the request dialog',
+  },
   Badge: { element: <Badge variant="brand">Recommended</Badge>, text: 'Recommended' },
   Button: { element: <Button variant="outline">Download</Button>, text: 'Download' },
   Card: { element: cardElement, text: 'Card content' },

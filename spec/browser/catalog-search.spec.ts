@@ -2,7 +2,6 @@ import type { Page, Request } from '@playwright/test'
 
 import { expect, test } from './support/test'
 
-const REQUEST_FORM = 'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml'
 const SEARCH_PROPS = 'filters,results,groups,facets,total,page,pages'
 
 // React has taken over the server-rendered page, so its handlers respond.
@@ -166,21 +165,15 @@ test.describe('catalog search', () => {
     expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0)
   })
 
-  test('a filter combination with no results shows the empty state and the request card', async ({ page, context }) => {
+  // With the `requests` group on, the card opens the request dialog (requests.spec.ts).
+  test('a filter combination with no results shows the empty state and the request card', async ({ page }) => {
     await page.goto('/resources?type=font&language=ur')
     await hydrated(page)
 
     expect(await resultCount(page)).toBe(0)
     await expect(page.getByText('Nothing matches this search')).toBeVisible()
-    const request = page.getByRole('link', { name: 'Request a resource' })
-    await expect(request).toHaveAttribute('href', REQUEST_FORM)
-
-    // The new tab asks GitHub for the form (GitHub may then send a signed-out visitor to sign in).
-    const opened = context.waitForEvent('page')
-    const asked = context.waitForEvent('request', (r) => r.url() === REQUEST_FORM)
-    await request.click()
-    expect((await opened) === page).toBe(false)
-    expect((await asked).isNavigationRequest()).toBe(true)
+    await page.getByRole('main').getByRole('link', { name: 'Request a resource' }).click()
+    await expect(page.getByRole('dialog', { name: 'Request a resource' })).toBeVisible()
   })
 })
 

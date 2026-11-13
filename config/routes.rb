@@ -204,6 +204,7 @@ Rails.application.routes.draw do
   end
   # Resource requests have no old page: with the `requests` group off, these are 404s.
   constraints(PageGroups.constraint(:requests)) do
+    get '/requests', to: 'requests/requests#index', as: :requests_page, format: false
     post '/requests', to: 'requests/requests#create', as: :resource_requests, format: false
     post '/requests/:id/vote', to: 'requests/requests#vote', as: :resource_request_vote, format: false,
                                constraints: { id: /\d+/ }

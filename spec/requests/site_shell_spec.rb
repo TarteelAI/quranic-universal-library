@@ -39,7 +39,7 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
     it 'sends the navigation once: on the first load, not on later Inertia visits that already have it' do
       get page_path
-      expect(props[:nav].keys).to eq([:home, :menus, :search, :footer, :request, :docsSearch, :bundle])
+      expect(props[:nav].keys).to eq([:home, :menus, :search, :footer, :request, :requestTypes, :docsSearch, :bundle])
       expect(props[:nav][:request]).to include(href: SiteNav::REQUEST_URL, external: true)
       expect(inertia).to have_once_props(nav: { prop: 'nav' })
 
@@ -237,6 +237,43 @@ RSpec.describe 'Site shell of the new pages (shared props, flash, theme)', type:
 
       expect(response).to have_http_status(:conflict)
       expect(response.headers['X-Inertia-Location']).to eq('http://localhost/faq')
+    end
+  end
+
+  describe 'the resource request form' do
+    let(:new_pages) do
+      ['/', '/resources', '/resources/translation', '/apps', '/docs', '/faq', '/credits', '/tools', '/changelog',
+       '/start', '/kits', '/requests',]
+    end
+
+    it 'is the in-app dialog while the requests group is on, and no new page links to the GitHub form',
+       page_groups: PageGroups::GROUPS do
+      get page_path
+      nav = props[:nav]
+
+      expect(nav[:request]).to include(href: '/requests?request=new', inertia: true, external: false)
+      expect(nav[:requestTypes].pluck(:key)).to eq([*Catalog::Taxonomy.types.map(&:key), 'other'])
+      expect(nav[:menus].last[:aside].first[:links].pluck(:href, :inertia))
+        .to eq([['/requests?request=new', true], ['/requests', true], ['/changelog', true]])
+      resources = nav[:menus].find { |menu| menu[:label] == 'Resources' }
+      expect(resources[:aside].find { |group| group[:heading] == 'Cannot find it?' }[:links])
+        .to eq([nav[:request]])
+
+      new_pages.each do |path|
+        get path
+
+        expect(response).to have_http_status(:ok), path
+        expect(response.body).not_to include('resource_request.yml'), path
+      end
+    end
+
+    it 'is the GitHub issue form while the requests group is off', page_groups: ['catalog', 'content'] do
+      get page_path
+      nav = props[:nav]
+
+      expect(nav[:request]).to include(href: SiteNav::REQUEST_URL, inertia: false, external: true)
+      expect(nav[:requestTypes]).to eq([])
+      expect(all_links(nav).pluck(:href)).not_to include('/requests')
     end
   end
 

@@ -9,6 +9,8 @@ class SiteNavResource < ApplicationResource
   one :search, resource: SiteNavLinkResource
   many :footer, resource: SiteNavGroupResource
   one :request, resource: SiteNavLinkResource
+  # The kinds of resource the request form offers; empty while the `requests` group is off.
+  many :request_types, resource: Catalog::OptionResource
   # The docs search index (/docs/search-index) exists while the docs pages are new pages.
   typelize docs_search: :boolean
   attribute(:docs_search) { PageGroups.enabled?(:content) }

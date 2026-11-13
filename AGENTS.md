@@ -193,9 +193,13 @@ sets of resources in `config/kits.yml`, read through `Kits`, which name each res
 of its kit). With `start` on, the home page shows the goal cards (each opens `/start?goal=…`) and the
 first three kits, its hero and closing buttons open `/start`, and the header has the Start building
 menu; with it off, none of them appear.
-`requests` serves the write paths of resource requests, which have no old page (off, they are 404s):
-`POST /requests` creates one, `POST /requests/:id/vote` votes and `DELETE /requests/:id/vote` takes the
-vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
+`requests` serves resource requests, which have no old page (off, they are 404s and the request links
+of the new pages open the GitHub issue form). The public list `/requests` (`Requests::RequestsController#index`)
+sorts by votes or, with `?sort=date`, newest first, 20 to a page (an out-of-range `?page=` is a 404).
+With the group on, `nav.request` is `/requests?request=new`: `?request=new` opens the request dialog
+(`components/qul/request-dialog.tsx`, in `SiteShell`) on any new page, which is where sign-in returns,
+and the request cards open it in place. `POST /requests` creates one, `POST /requests/:id/vote`
+votes and `DELETE /requests/:id/vote` takes the vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
 from and enqueues nothing; a user sends at most `ResourceRequest::DAILY_LIMIT` requests a day. A vote
 is one row per user and request (unique index `index_resource_request_votes_unique`, inserted with
 ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
@@ -392,9 +396,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps,content,start`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).

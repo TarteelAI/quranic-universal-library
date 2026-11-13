@@ -37,6 +37,12 @@ class SiteNav
     end
   end
 
+  # The icon of each goal of the guided setup (GuidedSetup::GOALS) in the Start building menu.
+  GOAL_ICONS = {
+    'reader' => 'book-open', 'audio' => 'audio-lines', 'study' => 'languages', 'learning' => 'whole-word',
+    'research' => 'network', 'print' => 'layout-panel-top',
+  }.freeze
+
   REPO_URL = 'https://github.com/TarteelAI/quranic-universal-library'
   REQUEST_URL = "#{REPO_URL}/issues/new?template=resource_request.yml".freeze
   DISCORD_URL = 'https://t.zip/discord?utm_source=qul%20header&utm_campaign=qul'
@@ -52,7 +58,7 @@ class SiteNav
     @tools = tools
     @request = Link.new(label: 'Request a resource', href: REQUEST_URL, external: true,
                         description: 'Ask for a translation, tafsir or recitation that is missing.',)
-    @menus = [resources_menu, docs_menu, developers_menu, contribute_menu]
+    @menus = [*start_menu, resources_menu, docs_menu, developers_menu, contribute_menu]
     @footer = footer_groups
     @search = catalog_link('Search resources', '/resources')
   end
@@ -92,6 +98,33 @@ class SiteNav
   # The apps directory has no old page, so there is no link to it while its group is off.
   def apps_links
     @apps ? [Link.new(label: 'Apps built with QUL', href: '/apps', inertia: true)] : []
+  end
+
+  # The guided setup's goals and the starter kits. They have no old pages, so the menu is there
+  # only while the `start` group is on.
+  def start_menu
+    return [] unless PageGroups.enabled?(:start)
+
+    [Menu.new(
+      label: 'Start building', href: routes.start_setup_path, overview: 'Start the guided setup', inertia: true,
+      groups: [Group.new(heading: 'What are you building?', links: goal_links, wide: true)],
+      aside: [Group.new(heading: 'Get going', links: start_aside)],
+    )]
+  end
+
+  def goal_links
+    GuidedSetup::GOALS.values.map do |goal|
+      Link.new(label: goal.label, href: routes.start_setup_path(goal: goal.key), description: goal.blurb,
+               icon: GOAL_ICONS.fetch(goal.key), inertia: true,)
+    end
+  end
+
+  def start_aside
+    [
+      Link.new(label: 'Guided setup', href: routes.start_setup_path, icon: 'workflow', inertia: true),
+      Link.new(label: 'Starter kits', href: routes.start_kits_path, icon: 'layers', inertia: true),
+      *(@apps ? [Link.new(label: 'Apps built with QUL', href: '/apps', icon: 'columns', inertia: true)] : []),
+    ]
   end
 
   def resources_menu

@@ -190,9 +190,11 @@ Rails.application.routes.draw do
     get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
                                        constraints: { tab: /docs|licence|ligatures|glyphs/ }
   end
-  # The guided setup has no old page: with the `start` group off, /start is a 404.
+  # The guided setup and the starter kits have no old page: with the `start` group off, they are 404s.
   constraints(PageGroups.constraint(:start)) do
     get '/start', to: 'start/setup#show', as: :start_setup, format: false
+    get '/kits', to: 'start/kits#index', as: :start_kits, format: false
+    get '/kits/:key', to: 'start/kits#show', as: :start_kit, format: false
   end
   constraints(PageGroups.constraint(:apps)) do
     get '/apps', to: 'site/apps#index', as: :apps_directory, format: false

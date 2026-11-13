@@ -2,8 +2,8 @@
 
 module Site
   # Props of the home page (Site::HomeController#show): the catalog counts, the categories with
-  # their counts, the data showcase, the apps of the apps showcase, three contribution tools and
-  # the links that depend on the page groups.
+  # their counts, the data showcase, the apps of the apps showcase, three contribution tools, the
+  # guided setup's goals and the first starter kits, and the links that depend on the page groups.
   class HomeShowResource < ApplicationResource
     # The preview each showcase type's tab shows (Previews.for), by type.
     PREVIEWS = {
@@ -12,7 +12,7 @@ module Site
     }.freeze
 
     typelize resources: :number, languages: :number, recitations: :number, apps_count: :number,
-             catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean
+             catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean, start_pages: :boolean
 
     attribute(:resources) { |page| page[:stats].resources }
     attribute(:languages) { |page| page[:stats].languages }
@@ -33,10 +33,17 @@ module Site
     many :showcase, resource: AppResource
     attribute(:apps_count) { |page| page[:apps].size }
     many :tools, resource: SiteNavLinkResource
+    # The guided setup's goals and the first starter kits, while the `start` group serves them;
+    # otherwise none, and the hero and closing buttons keep their catalog links.
+    many :goals, source: proc { PageGroups.enabled?(:start) ? GuidedSetup::GOALS.values : [] },
+                 resource: Start::GoalResource
+    many :kits, resource: Start::KitCardResource
     # Whether the catalog, the apps directory and the tools overview are new pages (Inertia
-    # visits) or old pages; with the `apps` group off there is no apps directory.
+    # visits) or old pages; with the `apps` group off there is no apps directory, and with
+    # `start` off no guided setup or kits.
     attribute(:catalog_pages) { PageGroups.enabled?(:catalog) }
     attribute(:apps_page) { PageGroups.enabled?(:apps) }
     attribute(:content_pages) { PageGroups.enabled?(:content) }
+    attribute(:start_pages) { PageGroups.enabled?(:start) }
   end
 end

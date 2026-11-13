@@ -2,17 +2,11 @@ import { Link } from '@inertiajs/react'
 import { ArrowRightIcon, PencilIcon } from 'lucide-react'
 
 import { Container, SiteShell } from '@/components/layout'
-import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
-import { ResourceCard } from '@/components/qul/resource-card'
-import { StatusBadge } from '@/components/qul/status-badge'
-import { catalogResourcePreview, catalogResources, detailResources } from '@/routes'
-import type { CatalogOption, CatalogSearchResult, StartSetupResults } from '@/types/serializers'
-
-function labelOf(options: CatalogOption[], key: string) {
-  return options.find((option) => option.key === key)?.label ?? key
-}
+import { ResultCard } from '@/components/qul/start'
+import { catalogResources } from '@/routes'
+import type { StartSetupResults } from '@/types/serializers'
 
 function joinAnd(items: string[]) {
   return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
@@ -33,38 +27,6 @@ export default function SetupResultsPage({
 }: StartSetupResults) {
   const categoryOf = (type: string) =>
     vocabularies.types.find((option) => option.key === type)?.category.key ?? 'metadata'
-
-  const card = (result: CatalogSearchResult) => (
-    <li key={result.id} className="flex">
-      <ResourceCard
-        className="flex-1"
-        title={result.name}
-        href={detailResources({ type: result.type, id: result.toParam }).url}
-        category={categoryOf(result.type)}
-        facts={[
-          labelOf(vocabularies.types, result.type),
-          result.language,
-          result.granularity && labelOf(vocabularies.granularities, result.granularity),
-        ].filter((fact): fact is string => Boolean(fact))}
-        summary={result.summary}
-        status={
-          result.status !== 'stable' && (
-            <StatusBadge status={result.status} label={labelOf(vocabularies.statuses, result.status)} />
-          )
-        }
-        formats={result.formats.map((format) => labelOf(vocabularies.formats, format))}
-        muted={result.status === 'legacy' || result.status === 'superseded'}
-        preview={
-          result.previewKind && (
-            <CardPreview
-              kind={result.previewKind}
-              url={catalogResourcePreview({ type: result.type, slug: result.toParam }).url}
-            />
-          )
-        }
-      />
-    </li>
-  )
 
   return (
     <SiteShell>
@@ -144,7 +106,11 @@ export default function SetupResultsPage({
             </div>
             {section.results.length > 0 ? (
               <ul aria-label={section.label} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {section.results.map(card)}
+                {section.results.map((result) => (
+                  <li key={result.id} className="flex">
+                    <ResultCard className="flex-1" result={result} vocabularies={vocabularies} />
+                  </li>
+                ))}
               </ul>
             ) : (
               <p className="text-sm text-muted-foreground">Nothing in the library fits this yet.</p>

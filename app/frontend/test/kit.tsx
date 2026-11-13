@@ -18,6 +18,7 @@ import * as pageHeader from '@/components/qul/page-header'
 import * as resourceCard from '@/components/qul/resource-card'
 import * as shardRing from '@/components/qul/shard-ring'
 import * as spotlight from '@/components/qul/spotlight'
+import * as start from '@/components/qul/start'
 import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
 import * as toolCard from '@/components/qul/tool-card'
@@ -30,10 +31,11 @@ import * as misc from '@/components/ui/misc'
 import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
-import { resourcePageProps } from './catalog'
+import { catalogPageProps, resourcePageProps } from './catalog'
 import { docsNavigation, tutorialDoc } from './content'
 import { appsPageProps, homePageProps } from './site'
 import { nav as navProps } from './shell'
+import { kitCard as kitCardProps } from './start'
 
 const modules = {
   layout,
@@ -54,6 +56,7 @@ const modules = {
   resourceCard,
   shardRing,
   spotlight,
+  start,
   statusBadge,
   theme,
   toolCard,
@@ -87,6 +90,7 @@ const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = doc
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
 const { GatedForm } = gatedForm
+const { GoalCard, GoalIcon, KitCard, ResultCard } = start
 const { GitHubMark, QulIcon, ResourceIcon } = icons
 const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
@@ -282,6 +286,13 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'JSON · SQLite',
   },
+  ResultCard: {
+    element: <ResultCard result={catalogPageProps.results[0]} vocabularies={catalogPageProps.vocabularies} />,
+    text: 'Sahih International',
+  },
+  GoalCard: { element: <GoalCard goal={homePageProps.goals[0]} href="/start?goal=reader" />, text: 'Quran reader app' },
+  GoalIcon: { element: <GoalIcon goal="audio" />, text: '<svg' },
+  KitCard: { element: <KitCard kit={kitCardProps} />, text: 'View kit' },
   CardPreview: {
     element: <CardPreview kind="font" url="/resources/font/qpc-hafs/preview" />,
     text: 'data-state="waiting"',

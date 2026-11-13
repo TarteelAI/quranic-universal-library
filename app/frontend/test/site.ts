@@ -1,5 +1,7 @@
 import type { SiteApp, SiteAppsIndex, SiteHomeShow } from '@/types/serializers'
 
+import { kitCard } from './start'
+
 // Shaped like Site::AppResource.
 const quranwbw: SiteApp = {
   id: 'quranwbw',
@@ -52,7 +54,7 @@ const waqfah: SiteApp = {
   ],
 }
 
-// Shaped like Site::HomeShowResource.
+// Shaped like Site::HomeShowResource, with the `start` group on.
 export const homePageProps: SiteHomeShow = {
   resources: 547,
   languages: 94,
@@ -78,9 +80,20 @@ export const homePageProps: SiteHomeShow = {
       inertia: false,
     },
   ],
+  goals: [
+    {
+      key: 'reader',
+      label: 'Quran reader app',
+      blurb: 'Show the Quran page by page.',
+      features: ['mushaf', 'translation', 'nav'],
+    },
+    { key: 'audio', label: 'Audio and recitation', blurb: 'Play reciters.', features: ['audio', 'nav'] },
+  ],
+  kits: [kitCard],
   catalogPages: true,
   appsPage: true,
   contentPages: true,
+  startPages: true,
 }
 
 // Shaped like Site::AppsIndexResource, unfiltered.

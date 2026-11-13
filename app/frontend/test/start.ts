@@ -1,4 +1,10 @@
-import type { StartSetupResults, StartSetupShow } from '@/types/serializers'
+import type {
+  StartKitCard,
+  StartKitsShow,
+  StartKitsIndex,
+  StartSetupResults,
+  StartSetupShow,
+} from '@/types/serializers'
 
 import { catalogPageProps } from './catalog'
 
@@ -62,4 +68,50 @@ export const setupResultsProps: StartSetupResults = {
     },
   ],
   vocabularies: catalogPageProps.vocabularies,
+}
+
+// Shaped like Start::KitCardResource.
+export const kitCard: StartKitCard = {
+  key: 'madani-reader',
+  title: 'Madani reader',
+  tag: 'Mushaf app',
+  blurb: 'The KFGQPC V2 page layout with its font and text.',
+  path: '/kits/madani-reader',
+  resources: [
+    { name: 'KFGQPC V2 layout', category: 'layout' },
+    { name: 'Saheeh International', category: 'translation' },
+  ],
+}
+
+// Props of start/KitsPage, shaped like Start::KitsIndexResource.
+export const kitsPageProps: StartKitsIndex = {
+  kits: [kitCard, { ...kitCard, key: 'recitation', title: 'Recitation with highlighting', path: '/kits/recitation' }],
+}
+
+// Props of start/KitPage, shaped like Start::KitShowResource: one item with an alternative, one
+// without.
+export const kitPageProps: StartKitsShow = {
+  key: 'madani-reader',
+  title: 'Madani reader',
+  description: 'Everything a mushaf app in the Madani script needs.',
+  setupPath: '/start?goal=reader&platform=android,ios&feature=mushaf,translation,nav&script=madani&lang=en',
+  kitsPath: '/kits',
+  platforms: ['iOS', 'Android'],
+  formats: ['SQLite'],
+  items: [
+    {
+      need: 'English translation',
+      why: 'Clear, literal English, ayah by ayah.',
+      resource: catalogPageProps.results[0],
+      alternative: { id: 9, name: 'The Clear Quran', type: 'translation', toParam: 'the-clear-quran' },
+    },
+    {
+      need: 'Navigation',
+      why: 'The first and last ayah of each juz.',
+      resource: catalogPageProps.results[1],
+      alternative: null,
+    },
+  ],
+  vocabularies: catalogPageProps.vocabularies,
+  catalogPages: true,
 }

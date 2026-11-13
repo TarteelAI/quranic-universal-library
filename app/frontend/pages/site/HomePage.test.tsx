@@ -108,6 +108,30 @@ describe('site/HomePage', () => {
     expect(screen.queryByRole('link', { name: 'Submit your app' })).toBeNull()
   })
 
+  it('opens the guided setup from the hero, the closing banner and each goal, and links the kits', () => {
+    renderPage(HomePage, { props: homePageProps })
+
+    expect(screen.getAllByRole('link', { name: 'Start building' }).map((link) => link.getAttribute('href'))).toEqual([
+      '/start',
+      '/start',
+    ])
+    expect(screen.queryByRole('link', { name: 'Read the docs' })).toBeNull()
+    expect(screen.getByRole('link', { name: /^Quran reader app/ }).getAttribute('href')).toBe('/start?goal=reader')
+    expect(screen.getByRole('link', { name: /^Audio and recitation/ }).getAttribute('href')).toBe('/start?goal=audio')
+    expect(screen.getByRole('link', { name: /Madani reader/ }).getAttribute('href')).toBe('/kits/madani-reader')
+    expect(screen.getByRole('link', { name: 'All kits' }).getAttribute('href')).toBe('/kits')
+  })
+
+  it('shows no goals, kits or setup buttons with the start group off', () => {
+    renderPage(HomePage, { props: { ...homePageProps, goals: [], kits: [], startPages: false } })
+
+    expect(screen.queryByRole('heading', { name: 'What are you building?' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Start from a kit' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Start building' })).toBeNull()
+    expect(screen.getAllByRole('link', { name: 'Browse the library' })).toHaveLength(2)
+    expect(screen.getByRole('link', { name: 'Read the docs' }).getAttribute('href')).toBe('/docs/getting-started')
+  })
+
   it('shows the star count from GitHub once it loads', async () => {
     renderPage(HomePage, { props: homePageProps })
 

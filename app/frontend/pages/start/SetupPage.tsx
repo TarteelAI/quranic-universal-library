@@ -6,7 +6,7 @@ import { Container, SiteShell } from '@/components/layout'
 import { CardPreview } from '@/components/previews/card-preview'
 import { FilterChip } from '@/components/qul/catalog'
 import { SearchInput } from '@/components/qul/chrome'
-import { QulIcon, type IconName } from '@/components/qul/icons'
+import { GoalIcon } from '@/components/qul/start'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { catalogResourcePreview, catalogResources, startSetup } from '@/routes'
@@ -31,15 +31,6 @@ const VALUES: Record<Step, keyof Answers> = {
 }
 // Steps that need at least one pick before Continue.
 const REQUIRED: Step[] = ['goal', 'script']
-
-const GOAL_ICONS: Record<string, IconName> = {
-  reader: 'reader',
-  audio: 'audio-goal',
-  study: 'study',
-  learning: 'learning',
-  research: 'research',
-  print: 'print',
-}
 
 // The answers as the query GuidedSetup::Answers reads: one comma list per answered step.
 function setupQuery(answers: Answers, steps: Step[]) {
@@ -140,9 +131,7 @@ export default function SetupPage({
                   onClick={() => toggleGoal(goal.key)}
                   title={
                     <>
-                      <span className="flex size-10 items-center justify-center rounded-lg bg-secondary">
-                        <QulIcon name={GOAL_ICONS[goal.key] ?? 'reader'} size={22} />
-                      </span>
+                      <GoalIcon goal={goal.key} />
                       <span>
                         <span className="block text-lg font-medium tracking-tight">{goal.label}</span>
                         <span className="mt-1 block text-sm text-muted-foreground">{goal.blurb}</span>

@@ -187,6 +187,12 @@ unanswered step. It ends on `/resources?goal=…`, which the routes send to the 
 while `start` and `catalog` are both on: a section per need (`GuidedSetup.result`, which maps the
 answers to checklist items, each with the catalog filters that list it) with its first cards and a
 link to that catalog search. With `catalog` off the setup ends on a plain link to `/resources`.
+`start` also serves the starter kits `/kits` and `/kits/:key` (`Start::KitsController`): curated
+sets of resources in `config/kits.yml`, read through `Kits`, which name each resource by slug
+(`spec/services/kits_spec.rb` fails when one is not published; an item unpublished later drops out
+of its kit). With `start` on, the home page shows the goal cards (each opens `/start?goal=…`) and the
+first three kits, its hero and closing buttons open `/start`, and the header has the Start building
+menu; with it off, none of them appear.
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 

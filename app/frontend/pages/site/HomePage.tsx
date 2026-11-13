@@ -1,4 +1,4 @@
-import { router, WhenVisible } from '@inertiajs/react'
+import { Link, router, WhenVisible } from '@inertiajs/react'
 import { ArrowRightIcon, GitForkIcon, PlusIcon, StarIcon } from 'lucide-react'
 import * as React from 'react'
 
@@ -7,6 +7,7 @@ import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navi
 import { Preview } from '@/components/previews/preview'
 import { AppIcon } from '@/components/qul/app-icon'
 import { GitHubMark, ResourceIcon } from '@/components/qul/icons'
+import { GoalCard, KitCard } from '@/components/qul/start'
 import { NavAnchor } from '@/components/qul/nav'
 import { ShardRing } from '@/components/qul/shard-ring'
 import { ToolCard } from '@/components/qul/tool-card'
@@ -15,7 +16,7 @@ import { Skeleton } from '@/components/ui/misc'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatStars, REPO, REPO_URL, useGitHubStars } from '@/lib/github'
 import { cn } from '@/lib/utils'
-import { appsDirectory, catalogResources, catalogType, detailResources } from '@/routes'
+import { appsDirectory, catalogResources, catalogType, detailResources, startSetup } from '@/routes'
 import type { SiteCategoryCount, SiteHomeShow, SiteSample } from '@/types/serializers'
 
 // The shard ring draws on this colour (renderer.js BACKGROUND, as displayed), so the panel and
@@ -25,18 +26,21 @@ const RING_BG = '#030304'
 const number = (count: number) => count.toLocaleString('en')
 
 // The home page (/): the hero with the shard ring and the catalog counts, the apps built with
-// QUL, the library (a tab per sample of the data, then the categories) and the open source band
-// with three contribution tools. From the v8 design
-// (ds/src/app/pages/home.tsx); its sections for pages outside this sprint (the wizard, kits, the
-// MCP server) are left out.
+// QUL, the guided setup's goals, the library (a tab per sample of the data, then the
+// categories), the starter kits and the open source band with three contribution tools. From
+// the v8 design (ds/src/app/pages/home.tsx); the MCP server section is left out. With the
+// `start` group off there are no goals or kits, and the hero and closing buttons lead to the
+// catalog and the docs.
 export default function HomePage(props: SiteHomeShow) {
   return (
     <SiteShell>
       <Hero {...props} />
       <Apps {...props} />
+      {props.goals.length > 0 && <Goals goals={props.goals} />}
       <Library {...props} />
+      {props.kits.length > 0 && <Kits kits={props.kits} />}
       <OpenSource {...props} />
-      <Closing catalogPages={props.catalogPages} />
+      <Closing catalogPages={props.catalogPages} startPages={props.startPages} />
     </SiteShell>
   )
 }
@@ -45,9 +49,34 @@ function catalogLink(catalogPages: boolean) {
   return { href: catalogResources.index().url, inertia: catalogPages }
 }
 
+// The hero's and the closing banner's buttons: the guided setup first while it is served.
+function CallsToAction({ catalogPages, startPages }: { catalogPages: boolean; startPages: boolean }) {
+  if (startPages)
+    return (
+      <>
+        <Button size="lg" variant="brand" asChild>
+          <Link href={startSetup.show().url}>
+            Start building <ArrowRightIcon />
+          </Link>
+        </Button>
+        <Button size="lg" variant="outline" asChild>
+          <NavAnchor link={catalogLink(catalogPages)}>Browse the library</NavAnchor>
+        </Button>
+      </>
+    )
+
+  return (
+    <Button size="lg" variant="brand" asChild>
+      <NavAnchor link={catalogLink(catalogPages)}>
+        Browse the library <ArrowRightIcon />
+      </NavAnchor>
+    </Button>
+  )
+}
+
 /* ---------------- hero ---------------- */
 
-function Hero({ resources, languages, recitations, catalogPages }: SiteHomeShow) {
+function Hero({ resources, languages, recitations, catalogPages, startPages }: SiteHomeShow) {
   return (
     <section className="pt-4 sm:pt-6">
       <Container>
@@ -73,14 +102,12 @@ function Hero({ resources, languages, recitations, catalogPages }: SiteHomeShow)
               confidence.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <Button size="lg" variant="brand" asChild>
-                <NavAnchor link={catalogLink(catalogPages)}>
-                  Browse the library <ArrowRightIcon />
-                </NavAnchor>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <a href="/docs/getting-started">Read the docs</a>
-              </Button>
+              <CallsToAction catalogPages={catalogPages} startPages={startPages} />
+              {!startPages && (
+                <Button size="lg" variant="outline" asChild>
+                  <a href="/docs/getting-started">Read the docs</a>
+                </Button>
+              )}
               <HeroStar />
             </div>
             <dl className="mt-2 grid grid-cols-3 gap-4 border-t border-white/10 pt-5 sm:flex sm:gap-x-14">
@@ -168,6 +195,28 @@ function Apps({ showcase, appsCount, appsPage }: SiteHomeShow) {
         </ul>
       </Container>
     </section>
+  )
+}
+
+/* ---------------- goals ---------------- */
+
+function Goals({ goals }: { goals: SiteHomeShow['goals'] }) {
+  return (
+    <Section>
+      <Container>
+        <SectionTitle
+          title="What are you building?"
+          text="Pick a goal, answer four more questions, and see the resources your app needs."
+        />
+        <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {goals.map((goal) => (
+            <li key={goal.key}>
+              <GoalCard goal={goal} href={startSetup.show({ query: { goal: goal.key } }).url} />
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </Section>
   )
 }
 
@@ -335,6 +384,35 @@ function CategoryRow({ category, catalogPages }: { category: SiteCategoryCount; 
   )
 }
 
+/* ---------------- starter kits ---------------- */
+
+function Kits({ kits }: { kits: SiteHomeShow['kits'] }) {
+  return (
+    <Section>
+      <Container>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <SectionTitle
+            title="Start from a kit"
+            text="Curated sets of resources that work together, with the reason for each pick."
+          />
+          <Button variant="outline" asChild>
+            <Link href="/kits">
+              All kits <ArrowRightIcon />
+            </Link>
+          </Button>
+        </div>
+        <ul className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {kits.map((kit) => (
+            <li key={kit.key}>
+              <KitCard kit={kit} />
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </Section>
+  )
+}
+
 /* ---------------- open source ---------------- */
 
 function OpenSource({ tools, contentPages }: SiteHomeShow) {
@@ -391,7 +469,7 @@ function OpenSource({ tools, contentPages }: SiteHomeShow) {
 
 /* ---------------- closing ---------------- */
 
-function Closing({ catalogPages }: { catalogPages: boolean }) {
+function Closing({ catalogPages, startPages }: { catalogPages: boolean; startPages: boolean }) {
   return (
     <Section className="pb-0 sm:pb-0">
       <Container>
@@ -402,11 +480,9 @@ function Closing({ catalogPages }: { catalogPages: boolean }) {
           <p className="max-w-xl text-pretty text-muted-foreground">
             Free to download, free to query, and open for anyone to improve.
           </p>
-          <Button size="lg" variant="brand" asChild>
-            <NavAnchor link={catalogLink(catalogPages)}>
-              Browse the library <ArrowRightIcon />
-            </NavAnchor>
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <CallsToAction catalogPages={catalogPages} startPages={startPages} />
+          </div>
         </div>
       </Container>
     </Section>

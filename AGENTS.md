@@ -189,6 +189,9 @@ groups, for every new page: the header's search button and ⌘K / Ctrl K open th
   on the page; with either, they are one list. A type page with more than
   `Catalog::TypesController::SEARCH_ABOVE` resources is searched the same way (`q`, `language`,
   `page` in the query string, through `Catalog::SearchQuery`), 24 cards to a page.
+  `category=<key>` filters the catalog to one category (the home page's category rows link
+  there). The home page's data showcase loads each tab's preview as an optional prop
+  (`recitationPreview`, …) once the open tab nears the screen (`WhenVisible`).
 
 - New routes go in the one block in `config/routes.rb` that wraps them in
   `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same

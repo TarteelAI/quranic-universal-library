@@ -18,6 +18,7 @@ import * as shardRing from '@/components/qul/shard-ring'
 import * as spotlight from '@/components/qul/spotlight'
 import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
+import * as toolCard from '@/components/qul/tool-card'
 import * as badge from '@/components/ui/badge'
 import * as button from '@/components/ui/button'
 import * as card from '@/components/ui/card'
@@ -51,6 +52,7 @@ const modules = {
   spotlight,
   statusBadge,
   theme,
+  toolCard,
   badge,
   button,
   card,
@@ -85,6 +87,7 @@ const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
 const { RecommendedBadge, StatusBadge } = statusBadge
+const { ToolCard } = toolCard
 const { ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
@@ -284,6 +287,22 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
       />
     ),
     text: 'Syllables Transliteration',
+  },
+  ToolCard: {
+    element: (
+      <ToolCard
+        tool={{
+          label: 'Ayah audio segments',
+          href: '/segments/ayah',
+          description: 'Word timestamps, ayah by ayah.',
+          category: 'audio',
+          icon: 'timer',
+          external: false,
+          inertia: false,
+        }}
+      />
+    ),
+    text: 'Word timestamps, ayah by ayah.',
   },
   RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },

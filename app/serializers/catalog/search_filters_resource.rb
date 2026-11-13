@@ -4,6 +4,7 @@ module Catalog
   # The filters a catalog search applied (Catalog::SearchFilters), echoed so the page shows them.
   class SearchFiltersResource < ApplicationResource
     typelize q: :string,
+             category: [:string, { nullable: true, enum: Taxonomy::CATEGORIES.keys }],
              type: [:string, { nullable: true, enum: Taxonomy.types.map(&:key) }],
              language: [:string, { nullable: true }],
              script: [:string, { multi: true, enum: Taxonomy.script_families.map(&:key) }],
@@ -12,6 +13,6 @@ module Catalog
              status: [:string, { nullable: true, enum: Taxonomy.statuses.map(&:key) }],
              sort: [:string, { nullable: true, enum: Taxonomy.sorts.map(&:key) }],
              page: :number, view: [:string, { enum: SearchFilters::VIEWS }]
-    attributes :q, :type, :language, :script, :format, :granularity, :status, :sort, :page, :view
+    attributes :q, :category, :type, :language, :script, :format, :granularity, :status, :sort, :page, :view
   end
 end

@@ -60,27 +60,30 @@ export const homePageProps: SiteHomeShow = {
   languages: 94,
   recitations: 133,
   categories: [
-    {
-      key: 'audio',
-      label: 'Audio',
-      count: 133,
-      types: [{ key: 'recitation', title: 'Recitations', count: 133 }],
-    },
-    {
-      key: 'translation',
-      label: 'Translation',
-      count: 214,
-      types: [
-        { key: 'translation', title: 'Translations', count: 190 },
-        { key: 'transliteration', title: 'Transliterations', count: 24 },
-      ],
-    },
+    { key: 'audio', label: 'Audio', hint: 'Recitations with word timing', count: 133 },
+    { key: 'translation', label: 'Translation', hint: 'Many languages, word by word too', count: 214 },
+  ],
+  samples: [
+    { type: 'recitation', category: 'audio', count: 133, name: 'Mishari Rashid al-Afasy', toParam: 'afasy' },
+    { type: 'translation', category: 'translation', count: 190, name: 'Saheeh International', toParam: 'saheeh' },
   ],
   showcase: [quranwbw, nimaz, waqfah, quranValidator],
   appsCount: 23,
   submitUrl: SUBMIT_URL,
+  tools: [
+    {
+      label: 'Ayah translations',
+      href: '/ayah_translations',
+      description: 'Fix typos in many languages.',
+      category: 'translation',
+      icon: 'languages',
+      external: false,
+      inertia: false,
+    },
+  ],
   catalogPages: true,
   appsPage: true,
+  contentPages: true,
 }
 
 // Shaped like Site::AppsIndexResource, unfiltered.

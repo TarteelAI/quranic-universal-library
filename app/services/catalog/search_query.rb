@@ -14,7 +14,7 @@ module Catalog
     PER_PAGE = 24
 
     # The filters with facet counts. The script family takes several values; the others one.
-    FACETS = %i[type language script format granularity status].freeze
+    FACETS = [:category, :type, :language, :script, :format, :granularity, :status].freeze
 
     # One published resource with what search reads: its language (the CMS row's, else the
     # content row's), its formats and download total over published files, the date of its
@@ -114,6 +114,7 @@ module Catalog
 
     def values(row, facet)
       case facet
+      when :category then [category(row)]
       when :type then [row.resource.resource_type]
       when :language then [row.language&.iso_code]
       when :script then [row.resource.script_family]

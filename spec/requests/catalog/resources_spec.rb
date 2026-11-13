@@ -25,16 +25,16 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(inertia).to have_props(
         total: published.count,
         page: 1,
-        filters: { q: '', type: nil, language: nil, script: [], format: nil, granularity: nil, status: nil,
-                   sort: nil, page: 1, view: 'grid', },
+        filters: { q: '', category: nil, type: nil, language: nil, script: [], format: nil, granularity: nil,
+                   status: nil, sort: nil, page: 1, view: 'grid', },
       )
       expect(inertia.props[:results].size).to eq(Catalog::SearchQuery::PER_PAGE)
       expect(inertia.props[:results].first.keys).to contain_exactly(
         'id', 'name', 'type', 'toParam', 'summary', 'language', 'granularity', 'formats', 'status', 'recommended',
         'previewKind',
       )
-      expect(inertia.props[:facets].keys).to contain_exactly('type', 'language', 'script', 'format', 'granularity',
-                                                             'status',)
+      expect(inertia.props[:facets].keys).to contain_exactly('category', 'type', 'language', 'script', 'format',
+                                                             'granularity', 'status',)
       expect(inertia.props[:facets][:type]).to include({ value: 'translation',
                                                          count: published.where(resource_type: 'translation').count, })
     end
@@ -69,6 +69,17 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
     end
 
+    it 'filters by category, counting the types within it' do
+      get '/resources', params: { category: 'tafsir' }
+
+      types = Catalog::Taxonomy.types.select { |type| type.category.key == 'tafsir' }.map(&:key)
+      expect(inertia.props[:filters]).to include(category: 'tafsir')
+      expect(inertia.props[:total]).to eq(published.where(resource_type: types).count)
+      expect(inertia.props[:facets][:type].pluck(:value)).to match_array(types)
+      audio = published.where(resource_type: 'recitation').count
+      expect(inertia.props[:facets][:category]).to include({ value: 'audio', count: audio })
+    end
+
     it 'finds resources through an Arabic native language name' do
       get '/resources', params: { q: 'العربيّة', type: 'tafsir' }
 
@@ -77,12 +88,13 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
     end
 
     it 'ignores invalid filter values instead of failing' do
-      get '/resources', params: { type: 'nope', script: { 'x' => 'madani', 'y' => 'nope' }, format: ['json'],
-                                  language: 'xx', status: '', sort: 'random', page: '-3', granularity: { a: 1 }, }
+      get '/resources', params: { category: 'nope', type: 'nope', script: { 'x' => 'madani', 'y' => 'nope' },
+                                  format: ['json'], language: 'xx', status: '', sort: 'random', page: '-3',
+                                  granularity: { a: 1 }, }
 
       expect(response).to have_http_status(:ok)
-      expect(inertia.props[:filters]).to include(type: nil, script: ['madani'], format: nil, language: nil,
-                                                 status: nil, sort: nil, page: 1, granularity: nil,)
+      expect(inertia.props[:filters]).to include(category: nil, type: nil, script: ['madani'], format: nil,
+                                                 language: nil, status: nil, sort: nil, page: 1, granularity: nil,)
       expect(inertia.props[:total]).to eq(published.where(script_family: 'madani').count)
     end
 

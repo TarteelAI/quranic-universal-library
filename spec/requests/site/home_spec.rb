@@ -47,19 +47,102 @@ RSpec.describe 'Home page (/)', type: :request do
       expect([resources, recitations, languages]).to all(be_positive)
     end
 
-    it 'counts each category and type of the taxonomy' do
+    it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do
+      get '/'
+      categories = inertia.props[:categories]
+
+      get '/resources'
+      facets = inertia.props[:facets][:category].to_h { |facet| [facet[:value], facet[:count]] }
+
+      expect(categories.pluck(:key)).to eq(Catalog::Taxonomy::CATEGORIES.keys)
+      categories.each do |category|
+        taxonomy = Catalog::Taxonomy::CATEGORIES.fetch(category[:key])
+        expect(category).to include(label: taxonomy.label, hint: taxonomy.hint)
+        expect(category[:hint]).to be_present
+        expect(category[:count]).to eq(facets.fetch(category[:key], 0)), category[:key]
+      end
+      expect(categories.sum { |category| category[:count] }).to eq(DownloadableResource.published.count)
+
+      get '/resources?category=script'
+      expect(inertia.props[:filters][:category]).to eq('script')
+      expect(inertia.props[:total]).to eq(categories.find { |category| category[:key] == 'script' }[:count])
+      expect(inertia.props[:results].pluck(:type).uniq - ['quran-script', 'font']).to be_empty
+    end
+
+    describe 'the data showcase' do
+      let(:preview_props) { [:recitationPreview, :mushafLayoutPreview, :translationPreview, :morphologyPreview] }
+
+      it 'holds one sample per tab, each a published resource of its type, with no preview in the first response' do
+        get '/'
+
+        samples = inertia.props[:samples]
+        expect(samples.pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation', 'morphology'])
+        samples.each do |sample|
+          resource = Catalog::ResourcePage.find(sample[:toParam])
+          expect(resource).to have_attributes(published: true, resource_type: sample[:type])
+          expect(sample[:name]).to eq(resource.display_name)
+          expect(sample[:count]).to eq(DownloadableResource.published.where(resource_type: sample[:type]).count)
+        end
+        expect(Catalog::ResourcePage.find(samples.first[:toParam]).cardinality_type).to eq('1_chapter')
+        expect(inertia.props.keys.map(&:to_sym)).not_to include(*preview_props)
+        expect(inertia.deferred_props).to be_empty
+      end
+
+      it "loads each tab's preview on its own, the detail page's preview of the sample" do
+        get '/'
+        samples = inertia.props[:samples].index_by { |sample| sample[:type] }
+
+        { recitationPreview: ['recitation', 'recitation'], mushafLayoutPreview: ['mushaf-layout', 'layout'],
+          translationPreview: ['translation', 'text'], morphologyPreview: ['morphology', 'records'], }
+          .each do |prop, (type, kind)|
+          inertia_reload_only(prop)
+          expect(inertia.props.keys.map(&:to_sym) - [:errors, :head]).to eq([prop])
+          expect(inertia.props[prop]).to include(kind: kind)
+          # The recitation's Al-Fatihah has segment data, so the player highlights each ayah.
+          expect(inertia.props[prop][:highlights]).to be(true) if type == 'recitation'
+
+          resource = Catalog::ResourcePage.find(samples.fetch(type)[:toParam])
+          expected = JSON.parse(Previews.as_json(Previews.for(resource)).to_json)
+          expect(inertia.props[prop].as_json).to eq(expected)
+        end
+      end
+
+      it 'leaves out a tab whose type has no published resource, and still renders the page' do
+        DownloadableResource.where(resource_type: 'morphology').update_all(published: false)
+
+        SsrServer.with_ssr { get '/' }
+
+        expect(response).to have_http_status(:ok)
+        expect(inertia.props[:samples].pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation'])
+        inertia_reload_only(:morphologyPreview)
+        expect(inertia.props[:morphologyPreview]).to be_nil
+      end
+
+      it 'renders the open tab on the server without its preview, and no other tab' do
+        SsrServer.with_ssr { get '/' }
+
+        app = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
+        tabs = app.css('[role="tab"]')
+        expect(tabs.map(&:text)).to eq(['Recitations', 'Mushaf layouts', 'Translations', 'Morphology'])
+        panels = app.css('[role="tabpanel"]')
+        expect(panels.count { |panel| !panel['hidden'] }).to eq(1)
+        expect(panels.select { |panel| panel['hidden'] }.map(&:inner_html)).to all(be_empty)
+        expect(app.at('audio, [data-testid="no-preview"]')).to be_nil
+      end
+    end
+
+    it 'shows three contribution tools and links the tools overview' do
       get '/'
 
-      categories = inertia.props[:categories]
-      expect(categories.pluck(:key)).to eq(Catalog::Taxonomy::CATEGORIES.keys)
-      expect(categories.flat_map { |category| category[:types].pluck(:key) })
-        .to match_array(Catalog::Taxonomy.types.map(&:key))
-      published = DownloadableResource.published.group(:resource_type).count
-      categories.each do |category|
-        category[:types].each { |type| expect(type[:count]).to eq(published.fetch(type[:key], 0)), type[:key] }
-        expect(category[:count]).to eq(category[:types].sum { |type| type[:count] })
+      expect(inertia.props[:tools].pluck(:label))
+        .to eq(['Ayah translations', 'Ayah audio segments', 'Word grammar and morphology'])
+      tools = controller.helpers.developer_tools.index_by(&:title)
+      inertia.props[:tools].each do |tool|
+        expect(tool).to include(href: tools.fetch(tool[:label]).url, inertia: false)
+        expect(tool[:icon]).to be_present
+        expect(tool[:description]).to be_present
       end
-      expect(categories.sum { |category| category[:count] }).to eq(inertia.props[:resources])
+      expect(inertia.props).to include(contentPages: false)
     end
 
     it 'shows the apps of the showcase, in the order of the data file' do

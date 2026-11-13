@@ -47,6 +47,7 @@ function searchUrl(filters: Filters) {
   return catalogResources.index({
     query: {
       q: filters.q || null,
+      category: filters.category,
       type: filters.type,
       language: filters.language,
       script: filters.script.length > 0 ? filters.script : null,
@@ -126,6 +127,7 @@ export default function CatalogPage({
     search({
       ...filters,
       q: '',
+      category: null,
       type: null,
       language: null,
       script: [],
@@ -215,6 +217,16 @@ export default function CatalogPage({
               setQuery('')
               apply({ q: '' })
             },
+          },
+        ]
+      : []),
+    ...(filters.category
+      ? [
+          {
+            label:
+              vocabularies.types.find((type) => type.category.key === filters.category)?.category.label ??
+              filters.category,
+            remove: () => apply({ category: null }),
           },
         ]
       : []),

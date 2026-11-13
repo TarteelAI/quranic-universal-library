@@ -7,6 +7,8 @@ module Site
   class HomeController < InertiaController
     def show
       @stats = Catalog::Stats.new.call
+      @samples = Catalog::Samples.new.call
+      @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
       @apps = AppDirectory.apps
       @showcase = AppDirectory.showcase
 

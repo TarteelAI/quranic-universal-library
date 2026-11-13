@@ -5,18 +5,19 @@ module Catalog
   # category each belongs to. This file is the one source for that copy. Pages receive it as
   # props; the React side holds no copy of it.
   module Taxonomy
-    Category = Data.define(:key, :label)
+    # `hint` is the one line under the category's row on the home page.
+    Category = Data.define(:key, :label, :hint)
     Type = Data.define(:key, :label, :title, :summary, :description, :category)
 
     CATEGORIES = [
-      Category.new(key: 'audio', label: 'Audio'),
-      Category.new(key: 'layout', label: 'Mushaf layouts'),
-      Category.new(key: 'script', label: 'Script and fonts'),
-      Category.new(key: 'translation', label: 'Translation'),
-      Category.new(key: 'tafsir', label: 'Tafsir and commentary'),
-      Category.new(key: 'linguistics', label: 'Linguistics'),
-      Category.new(key: 'topics', label: 'Topics and themes'),
-      Category.new(key: 'metadata', label: 'Metadata')
+      Category.new(key: 'audio', label: 'Audio', hint: 'Recitations with word timing'),
+      Category.new(key: 'layout', label: 'Mushaf layouts', hint: 'Printed mushaf page layouts'),
+      Category.new(key: 'script', label: 'Script and fonts', hint: 'Quran text and fonts'),
+      Category.new(key: 'translation', label: 'Translation', hint: 'Many languages, word by word too'),
+      Category.new(key: 'tafsir', label: 'Tafsir and commentary', hint: 'Commentaries and surah introductions'),
+      Category.new(key: 'linguistics', label: 'Linguistics', hint: 'Roots, lemmas and grammar'),
+      Category.new(key: 'topics', label: 'Topics and themes', hint: 'Topics, themes and similar ayahs'),
+      Category.new(key: 'metadata', label: 'Metadata', hint: 'Surah, juz, hizb and page data'),
     ].index_by(&:key).freeze
 
     TYPES = [

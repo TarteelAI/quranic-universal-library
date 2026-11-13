@@ -170,6 +170,7 @@ export const catalogPageProps: CatalogResourcesIndex = {
   pages: 1,
   filters: {
     q: '',
+    category: null,
     type: null,
     language: null,
     script: [],
@@ -210,6 +211,10 @@ export const catalogPageProps: CatalogResourcesIndex = {
     },
   ],
   facets: {
+    category: [
+      { value: 'translation', count: 1 },
+      { value: 'tafsir', count: 1 },
+    ],
     type: [
       { value: 'translation', count: 1 },
       { value: 'tafsir', count: 1 },

@@ -62,6 +62,13 @@ class SiteNav
 
     FALLBACK_GROUP = 'More tools'
 
+    # The tools the home page shows, with the catalog category that tints each one's icon.
+    FEATURED = {
+      'Ayah translations' => 'translation',
+      'Ayah audio segments' => 'audio',
+      'Word grammar and morphology' => 'linguistics',
+    }.freeze
+
     # A group of the tools overview; `tools` are SiteNav::Link with the tool's own description.
     OverviewGroup = Data.define(:heading, :summary, :tools)
 
@@ -83,6 +90,17 @@ class SiteNav
           Link.new(label: tool.title, href: tool.url, icon:, description: tool.description)
         end
         OverviewGroup.new(heading:, summary: SUMMARIES[heading], tools: links)
+      end
+    end
+
+    # FEATURED as links with their icon and menu description, leaving out a tool not in `tools`.
+    def self.featured(tools)
+      entries = GROUPS.values.reduce(:merge)
+      by_title = tools.index_by(&:title)
+      FEATURED.filter_map do |title, category|
+        tool = by_title[title] or next
+        icon, description = entries.fetch(title)
+        Link.new(label: title, href: tool.url, icon:, description:, category:)
       end
     end
   end

@@ -5,8 +5,8 @@ module Catalog
   # family (any number of those), a sort (none groups the results by category) and a page. .from
   # builds it from a plain hash such as a query string; values outside the vocabularies are
   # dropped, never an error. `view` is how the catalog page lays the results out; search ignores it.
-  class SearchFilters < Data.define(:q, :type, :language, :script, :format, :granularity, :status, :sort, :page,
-                                    :view,)
+  class SearchFilters < Data.define(:q, :category, :type, :language, :script, :format, :granularity, :status, :sort,
+                                    :page, :view,)
     MAX_QUERY_LENGTH = 200
     VIEWS = ['grid', 'list'].freeze
 
@@ -14,6 +14,7 @@ module Catalog
       input = input.to_h.transform_keys(&:to_s)
       new(
         q: input['q'].is_a?(String) ? input['q'].strip.first(MAX_QUERY_LENGTH) : '',
+        category: pick(input['category'], Taxonomy::CATEGORIES.values),
         type: pick(input['type'], Taxonomy.types),
         language: input['language'].is_a?(String) ? input['language'].strip.presence : nil,
         script: list(input['script']) & Taxonomy.script_families.map(&:key),

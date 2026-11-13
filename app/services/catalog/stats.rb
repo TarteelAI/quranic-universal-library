@@ -7,14 +7,13 @@ module Catalog
   # A resource's language is the CMS row's, else its content row's (as in SearchQuery). Content
   # rows are in the Quran content database, so they are read in a second query.
   class Stats
-    TypeCount = Data.define(:key, :title, :count)
-    CategoryCount = Data.define(:key, :label, :count, :types)
+    CategoryCount = Data.define(:key, :label, :hint, :count)
     Result = Data.define(:resources, :languages, :recitations, :per_type) do
-      # Every category in taxonomy order, with its types, including those with no resources.
+      # Every category in taxonomy order, including those with no resources.
       def categories
         Taxonomy.types.group_by(&:category).map do |category, types|
-          counts = types.map { |type| TypeCount.new(key: type.key, title: type.title, count: per_type.fetch(type.key, 0)) }
-          CategoryCount.new(key: category.key, label: category.label, count: counts.sum(&:count), types: counts)
+          CategoryCount.new(key: category.key, label: category.label, hint: category.hint,
+                            count: types.sum { |type| per_type.fetch(type.key, 0) },)
         end
       end
     end

@@ -829,7 +829,8 @@
           "Production: the catalog backfill must have run so the slugs in config/kits.yml exist; until then every kit shows empty. kits_spec only proves the slugs on a backfilled test clone.",
           "The ResourceCard min-w-0/overflow-hidden change also applies to catalog and type page cards (previews wider than a card are now cut instead of overflowing); resource-cards and card-previews Playwright specs pass, but a design look at the font cards is worthwhile.",
           "The catalog bundle size moved down only because Rolldown regrouped shared chunks; a later change to chunk sharing can move it back by several hundred bytes without any new code on the catalog.",
-          "Not verified: production image, a real phone (Pixel 7 emulation only), dark theme of the new pages."
+          "Not verified: production image, a real phone (Pixel 7 emulation only), dark theme of the new pages.",
+          "Checkpoint review (d1125615..c8d6fe88, no confirmed findings), PLAUSIBLE: the setup results (Start::SetupController#results, 002-15) run one full Catalog::SearchQuery per checklist item, and items multiply by the picked languages with no cap on `lang`, so a query naming many languages makes many full catalog loads in one request. Load the rows once per request or cap the languages before cutover."
         ]
       },
       "filesChanged": 40

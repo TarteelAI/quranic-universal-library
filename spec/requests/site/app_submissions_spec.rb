@@ -133,6 +133,41 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
                                                 'uses' => ['Resources used must include at least one resource type'],
                                                 'icon' => ['Icon must be 1 MB or smaller'],)
     end
+
+    describe 'the daily limit' do
+      include ActiveSupport::Testing::TimeHelpers
+
+      let(:user) { create_account }
+      let(:limit_error) { { 'base' => ['You can send at most 3 apps a day. Try again tomorrow.'] } }
+
+      before { sign_in user }
+
+      it 'refuses a fourth submission on the same day with a message, and takes the first one of the next day' do
+        travel_to Time.zone.parse('2026-11-13 00:05') do
+          3.times { |n| submit(valid_app.merge(name: "Spec Reader #{n}")) }
+        end
+        expect(App.where(user: user).count).to eq(3)
+
+        travel_to Time.zone.parse('2026-11-13 23:55') do
+          expect { submit(valid_app.merge(name: 'Spec Reader 4')) }.not_to change(App, :count)
+
+          follow_redirect!(headers: inertia_headers)
+          expect(inertia.props[:errors]).to eq(limit_error)
+        end
+
+        travel_to Time.zone.parse('2026-11-14 00:05') do
+          expect { submit(valid_app.merge(name: 'Spec Reader 4')) }.to change(App, :count).by(1)
+          expect(response).to redirect_to('/apps')
+        end
+      end
+
+      it "counts only the user's own rows" do
+        other = create_account
+        3.times { |n| App.create!(valid_app.except(:consent).merge(name: "Other #{n}", user: other)) }
+
+        expect { submit(valid_app) }.to change(App, :count).by(1)
+      end
+    end
   end
 
   describe 'with the apps page group off', page_groups: ['home', 'catalog'] do

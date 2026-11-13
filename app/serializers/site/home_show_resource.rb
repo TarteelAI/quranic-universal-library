@@ -12,7 +12,7 @@ module Site
     }.freeze
 
     typelize resources: :number, languages: :number, recitations: :number, apps_count: :number,
-             catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean, submit_url: :string
+             catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean
 
     attribute(:resources) { |page| page[:stats].resources }
     attribute(:languages) { |page| page[:stats].languages }
@@ -32,7 +32,6 @@ module Site
 
     many :showcase, resource: AppResource
     attribute(:apps_count) { |page| page[:apps].size }
-    attribute(:submit_url) { AppDirectory::SUBMIT_URL }
     many :tools, resource: SiteNavLinkResource
     # Whether the catalog, the apps directory and the tools overview are new pages (Inertia
     # visits) or old pages; with the `apps` group off there is no apps directory.

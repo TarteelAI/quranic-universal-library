@@ -2,33 +2,52 @@
 
 require 'clone_helper'
 
+# The directory lists the published App rows (AppDirectory), here the imported config/apps.yml.
 RSpec.describe 'Apps directory (/apps)', type: :request do
+  before { AppDirectory::Import.run }
+
+  let(:published) { App.where(published: true) }
+  let(:submission) do
+    App.create!(name: 'Spec Unpublished Submission', url: 'https://example.test/unpublished', platforms: ['web'],
+                uses: ['translation'], contact: 'maker@example.test', consent: true,)
+  end
+
+  def app_props(import_key)
+    inertia.props[:apps].find { |app| app[:id] == App.find_by!(import_key:).id.to_s }
+  end
+
   describe 'with the apps page group on', page_groups: ['apps', 'catalog'] do
-    it 'renders every app of the data file, featured first, server-rendered' do
+    it 'renders exactly the published apps, featured first, server-rendered' do
+      submission
+      App.find_by!(import_key: 'nimaz').update!(featured: true)
       SsrServer.with_ssr { get '/apps' }
 
       expect(response).to have_http_status(:ok)
       expect(controller).to be_a(Site::AppsController)
       expect(inertia).to render_component('site/AppsPage')
-      ids = AppDirectory.data.fetch('apps').pluck('id')
-      expect(inertia.props[:apps].pluck(:id)).to match_array(ids)
-      expect(inertia.props[:total]).to eq(ids.size)
-      featured = inertia.props[:apps].pluck(:featured)
-      expect(featured).to eq(featured.sort_by { |flag| flag ? 0 : 1 })
-      expect(featured).to include(true)
+      featured, rest = published.order(:id).partition(&:featured)
+      expect(inertia.props[:apps].pluck(:id)).to eq((featured + rest).map { |app| app.id.to_s })
+      expect(inertia.props[:total]).to eq(published.count)
+      expect(featured.map(&:import_key)).to include('nimaz')
 
       app = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
-      expect(app.css('ul[aria-label="Apps"] > li').size).to eq(ids.size)
+      expect(app.css('ul[aria-label="Apps"] > li').size).to eq(published.count)
+      expect(response.body).not_to include('Spec Unpublished Submission')
     end
 
-    it 'gives each app its icon, platforms and the resource types it uses' do
+    it 'gives each app its icon, platforms and the resource types it uses, and never the contact' do
+      App.find_by!(import_key: 'quranwbw').update!(contact: 'maker@example.test')
       get '/apps'
 
-      quranwbw = inertia.props[:apps].find { |app| app[:id] == 'quranwbw' }
-      expect(quranwbw).to include(name: 'QuranWBW', url: 'https://quranwbw.com', iconUrl: '/app-icons/quranwbw.png',
+      quranwbw = app_props('quranwbw')
+      expect(quranwbw.keys.map(&:to_s)).to match_array(['id', 'name', 'url', 'kind', 'description', 'featured',
+                                                        'iconUrl', 'platforms', 'uses',])
+      expect(quranwbw).to include(name: 'QuranWBW', url: 'https://quranwbw.com', kind: 'Word by word',
                                   platforms: ['Web'], featured: true,
                                   uses: [{ key: 'translation', label: 'Translation', category: 'translation' }],)
-      expect(inertia.props[:apps].find { |app| app[:id] == 'quran-validator' }[:iconUrl]).to be_nil
+      expect(quranwbw[:iconUrl]).to match(%r{\A/rails/active_storage/blobs/redirect/[^/]+/icon\.png\z})
+      expect(app_props('quran-validator')[:iconUrl]).to be_nil
+      expect(response.body).not_to include('maker@example.test')
       expect(inertia.props[:platforms].pluck(:key)).to eq(AppDirectory::PLATFORMS.keys)
       used = AppDirectory.apps.flat_map(&:uses).uniq
       expect(inertia.props[:types].pluck(:key)).to match_array(used)
@@ -43,9 +62,18 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
         app.platforms.include?('android') && app.uses.include?('mushaf-layout')
       end
       expect(expected).not_to be_empty
-      expect(inertia.props[:apps].pluck(:id)).to eq(expected.map(&:id))
+      expect(inertia.props[:apps].pluck(:id)).to eq(expected.map { |app| app.id.to_s })
       expect(inertia.props[:filters]).to include(platform: 'android', type: 'mushaf-layout')
       expect(inertia.props[:total]).to eq(AppDirectory.apps.size)
+    end
+
+    it 'shows no unpublished submission in the search pop-up' do
+      submission
+
+      get '/spotlight', params: { q: 'Spec Unpublished Submission' }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to include('Spec Unpublished Submission')
     end
 
     it 'drops a filter value no app can have' do

@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
-# An app built with QUL. Rows come from the submission form on /apps (Site::AppSubmissionsController),
-# unpublished until an editor approves them. `contact` is for the QUL team only: no public
-# serializer reads it.
+# An app built with QUL, in the apps directory (/apps and the home page's apps band) once it is
+# published. Rows come from the submission form on /apps (Site::AppSubmissionsController),
+# unpublished until an editor approves them in the CMS, and from `apps:import`. `contact` is for
+# the QUL team only: no public serializer reads it.
 class App < ApplicationRecord
+  # The submissions a user can send in a day (DECISIONS.md, Sprint 002).
+  DAILY_LIMIT = 3
+
   # The icon types an app may upload, by the type its bytes show, with the extension it is stored under.
   ICON_TYPES = { 'image/png' => 'png', 'image/jpeg' => 'jpg', 'image/webp' => 'webp' }.freeze
   ICON_MAX_SIZE = 1.megabyte
@@ -11,8 +15,12 @@ class App < ApplicationRecord
   belongs_to :user, optional: true
   has_one_attached :icon, service: Rails.env.production? ? :qul_exports : nil
 
-  normalizes :name, :url, :contact, with: ->(value) { value.strip }
+  normalizes :name, :url, :contact, :kind, :description, :evidence, with: ->(value) { value.strip }
   normalizes :platforms, :uses, with: ->(values) { values.compact_blank.uniq }
+
+  # The directory: published apps, featured first, then oldest first (the import keeps the order of
+  # config/apps.yml).
+  scope :directory, -> { where(published: true).order(featured: :desc, id: :asc) }
 
   validates :name, presence: true, length: { maximum: 100 }
   validates :url, presence: true, length: { maximum: 500 }
@@ -20,12 +28,16 @@ class App < ApplicationRecord
   validate :platforms_from_the_list
   validate :uses_from_the_taxonomy
   validate :icon_is_a_small_image
+  # The directory shows a kind and a description, which a submission does not ask for.
+  validates :kind, presence: true, length: { maximum: 40 }, if: :published?
+  validates :description, presence: true, length: { maximum: 300 }, if: :published?
 
   with_options on: :submission do
     validates :contact, presence: true, length: { maximum: 254 }
     validates :contact, format: { with: URI::MailTo::EMAIL_REGEXP, message: 'must be an email address' },
                         allow_blank: true
     validates :consent, acceptance: { accept: true, message: 'must be given to list the app' }
+    validate :within_the_daily_limit
   end
 
   # Attaches an uploaded icon. Its type and stored name come from the file's bytes, never from
@@ -41,6 +53,14 @@ class App < ApplicationRecord
   end
 
   private
+
+  # Counted from the user's own rows of the current day (Time.zone), so the first submission after
+  # midnight is taken again.
+  def within_the_daily_limit
+    return unless App.where(user_id:, created_at: Time.current.all_day).count >= DAILY_LIMIT
+
+    errors.add(:base, "You can send at most #{DAILY_LIMIT} apps a day. Try again tomorrow.")
+  end
 
   def url_is_a_web_address
     return if url.blank? || web_address?(url)

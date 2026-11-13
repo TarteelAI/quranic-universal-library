@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Home page (/)', type: :request do
@@ -5,7 +7,7 @@ RSpec.describe 'Home page (/)', type: :request do
     JSON.parse(Nokogiri::HTML(response.body).at('script[type="application/ld+json"]').text)
   end
 
-  describe 'with the home page group on', page_groups: %w[home catalog apps] do
+  describe 'with the home page group on', page_groups: ['home', 'catalog', 'apps'] do
     it 'renders the Inertia home page, server-rendered' do
       SsrServer.with_ssr { get '/' }
 
@@ -27,11 +29,11 @@ RSpec.describe 'Home page (/)', type: :request do
       content = QulQuranRecord.connection
       resources = cms.select_value('SELECT COUNT(*) FROM downloadable_resources WHERE published')
       recitations = cms.select_value(
-        "SELECT COUNT(*) FROM downloadable_resources WHERE published AND resource_type = 'recitation'"
+        "SELECT COUNT(*) FROM downloadable_resources WHERE published AND resource_type = 'recitation'",
       )
       # A resource's language is its own row's, else its content row's.
       own = cms.select_values(
-        'SELECT DISTINCT language_id FROM downloadable_resources WHERE published AND language_id IS NOT NULL'
+        'SELECT DISTINCT language_id FROM downloadable_resources WHERE published AND language_id IS NOT NULL',
       )
       unset = cms.select_values(<<~SQL.squish)
         SELECT DISTINCT resource_content_id FROM downloadable_resources
@@ -145,12 +147,23 @@ RSpec.describe 'Home page (/)', type: :request do
       expect(inertia.props).to include(contentPages: false)
     end
 
-    it 'shows the apps of the showcase, in the order of the data file' do
+    it 'shows the first eight published apps of the directory in the apps band, and no submission' do
+      AppDirectory::Import.run
+      submission = App.create!(name: 'Spec Unpublished Submission', url: 'https://example.test/app',
+                               platforms: ['web'], uses: ['translation'], featured: true,)
       get '/'
 
-      expect(inertia.props[:showcase].pluck(:id)).to eq(AppDirectory.data.fetch('showcase'))
-      expect(inertia.props).to include(appsCount: AppDirectory.apps.size, appsPage: true, catalogPages: true,
-                                       submitUrl: AppDirectory::SUBMIT_URL)
+      # The band of sprint 001, from the import.
+      showcase = ['quranwbw', 'qurancaption', 'quran-library', 'quran-validator', 'mihrab', 'bayaan', 'al-quran-ios',
+                  'quranic-universal-audio',].map do |key|
+        App.find_by!(import_key: key).id.to_s
+      end
+      expect(inertia.props[:showcase].pluck(:id)).to eq(showcase)
+      expect(inertia.props[:showcase].pluck(:id)).not_to include(submission.id.to_s)
+      expect(inertia.props).to include(appsCount: App.where(published: true).count, appsPage: true,
+                                       catalogPages: true,)
+      expect(inertia.props).not_to have_key(:submitUrl)
+      expect(response.body).not_to include('Spec Unpublished Submission')
     end
 
     it 'keeps the old landing page title and description, and its WebSite and Organization JSON-LD' do
@@ -164,9 +177,9 @@ RSpec.describe 'Home page (/)', type: :request do
       get '/'
       expect(controller).to be_a(Site::HomeController)
       html = Nokogiri::HTML(response.body)
-      %w[title].each { |tag| expect(html.at(tag).text).to eq(old_html.at(tag).text) }
-      %w[meta[name="description"] meta[property="og:title"] meta[property="og:description"]
-         meta[name="twitter:card"]].each do |selector|
+      ['title'].each { |tag| expect(html.at(tag).text).to eq(old_html.at(tag).text) }
+      ['meta[name="description"]', 'meta[property="og:title"]', 'meta[property="og:description"]',
+       'meta[name="twitter:card"]',].each do |selector|
         expect(html.at(selector)['content']).to eq(old_html.at(selector)['content']), selector
       end
       expect(html.at('link[rel="canonical"]')['href']).to eq('https://qul.tarteel.ai/')
@@ -189,7 +202,7 @@ RSpec.describe 'Home page (/)', type: :request do
     end
   end
 
-  describe 'with the home page group on and the others off', page_groups: %w[home] do
+  describe 'with the home page group on and the others off', page_groups: ['home'] do
     it 'links the catalog as old pages and leaves out the apps directory' do
       get '/'
 
@@ -199,7 +212,7 @@ RSpec.describe 'Home page (/)', type: :request do
     end
   end
 
-  describe 'with the home page group off', page_groups: %w[catalog apps] do
+  describe 'with the home page group off', page_groups: ['catalog', 'apps'] do
     it 'renders the old landing page' do
       get '/'
 

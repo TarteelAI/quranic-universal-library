@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
+  def initialize(user) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- one list of rules, in order
     return if user.nil?
 
     can :read, :all
-    can :read, ActiveAdmin::Page, name: "Dashboard"
+    can :read, ActiveAdmin::Page, name: 'Dashboard'
     cannot :read, User
     cannot :impersonate, User
     cannot :read, DownloadableResource
@@ -18,7 +20,8 @@ class Ability
     cannot :notify_users, DownloadableResource
     cannot :read, Contributor
     cannot :read, Licence
-    cannot :read, ActiveAdmin::Page, name: "Analytics"
+    cannot :read, App
+    cannot :read, ActiveAdmin::Page, name: 'Analytics'
 
     can :read, User, id: user.id
     can :update, User, id: user.id
@@ -34,6 +37,7 @@ class Ability
       can :manage, Draft::Tafsir
       can :manage, Draft::FootNote
       can :manage, Faq
+      can :manage, App
 
       can :manage, Reciter
       can :manage, Tafsir
@@ -60,7 +64,7 @@ class Ability
       can [:read, :update, :create], Draft::FootNote
 
       cannot :destroy, Draft::Translation
-      cannot :destroy,  Draft::Tafsir
+      cannot :destroy, Draft::Tafsir
       cannot :destroy, Draft::FootNote
     end
 

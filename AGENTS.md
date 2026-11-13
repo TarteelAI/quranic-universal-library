@@ -156,11 +156,14 @@ URL is served by the old ERB views. A group takes over only the URLs that have a
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
-page: off, it is a 404 and no new page links to it. Its entries are `config/apps.yml` (read through
-`AppDirectory`, icons in `public/app-icons`). Its "Submit your app" form (`?submit=1` opens it)
-posts to `POST /apps` (`Site::AppSubmissionsController`), which needs a signed-in user and stores
-an unpublished `App` row in the CMS database; the home page still links to the
-`app_submission.yml` issue form.
+page: off, it is a 404 and no new page links to it. Its entries are the published `App` rows of the
+CMS database (`AppDirectory`, featured first; the home page's apps band shows the first eight),
+which editors publish, edit, feature and remove in the CMS (`/cms/apps`, admins only). `bin/rails
+apps:import` makes the entries of `config/apps.yml` (icons in `public/app-icons`) published rows
+once, keyed on the entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
+app" form (`?submit=1` opens it; the home page's button links there) posts to `POST /apps`
+(`Site::AppSubmissionsController`), which needs a signed-in user, takes at most
+`App::DAILY_LIMIT` submissions per user and day, and stores an unpublished `App` row.
 `content` serves the docs index `/docs` and `/docs/:key` (`Content::DocsController`, body from
 `Content::DocPage`, side navigation from `Content::DocsNavigation`, both read from
 `config/docs.yml`) for page loads and Inertia visits only (`Content::DocsRequest`): the old pages'

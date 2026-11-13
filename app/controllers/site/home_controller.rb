@@ -10,7 +10,7 @@ module Site
       @samples = Catalog::Samples.new.call
       @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
       @apps = AppDirectory.apps
-      @showcase = AppDirectory.showcase
+      @showcase = @apps.first(AppDirectory::SHOWCASE_SIZE)
 
       render_inertia 'site/HomePage', meta: page_meta(
         title: 'Quranic Universal Library — Download Quran Data, JSON & APIs',
@@ -26,9 +26,9 @@ module Site
             '@type': 'Organization',
             name: 'Tarteel AI',
             url: 'https://tarteel.ai',
-            logo: { '@type': 'ImageObject', url: "#{SeoHelper::HOST}/favicon.svg" }
-          }
-        }
+            logo: { '@type': 'ImageObject', url: "#{SeoHelper::HOST}/favicon.svg" },
+          },
+        },
       )
     end
   end

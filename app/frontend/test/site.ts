@@ -52,8 +52,6 @@ const waqfah: SiteApp = {
   ],
 }
 
-const SUBMIT_URL = 'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=app_submission.yml'
-
 // Shaped like Site::HomeShowResource.
 export const homePageProps: SiteHomeShow = {
   resources: 547,
@@ -69,7 +67,6 @@ export const homePageProps: SiteHomeShow = {
   ],
   showcase: [quranwbw, nimaz, waqfah, quranValidator],
   appsCount: 23,
-  submitUrl: SUBMIT_URL,
   tools: [
     {
       label: 'Ayah translations',

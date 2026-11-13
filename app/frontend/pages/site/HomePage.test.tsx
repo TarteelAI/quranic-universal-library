@@ -94,17 +94,18 @@ describe('site/HomePage', () => {
     expect(screen.getByRole('link', { name: 'See all tools' }).getAttribute('href')).toBe('/tools')
   })
 
-  it('shows the apps showcase, with the directory link only while the apps page exists', () => {
+  it('shows the apps showcase, with the directory and submission links only while the apps page exists', () => {
     const { unmount } = renderPage(HomePage, { props: homePageProps })
 
     expect(screen.getByText(/^20\+ readers/)).toBeDefined()
     expect(screen.getByRole('link', { name: /QuranWBW/ }).getAttribute('href')).toBe('https://quranwbw.com')
     expect(screen.getByRole('link', { name: 'See the apps' }).getAttribute('href')).toBe('/apps')
-    expect(screen.getByRole('link', { name: 'Submit your app' }).getAttribute('href')).toBe(homePageProps.submitUrl)
+    expect(screen.getByRole('link', { name: 'Submit your app' }).getAttribute('href')).toBe('/apps?submit=1')
     unmount()
 
     renderPage(HomePage, { props: { ...homePageProps, appsPage: false } })
     expect(screen.queryByRole('link', { name: 'See the apps' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Submit your app' })).toBeNull()
   })
 
   it('shows the star count from GitHub once it loads', async () => {

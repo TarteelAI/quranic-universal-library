@@ -56,6 +56,8 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
     icon: null,
   })
   const { data, errors } = form
+  // An error about the submission as a whole (the daily limit), which no field shows.
+  const [refusal, setRefusal] = React.useState<string[]>()
 
   const changeOpen = (next: boolean) => {
     if (next) setSent(false)
@@ -65,8 +67,10 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
     form.transform((fields) => ({ app: fields }))
+    setRefusal(undefined)
     form.post(appSubmissions().url, {
       preserveScroll: true,
+      onError: (errors) => setRefusal(errors.base),
       onSuccess: () => {
         form.reset()
         setSent(true)
@@ -186,6 +190,11 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
                 </Label>
                 <FieldError name="consent" error={errors.consent} />
               </div>
+              {refusal && (
+                <p role="alert" className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
+                  {refusal.join(' ')}
+                </p>
+              )}
               <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => changeOpen(false)}>
                   Cancel

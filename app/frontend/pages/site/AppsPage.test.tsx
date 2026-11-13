@@ -122,6 +122,24 @@ describe('site/AppsPage', () => {
     expect(dialog.getByLabelText('App name')).toHaveProperty('value', 'Noor')
   })
 
+  it('shows the refusal of a submission over the daily limit', async () => {
+    vi.spyOn(router, 'post').mockImplementation((_url, _data, options) => {
+      options?.onError?.({ base: ['You can send at most 3 apps a day. Try again tomorrow.'] })
+    })
+    renderPage(AppsPage, { props: appsPageProps, shared: { auth: signedInAuth }, url: '/apps?submit=1' })
+
+    const dialog = within(screen.getByRole('dialog', { name: 'Submit your app' }))
+    fireEvent.change(dialog.getByLabelText('App name'), { target: { value: 'Noor' } })
+    fireEvent.change(dialog.getByLabelText('Link'), { target: { value: 'https://noor.example' } })
+    fireEvent.change(dialog.getByLabelText('Contact email'), { target: { value: 'maker@example.test' } })
+    fireEvent.click(dialog.getByRole('button', { name: 'Submit app' }))
+
+    await waitFor(() =>
+      expect(dialog.getByRole('alert').textContent).toBe('You can send at most 3 apps a day. Try again tomorrow.'),
+    )
+    expect(dialog.getByLabelText('App name')).toHaveProperty('value', 'Noor')
+  })
+
   it('hydrates the server HTML without a mismatch', async () => {
     const { logged, unmount } = await hydratePage(AppsPage, { props: appsPageProps })
 

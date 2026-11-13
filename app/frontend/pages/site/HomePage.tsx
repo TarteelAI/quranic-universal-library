@@ -125,7 +125,7 @@ function HeroStar() {
 
 /* ---------------- apps built with QUL ---------------- */
 
-function Apps({ showcase, appsCount, appsPage, submitUrl }: SiteHomeShow) {
+function Apps({ showcase, appsCount, appsPage }: SiteHomeShow) {
   return (
     <section className="py-12 sm:py-16">
       <Container className="flex flex-col gap-8 lg:flex-row lg:items-center lg:gap-14">
@@ -137,20 +137,21 @@ function Apps({ showcase, appsCount, appsPage, submitUrl }: SiteHomeShow) {
             {Math.floor(appsCount / 5) * 5}+ readers, hifz and study apps and developer libraries credit QUL for their
             text, layouts, fonts, audio timing and tafsir.
           </p>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {appsPage && (
+          {/* The apps directory, and its submission form, exist only while the `apps` group is on. */}
+          {appsPage && (
+            <div className="mt-1 flex flex-wrap gap-2">
               <Button variant="outline" size="sm" asChild>
                 <NavAnchor link={{ href: appsDirectory().url, inertia: true }}>
                   See the apps <ArrowRightIcon />
                 </NavAnchor>
               </Button>
-            )}
-            <Button variant="ghost" size="sm" asChild>
-              <a href={submitUrl} target="_blank" rel="noreferrer">
-                <PlusIcon /> Submit your app
-              </a>
-            </Button>
-          </div>
+              <Button variant="ghost" size="sm" asChild>
+                <NavAnchor link={{ href: appsDirectory({ query: { submit: 1 } }).url, inertia: true }}>
+                  <PlusIcon /> Submit your app
+                </NavAnchor>
+              </Button>
+            </div>
+          )}
         </div>
         <ul className="grid min-w-0 flex-1 grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 xl:grid-cols-4">
           {showcase.map((app) => (

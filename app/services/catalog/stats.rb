@@ -20,7 +20,7 @@ module Catalog
 
     def call
       rows = DownloadableResource.published.pluck(:resource_type, :language_id, :resource_content_id)
-      content_languages = ResourceContent.where(id: rows.map(&:third).compact).pluck(:id, :language_id).to_h
+      content_languages = ResourceContent.where(id: rows.filter_map(&:third)).pluck(:id, :language_id).to_h
       language_ids = rows.filter_map { |_type, language_id, content_id| language_id || content_languages[content_id] }
       per_type = rows.map(&:first).tally
 
@@ -28,7 +28,7 @@ module Catalog
         resources: rows.size,
         languages: Language.where(id: language_ids.uniq).count,
         recitations: per_type.fetch('recitation', 0),
-        per_type: per_type
+        per_type: per_type,
       )
     end
   end

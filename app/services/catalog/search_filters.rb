@@ -10,7 +10,7 @@ module Catalog
     MAX_QUERY_LENGTH = 200
     VIEWS = ['grid', 'list'].freeze
 
-    def self.from(input)
+    def self.from(input) # rubocop:disable Metrics/AbcSize -- one line for each filter
       input = input.to_h.transform_keys(&:to_s)
       new(
         q: input['q'].is_a?(String) ? input['q'].strip.first(MAX_QUERY_LENGTH) : '',
@@ -23,7 +23,7 @@ module Catalog
         status: pick(input['status'], Taxonomy.statuses),
         sort: pick(input['sort'], Taxonomy.sorts),
         page: [input['page'].to_s[/\A\d+\z/].to_i, 1].max,
-        view: VIEWS.include?(input['view']) ? input['view'] : VIEWS.first
+        view: VIEWS.include?(input['view']) ? input['view'] : VIEWS.first,
       )
     end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 # The catalog search runs over the published catalog on the clone. Expected rows come from
@@ -16,21 +18,21 @@ RSpec.describe Catalog::SearchQuery do
   # Resource content rows no catalog resource uses yet (a resource needs its own one).
   let(:free_contents) do
     ResourceContent.where.not(id: DownloadableResource.where.not(resource_content_id: nil).pluck(:resource_content_id))
-                   .order(:id).limit(5).to_a
+      .order(:id).limit(5).to_a
   end
 
   def create_resource(name, **attributes)
     DownloadableResource.create!(name: name, resource_type: 'tafsir', cardinality_type: '1_ayah', published: true,
-                                 resource_content: free_contents.shift, **attributes)
+                                 resource_content: free_contents.shift, **attributes,)
   end
 
   # Script families on a few scripts, fonts and layouts, whether or not the clone has drafted
   # them yet.
   def assign_script_families
-    { 'quran-script' => %w[madani madani indopak], 'font' => %w[madani indopak], 'mushaf-layout' => %w[other] }
+    { 'quran-script' => ['madani', 'madani', 'indopak'], 'font' => ['madani', 'indopak'], 'mushaf-layout' => ['other'] }
       .each do |type, families|
         published.where(resource_type: type).order(:id).first(families.size).zip(families)
-                 .each { |resource, family| resource.update_columns(script_family: family) }
+          .each { |resource, family| resource.update_columns(script_family: family) }
       end
   end
 
@@ -81,7 +83,7 @@ RSpec.describe Catalog::SearchQuery do
       expected = published_in(czech)
       expect(expected).not_to be_empty
 
-      %w[Čeština cestina CESTINA ČEŠTINA].each do |query|
+      ['Čeština', 'cestina', 'CESTINA', 'ČEŠTINA'].each do |query|
         expect(ids(search(q: query))).to include(*expected), query
       end
       expect(ids(search(q: 'ENGLISH'))).to eq(ids(search(q: 'english')))
@@ -119,15 +121,15 @@ RSpec.describe Catalog::SearchQuery do
       expect(published.where(script_family: 'indopak').count).to be >= 2
 
       expect(ids(search(script: ['indopak']))).to match_array(published.where(script_family: 'indopak').ids)
-      expect(ids(search(script: %w[madani indopak])))
-        .to match_array(published.where(script_family: %w[madani indopak]).ids)
+      expect(ids(search(script: ['madani', 'indopak'])))
+        .to match_array(published.where(script_family: ['madani', 'indopak']).ids)
     end
 
     it 'filters by format, through the published files' do
       sqlite_types = DownloadableFile.distinct.pluck(:file_type).compact
-                                     .select { |type| type.downcase.end_with?('sqlite') }
+        .select { |type| type.downcase.end_with?('sqlite') }
       expected = published.joins(:downloadable_files)
-                          .where(downloadable_files: { published: true, file_type: sqlite_types }).distinct.ids
+        .where(downloadable_files: { published: true, file_type: sqlite_types }).distinct.ids
       expect(expected).not_to be_empty
 
       expect(ids(search(format: 'sqlite'))).to match_array(expected)
@@ -154,11 +156,11 @@ RSpec.describe Catalog::SearchQuery do
 
     it 'ignores values outside the vocabularies, and a language no published resource has' do
       assign_script_families
-      result = search(type: 'nope', language: 'xx', script: %w[madani nope], format: 'exe', granularity: '2_ayah',
-                      status: 'gone', sort: 'random', page: 'two')
+      result = search(type: 'nope', language: 'xx', script: ['madani', 'nope'], format: 'exe', granularity: '2_ayah',
+                      status: 'gone', sort: 'random', page: 'two',)
 
       expect(result.filters.to_h).to include(type: nil, language: nil, script: ['madani'], format: nil,
-                                             granularity: nil, status: nil, sort: nil, page: 1)
+                                             granularity: nil, status: nil, sort: nil, page: 1,)
       expect(ids(result)).to match_array(published.where(script_family: 'madani').ids)
     end
   end
@@ -191,7 +193,7 @@ RSpec.describe Catalog::SearchQuery do
       result = search(type: 'font', script: ['madani'])
 
       expect(result.facets[:type].keys).to contain_exactly(
-        *published.where(script_family: 'madani').distinct.pluck(:resource_type)
+        *published.where(script_family: 'madani').distinct.pluck(:resource_type),
       )
       expect(result.facets[:type]['font']).to eq(published.where(resource_type: 'font', script_family: 'madani').count)
       indopak_fonts = published.where(resource_type: 'font', script_family: 'indopak').count
@@ -203,8 +205,8 @@ RSpec.describe Catalog::SearchQuery do
     let(:direct_totals) do
       published.joins('LEFT JOIN downloadable_files f ON f.downloadable_resource_id = downloadable_resources.id ' \
                       'AND f.published')
-               .group('downloadable_resources.id')
-               .sum('COALESCE(f.download_count, 0) + COALESCE(f.anonymous_download_count, 0)')
+        .group('downloadable_resources.id')
+        .sum('COALESCE(f.download_count, 0) + COALESCE(f.anonymous_download_count, 0)')
     end
 
     it 'orders by the combined download totals (popular)' do
@@ -225,7 +227,7 @@ RSpec.describe Catalog::SearchQuery do
     it 'never counts unpublished files, and never shows unpublished resources' do
       least = ids(search(sort: 'popular')).last
       file = DownloadableFile.create!(downloadable_resource_id: least, file_type: 'csv', published: false,
-                                      download_count: 10**9)
+                                      download_count: 10**9,)
       hidden = create_resource('Zyxwv hidden tafsir', published: false)
 
       result = search(sort: 'popular')

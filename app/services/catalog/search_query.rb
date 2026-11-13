@@ -39,7 +39,7 @@ module Catalog
       @per_page = per_page
     end
 
-    def call
+    def call # rubocop:disable Metrics/AbcSize -- one pipeline: search, filter, sort, page, count
       rows = load_rows
       languages = rows.filter_map(&:language).uniq.sort_by(&:name)
       filters = @filters
@@ -57,18 +57,18 @@ module Catalog
         filters: filters.with(page: page), matches: matches, results: results,
         total: matches.size, page: page, pages: pages,
         facets: FACETS.index_with { |facet| counts(found, facet, filters) }, languages: languages,
-        groups: groups(matches, results, order)
+        groups: groups(matches, results, order),
       )
     end
 
     private
 
-    def load_rows
+    def load_rows # rubocop:disable Metrics/AbcSize -- the fixed set of queries named above
       resources = DownloadableResource.published.preload(:downloadable_resource_tags).to_a
       files = DownloadableFile.where(published: true, downloadable_resource_id: resources.map(&:id))
-                              .group_by(&:downloadable_resource_id)
-      content_languages = ResourceContent.where(id: resources.map(&:resource_content_id).compact)
-                                         .pluck(:id, :language_id).to_h
+        .group_by(&:downloadable_resource_id)
+      content_languages = ResourceContent.where(id: resources.filter_map(&:resource_content_id))
+        .pluck(:id, :language_id).to_h
       languages = Language.where(id: (resources.map(&:language_id) + content_languages.values).compact).index_by(&:id)
 
       resources.map do |resource|
@@ -78,16 +78,20 @@ module Catalog
     end
 
     def build_row(resource, language, files)
-      type = Taxonomy.type(resource.resource_type)
-      text = [resource.display_name, resource.name, type&.label, type&.title, language&.name, language&.native_name,
-              *resource.downloadable_resource_tags.map(&:name)]
       Row.new(
         resource: resource, language: language,
         formats: Taxonomy.formats_of(files.map(&:file_type)),
         downloads: files.sum(&:total_download_count),
         updated_at: files.map(&:updated_at).max || resource.updated_at,
-        text: text.filter_map { |part| TextKey.call(part).presence }.uniq.join(' | ')
+        text: search_text(resource, language),
       )
+    end
+
+    def search_text(resource, language)
+      type = Taxonomy.type(resource.resource_type)
+      parts = [resource.display_name, resource.name, type&.label, type&.title, language&.name, language&.native_name,
+               *resource.downloadable_resource_tags.map(&:name),]
+      parts.filter_map { |part| TextKey.call(part).presence }.uniq.join(' | ')
     end
 
     # No sort and no query: by category, most downloaded first in each.
@@ -138,7 +142,7 @@ module Catalog
     def counts(rows, facet, filters)
       others = FACETS - [facet]
       tally = rows.select { |row| others.all? { |other| match?(row, other, filters) } }
-                  .flat_map { |row| values(row, facet).compact }.tally
+        .flat_map { |row| values(row, facet).compact }.tally
       selected(facet, filters).each { |value| tally[value] ||= 0 }
       tally.sort_by { |value, count| [-count, value] }.to_h
     end

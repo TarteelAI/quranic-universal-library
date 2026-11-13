@@ -1,0 +1,23 @@
+Dockerfile
+  s_db54c2f377aa7f::t_da05ed63f9d24d 1,23,182-184
+Gemfile
+  s_db54c2f377aa7f::t_379e88081db9b3 4
+lib/tasks/audio.rake
+  s_db54c2f377aa7f::t_a41ef10f422982 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "2db06a2e1065160ab8eb7402d297c5629724209d",
+  "prompts": {},
+  "sessions": {
+    "s_db54c2f377aa7f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "51f8b53c-bf6b-4a1b-ae04-6f20bfa8c81f",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yunus Andreasson <yunus@edenmind.com>"
+    }
+  }
+}

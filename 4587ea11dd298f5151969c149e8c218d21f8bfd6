@@ -1,0 +1,21 @@
+.github/workflows/tests.yml
+  s_e448f1e2ba3b48::t_5fe2599eaa13da 26
+lib/exporter/base_exporter.rb
+  s_e448f1e2ba3b48::t_0ea05cfd930fdf 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4587ea11dd298f5151969c149e8c218d21f8bfd6",
+  "prompts": {},
+  "sessions": {
+    "s_e448f1e2ba3b48": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "19c6a00a-6b92-4c08-a68e-ad1e2dd4032c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Khaled-Abdelhamid <khaled.abdelhamid@tarteel.ai>"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+lib/exporter/base_exporter.rb
+  s_e448f1e2ba3b48::t_fc6127f5730ce1 24,27-30
+test/lib/exporter/base_exporter_test.rb
+  s_e448f1e2ba3b48::t_2320585531cf02 41
+  s_e448f1e2ba3b48::t_90524201e85ea6 1-3,5-31,48
+  s_e448f1e2ba3b48::t_bbbe2eb72818e4 4
+  s_e448f1e2ba3b48::t_bcfe26f4f4819f 32-40,42-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ec21f8d45f0510ff9bbeaacf7f7b460a083b69f4",
+  "prompts": {},
+  "sessions": {
+    "s_e448f1e2ba3b48": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "19c6a00a-6b92-4c08-a68e-ad1e2dd4032c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Khaled-Abdelhamid <khaled.abdelhamid@tarteel.ai>"
+    }
+  }
+}

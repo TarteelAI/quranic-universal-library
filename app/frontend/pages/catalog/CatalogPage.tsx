@@ -272,6 +272,7 @@ export default function CatalogPage({
         className="flex-1"
         density={compact ? 'compact' : 'default'}
         title={result.name}
+        bundleId={result.id}
         href={detailResources({ type: result.type, id: result.toParam }).url}
         category={categoryOf(result)}
         facts={facts(result)}

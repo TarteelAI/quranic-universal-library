@@ -187,6 +187,8 @@ Rails.application.routes.draw do
     get '/resources/:slug/copyright', to: 'catalog/resources#copyright', format: false
     get '/resources/:type/:slug', to: 'catalog/resources#show', as: :catalog_resource, format: false
     get '/resources/:type/:slug/preview', to: 'catalog/previews#show', as: :catalog_resource_preview, format: false
+    # The bundle tray's lookup (JSON): the bundle's resource ids as the catalog shows them now.
+    get '/bundle', to: 'catalog/bundles#show', as: :catalog_bundle, format: false
     get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
                                        constraints: { tab: /docs|licence|ligatures|glyphs/ }
   end

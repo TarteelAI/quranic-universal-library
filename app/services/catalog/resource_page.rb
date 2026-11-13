@@ -66,14 +66,17 @@ module Catalog
         .find_by_slug_or_id!(param)
     end
 
+    # A published file with its blob attached, as the download panel and the bundle tray list it.
+    def self.download(file)
+      blob = file.file.blob
+      format = Taxonomy.format_for(file.file_type)
+      Download.new(id: file.id, name: file.file_type.to_s.strip, format:,
+                   format_label: Taxonomy.label(Taxonomy.formats, format), byte_size: blob.byte_size,
+                   md5: Base64.decode64(blob.checksum.to_s).unpack1('H*'),) # rubocop:disable Naming/VariableNumber
+    end
+
     def files
-      @files ||= published_files.map do |file|
-        blob = file.file.blob
-        format = Taxonomy.format_for(file.file_type)
-        Download.new(id: file.id, name: file.file_type.to_s.strip, format:,
-                     format_label: Taxonomy.label(Taxonomy.formats, format), byte_size: blob.byte_size,
-                     md5: Base64.decode64(blob.checksum.to_s).unpack1('H*'),) # rubocop:disable Naming/VariableNumber
-      end
+      @files ||= published_files.map { |file| self.class.download(file) }
     end
 
     def can_download?

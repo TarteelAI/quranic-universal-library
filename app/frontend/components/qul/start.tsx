@@ -111,6 +111,7 @@ export function ResultCard({ result, vocabularies, density, inertia, className }
       density={density}
       inertia={inertia}
       title={result.name}
+      bundleId={result.id}
       href={detailResources({ type: result.type, id: result.toParam }).url}
       category={vocabularies.types.find((option) => option.key === result.type)?.category.key ?? 'metadata'}
       facts={[

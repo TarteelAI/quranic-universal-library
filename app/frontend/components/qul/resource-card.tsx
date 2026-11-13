@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import type { CatalogCategory } from '@/types/serializers'
 
+import { BundleToggle } from './bundle'
 import { ResourceIcon } from './icons'
 import { NavAnchor } from './nav'
 
@@ -26,15 +27,17 @@ export interface ResourceCardProps {
   preview?: ReactNode
   /** Legacy and superseded resources: the preview is dimmed */
   muted?: boolean
+  /** The resource's id: the card gets the bundle's add and remove toggle */
+  bundleId?: number
   /** `compact` is a list row: the type icon, the title, the status and facts, and the formats; no preview or summary */
   density?: 'default' | 'compact'
   className?: string
 }
 
 // The browse unit for a downloadable resource, from the v7 design (ds/src/components/qul/cards.tsx).
-// The bundle toggle comes with the bundle story. With a preview the type icon is small, beside the
-// facts; without one it is a tile beside the title. Parts with no data take no space.
-// The whole card is the link (the title link stretches over it).
+// With a preview the type icon is small, beside the facts; without one it is a tile beside the
+// title. Parts with no data take no space. The whole card is the link (the title link stretches
+// over it); the bundle toggle sits above it.
 export function ResourceCard({
   title,
   href,
@@ -46,9 +49,11 @@ export function ResourceCard({
   formats = [],
   preview,
   muted = false,
+  bundleId,
   density = 'default',
   className,
 }: ResourceCardProps) {
+  const toggle = bundleId !== undefined && <BundleToggle id={bundleId} name={title} />
   const titleLink = (
     <NavAnchor
       link={{ href, inertia }}
@@ -82,6 +87,7 @@ export function ResourceCard({
             {formats.join(' · ')}
           </span>
         )}
+        {toggle}
       </article>
     )
 
@@ -109,7 +115,7 @@ export function ResourceCard({
           </div>
         </div>
         {summary && <p className="line-clamp-2 text-sm text-muted-foreground">{summary}</p>}
-        {(status || formats.length > 0) && (
+        {(status || formats.length > 0 || toggle) && (
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1">
             {status}
             {formats.length > 0 && (
@@ -117,6 +123,7 @@ export function ResourceCard({
                 {formats.join(' · ')}
               </span>
             )}
+            {toggle && <span className="ms-auto">{toggle}</span>}
           </div>
         )}
       </div>

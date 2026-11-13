@@ -4,6 +4,7 @@ import * as layout from '@/components/layout'
 import * as cardPreview from '@/components/previews/card-preview'
 import * as appIcon from '@/components/qul/app-icon'
 import * as appSubmission from '@/components/qul/app-submission'
+import * as bundle from '@/components/qul/bundle'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
 import * as copyButton from '@/components/qul/copy-button'
@@ -42,6 +43,7 @@ const modules = {
   cardPreview,
   appIcon,
   appSubmission,
+  bundle,
   catalog,
   chrome,
   copyButton,
@@ -81,6 +83,7 @@ const { Container, SiteShell } = layout
 const { CardPreview } = cardPreview
 const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
+const { AddToBundle, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, FilterChip, RequestCard } = catalog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
@@ -222,6 +225,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   DownloadPanel: {
     element: (
       <DownloadPanel
+        id={1}
         type="tafsir"
         slug="tafsir-ibn-kathir"
         files={resourcePageProps.files}
@@ -276,6 +280,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     element: (
       <ResourceCard
         title="Sahih International"
+        bundleId={1}
         href="/resources/translation/1"
         category="translation"
         facts={['Translation']}
@@ -286,6 +291,12 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'JSON · SQLite',
   },
+  BundleToggle: {
+    element: <BundleToggle id={1} name="Sahih International" />,
+    text: 'Add Sahih International to bundle',
+  },
+  AddToBundle: { element: <AddToBundle ids={[1, 2]} label="Add kit to bundle" />, text: 'Add kit to bundle' },
+  BundleTray: { element: <BundleTray />, text: 'Bundle, 0 resources' },
   ResultCard: {
     element: <ResultCard result={catalogPageProps.results[0]} vocabularies={catalogPageProps.vocabularies} />,
     text: 'Sahih International',

@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react'
 import { ArrowRightIcon } from 'lucide-react'
 
 import { Container, SiteShell } from '@/components/layout'
+import { AddToBundle } from '@/components/qul/bundle'
 import { CopyButton } from '@/components/qul/copy-button'
 import { QulIcon } from '@/components/qul/icons'
 import { NavAnchor } from '@/components/qul/nav'
@@ -58,7 +59,16 @@ export default function KitPage({
               .
             </>
           }
-          actions={<CopyButton text={() => window.location.href} label="Copy link" />}
+          actions={
+            <>
+              <CopyButton text={() => window.location.href} label="Copy link" />
+              <AddToBundle
+                ids={items.map((item) => item.resource.id)}
+                label="Add kit to bundle"
+                addedLabel="Kit is in your bundle"
+              />
+            </>
+          }
         />
       </Container>
 

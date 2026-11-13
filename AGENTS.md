@@ -238,6 +238,12 @@ Files download from `/resources/:type/:slug/download/:file_id` and from the old 
 (`Catalog::DownloadsController`) whatever the page groups. Both end in a redirect to the file's
 storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 
+- The bundle tray (header, `components/qul/bundle.tsx`) lists these same links, so it changes no
+  download rule or count. The bundle is a list of resource ids in `localStorage` (`qul-bundle`,
+  `lib/bundle.ts`); the server never stores it, and the server render and hydration see it empty.
+  The tray asks `/bundle?ids=…` (`Catalog::BundlesController`, catalog group) what the ids are
+  now: an id that is no longer a published resource, and a restricted resource, come back
+  without files and show as unavailable. With `catalog` off there is no tray (`nav.bundle`).
 - `QUL_DOWNLOAD_MODE` (`DownloadMode`): `sign_in` (the default) sends an anonymous visitor to
   sign-in, which returns to `/resources/:type/:slug?download=<file id>` (with the `catalog` group
   off, to the download URL itself, because the old page ignores the parameter). The detail page

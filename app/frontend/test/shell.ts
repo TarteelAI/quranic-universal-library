@@ -92,6 +92,7 @@ export const nav: SiteNav = {
     { external: true },
   ),
   docsSearch: false,
+  bundle: true,
 }
 
 export const signedInAuth: Auth = { user: { initials: 'FR', name: 'Fake' } }

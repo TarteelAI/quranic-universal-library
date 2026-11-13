@@ -853,8 +853,37 @@
       "testFirst": false,
       "difficulty": "med",
       "review": false,
-      "passes": false,
-      "notes": "The server never sees the bundle, so the tray needs a way to turn stored ids into current names and files: one small JSON endpoint that takes ids and returns only what the public catalog already shows. Storage can be blocked or empty: the header and pages must work without it. Prototype: `../qul-redesign/ds/src/components/qul/chrome.tsx` and `src/app/shell.tsx`."
+      "passes": true,
+      "notes": "The server never sees the bundle, so the tray needs a way to turn stored ids into current names and files: one small JSON endpoint that takes ids and returns only what the public catalog already shows. Storage can be blocked or empty: the header and pages must work without it. Prototype: `../qul-redesign/ds/src/components/qul/chrome.tsx` and `src/app/shell.tsx`.",
+      "completedAt": "2026-11-13T22:30:46Z",
+      "handoff": {
+        "done": [
+          "Bundle store (app/frontend/lib/bundle.ts): resource ids in localStorage key `qul-bundle` through useSyncExternalStore; server snapshot is empty so SSR and hydration render an empty bundle; the storage event syncs other tabs; blocked storage keeps the bundle in the page only; at most 100 ids (BUNDLE_LIMIT = Catalog::Bundle::MAX_IDS).",
+          "Lookup: GET /bundle?ids=1,2 (catalog group; Catalog::BundlesController, Catalog::Bundle service, Catalog::BundleResource / BundleItemResource; noindex JSON). Each id in order: ResourceRefResource + category + files as ResourceFileResource, or resource null when not a published resource; a restricted resource the viewer may not download comes back `restricted: true` with no files; a resource with no published attached files comes back with files []. Two queries (resources + preloaded files/blobs). ResourcePage.download(file) extracted so the panel and the tray build files the same way. Route helper catalogBundle and types CatalogBundle/CatalogBundleItem generated; typelizer:check up to date.",
+          "UI (components/qul/bundle.tsx): BundleTray in the header (count badge, side sheet from the v8 design: per resource the name linking the detail page, each file as a plain <a> to /resources/:type/:slug/download/:file_id with its size, Remove, 'Unavailable' notes for gone/restricted/no-file items, Copy list, and a sign-in note for anonymous visitors in sign_in mode); BundleToggle (+/check) on every ResourceCard given `bundleId` (catalog, type pages, setup results and kit page via ResultCard); AddToBundle in the detail page's DownloadPanel (when it can download) and 'Add kit to bundle' / 'Kit is in your bundle' on the kit page. Shared nav prop `bundle` (= catalog group on) hides all of it when catalog is off.",
+          "Vitest: components/qul/bundle.test.tsx 9 tests (add/remove from card, kit and detail buttons with count and storage; stored list read and another tab's storage event; blocked storage; nothing with nav.bundle false; tray file hrefs and unavailable states; copy text = name + full download URL per file; sign-in note only for anonymous in sign_in mode; empty bundle no fetch; failed lookup). kit.test.tsx: new test hydrates SiteHeader + ResourceCard with a stored bundle, no mismatch, count 2 after hydration. Kit entries for BundleToggle, AddToBundle, BundleTray (SSR + hydration). Full suite 50 files / 426 tests passed; tsc, ESLint clean.",
+          "RSpec spec/requests/catalog/bundles_spec.rb 8 examples (order, published files only, unpublished/unknown id, lost files, restricted for anonymous/reader/admin, id parsing and MAX_IDS cap, download mode in both modes, nav.bundle on, 404 + nav.bundle false with catalog off). spec/requests + spec/serializers + spec/services: 436 examples, 1 failure fixed (site_shell nav keys now include :bundle). RuboCop clean on changed Ruby files.",
+          "Playwright spec/browser/bundle.spec.ts against a second Rails on :3001 (qul-dev, host forward, groups home,catalog,apps,content,start), real backend, desktop and phone: card, kit and detail add and remove with header count, same after reload and in a second tab (storage event); QUL_DOWNLOAD_MODE=public run: tray file link redirects to the storage file (4 passed, 2 skipped); sign_in run: anonymous tray download lands on sign-in with user_return_to=<detail>?download=<file> (4 passed, 2 skipped). Neighbours kits, shell, resource-page, resource-cards, catalog: 65 passed; 9 failed under load (timeouts while a screenshot run and vite builds ran) and all re-ran green with 2 workers except catalog.spec.ts:25, the known content-group failure from lessons (002-01).",
+          "Screenshots (tmp/playwright/002-17, not committed): kit, type page and open tray at both widths.",
+          "AGENTS.md Downloads section: a paragraph on the bundle tray, its storage key and the /bundle lookup."
+        ],
+        "decisions": [
+          "The bundle stores resource ids, not file ids: cards and kits add resources, and the tray lists each resource's current published files, so a file added or removed later shows up correctly. Ids rather than slugs because a resource without a slug has none until the catalog backfill.",
+          "The bundle belongs to the catalog group (PRD): with catalog off there is no tray, no toggles and /bundle is a 404, so no tray link can lead to an old page variant.",
+          "A restricted resource is reported with no files (restricted: true) rather than dropped, so the tray can say why it is unavailable and link its page; admins get its files, as on the detail page.",
+          "The tray file link shows the file name the detail page shows (file_type, e.g. simple.json) with its size; aria-label 'Download <name>, <size>'.",
+          "The lookup runs when the tray opens and again only when an id is added that the last answer lacks; removing hides locally. The state is derived (no setState in the effect) for react-hooks/set-state-in-effect.",
+          "spec/browser/bundle.spec.ts declares the few JSON fields it reads instead of importing app types: spec/browser's tsconfig has no '@/' alias, so importing the generated types broke `yarn typecheck`."
+        ],
+        "concerns": [
+          "Catalog page JS+CSS gzip (RAILS_ENV=test vite build, manifest walk incl. entry): 223,708 B at 044ce505 -> 226,697 B (+2,989 B); type page 214,304 -> 217,294. The header tray is in every page's bundle. The S3 margin (+10 KB over 214,033) was set for card previews; this is now 12.7 KB over that baseline.",
+          "spec/browser/kits.spec.ts fails `prettier --check` at HEAD (untouched here); `yarn format:frontend` in CI will flag it until someone formats it.",
+          "catalog.spec.ts 'a new page links out to an old page' still fails with the content group on (lessons, 002-01); not this story's.",
+          "The SSR bundle (public/vite-ssr) on disk predates the last bundle.tsx tweak; rebuild before SSR request specs (SsrServer checks freshness).",
+          "Not verified: production image, a real phone (Pixel 7 emulation only), dark theme of the tray, the copy button in a real browser clipboard (component test only)."
+        ]
+      },
+      "filesChanged": 31
     },
     {
       "id": "002-18",

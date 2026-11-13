@@ -14,6 +14,7 @@ Typelizer.configure do |config|
     %r{\A/users/sign_(in|out)\z},
     %r{\A/\z},
     %r{\A/spotlight\z},
+    %r{\A/bundle\z},
     %r{\A/apps\z},
     %r{\A/start\z},
     %r{\A/docs(/:key|/search-index)?\z},

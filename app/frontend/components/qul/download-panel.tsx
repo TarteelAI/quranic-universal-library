@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react'
 import { DownloadIcon, LinkIcon } from 'lucide-react'
 import * as React from 'react'
 
+import { AddToBundle } from '@/components/qul/bundle'
 import { CopyButton } from '@/components/qul/copy-button'
 import { Button } from '@/components/ui/button'
 import { formatBytes } from '@/lib/format'
@@ -10,6 +11,8 @@ import { catalogDownload, catalogResource } from '@/routes'
 import type { CatalogResourceFile, CatalogWorksWithGroup } from '@/types/serializers'
 
 export interface DownloadPanelProps {
+  /** The resource's id, for the bundle */
+  id: number
   /** The resource's type key and slug, for the download URLs */
   type: string
   slug: string
@@ -53,6 +56,7 @@ function FileUrl({ path }: { path: string }) {
 // is a plain link to the download route, which counts it and sends the file (or, in sign-in
 // mode, sends an anonymous visitor to sign in first). The same link can be copied.
 export function DownloadPanel({
+  id,
   type,
   slug,
   files,
@@ -134,6 +138,8 @@ export function DownloadPanel({
               </li>
             ))}
           </ul>
+
+          {canDownload && <AddToBundle ids={[id]} className="w-full" />}
 
           {canDownload && signInHref && (
             <p className="text-sm text-muted-foreground">

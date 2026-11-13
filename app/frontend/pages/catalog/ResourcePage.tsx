@@ -338,6 +338,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             </>
           )}
           <DownloadPanel
+            id={resource.id}
             type={resource.type}
             slug={resource.toParam}
             files={files}

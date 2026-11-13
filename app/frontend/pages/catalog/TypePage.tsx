@@ -86,6 +86,7 @@ function Cards({
             <ResourceCard
               className="flex-1"
               title={resource.name}
+              bundleId={resource.id}
               href={detailHref(resource)}
               category={type.category.key}
               facts={cardFacts(type, resource)}

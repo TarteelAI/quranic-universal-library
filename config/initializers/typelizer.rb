@@ -16,10 +16,10 @@ Typelizer.configure do |config|
     %r{\A/spotlight\z},
     %r{\A/apps\z},
     %r{\A/docs(/:key)?\z},
-    # The catalog, its type pages, the resource detail pages and file downloads.
+    # The catalog, its type pages, the resource detail pages, card previews and file downloads.
     lambda { |route|
       route[:verb] == 'get' &&
-        route[:path].match?(%r{\A/resources(/:type(/:(id|slug)(/download/:file_id)?)?)?\z})
+        route[:path].match?(%r{\A/resources(/:type(/:(id|slug)(/download/:file_id|/preview)?)?)?\z})
     }
   ]
 end

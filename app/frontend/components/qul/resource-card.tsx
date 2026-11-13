@@ -11,16 +11,18 @@ export interface ResourceCardProps {
   facts?: string[]
   /** Status and recommendation badges, shown above the title */
   badges?: ReactNode
+  /** A preview fitted to the type (CardPreview), above the text */
+  preview?: ReactNode
   /** Shown at the bottom of the card, e.g. "3 files" */
   footnote?: string
   className?: string
 }
 
 // The browse unit for a downloadable resource, from the v7 design (ds/src/components/qul/cards.tsx).
-// Formats, previews and the bundle toggle come with the stories that add their data.
+// Formats and the bundle toggle come with the stories that add their data.
 // The whole card is the link (the title link stretches over it). Cards are only shown on catalog
 // pages, so the catalog page group is on and a new page serves the detail page they link to.
-export function ResourceCard({ title, href, facts = [], badges, footnote, className }: ResourceCardProps) {
+export function ResourceCard({ title, href, facts = [], badges, preview, footnote, className }: ResourceCardProps) {
   return (
     <article
       className={cn(
@@ -28,6 +30,7 @@ export function ResourceCard({ title, href, facts = [], badges, footnote, classN
         className,
       )}
     >
+      {preview}
       <div className="flex flex-1 flex-col gap-3 p-5">
         {badges && <div className="flex flex-wrap items-center gap-x-3 gap-y-1">{badges}</div>}
         <div className="min-w-0">

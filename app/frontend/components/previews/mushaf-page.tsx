@@ -24,7 +24,7 @@ function SurahName({ number, fonts }: { number: number; fonts: Decorations }) {
 
 // Words are inline spans separated by spaces, one verse after another, as the old preview
 // lays them out; a line never wraps (whitespace-nowrap) and justified lines fill the page width.
-function Line({ line, fonts }: { line: MushafLayoutsLine; fonts: Decorations }) {
+export function MushafLine({ line, fonts }: { line: MushafLayoutsLine; fonts: Decorations }) {
   return (
     <div
       className={`whitespace-nowrap ${line.centered ? 'text-center' : 'text-justify [text-align-last:justify]'}`}
@@ -51,7 +51,7 @@ function Line({ line, fonts }: { line: MushafLayoutsLine; fonts: Decorations }) 
 
 // The fonts a page needs: its text font, plus the surah-name and bismillah fonts only when the
 // page has such lines.
-function pageFonts(page: PreviewsMushafPage): FontFiles[] {
+export function pageFonts(page: Decorations & Pick<PreviewsMushafPage, 'textFont' | 'lines'>): FontFiles[] {
   const surahLine = page.lines.some((line) => line.surahNumber !== null)
   const bismillahLine = page.lines.some((line) => line.bismillah)
   return [
@@ -127,7 +127,7 @@ export function MushafPageView({ page, navigation }: { page: PreviewsMushafPage;
           aria-busy={loading}
         >
           {page.lines.map((line) => (
-            <Line key={line.number} line={line} fonts={page} />
+            <MushafLine key={line.number} line={line} fonts={page} />
           ))}
         </div>
       </div>

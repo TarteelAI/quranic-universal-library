@@ -6,6 +6,7 @@ import { Container, SiteShell } from '@/components/layout'
 import { EmptyState, FacetGroup, RequestCard, type FacetOption } from '@/components/qul/catalog'
 import { SearchInput } from '@/components/qul/chrome'
 import { PageHeader } from '@/components/qul/page-header'
+import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { Button } from '@/components/ui/button'
 import {
@@ -18,7 +19,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { catalogResources, detailResources } from '@/routes'
+import { catalogResourcePreview, catalogResources, detailResources } from '@/routes'
 import type {
   CatalogFacetValue,
   CatalogOption,
@@ -353,6 +354,14 @@ export default function CatalogPage({
                     href={detailResources({ type: result.type, id: result.toParam }).url}
                     facts={facts(result)}
                     footnote={formats(result)}
+                    preview={
+                      result.previewKind && (
+                        <CardPreview
+                          kind={result.previewKind}
+                          url={catalogResourcePreview({ type: result.type, slug: result.toParam }).url}
+                        />
+                      )
+                    }
                   />
                 </li>
               ))}

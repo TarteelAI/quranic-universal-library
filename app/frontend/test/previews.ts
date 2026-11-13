@@ -1,5 +1,9 @@
 import type {
   FontFiles,
+  PreviewsCardLayout,
+  PreviewsCardRecitation,
+  PreviewsCardScript,
+  PreviewsCardText,
   PreviewsFont,
   PreviewsMushafLayout,
   PreviewsRecitation,
@@ -213,4 +217,35 @@ export const recordsPreview: PreviewsRecords = {
       tags: ['Supplic', 'Allah'],
     },
   ],
+}
+
+// Card previews (Previews::Card), cut from the detail previews above as the server cuts them.
+const { number, fontCode, textFont, lines } = layoutPreview.page
+export const cardLayoutPreview: PreviewsCardLayout = {
+  kind: 'layout',
+  page: { number, fontCode, textFont, ...decorations, lines },
+}
+
+export const cardRecitationPreview: PreviewsCardRecitation = {
+  kind: 'recitation',
+  granularity: recitationPreview.granularity,
+  highlights: recitationPreview.highlights,
+  track: recitationPreview.tracks[0],
+  surah: recitationPreview.surah,
+}
+
+export const cardScriptPreview: PreviewsCardScript = {
+  kind: 'script',
+  granularity: scriptPreview.granularity,
+  rendering: scriptPreview.rendering,
+  fontCode: scriptPreview.fontCode,
+  fonts: scriptPreview.fonts,
+  ayah: scriptPreview.ayahs[0],
+}
+
+export const cardTextPreview: PreviewsCardText = {
+  kind: 'text',
+  granularity: 'ayah',
+  locale: translationPreview.locale,
+  entry: translationPreview.entries[0],
 }

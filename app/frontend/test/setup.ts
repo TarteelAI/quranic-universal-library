@@ -9,3 +9,18 @@ globalThis.ResizeObserver ??= class {
   unobserve() {}
   disconnect() {}
 }
+
+// jsdom has no IntersectionObserver; resource cards load their preview once on screen. This one
+// never reports an element on screen (card-preview.test.tsx replaces it to say when).
+globalThis.IntersectionObserver ??= class {
+  root = null
+  rootMargin = ''
+  scrollMargin = ''
+  thresholds = []
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() {
+    return []
+  }
+}

@@ -3,7 +3,7 @@ import type { PreviewsText, PreviewsTextEntry, PreviewsLocale } from '@/types/se
 import { AyahRangeToolbar, type PreviewNavigation } from './navigation'
 
 // Text and footnotes are HTML the server sanitized (Previews.sanitize).
-function Html({ html, locale, className }: { html: string; locale: PreviewsLocale; className?: string }) {
+export function Html({ html, locale, className }: { html: string; locale: PreviewsLocale; className?: string }) {
   return (
     <div lang={locale.code} dir={locale.direction} className={className} dangerouslySetInnerHTML={{ __html: html }} />
   )

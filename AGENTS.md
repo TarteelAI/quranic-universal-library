@@ -178,6 +178,17 @@ groups, for every new page: the header's search button and ⌘K / Ctrl K open th
 - Request specs set the groups per example group: `page_groups: %w[catalog]` or
   `page_groups: []` (`spec/clone_helper.rb`). Write a spec for both states.
 
+### Card previews (sprint 002, story 002-03)
+
+A resource card on the catalog and type pages shows a preview fitted to its type. The page props
+carry only each card's `previewKind` (`Previews::Card.kind`); the card fetches the preview as JSON
+from `/resources/:type/:slug/preview` (`Catalog::PreviewsController`, catalog group) once it comes
+within 200 px of the viewport (`components/previews/card-preview.tsx`), so its fonts are declared
+and downloaded only then. The JSON is the detail page's provider (`Previews.for`) asked for the
+start of the Quran and cut by a card serializer (`Previews::Card*Resource`). A 404 or an
+unexpected kind removes the preview well and the card shows without it. Types with no entry in
+`Previews::Card::KINDS` have no preview.
+
 ### Downloads
 
 Files download from `/resources/:type/:slug/download/:file_id` and from the old token URL

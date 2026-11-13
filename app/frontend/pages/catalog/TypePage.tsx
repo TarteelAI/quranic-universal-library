@@ -3,12 +3,13 @@ import { ChevronDownIcon } from 'lucide-react'
 
 import { Container, SiteShell } from '@/components/layout'
 import { PageHeader } from '@/components/qul/page-header'
+import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { RecommendedBadge, StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import { catalogType, detailResources, resources as catalog } from '@/routes'
+import { catalogResourcePreview, catalogType, detailResources, resources as catalog } from '@/routes'
 import type {
   CatalogComparison,
   CatalogComparisonColumn,
@@ -81,6 +82,14 @@ function Cards({
               facts={cardFacts(type, resource)}
               badges={badges.length > 0 ? badges : undefined}
               footnote={filesLabel(resource.filesCount)}
+              preview={
+                resource.previewKind && (
+                  <CardPreview
+                    kind={resource.previewKind}
+                    url={catalogResourcePreview({ type: resource.type, slug: resource.toParam }).url}
+                  />
+                )
+              }
             />
           </li>
         )

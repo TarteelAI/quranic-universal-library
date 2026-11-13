@@ -17,5 +17,9 @@ module Catalog
     attribute(:formats, &:formats)
     attribute(:status) { |row| row.resource.status }
     attribute(:recommended) { |row| row.resource.recommended }
+
+    # The kind of preview the card fetches once on screen (Previews::Card), or null for none.
+    typelize preview_kind: [:string, { nullable: true, enum: Previews::Card::KINDS.values.uniq }]
+    attribute(:preview_kind) { |row| Previews::Card.kind(row.resource.resource_type) }
   end
 end

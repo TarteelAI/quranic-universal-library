@@ -1117,8 +1117,29 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "Never commit on or push to `main`. Marking the PR ready and merging are human steps. The unmerged `origin/qiraat/*` stack touches `config/routes.rb` and `db/schema.rb`: repeat the trial merge sprint 001 did and record the result in the PR body."
+      "passes": true,
+      "notes": "Never commit on or push to `main`. Marking the PR ready and merging are human steps. The unmerged `origin/qiraat/*` stack touches `config/routes.rb` and `db/schema.rb`: repeat the trial merge sprint 001 did and record the result in the PR body.",
+      "completedAt": "2026-11-14T00:16:09Z",
+      "filesChanged": [
+        "sprints/002-content-pages-and-guided-setup/PR.md",
+        "sprints/002-content-pages-and-guided-setup/STACK.md"
+      ],
+      "handoff": {
+        "done": [
+          "Merged sprint branch into qul-next with --no-ff = 5df33b96 (qul-next first fast-forwarded to origin/qul-next 30580f93); only diff vs sprint head is 30580f93 (.agents/ralph/constitution.md). Pushed origin/qul-next and the sprint branch. origin/main still 2aab7198 (git ls-remote), nothing pushed to it.",
+          "PR #1033 (qul-next -> main, still draft) body = sprint 001 description + sprints/002-content-pages-and-guided-setup/PR.md (page groups content/start/requests, QUL_PAGE_GROUPS values, 3 migrations, cutover order migrate -> catalog:backfill -> apps:import once -> groups, apps and requests tables, qiraat trial). Title updated. https://github.com/TarteelAI/quranic-universal-library/pull/1033",
+          "Qiraat trial merge of origin/qiraat/p7-5-drop-legacy into the sprint head (scratch worktree): same 8 shared files as sprint 001; 30 conflicting files vs 29 against main; only .gitignore is new from these PRs.",
+          "PR checks on #1033 at 5df33b96: frontend, standalone, Analyze javascript-typescript, Analyze ruby, CodeQL all pass. Open code-scanning alerts on refs/pull/1033/merge intersected with the 244 files added since qul-next base: none.",
+          "#1044, #1045, #1046, #1048 show MERGED after the push; recorded in STACK.md."
+        ],
+        "decisions": [
+          "PR body composed from both sprints PR.md files rather than replacing sprint 001s text, so one body describes the whole cutover."
+        ],
+        "concerns": [
+          "Human steps: (1) design look at /kits, /requests and /changelog; (2) review the docs corrections (002-09 and 002-21 handoffs); (3) maintainers agree to the apps, resource_requests and resource_request_votes tables (DECISIONS.md Sprint 002); (4) production storage check for app icons on qul_exports, incl. CMS removal purge via Sidekiq; (5) after migrate, catalog:backfill and apps:import once, turn on content, start and requests in QUL_PAGE_GROUPS; (6) data team reviews the Which-one-should-I-pick copy and kit picks in config/kits.yml; (7) mark #1033 ready and merge to main. Sprint 001 human steps (001-20 concerns) still apply.",
+          "This commit (handoff) reaches qul-next by a second --no-ff merge; CI was proven on the first merge, the second adds only sprint files."
+        ]
+      }
     }
   ],
   "interviewSummary": {

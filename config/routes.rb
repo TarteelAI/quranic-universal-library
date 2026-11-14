@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   # Redirect old admin paths to new CMS paths
   get '/admin', to: redirect('/cms', status: 301)
@@ -10,6 +12,31 @@ Rails.application.routes.draw do
     root to: 'site/home#show', as: :home_page
   end
   root to: 'landing#home'
+  # The new FAQ, credits, tools overview, changelog, docs index and docs pages while the `content`
+  # page group is on, above the old routes below, and the docs search index (JSON) the new pages
+  # fetch. The old /change_logs URLs redirect to the changelog, on the same entries. The docs pages
+  # answer page loads and Inertia visits only (Content::DocsRequest): the old pages' help dialogs
+  # keep the old answer.
+  # The two constraints are nested blocks because a `constraints:` option on the route would
+  # replace the group's constraint instead of adding to it.
+  constraints(PageGroups.constraint(:content)) do
+    get '/faq', to: 'content/pages#faq', as: :faq_page, format: false
+    get '/credits', to: 'content/pages#credits', as: :credits_page, format: false
+    get '/tools', to: 'content/pages#tools', as: :tools_page, format: false
+    get '/changelog', to: 'content/changelog#index', as: :changelog_page, format: false
+    get '/changelog/:id', to: 'content/changelog#show', as: :changelog_entry_page, format: false,
+                          constraints: { id: /\d+/ }
+    get '/change_logs', format: false, to: redirect(status: 301) { |_params, request|
+      Content::Changelog.path_for_old_page(request.query_parameters['page'])
+    }
+    get '/change_logs/:id', to: redirect(status: 301) { |params, _request| "/changelog/#{params[:id]}" },
+                            format: false, constraints: { id: /\d+/ }
+    get '/docs/search-index', to: 'content/docs_search#index', as: :docs_search_index, format: false
+    constraints(Content::DocsRequest) do
+      get '/docs', to: 'content/docs#index', as: :docs_index_page, format: false
+      get '/docs/:key', to: 'content/docs#show', as: :docs_page, format: false
+    end
+  end
 
   get '/search', to: 'search#index', as: :search
 
@@ -78,12 +105,12 @@ Rails.application.routes.draw do
   get :faq, to: 'community#faq', as: :faq
   get :compare_ayah, to: 'verses#compare', as: :compare_ayah
 
-  get 'arabic_transliterations/:surah_number/export', to: "arabic_transliterations#render_surah"
-  get 'foot_notes/:id', to: "foot_notes#show"
+  get 'arabic_transliterations/:surah_number/export', to: 'arabic_transliterations#render_surah'
+  get 'foot_notes/:id', to: 'foot_notes#show'
 
   devise_for :users, controllers: {
     registrations: 'users/registrations',
-    sessions: 'users/sessions'
+    sessions: 'users/sessions',
   }
 
   resource :profile, only: [:show, :edit, :update]
@@ -135,9 +162,9 @@ Rails.application.routes.draw do
 
     get 'treebank', to: 'treebank#index', as: :treebank_index
     get 'treebank/:chapter/:verse', to: 'treebank#show', as: :treebank_ayah,
-        constraints: { chapter: /\d+/, verse: /\d+/ }
+                                    constraints: { chapter: /\d+/, verse: /\d+/ }
     get 'treebank/:chapter/:verse/data', to: 'treebank#data', as: :treebank_ayah_data,
-        constraints: { chapter: /\d+/, verse: /\d+/ }
+                                         constraints: { chapter: /\d+/, verse: /\d+/ }
   end
 
   resources :user_projects, except: [:index, :destroy]
@@ -147,16 +174,41 @@ Rails.application.routes.draw do
   # routes must stay above the old ones for the same paths: when a group is off, its constraint
   # fails and the old route below answers.
   constraints(PageGroups.constraint(:catalog)) do
+    # The guided setup's results: the catalog with the setup's answers in the query string
+    # (GuidedSetup), while the `start` group is on too.
+    constraints(PageGroups.constraint(:start)) do
+      constraints(->(request) { request.query_parameters.key?('goal') }) do
+        get '/resources', to: 'start/setup#results', as: :start_results, format: false
+      end
+    end
     get '/resources', to: 'catalog/resources#index', as: :catalog_resources, format: false
     get '/resources/:type', to: 'catalog/types#show', as: :catalog_type, format: false
     # The old copyright and tab URLs answer with the resource page.
     get '/resources/:slug/copyright', to: 'catalog/resources#copyright', format: false
     get '/resources/:type/:slug', to: 'catalog/resources#show', as: :catalog_resource, format: false
+    get '/resources/:type/:slug/preview', to: 'catalog/previews#show', as: :catalog_resource_preview, format: false
+    # The bundle tray's lookup (JSON): the bundle's resource ids as the catalog shows them now.
+    get '/bundle', to: 'catalog/bundles#show', as: :catalog_bundle, format: false
     get '/resources/:type/:slug/:tab', to: 'catalog/resources#tab', format: false,
                                        constraints: { tab: /docs|licence|ligatures|glyphs/ }
   end
+  # The guided setup and the starter kits have no old page: with the `start` group off, they are 404s.
+  constraints(PageGroups.constraint(:start)) do
+    get '/start', to: 'start/setup#show', as: :start_setup, format: false
+    get '/kits', to: 'start/kits#index', as: :start_kits, format: false
+    get '/kits/:key', to: 'start/kits#show', as: :start_kit, format: false
+  end
   constraints(PageGroups.constraint(:apps)) do
     get '/apps', to: 'site/apps#index', as: :apps_directory, format: false
+    post '/apps', to: 'site/app_submissions#create', as: :app_submissions, format: false
+  end
+  # Resource requests have no old page: with the `requests` group off, these are 404s.
+  constraints(PageGroups.constraint(:requests)) do
+    get '/requests', to: 'requests/requests#index', as: :requests_page, format: false
+    post '/requests', to: 'requests/requests#create', as: :resource_requests, format: false
+    post '/requests/:id/vote', to: 'requests/requests#vote', as: :resource_request_vote, format: false,
+                               constraints: { id: /\d+/ }
+    delete '/requests/:id/vote', to: 'requests/requests#unvote', format: false, constraints: { id: /\d+/ }
   end
   # The spotlight's search results (JSON), for every new page whatever the groups.
   get '/spotlight', to: 'catalog/spotlight#index', as: :catalog_spotlight, format: false
@@ -167,7 +219,7 @@ Rails.application.routes.draw do
   get '/resources/:type/:token/download', to: 'catalog/downloads#token', as: :catalog_token_download
 
   resources :resources do
-    get '/:token/download', action: 'download' , as: :download_file
+    get '/:token/download', action: 'download', as: :download_file
 
     member do
       get :copyright
@@ -227,21 +279,21 @@ Rails.application.routes.draw do
   end
   resources :translations, except: :destroy
   resources :transliterations, except: :destroy
-  resources :word_transliterations, only: %i[index show edit update]
+  resources :word_transliterations, only: [:index, :show, :edit, :update]
   resources :tafsirs, except: :destroy do
     get :range_preview, on: :collection
   end
-  resources :topics, only: %i[index show edit update]
+  resources :topics, only: [:index, :show, :edit, :update]
   # ayah_theme is taken by /ayah/:key/theme
-  resources :themes, path: 'ayah_themes', controller: 'ayah_themes', only: %i[index show edit update]
+  resources :themes, path: 'ayah_themes', controller: 'ayah_themes', only: [:index, :show, :edit, :update]
   # root is the home page
-  resources :arabic_roots, path: 'roots', controller: 'roots', only: %i[index show edit update]
-  resources :stems, only: %i[index show edit update]
-  resources :lemmas, only: %i[index show edit update]
-  resources :word_roots, only: %i[index show edit update] do
+  resources :arabic_roots, path: 'roots', controller: 'roots', only: [:index, :show, :edit, :update]
+  resources :stems, only: [:index, :show, :edit, :update]
+  resources :lemmas, only: [:index, :show, :edit, :update]
+  resources :word_roots, only: [:index, :show, :edit, :update] do
     get :options, on: :collection
   end
-  resources :similar_ayahs, only: %i[index show edit update]
+  resources :similar_ayahs, only: [:index, :show, :edit, :update]
   resources :word_translations, except: :destroy do
     collection do
       get :select_resource
@@ -267,7 +319,7 @@ Rails.application.routes.draw do
       # Validate segments of any reciters/surahs: live, drafts, sources, runs.
       get 'validation', to: 'validations#show', as: :validation
       # QUD deliveries imported as drafts that have no QUL recitation yet.
-      resources :deliveries, only: %i[index show] do
+      resources :deliveries, only: [:index, :show] do
         collection do
           get :search_recitations
         end
@@ -303,7 +355,7 @@ Rails.application.routes.draw do
     end
 
     namespace :audio_repair do
-      resources :sessions, only: %i[index create edit] do
+      resources :sessions, only: [:index, :create, :edit] do
         member do
           get :data
           get :candidates
@@ -325,11 +377,11 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :polarity, only: %i[index create show] do
+      resources :polarity, only: [:index, :create, :show] do
         member { post :fix }
       end
 
-      resources :ingests, only: %i[index create show destroy] do
+      resources :ingests, only: [:index, :create, :show, :destroy] do
         collection { get :preview }
         member do
           get :data

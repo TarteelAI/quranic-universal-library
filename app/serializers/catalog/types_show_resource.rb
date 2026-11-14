@@ -2,13 +2,21 @@
 
 module Catalog
   # Props of a type page (Catalog::TypesController#show): the type, every type for the links
-  # between type pages, a card per published resource of the type, the status labels, the
+  # between type pages, a card per published resource of the type (one page of them when the
+  # type is searched), the type's total, the search state, the status and format labels, the
   # "Which one should I pick?" text, the type's guide and the comparison table.
   class TypesShowResource < ApplicationResource
     one :type, resource: TypeResource
     many :types, resource: TypeResource
     many :resources, resource: ResourceCardResource
+    typelize total: :number
+    attributes :total
+
+    # Only for a type with more than Catalog::TypesController::SEARCH_ABOVE resources.
+    typelize search: { nullable: true }
+    one :search, resource: TypeSearchResource
     many :statuses, source: proc { Taxonomy.statuses }, resource: OptionResource
+    many :formats, source: proc { Taxonomy.formats }, resource: OptionResource
 
     # Only where a resource of the type has a status other than the default, or is recommended.
     typelize pick: [:string, { nullable: true }]

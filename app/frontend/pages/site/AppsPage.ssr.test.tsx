@@ -17,4 +17,10 @@ describe('site/AppsPage on the server', () => {
     expect(body).toContain('QuranWBW')
     expect(body).toMatch(/aria-pressed="true"[^>]*>.*Android/)
   })
+
+  it('renders with the submission form open from ?submit', async () => {
+    const { body } = await renderPageOnServer(AppsPage, { props: appsPageProps, url: '/apps?submit=1' })
+
+    expect(body).toContain('Submit your app')
+  })
 })

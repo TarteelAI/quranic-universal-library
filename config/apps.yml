@@ -1,24 +1,15 @@
 # Apps, libraries and tools whose makers credit QUL in public: in their own code, README or
-# credits screen (`evidence`). The /apps directory and the home page's showcase read this file
-# through AppDirectory; spec/services/app_directory_spec.rb checks it.
+# credits screen (`evidence`). The source of `bin/rails apps:import` (AppDirectory::Import), which
+# makes each entry a published App row once; after that the apps are edited in the CMS, not here.
+# spec/services/app_directory_spec.rb checks this file.
 #
+# - `id`: the row's `import_key`. Never change it: the import skips an entry whose id has a row.
 # - `platforms`: keys of AppDirectory::PLATFORMS.
 # - `uses`: the QUL resource types the app credits, as Catalog::Taxonomy type keys. The first one
 #   tints the initials tile of an app without an icon.
 # - `icon`: a file in public/app-icons (from the app's store listing, repo or site), else none.
 # - `featured`: listed first. The four below are placeholders until the maintainers supply the list.
-# - `kind`: a short noun for the home page's showcase.
-
-# The apps on the home page, in this order.
-showcase:
-  - quranwbw
-  - qurancaption
-  - quran-library
-  - quran-validator
-  - mihrab
-  - bayaan
-  - al-quran-ios
-  - quranic-universal-audio
+# - `kind`: a short noun for the home page's apps band, which shows the first eight apps.
 
 apps:
   - id: quranwbw
@@ -74,16 +65,6 @@ apps:
     uses: [font]
     evidence: https://github.com/MihrabHQ/Mihrab
 
-  - id: al-quran-ios
-    name: Al-Quran
-    url: https://apps.apple.com/app/id6474894373
-    icon: al-quran-ios.png
-    platforms: [ios]
-    kind: Beginner Quran (iOS)
-    description: Beginner-friendly Quran app with Arabic learning tools, recitations and translations.
-    uses: [transliteration, font]
-    evidence: https://github.com/TheAbubakrAbu/Al-Quran-iOS/blob/main/CREDITS.md
-
   - id: bayaan
     name: Bayaan
     url: https://github.com/thebayaan/Bayaan
@@ -93,6 +74,16 @@ apps:
     description: Listen to and read the Quran, with word-level data, on mobile and the web.
     uses: [quran-script]
     evidence: https://github.com/thebayaan/Bayaan/blob/main/app/(tabs)/(d.settings)/credits.tsx
+
+  - id: al-quran-ios
+    name: Al-Quran
+    url: https://apps.apple.com/app/id6474894373
+    icon: al-quran-ios.png
+    platforms: [ios]
+    kind: Beginner Quran (iOS)
+    description: Beginner-friendly Quran app with Arabic learning tools, recitations and translations.
+    uses: [transliteration, font]
+    evidence: https://github.com/TheAbubakrAbu/Al-Quran-iOS/blob/main/CREDITS.md
 
   - id: quranic-universal-audio
     name: Quranic Universal Audio

@@ -15,8 +15,8 @@ module Catalog
   class ResourcesController < InertiaController
     # The old tabs and the query of the new page that shows what they showed.
     OLD_TABS = {
-      'docs' => { tab: 'data' }, 'licence' => { tab: 'licence' },
-      'ligatures' => { view: 'ligatures' }, 'glyphs' => { view: 'glyphs' }
+      'docs' => { tab: 'docs' }, 'licence' => { tab: 'licence' },
+      'ligatures' => { view: 'ligatures' }, 'glyphs' => { view: 'glyphs' },
     }.freeze
 
     DESCRIPTION = 'Download Quran data for your app: translations, tafsirs, recitations, Quran scripts, ' \
@@ -30,12 +30,12 @@ module Catalog
         description: DESCRIPTION,
         json_ld: {
           '@type': 'CollectionPage',
-          isPartOf: { '@type': 'WebSite', name: PageMeta::SITE_NAME, url: SeoHelper::HOST }
-        }
+          isPartOf: { '@type': 'WebSite', name: PageMeta::SITE_NAME, url: SeoHelper::HOST },
+        },
       )
     end
 
-    def show
+    def show # rubocop:disable Metrics/AbcSize -- sets each prop of the page
       resource = ResourcePage.find(params[:slug])
       return redirect_to_page(resource, request.query_parameters) unless canonical?(resource)
 
@@ -50,7 +50,7 @@ module Catalog
       render_inertia 'catalog/ResourcePage', meta: page_meta(
         title: "#{resource.display_name} - #{@page.type.label} - QUL",
         description: @page.summary,
-        json_ld: json_ld
+        json_ld: json_ld,
       )
     end
 
@@ -88,7 +88,7 @@ module Catalog
         dateModified: @page.updated_on&.iso8601,
         distribution: @page.files.map do |file|
           { '@type': 'DataDownload', name: file.name, encodingFormat: file.format_label, contentSize: file.byte_size }
-        end
+        end,
       }.compact
     end
   end

@@ -7,21 +7,20 @@ module Catalog
   # A resource's language is the CMS row's, else its content row's (as in SearchQuery). Content
   # rows are in the Quran content database, so they are read in a second query.
   class Stats
-    TypeCount = Data.define(:key, :title, :count)
-    CategoryCount = Data.define(:key, :label, :count, :types)
+    CategoryCount = Data.define(:key, :label, :hint, :count)
     Result = Data.define(:resources, :languages, :recitations, :per_type) do
-      # Every category in taxonomy order, with its types, including those with no resources.
+      # Every category in taxonomy order, including those with no resources.
       def categories
         Taxonomy.types.group_by(&:category).map do |category, types|
-          counts = types.map { |type| TypeCount.new(key: type.key, title: type.title, count: per_type.fetch(type.key, 0)) }
-          CategoryCount.new(key: category.key, label: category.label, count: counts.sum(&:count), types: counts)
+          CategoryCount.new(key: category.key, label: category.label, hint: category.hint,
+                            count: types.sum { |type| per_type.fetch(type.key, 0) },)
         end
       end
     end
 
     def call
       rows = DownloadableResource.published.pluck(:resource_type, :language_id, :resource_content_id)
-      content_languages = ResourceContent.where(id: rows.map(&:third).compact).pluck(:id, :language_id).to_h
+      content_languages = ResourceContent.where(id: rows.filter_map(&:third)).pluck(:id, :language_id).to_h
       language_ids = rows.filter_map { |_type, language_id, content_id| language_id || content_languages[content_id] }
       per_type = rows.map(&:first).tally
 
@@ -29,7 +28,7 @@ module Catalog
         resources: rows.size,
         languages: Language.where(id: language_ids.uniq).count,
         recitations: per_type.fetch('recitation', 0),
-        per_type: per_type
+        per_type: per_type,
       )
     end
   end

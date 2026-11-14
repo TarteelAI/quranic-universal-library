@@ -1,14 +1,20 @@
-import { Link } from '@inertiajs/react'
-import { ChevronDownIcon } from 'lucide-react'
+import { Link, router, usePage } from '@inertiajs/react'
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
+import { EmptyState } from '@/components/qul/catalog'
+import { RequestCard } from '@/components/qul/request-dialog'
+import { SearchInput } from '@/components/qul/chrome'
+import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
+import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { RecommendedBadge, StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import { catalogType, detailResources, resources as catalog } from '@/routes'
+import { catalogResourcePreview, catalogType, detailResources, resources as catalog } from '@/routes'
 import type {
   CatalogComparison,
   CatalogComparisonColumn,
@@ -17,12 +23,14 @@ import type {
   CatalogResourceCard,
   CatalogResourceRef,
   CatalogType,
+  CatalogTypeSearch,
   CatalogTypesShow,
 } from '@/types/serializers'
 
-function filesLabel(count: number) {
-  return count === 1 ? '1 file' : `${count} files`
-}
+const SEARCH_PROPS = ['resources', 'search']
+const TYPING_DEBOUNCE_MS = 300
+
+type SearchState = Pick<CatalogTypeSearch, 'q' | 'language' | 'page'>
 
 function detailHref(resource: CatalogResourceRef) {
   return detailResources({ type: resource.type, id: resource.toParam }).url
@@ -47,11 +55,13 @@ function Cards({
   type,
   resources,
   statuses,
+  formats,
 }: {
   label: string
   type: CatalogType
   resources: CatalogResourceCard[]
   statuses: CatalogOption[]
+  formats: CatalogOption[]
 }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label={label}>
@@ -77,10 +87,22 @@ function Cards({
             <ResourceCard
               className="flex-1"
               title={resource.name}
+              bundleId={resource.id}
               href={detailHref(resource)}
+              category={type.category.key}
               facts={cardFacts(type, resource)}
-              badges={badges.length > 0 ? badges : undefined}
-              footnote={filesLabel(resource.filesCount)}
+              summary={resource.summary}
+              status={badges.length > 0 ? badges : undefined}
+              formats={resource.formats.map((format) => labelOf(formats, format))}
+              muted={isOlder(resource)}
+              preview={
+                resource.previewKind && (
+                  <CardPreview
+                    kind={resource.previewKind}
+                    url={catalogResourcePreview({ type: resource.type, slug: resource.toParam }).url}
+                  />
+                )
+              }
             />
           </li>
         )
@@ -187,10 +209,112 @@ function ComparisonTable({
   )
 }
 
+// The query string of a type page search, without the values that are the defaults.
+function searchUrl(type: CatalogType, { q, language, page }: SearchState) {
+  return catalogType(type.key, { query: { q: q || null, language, page: page > 1 ? page : null } }).url
+}
+
+// Search, the language filter and the pages of a type with many resources. As on the catalog,
+// the state is in the query string: a language change adds a history entry, typing replaces it.
+function TypeSearch({ type, search }: { type: CatalogType; search: CatalogTypeSearch }) {
+  const [query, setQuery] = React.useState(search.q)
+  const [sent, setSent] = React.useState(search.q)
+  const visit = (next: SearchState, replace = false) =>
+    router.get(searchUrl(type, next), {}, { only: SEARCH_PROPS, preserveState: true, preserveScroll: true, replace })
+
+  React.useEffect(() => {
+    const q = query.trim()
+    if (q === sent) return
+    const timer = window.setTimeout(() => {
+      setSent(q)
+      visit({ q, language: search.language, page: 1 }, true)
+    }, TYPING_DEBOUNCE_MS)
+    return () => window.clearTimeout(timer)
+  })
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <SearchInput
+        aria-label={`Search ${type.title.toLowerCase()}`}
+        placeholder="Search by name or language…"
+        className="min-w-0 flex-1 basis-56"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+      />
+      <label className="flex h-9 items-center gap-2 text-sm text-muted-foreground">
+        Language
+        <select
+          value={search.language ?? ''}
+          onChange={(event) => {
+            const q = query.trim()
+            setSent(q)
+            visit({ q, language: event.target.value || null, page: 1 })
+          }}
+          className="h-9 max-w-48 rounded-lg border bg-card px-2 text-sm text-foreground shadow-xs"
+        >
+          <option value="">All languages</option>
+          {search.languages.map((language) => (
+            <option key={language.key} value={language.key}>
+              {language.name} ({language.count})
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  )
+}
+
+function Pages({ type, search }: { type: CatalogType; search: CatalogTypeSearch }) {
+  const link = (page: number) => ({
+    href: searchUrl(type, { ...search, page }),
+    only: SEARCH_PROPS,
+    preserveState: true,
+  })
+
+  return (
+    <nav aria-label="Pages" className="flex items-center justify-between gap-3 text-sm">
+      {search.page > 1 ? (
+        <Button variant="outline" size="sm" asChild>
+          <Link {...link(search.page - 1)} rel="prev">
+            <ChevronLeftIcon /> Previous
+          </Link>
+        </Button>
+      ) : (
+        <span />
+      )}
+      <span className="text-muted-foreground tabular-nums">
+        Page {search.page} of {search.pages}
+      </span>
+      {search.page < search.pages ? (
+        <Button variant="outline" size="sm" asChild>
+          <Link {...link(search.page + 1)} rel="next">
+            Next <ChevronRightIcon />
+          </Link>
+        </Button>
+      ) : (
+        <span />
+      )}
+    </nav>
+  )
+}
+
 // /resources/:type: the type's description and a link to its format docs; where the type has
 // status data, which one to pick, with recommended resources first and older versions collapsed;
-// the comparison table for layouts, scripts and fonts; and a card for each published resource.
-export default function TypePage({ type, types, resources, statuses, pick, guidePath, comparison }: CatalogTypesShow) {
+// the comparison table for layouts, scripts and fonts; a card for each published resource (with
+// search, a language filter and pages when the type has many); and the request card.
+export default function TypePage({
+  type,
+  types,
+  resources,
+  total,
+  search,
+  statuses,
+  formats,
+  pick,
+  guidePath,
+  comparison,
+}: CatalogTypesShow) {
+  const { nav } = usePage().props
   const recommended = pick ? resources.filter((resource) => resource.recommendation) : []
   const older = pick ? resources.filter((resource) => !resource.recommendation && isOlder(resource)) : []
   const current = resources.filter((resource) => !recommended.includes(resource) && !older.includes(resource))
@@ -200,9 +324,10 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
       <Container className="pt-10 pb-2 sm:pt-12">
         <PageHeader
           breadcrumb={[{ label: 'Resources', href: catalog.index().url }, { label: type.title }]}
+          icon={<ResourceIcon category={type.category.key} size="xl" />}
           eyebrow={type.category.label === type.title ? undefined : type.category.label}
           title={type.title}
-          count={resources.length}
+          count={total}
           description={type.description}
           actions={
             guidePath && (
@@ -225,15 +350,18 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
               <p className="mt-2 max-w-2xl text-muted-foreground">{pick}</p>
             </div>
             {recommended.length > 0 && (
-              <Cards label="Recommended" type={type} resources={recommended} statuses={statuses} />
+              <Cards label="Recommended" type={type} resources={recommended} statuses={statuses} formats={formats} />
             )}
           </section>
         )}
 
         {comparison && <ComparisonTable type={type} comparison={comparison} statuses={statuses} />}
 
-        {resources.length === 0 && (
-          <p className="text-muted-foreground">No resources of this type are published yet.</p>
+        {search && <TypeSearch type={type} search={search} />}
+
+        {total === 0 && <p className="text-muted-foreground">No resources of this type are published yet.</p>}
+        {search && resources.length === 0 && (
+          <EmptyState title="Nothing matches this search" description="Try another word or language." />
         )}
 
         {current.length > 0 && (
@@ -244,7 +372,7 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
                 <span className="font-mono text-xs font-normal text-muted-foreground">{current.length}</span>
               </h2>
             )}
-            <Cards label={type.title} type={type} resources={current} statuses={statuses} />
+            <Cards label={type.title} type={type} resources={current} statuses={statuses} formats={formats} />
           </section>
         )}
 
@@ -255,10 +383,14 @@ export default function TypePage({ type, types, resources, statuses, pick, guide
               Older versions ({older.length}), kept for apps that already use them
             </summary>
             <div className="pt-4">
-              <Cards label="Older versions" type={type} resources={older} statuses={statuses} />
+              <Cards label="Older versions" type={type} resources={older} statuses={statuses} formats={formats} />
             </div>
           </details>
         )}
+
+        {search && search.pages > 1 && <Pages type={type} search={search} />}
+
+        <RequestCard link={nav.request} />
       </Container>
 
       <Container className="pb-12">

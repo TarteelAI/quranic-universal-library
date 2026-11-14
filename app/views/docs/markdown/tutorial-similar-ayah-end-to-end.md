@@ -32,8 +32,8 @@ Use similar-ayah data when building:
 1. Open [https://qul.tarteel.ai/resources/similar-ayah](https://qul.tarteel.ai/resources/similar-ayah).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Similar Ayah Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available downloads (`json`, `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -42,14 +42,14 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On similar-ayah detail pages:
 
-- `Similar Ayah Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah`
   - Source ayah card for selected ayah
   - "X has N similar ayahs" banner
   - List of matching ayahs for selected ayah
   - Highlighted matched words inside matched ayah text
   - Match summaries ("This ayah matches N words with X% coverage and a similarity score of Y")
-- `Help` tab:
+- `Docs` tab:
   - Field definitions (`verse_key`, `matched_ayah_key`, `matched_words_count`, `coverage`, `score`, `match_words_range`)
   - Export format notes
 
@@ -173,7 +173,7 @@ const matchedAyahTextByKey = {
   "1:1": "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ ١"
 };
 
-// Help-aligned schema and sample block (as shown on the resource Help tab).
+// Docs-aligned schema and sample block (as shown on the resource Docs tab).
 const helpSchema = [
   { column: "verse_key", type: "TEXT", description: "The ayah key that similar ayahs belongs to (e.g., 1:1)." },
   { column: "matched_ayah_key", type: "TEXT", description: "Matching ayah key that shares similar wording." },
@@ -223,9 +223,9 @@ const dropdownStyle = [
 
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Similar Ayah Preview</h3>
-  <p style="margin:0 0 12px;color:#475569;">Preview + Help on one screen: interactive similar-ayah cards and schema/sample reference</p>
+  <p style="margin:0 0 12px;color:#475569;">Preview + Docs on one screen: interactive similar-ayah cards and schema/sample reference</p>
   <div style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;">
-    Top section mirrors <strong>Preview</strong>. Bottom section mirrors the <strong>Help</strong> field/schema explanation.
+    Top section mirrors <strong>Preview</strong>. Bottom section mirrors the <strong>Docs</strong> field/schema explanation.
   </div>
   <div style="margin-bottom:12px;">
     <label for="ayah" style="display:block;margin-bottom:8px;font-weight:600;">Jump to Ayah</label>
@@ -295,7 +295,7 @@ const render = () => {
     .join("");
 
   help.innerHTML = `
-    <h4 style="margin:0 0 8px;">Help Reference (Schema + Example)</h4>
+    <h4 style="margin:0 0 8px;">Docs Reference (Schema + Example)</h4>
     <p style="margin:0 0 10px;color:#475569;">QUL exports similar ayah data in JSON and SQLite. Core fields:</p>
     <div style="overflow:auto;margin-bottom:10px;">
       <table style="width:100%;border-collapse:collapse;font-size:14px;">
@@ -309,7 +309,7 @@ const render = () => {
         <tbody>${schemaRows}</tbody>
       </table>
     </div>
-    <div style="margin-bottom:6px;"><strong>Help sample</strong> (if <code>1:1</code> matches <code>27:30</code>):</div>
+    <div style="margin-bottom:6px;"><strong>Docs sample</strong> (if <code>1:1</code> matches <code>27:30</code>):</div>
     <pre style="margin:0 0 8px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;overflow:auto;">${JSON.stringify(helpExample, null, 2)}</pre>
     <div style="padding:8px 10px;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;color:#1e3a8a;">
       This ayah matches <strong>${helpExample.matched_words_count} words</strong>, with <strong>${helpExample.coverage}% coverage</strong> and a <strong>similarity score of ${helpExample.score}</strong>.

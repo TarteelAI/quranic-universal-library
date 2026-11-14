@@ -4,7 +4,7 @@ module Catalog
   # The labels of every search filter value and sort. The object holds the catalog's
   # languages; the other vocabularies come from Catalog::Taxonomy.
   class VocabulariesResource < ApplicationResource
-    many :types, source: proc { Taxonomy.types }, resource: TypeResource
+    many :types, source: proc { Taxonomy.types }, resource: TypeOptionResource
     many :languages, resource: LanguageResource
     many :script_families, source: proc { Taxonomy.script_families }, resource: OptionResource
     many :formats, source: proc { Taxonomy.formats }, resource: OptionResource

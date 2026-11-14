@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe AppDirectory do
@@ -10,7 +12,8 @@ RSpec.describe AppDirectory do
     expect(ids.uniq).to eq(ids)
 
     entries.each do |entry|
-      expect(entry.keys - %w[id name url icon platforms kind description uses evidence featured]).to be_empty, entry['id']
+      keys = ['id', 'name', 'url', 'icon', 'platforms', 'kind', 'description', 'uses', 'evidence', 'featured']
+      expect(entry.keys - keys).to be_empty, entry['id']
       expect(entry.values_at('id', 'name', 'kind', 'description')).to all(be_present), entry['id']
       expect(entry['url']).to start_with('https://'), entry['id']
       expect(entry['evidence']).to start_with('https://'), entry['id']
@@ -20,25 +23,30 @@ RSpec.describe AppDirectory do
     end
   end
 
-  it 'has an entry for every icon file and every showcase id' do
+  it 'has an entry for every icon file' do
     icons = entries.filter_map { |entry| entry['icon'] }
     expect(Dir.children(described_class::ICONS_DIR)).to match_array(icons)
-    expect(data.fetch('showcase') - entries.pluck('id')).to be_empty
-    expect(described_class.showcase.map(&:id)).to eq(data.fetch('showcase'))
   end
 
-  it 'lists the featured apps first and keeps the file order otherwise' do
-    apps = described_class.apps
-    featured, rest = entries.partition { |entry| entry['featured'] }
-    expect(apps.map(&:id)).to eq((featured + rest).pluck('id'))
-    expect(apps.map(&:featured)).to eq([true] * featured.size + [false] * rest.size)
-  end
+  describe 'the directory' do
+    before { AppDirectory::Import.run }
 
-  it 'filters by platform and resource type' do
-    apps = described_class.apps
-    filters = described_class.filters(platform: 'ios', type: 'font')
+    it 'lists the published apps, featured first, then in the order they were imported' do
+      submission = App.create!(name: 'Unpublished', url: 'https://example.test/app', platforms: ['web'],
+                               uses: ['translation'],)
+      featured, rest = entries.partition { |entry| entry['featured'] }
 
-    expect(described_class.filter(apps, filters).map(&:id))
-      .to eq(apps.select { |app| app.platforms.include?('ios') && app.uses.include?('font') }.map(&:id))
+      apps = described_class.apps
+      expect(apps.map(&:import_key)).to eq((featured + rest).pluck('id'))
+      expect(apps).not_to include(submission)
+    end
+
+    it 'filters by platform and resource type' do
+      apps = described_class.apps
+      filters = described_class.filters(platform: 'ios', type: 'font')
+
+      expect(described_class.filter(apps, filters).map(&:id))
+        .to eq(apps.select { |app| app.platforms.include?('ios') && app.uses.include?('font') }.map(&:id))
+    end
   end
 end

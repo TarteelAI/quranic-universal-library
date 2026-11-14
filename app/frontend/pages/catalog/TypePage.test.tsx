@@ -1,9 +1,10 @@
 import { router } from '@inertiajs/react'
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { layoutPageProps, typePageProps } from '@/test/catalog'
 import { renderPage } from '@/test/inertia'
+import type { CatalogTypesShow } from '@/types/serializers'
 
 import TypePage from './TypePage'
 
@@ -29,7 +30,16 @@ describe('catalog/TypePage', () => {
     )
     expect(screen.getByText('Translation · English · Ayah by Ayah')).toBeDefined()
     expect(screen.getByText('Translation · Word by word')).toBeDefined()
-    expect(screen.getByText('1 file')).toBeDefined()
+    expect(screen.getByText('JSON · SQLite')).toBeDefined()
+    expect(screen.getByText('English translation of the Quran, ayah by ayah.')).toBeDefined()
+    expect(within(cards[0]).getByTestId('card-preview').dataset.kind).toBe('text')
+  })
+
+  it('shows the type icon in the header', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
+    expect(header.querySelector('.bg-cat-translation-subtle svg')).not.toBeNull()
   })
 
   it('opens a detail page from a card with an in-app visit', () => {
@@ -65,7 +75,7 @@ describe('catalog/TypePage', () => {
   })
 
   it('says so when no resource of the type is published', () => {
-    renderPage(TypePage, { props: { ...typePageProps, resources: [] } })
+    renderPage(TypePage, { props: { ...typePageProps, resources: [], total: 0 } })
 
     expect(screen.getByText('No resources of this type are published yet.')).toBeDefined()
   })
@@ -152,5 +162,101 @@ describe('catalog/TypePage', () => {
         .getAllByRole('cell')
         .map((cell) => cell.textContent),
     ).toEqual(['Old Indopak layout', '–', '–', '–', '–', '–', 'Legacy'])
+  })
+
+  describe('a type with many resources', () => {
+    const searched: CatalogTypesShow = {
+      ...typePageProps,
+      total: 204,
+      search: {
+        q: 'sahih',
+        language: 'en',
+        page: 2,
+        pages: 3,
+        matches: 60,
+        languages: [
+          { key: 'en', name: 'English', count: 60 },
+          { key: 'ur', name: 'Urdu', count: 12 },
+        ],
+      },
+    }
+
+    afterEach(() => vi.useRealTimers())
+
+    it('shows the search, the language filter and the pages, from the URL', () => {
+      renderPage(TypePage, { props: searched })
+
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Translations204')
+      expect(screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search translations' }).value).toBe('sahih')
+      const language = screen.getByRole<HTMLSelectElement>('combobox', { name: 'Language' })
+      expect(language.value).toBe('en')
+      expect(
+        within(language)
+          .getAllByRole('option')
+          .map((option) => option.textContent),
+      ).toEqual(['All languages', 'English (60)', 'Urdu (12)'])
+      const pages = within(screen.getByRole('navigation', { name: 'Pages' }))
+      expect(pages.getByText('Page 2 of 3')).toBeDefined()
+      expect(pages.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
+        '/resources/translation?q=sahih&language=en&page=3',
+      )
+      expect(pages.getByRole('link', { name: 'Previous' }).getAttribute('href')).toBe(
+        '/resources/translation?q=sahih&language=en',
+      )
+    })
+
+    it('reloads the cards when the language changes, adding a history entry', () => {
+      const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+      renderPage(TypePage, { props: searched })
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Language' }), { target: { value: 'ur' } })
+      expect(get).toHaveBeenCalledWith(
+        '/resources/translation?q=sahih&language=ur',
+        {},
+        { only: ['resources', 'search'], preserveState: true, preserveScroll: true, replace: false },
+      )
+    })
+
+    it('searches once the typing pauses, replacing the history entry', () => {
+      vi.useFakeTimers()
+      const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+      renderPage(TypePage, { props: searched })
+
+      fireEvent.change(screen.getByRole('searchbox', { name: 'Search translations' }), { target: { value: 'urdu' } })
+      expect(get).not.toHaveBeenCalled()
+      act(() => vi.advanceTimersByTime(300))
+      expect(get).toHaveBeenCalledWith(
+        '/resources/translation?q=urdu&language=en',
+        {},
+        expect.objectContaining({ replace: true }),
+      )
+    })
+
+    it('says so when nothing matches, and still offers the request card', () => {
+      renderPage(TypePage, { props: { ...searched, resources: [], search: { ...searched.search!, matches: 0 } } })
+
+      expect(screen.getByText('Nothing matches this search')).toBeDefined()
+      expect(screen.queryByText('No resources of this type are published yet.')).toBeNull()
+      expect(screen.getByRole('link', { name: 'Request a resource' })).toBeDefined()
+    })
+  })
+
+  it('shows no search, language filter or pages for a type with few resources', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    expect(screen.queryByRole('searchbox')).toBeNull()
+    expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Pages' })).toBeNull()
+  })
+
+  it('shows the request card on every type page, linking where the header request link does', () => {
+    for (const props of [typePageProps, layoutPageProps, { ...typePageProps, resources: [], total: 0 }]) {
+      const { unmount } = renderPage(TypePage, { props })
+      expect(screen.getByText("Can't find what you need?")).toBeDefined()
+      expect(screen.getByRole('link', { name: 'Request a resource' }).getAttribute('href')).toBe(
+        'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
+      )
+      unmount()
+    }
   })
 })

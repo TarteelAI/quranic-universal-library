@@ -7,6 +7,10 @@ cd "$(dirname "$0")/.."
 echo "== Standalone tests (test/, no bundler, no database)"
 ruby -Itest -e 'Dir["test/**/*_test.rb"].sort.each { |f| require File.expand_path(f) }'
 
+echo "== RuboCop (Ruby files changed against origin/qul-next)"
+git diff -z --name-only --diff-filter=d "$(git merge-base origin/qul-next HEAD)" -- '*.rb' '*.rake' |
+  xargs -0 -r bundle exec rubocop --force-exclusion
+
 echo "== Generated TypeScript (app/frontend/types/serializers, app/frontend/routes) is current"
 bin/rails typelizer:check
 

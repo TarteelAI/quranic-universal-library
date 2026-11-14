@@ -6,7 +6,6 @@ Every new issue goes through a form in `.github/ISSUE_TEMPLATE/`. Blank issues a
 |---|---|
 | Report a content issue | `content-issue` |
 | Request a resource | `resource-request` |
-| Submit your app | `app-submission` |
 | Report a bug | `bug` |
 | Request a feature | `feature-request` |
 | Documentation | (set by the triage script) |

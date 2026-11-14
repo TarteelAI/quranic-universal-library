@@ -1,5 +1,7 @@
 import type { SiteApp, SiteAppsIndex, SiteHomeShow } from '@/types/serializers'
 
+import { kitCard } from './start'
+
 // Shaped like Site::AppResource.
 const quranwbw: SiteApp = {
   id: 'quranwbw',
@@ -52,35 +54,46 @@ const waqfah: SiteApp = {
   ],
 }
 
-const SUBMIT_URL = 'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=app_submission.yml'
-
-// Shaped like Site::HomeShowResource.
+// Shaped like Site::HomeShowResource, with the `start` group on.
 export const homePageProps: SiteHomeShow = {
   resources: 547,
   languages: 94,
   recitations: 133,
   categories: [
-    {
-      key: 'audio',
-      label: 'Audio',
-      count: 133,
-      types: [{ key: 'recitation', title: 'Recitations', count: 133 }],
-    },
-    {
-      key: 'translation',
-      label: 'Translation',
-      count: 214,
-      types: [
-        { key: 'translation', title: 'Translations', count: 190 },
-        { key: 'transliteration', title: 'Transliterations', count: 24 },
-      ],
-    },
+    { key: 'audio', label: 'Audio', hint: 'Recitations with word timing', count: 133 },
+    { key: 'translation', label: 'Translation', hint: 'Many languages, word by word too', count: 214 },
+  ],
+  samples: [
+    { type: 'recitation', category: 'audio', count: 133, name: 'Mishari Rashid al-Afasy', toParam: 'afasy' },
+    { type: 'translation', category: 'translation', count: 190, name: 'Saheeh International', toParam: 'saheeh' },
   ],
   showcase: [quranwbw, nimaz, waqfah, quranValidator],
   appsCount: 23,
-  submitUrl: SUBMIT_URL,
+  tools: [
+    {
+      label: 'Ayah translations',
+      href: '/ayah_translations',
+      description: 'Fix typos in many languages.',
+      category: 'translation',
+      icon: 'languages',
+      external: false,
+      inertia: false,
+    },
+  ],
+  goals: [
+    {
+      key: 'reader',
+      label: 'Quran reader app',
+      blurb: 'Show the Quran page by page.',
+      features: ['mushaf', 'translation', 'nav'],
+    },
+    { key: 'audio', label: 'Audio and recitation', blurb: 'Play reciters.', features: ['audio', 'nav'] },
+  ],
+  kits: [kitCard],
   catalogPages: true,
   appsPage: true,
+  contentPages: true,
+  startPages: true,
 }
 
 // Shaped like Site::AppsIndexResource, unfiltered.
@@ -99,6 +112,11 @@ export const appsPageProps: SiteAppsIndex = {
     { key: 'quran-script', label: 'Quran script' },
     { key: 'translation', label: 'Translation' },
   ],
-  submitUrl: SUBMIT_URL,
+  submissionTypes: [
+    { key: 'recitation', label: 'Recitation' },
+    { key: 'mushaf-layout', label: 'Mushaf layout' },
+    { key: 'quran-script', label: 'Quran script' },
+    { key: 'translation', label: 'Translation' },
+  ],
   catalogPages: true,
 }

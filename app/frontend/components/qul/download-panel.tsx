@@ -1,7 +1,9 @@
 import { Link } from '@inertiajs/react'
-import { DownloadIcon } from 'lucide-react'
+import { DownloadIcon, LinkIcon } from 'lucide-react'
 import * as React from 'react'
 
+import { AddToBundle } from '@/components/qul/bundle'
+import { CopyButton } from '@/components/qul/copy-button'
 import { Button } from '@/components/ui/button'
 import { formatBytes } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -9,6 +11,8 @@ import { catalogDownload, catalogResource } from '@/routes'
 import type { CatalogResourceFile, CatalogWorksWithGroup } from '@/types/serializers'
 
 export interface DownloadPanelProps {
+  /** The resource's id, for the bundle */
+  id: number
   /** The resource's type key and slug, for the download URLs */
   type: string
   slug: string
@@ -24,11 +28,35 @@ export interface DownloadPanelProps {
   className?: string
 }
 
+const subscribeToNothing = () => () => {}
+
+// The download route's full URL on this site, to copy into a script or a build step. The origin
+// is the browser's, so the server and the first render show the path alone.
+function FileUrl({ path }: { path: string }) {
+  const origin = React.useSyncExternalStore(
+    subscribeToNothing,
+    () => window.location.origin,
+    () => '',
+  )
+  const url = `${origin}${path}`
+
+  return (
+    <div className="flex items-center gap-1 rounded-lg bg-secondary ps-3 pe-1">
+      <LinkIcon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground" title={url}>
+        {url}
+      </span>
+      <CopyButton text={() => url} label="Copy link" />
+    </div>
+  )
+}
+
 // The side panel of a resource detail page, from the v7 DownloadPanel
 // (ds/src/components/qul/data.tsx): pick a format, then download one of its files. Each download
 // is a plain link to the download route, which counts it and sends the file (or, in sign-in
-// mode, sends an anonymous visitor to sign in first).
+// mode, sends an anonymous visitor to sign in first). The same link can be copied.
 export function DownloadPanel({
+  id,
   type,
   slug,
   files,
@@ -94,19 +122,24 @@ export function DownloadPanel({
                   <span className="font-sans">{file.formatLabel} · MD5 (hex)</span> {file.md5}
                 </p>
                 {canDownload && (
-                  <Button asChild size="sm" className="w-full">
-                    <a
-                      href={catalogDownload({ type, slug, fileId: file.id }).url}
-                      rel="nofollow"
-                      aria-label={`Download ${file.name}, ${formatBytes(file.byteSize)}`}
-                    >
-                      <DownloadIcon aria-hidden="true" /> Download
-                    </a>
-                  </Button>
+                  <>
+                    <Button asChild size="sm" className="w-full">
+                      <a
+                        href={catalogDownload({ type, slug, fileId: file.id }).url}
+                        rel="nofollow"
+                        aria-label={`Download ${file.name}, ${formatBytes(file.byteSize)}`}
+                      >
+                        <DownloadIcon aria-hidden="true" /> Download
+                      </a>
+                    </Button>
+                    <FileUrl path={catalogDownload({ type, slug, fileId: file.id }).url} />
+                  </>
                 )}
               </li>
             ))}
           </ul>
+
+          {canDownload && <AddToBundle ids={[id]} className="w-full" />}
 
           {canDownload && signInHref && (
             <p className="text-sm text-muted-foreground">

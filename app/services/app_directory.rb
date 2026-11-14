@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-# The apps built with QUL: the entries of config/apps.yml, for the /apps directory and the home
-# page's showcase. The file can become a table later; the pages read only this module's values.
+# The apps built with QUL, for the /apps directory and the home page's apps band: the published
+# App rows. config/apps.yml and public/app-icons are the source `apps:import` reads once
+# (AppDirectory::Import); the pages never read them.
 module AppDirectory
   Platform = Data.define(:key, :label)
-  App = Data.define(:id, :name, :url, :icon, :platforms, :kind, :description, :uses, :evidence, :featured)
   Filters = Data.define(:platform, :type)
 
-  FILE = Rails.root.join('config/apps.yml')
-  ICONS_DIR = Rails.root.join('public/app-icons')
-  ICONS_PATH = '/app-icons'
-  SUBMIT_URL = "#{SiteNav::REPO_URL}/issues/new?template=app_submission.yml".freeze
+  FILE = Rails.root.join('config', 'apps.yml')
+  ICONS_DIR = Rails.public_path.join('app-icons')
+  # The apps of the home page's band: the first of the directory.
+  SHOWCASE_SIZE = 8
 
   PLATFORMS = [
     Platform.new(key: 'ios', label: 'iOS'),
@@ -19,31 +19,23 @@ module AppDirectory
     Platform.new(key: 'desktop', label: 'Desktop'),
     Platform.new(key: 'library', label: 'Library'),
     Platform.new(key: 'tool', label: 'Tool'),
-    Platform.new(key: 'dataset', label: 'Dataset')
+    Platform.new(key: 'dataset', label: 'Dataset'),
   ].index_by(&:key).freeze
 
   def self.data
     YAML.safe_load_file(FILE)
   end
 
-  # Every app, featured first, then in the file's order.
+  # Every published app, featured first.
   def self.apps
-    entries = data.fetch('apps').map do |entry|
-      App.new(featured: false, icon: nil, **entry.symbolize_keys)
-    end
-    entries.partition(&:featured).flatten
-  end
-
-  def self.showcase
-    by_id = apps.index_by(&:id)
-    data.fetch('showcase').map { |id| by_id.fetch(id) }
+    App.directory.with_attached_icon.to_a
   end
 
   # The filters of a request, without values no app can have.
   def self.filters(platform:, type:)
     Filters.new(
       platform: PLATFORMS.key?(platform) ? platform : nil,
-      type: Catalog::Taxonomy.type(type) ? type : nil
+      type: Catalog::Taxonomy.type(type) ? type : nil,
     )
   end
 

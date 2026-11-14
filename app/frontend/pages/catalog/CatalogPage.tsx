@@ -1,12 +1,16 @@
 import { Link, router, usePage } from '@inertiajs/react'
-import { ChevronLeftIcon, ChevronRightIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
+import { ChevronLeftIcon, ChevronRightIcon, LayoutGridIcon, ListIcon, SlidersHorizontalIcon, XIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
-import { EmptyState, FacetGroup, RequestCard, type FacetOption } from '@/components/qul/catalog'
+import { EmptyState, FacetGroup, type FacetOption } from '@/components/qul/catalog'
+import { RequestCard } from '@/components/qul/request-dialog'
 import { SearchInput } from '@/components/qul/chrome'
+import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
+import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
+import { StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
@@ -18,7 +22,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer'
-import { catalogResources, detailResources } from '@/routes'
+import { cn } from '@/lib/utils'
+import { catalogResourcePreview, catalogResources, detailResources } from '@/routes'
 import type {
   CatalogFacetValue,
   CatalogOption,
@@ -31,23 +36,28 @@ type Filters = CatalogSearchFilters
 type SingleFacet = 'type' | 'language' | 'format' | 'granularity' | 'status'
 
 // The props a search changes. The vocabularies arrive once, with the first page load.
-const SEARCH_PROPS = ['filters', 'results', 'facets', 'total', 'page', 'pages']
-const DEFAULT_SORT: Filters['sort'] = 'popular'
+const SEARCH_PROPS = ['filters', 'results', 'groups', 'facets', 'total', 'page', 'pages']
 const TYPING_DEBOUNCE_MS = 300
+const VIEWS = [
+  { key: 'grid', label: 'Grid view', icon: LayoutGridIcon },
+  { key: 'list', label: 'List view', icon: ListIcon },
+] as const
 
 // The query string of a search, without the values that are the defaults.
 function searchUrl(filters: Filters) {
   return catalogResources.index({
     query: {
       q: filters.q || null,
+      category: filters.category,
       type: filters.type,
       language: filters.language,
       script: filters.script.length > 0 ? filters.script : null,
       format: filters.format,
       granularity: filters.granularity,
       status: filters.status,
-      sort: filters.sort === DEFAULT_SORT ? null : filters.sort,
+      sort: filters.sort,
       page: filters.page > 1 ? filters.page : null,
+      view: filters.view === 'grid' ? null : filters.view,
     },
   }).url
 }
@@ -69,12 +79,14 @@ function plural(count: number, word: string) {
   return `${count} ${count === 1 ? word : `${word}s`}`
 }
 
-// /resources: catalog search. Every filter, the query, the sort and the page are in the query
-// string, so each view is a link; the server searches (Catalog::SearchQuery) and this page shows
-// the results, the facet counts and the controls.
+// /resources: catalog search. Every filter, the query, the sort, the page and the view (grid or
+// list) are in the query string, so each view is a link; the server searches
+// (Catalog::SearchQuery) and this page shows the results, the facet counts and the controls.
+// With no sort and no query the results come grouped by category, under a heading each.
 export default function CatalogPage({
   filters,
   results,
+  groups: categoryGroups,
   facets,
   total,
   page,
@@ -114,14 +126,15 @@ export default function CatalogPage({
     setQuery('')
     setSent('')
     search({
+      ...filters,
       q: '',
+      category: null,
       type: null,
       language: null,
       script: [],
       format: null,
       granularity: null,
       status: null,
-      sort: filters.sort,
       page: 1,
     })
   }
@@ -208,6 +221,16 @@ export default function CatalogPage({
           },
         ]
       : []),
+    ...(filters.category
+      ? [
+          {
+            label:
+              vocabularies.types.find((type) => type.category.key === filters.category)?.category.label ??
+              filters.category,
+            remove: () => apply({ category: null }),
+          },
+        ]
+      : []),
     ...(filters.type
       ? [{ label: labelOf(vocabularies.types, filters.type), remove: () => apply({ type: null }) }]
       : []),
@@ -240,8 +263,40 @@ export default function CatalogPage({
       result.language,
       result.granularity && labelOf(vocabularies.granularities, result.granularity),
     ].filter((fact): fact is string => Boolean(fact))
-  const formats = (result: CatalogSearchResult) =>
-    result.formats.map((format) => labelOf(vocabularies.formats, format)).join(' · ') || undefined
+  const categoryOf = (result: CatalogSearchResult) =>
+    vocabularies.types.find((type) => type.key === result.type)?.category.key ?? 'metadata'
+
+  const compact = filters.view === 'list'
+  const card = (result: CatalogSearchResult) => (
+    <li key={result.id} className="flex">
+      <ResourceCard
+        className="flex-1"
+        density={compact ? 'compact' : 'default'}
+        title={result.name}
+        bundleId={result.id}
+        href={detailResources({ type: result.type, id: result.toParam }).url}
+        category={categoryOf(result)}
+        facts={facts(result)}
+        summary={result.summary}
+        status={
+          result.status !== 'stable' && (
+            <StatusBadge status={result.status} label={labelOf(vocabularies.statuses, result.status)} />
+          )
+        }
+        formats={result.formats.map((format) => labelOf(vocabularies.formats, format))}
+        muted={result.status === 'legacy' || result.status === 'superseded'}
+        preview={
+          !compact &&
+          result.previewKind && (
+            <CardPreview
+              kind={result.previewKind}
+              url={catalogResourcePreview({ type: result.type, slug: result.toParam }).url}
+            />
+          )
+        }
+      />
+    </li>
+  )
 
   const pageLink = (target: number) => ({
     href: searchUrl({ ...filters, page: target }),
@@ -302,10 +357,11 @@ export default function CatalogPage({
             <label className="flex h-9 items-center gap-2 text-sm text-muted-foreground">
               Sort
               <select
-                value={filters.sort}
-                onChange={(event) => apply({ sort: event.target.value as Filters['sort'] })}
+                value={filters.sort ?? ''}
+                onChange={(event) => apply({ sort: (event.target.value || null) as Filters['sort'] })}
                 className="h-9 rounded-lg border bg-card px-2 text-sm text-foreground shadow-xs"
               >
+                <option value="">Category</option>
                 {vocabularies.sorts.map((sort) => (
                   <option key={sort.key} value={sort.key}>
                     {sort.label}
@@ -313,6 +369,23 @@ export default function CatalogPage({
                 ))}
               </select>
             </label>
+            <div role="group" aria-label="View" className="flex rounded-lg border bg-card p-0.5 shadow-xs">
+              {VIEWS.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={label}
+                  aria-pressed={filters.view === key}
+                  onClick={() => search({ ...filters, view: key }, { preserveScroll: true })}
+                  className={cn(
+                    'rounded-md p-2 text-muted-foreground hover:text-foreground',
+                    filters.view === key && 'bg-secondary text-foreground',
+                  )}
+                >
+                  <Icon className="size-4" />
+                </button>
+              ))}
+            </div>
           </div>
 
           {chips.length > 0 && (
@@ -344,19 +417,28 @@ export default function CatalogPage({
           )}
 
           {results.length > 0 ? (
-            <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Resources">
-              {results.map((result) => (
-                <li key={result.id} className="flex">
-                  <ResourceCard
-                    className="flex-1"
-                    title={result.name}
-                    href={detailResources({ type: result.type, id: result.toParam }).url}
-                    facts={facts(result)}
-                    footnote={formats(result)}
-                  />
-                </li>
-              ))}
-            </ul>
+            (categoryGroups ?? [{ category: null, total, count: results.length }]).map((group, index, all) => {
+              const offset = all.slice(0, index).reduce((sum, previous) => sum + previous.count, 0)
+              const list = (
+                <ul
+                  className={cn('grid', compact ? 'grid-cols-1 gap-2' : 'gap-4 sm:grid-cols-2 xl:grid-cols-3')}
+                  aria-label={group.category?.label ?? 'Resources'}
+                >
+                  {results.slice(offset, offset + group.count).map(card)}
+                </ul>
+              )
+              if (!group.category) return <React.Fragment key="all">{list}</React.Fragment>
+              return (
+                <section key={group.category.key} className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3">
+                    <ResourceIcon category={group.category.key} variant="plain" size="sm" />
+                    <h2 className="text-lg font-medium tracking-tight">{group.category.label}</h2>
+                    <span className="font-mono text-xs text-muted-foreground tabular-nums">{group.total}</span>
+                  </div>
+                  {list}
+                </section>
+              )
+            })
           ) : (
             <EmptyState
               title="Nothing matches this search"

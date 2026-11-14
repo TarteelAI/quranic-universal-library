@@ -29,8 +29,8 @@ Use morphology data when building:
 1. Open [https://qul.tarteel.ai/resources/morphology](https://qul.tarteel.ai/resources/morphology).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Preview` tab (resource-specific title such as `Word root Preview`)
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download formats (commonly `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -43,7 +43,7 @@ On morphology detail pages:
   - `Jump to Ayah`
   - Word-level rows for selected ayah (`Word stem`, `Word root`, `Word lemma`)
   - Ayah-level aggregates (`Ayah Stem`, `Ayah Root`, `Ayah Lemma`)
-- `Help` tab:
+- `Docs` tab:
   - Field definitions (including word location key)
   - Integration notes about joining with word-by-word script
 

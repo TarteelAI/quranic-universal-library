@@ -8,13 +8,14 @@ async function isInertiaPage(page: Page) {
 
 test.describe('type pages', () => {
   test('a type page shows the type and one card per resource, without sideways scrolling', async ({ page }) => {
-    await page.goto('/resources/translation')
+    await page.goto('/resources/transliteration')
 
     const heading = page.getByRole('heading', { level: 1 })
-    await expect(heading).toContainText('Translations')
+    await expect(heading).toContainText('Transliterations')
     const count = Number(await heading.locator('span').textContent())
     expect(count).toBeGreaterThan(0)
-    await expect(page.getByRole('list', { name: 'Translations' }).getByRole('article')).toHaveCount(count)
+    // A type with few resources (transliterations) shows them all on one page; the old version is collapsed.
+    await expect(page.locator('main article')).toHaveCount(count)
     await expect(page.locator('#app[data-server-rendered="true"]')).toHaveCount(1)
 
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
@@ -31,16 +32,21 @@ test.describe('type pages', () => {
     await page.waitForLoadState()
     expect(await isInertiaPage(page)).toBe(true)
 
-    // The resource guide is an old docs page.
+    // The resource guide is a new docs page while the content group is on.
     await page.goto(`${new URL(page.url()).pathname}?tab=data`)
     await page.getByRole('link', { name: 'the tafsir guide' }).click()
     await expect(page).toHaveURL(/\/docs\/resource-tafsirs$/)
+    await page.waitForLoadState()
+    expect(await isInertiaPage(page)).toBe(true)
+
+    // Sign-in stays an old page. At phone width its link is in the closed menu.
+    await page.locator('a[href^="/users/sign_in"]').first().dispatchEvent('click')
+    await expect(page).toHaveURL(/\/users\/sign_in/)
     await page.waitForLoadState()
     expect(await isInertiaPage(page)).toBe(false)
     // The old page's own bundle (Turbo) loads and runs there.
     await page.waitForFunction(() => 'Turbo' in window)
 
-    // At phone width the docs page keeps its links in a closed menu.
     await page.locator('a[href="/resources"]').first().dispatchEvent('click')
     await expect(page).toHaveURL(/\/resources$/)
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Resources')

@@ -3,7 +3,10 @@
 # Inertia pages (app/frontend) render through InertiaController and the `inertia` layout.
 # The options below are the ones the Inertia v3 client expects.
 InertiaRails.configure do |config|
-  config.version = ViteRuby.digest
+  # The version also names the page groups: the shared navigation is a once prop and says which
+  # links new pages serve, so a tab loaded under another setting reloads in full on its next visit.
+  assets_digest = ViteRuby.digest
+  config.version = -> { [assets_digest, *PageGroups.enabled].join('-') }
   config.always_include_errors_hash = true
   config.use_script_element_for_initial_page = true
   config.use_data_inertia_head_attribute = true

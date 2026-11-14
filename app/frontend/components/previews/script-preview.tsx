@@ -20,6 +20,17 @@ function Word({ token, rendering }: { token: PreviewsScriptToken; rendering: Ren
   return <Text text={token.text} font={token.font} rendering={rendering} />
 }
 
+// An ayah's text, or its words in a row.
+export function AyahText({ ayah, rendering }: { ayah: PreviewsScriptAyah; rendering: Rendering }) {
+  if (ayah.text !== null) return <Text text={ayah.text} font={ayah.font} rendering={rendering} />
+  return ayah.words.map((token, index) => (
+    <span key={token.id}>
+      {index > 0 && ' '}
+      <Word token={token} rendering={rendering} />
+    </span>
+  ))
+}
+
 function Ayah({ ayah, preview }: { ayah: PreviewsScriptAyah; preview: PreviewsScript }) {
   const { granularity, rendering } = preview
   return (
@@ -37,16 +48,7 @@ function Ayah({ ayah, preview }: { ayah: PreviewsScriptAyah; preview: PreviewsSc
         </div>
       ) : (
         <p>
-          {ayah.text !== null ? (
-            <Text text={ayah.text} font={ayah.font} rendering={rendering} />
-          ) : (
-            ayah.words.map((token, index) => (
-              <span key={token.id}>
-                {index > 0 && ' '}
-                <Word token={token} rendering={rendering} />
-              </span>
-            ))
-          )}
+          <AyahText ayah={ayah} rendering={rendering} />
         </p>
       )}
     </li>

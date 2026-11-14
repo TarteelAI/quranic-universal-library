@@ -14,20 +14,27 @@ module Catalog
 
     typelize licence: { nullable: true }
     one :licence, source: proc { self[:page].licence }, resource: ResourceLicenceResource
+    one :release, source: proc { self[:page] }, resource: ResourceReleaseResource
+
+    # The format doc (Catalog::FormatDoc): the Docs tab's segments (null: no Docs tab), and the
+    # Data tab's schemas and code sample.
+    typelize format_guide: { nullable: true }
+    many :format_guide, source: proc { self[:page].format_doc&.guide }, resource: Content::DocSegmentResource
+    many :schemas, source: proc { self[:page].format_doc&.schemas.to_a }, resource: FormatSchemaResource
+    typelize code_sample: { nullable: true }
+    one :code_sample, source: proc { self[:page].format_doc&.sample }, resource: Content::DocSegmentResource
 
     typelize tab: [:string, { enum: ResourcePage::TABS }],
              download_mode: [:string, { enum: DownloadMode::MODES }],
              can_download: :boolean,
              restriction: [:string, { nullable: true }],
              download: [:number, { nullable: true }],
-             updated_on: [:string, { nullable: true }],
              guide_path: [:string, { nullable: true }],
              issue_url: :string
     attributes :tab, :download_mode, :download, :issue_url
     attribute(:can_download) { |page| page[:page].can_download? }
     # Sanitized HTML.
     attribute(:restriction) { |page| page[:page].restriction }
-    attribute(:updated_on) { |page| page[:page].updated_on&.strftime(ResourcePage::DATE_FORMAT) }
     attribute(:guide_path) { |page| page[:page].guide_path }
 
     # Previews.for; null when the resource's type has no preview.

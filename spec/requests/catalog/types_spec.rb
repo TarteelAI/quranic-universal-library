@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Type pages (/resources/:type)', type: :request do
   let(:types) { DownloadableResource::RESOURCE_TYPES }
 
-  describe 'with the catalog page group on', page_groups: %w[catalog] do
+  describe 'with the catalog page group on', page_groups: ['catalog'] do
     it 'renders the Inertia page for each of the 14 types, with one card per published resource' do
       expect(types.size).to eq(14)
 
@@ -15,7 +17,13 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         expect(inertia).to render_component('catalog/TypePage')
         expect(inertia.props[:type]).to include(key: type)
         published = DownloadableResource.published.where(resource_type: type)
-        expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids), type
+        expect(inertia.props[:total]).to eq(published.count)
+        if published.count > Catalog::TypesController::SEARCH_ABOVE
+          expect(inertia.props[:resources].size).to eq(Catalog::TypesController::PER_PAGE), type
+          expect(published.ids).to include(*inertia.props[:resources].pluck(:id)), type
+        else
+          expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids), type
+        end
         expect(inertia.props[:resources].pluck(:name)).to all(be_present)
       end
     end
@@ -32,7 +40,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         expect(title).to eq("#{taxonomy.title} - QUL")
         expect(description).to eq(taxonomy.description)
         expect(json_ld).to include('@type' => 'CollectionPage', 'name' => title,
-                                   'url' => "https://qul.tarteel.ai/resources/#{type}")
+                                   'url' => "https://qul.tarteel.ai/resources/#{type}",)
         [title, description, json_ld]
       end
 
@@ -60,8 +68,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(inertia.props[:pick]).to eq(Catalog::Taxonomy::PICK_DEFAULT)
       card = inertia.props[:resources].find { |c| c[:id] == old.id }
       expect(card).to include(status: 'superseded', supersededBy: include(id: replacement.id,
-                                                                         toParam: replacement.to_param))
-      expect(inertia.props[:statuses].pluck(:key)).to eq(%w[stable beta legacy superseded])
+                                                                          toParam: replacement.to_param,),)
+      expect(inertia.props[:statuses].pluck(:key)).to eq(['stable', 'beta', 'legacy', 'superseded'])
     end
 
     it 'marks a drafted recommendation as not yet reviewed, and not once a person has reviewed it' do
@@ -85,7 +93,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       get '/resources/mushaf-layout'
 
       comparison = inertia.props[:comparison]
-      expect(comparison[:columns].pluck(:key)).to eq(%w[script_family pages lines_per_page rendering font status])
+      expect(comparison[:columns].pluck(:key)).to eq(['script_family', 'pages', 'lines_per_page', 'rendering', 'font',
+                                                      'status',])
       layouts = DownloadableResource.published.where(resource_type: 'mushaf-layout')
       expect(comparison[:rows].pluck(:id)).to match_array(layouts.ids)
 
@@ -100,7 +109,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
           ORDER BY m.enabled DESC, m.id ASC LIMIT 1
         SQL
         mushaf = QulQuranRecord.connection.select_one(
-          "SELECT pages_count, lines_per_page FROM mushafs WHERE id = #{mushaf_id.to_i}"
+          "SELECT pages_count, lines_per_page FROM mushafs WHERE id = #{mushaf_id.to_i}",
         )
         [layout.id, { 'pages' => mushaf&.fetch('pages_count'), 'linesPerPage' => mushaf&.fetch('lines_per_page') }]
       end
@@ -125,7 +134,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       font = DownloadableResource.published.where(resource_type: 'font').order(:id).first
       DownloadableRelatedResource.where(downloadable_resource: layout).delete_all
       link = DownloadableRelatedResource.create!(downloadable_resource: layout, related_resource: font,
-                                                 relation_type: 'requires')
+                                                 relation_type: 'requires',)
 
       get '/resources/mushaf-layout'
 
@@ -134,7 +143,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
 
     it 'has a comparison table for scripts and fonts too, without layout facts' do
-      %w[quran-script font].each do |type|
+      ['quran-script', 'font'].each do |type|
         get "/resources/#{type}"
 
         rows = inertia.props[:comparison][:rows]
@@ -167,14 +176,14 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(inertia.props[:types].pluck(:key)).to eq(Catalog::Taxonomy.types.map(&:key))
       expect(inertia.props[:type]).to include(
         title: 'Translations',
-        category: { key: 'translation', label: 'Translation' }
+        category: { key: 'translation', label: 'Translation' },
       )
     end
 
-    it 'gives each card its detail path, language and granularity' do
-      get '/resources/translation'
-
+    it 'gives each card its detail path, language, granularity, summary and formats' do
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
+      get '/resources/translation', params: { q: resource.display_name }
+
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card).to include(
         name: resource.display_name,
@@ -182,16 +191,17 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         toParam: resource.to_param,
         language: resource.language.name,
         granularity: resource.humanize_cardinality_type,
-        filesCount: resource.files_count
+        summary: resource.short_summary.presence,
+        formats: Catalog::Taxonomy.formats_of(resource.downloadable_files.where(published: true).pluck(:file_type)),
       )
     end
 
     it 'takes the language from the content row when the resource row has none' do
       resource = DownloadableResource.published.where(resource_type: 'translation', language_id: nil)
-                                     .find { |r| r.resource_content&.language }
+        .find { |r| r.resource_content&.language }
       skip 'every published translation has a language on its resource row' unless resource
 
-      get '/resources/translation'
+      get '/resources/translation', params: { q: resource.display_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card[:language]).to eq(resource.resource_content.language.name)
@@ -232,7 +242,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(json_ld).to include(
         '@type' => 'CollectionPage',
         'url' => 'https://qul.tarteel.ai/resources/mushaf-layout',
-        'name' => 'Mushaf layouts - QUL'
+        'name' => 'Mushaf layouts - QUL',
       )
     end
 
@@ -242,7 +252,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       html = Nokogiri::HTML(response.body)
       expect(html.css('script[src]').map { |s| s['src'] }).to include(
         'https://www.googletagmanager.com/gtag/js?id=G-57749XV2P9',
-        a_string_starting_with('https://js.sentry-cdn.com/')
+        a_string_starting_with('https://js.sentry-cdn.com/'),
       )
       expect(response.body).to include("gtag('config', 'G-57749XV2P9', { send_page_view: false })")
     end
@@ -255,8 +265,10 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(app).to be_present
       expect(app.at('h1').text).to start_with('Tafsirs')
       card_names = app.css('article h3').map(&:text)
-      tafsirs = DownloadableResource.published.where(resource_type: 'tafsir')
-      expect(card_names).to match_array(tafsirs.map(&:display_name))
+      expect(card_names).to eq(inertia.props[:resources].pluck(:name))
+      expect(card_names.size).to eq(Catalog::TypesController::PER_PAGE)
+      expect(app.at('input[type="search"]')).to be_present
+      expect(app.at('nav[aria-label="Pages"]')).to be_present
 
       head = Nokogiri::HTML(response.body).at('head')
       expect(head.at('title').text).to eq('Tafsirs - QUL')
@@ -265,9 +277,91 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
   end
 
+  describe 'search, language filter and pages on a type with many resources', page_groups: ['catalog'] do
+    let(:translations) { DownloadableResource.published.where(resource_type: 'translation').to_a }
+    let(:per_page) { Catalog::TypesController::PER_PAGE }
+
+    def language_of(resource)
+      resource.language || resource.resource_content&.language
+    end
+
+    it 'sends the first page of cards, the total and the search state' do
+      get '/resources/translation'
+
+      expect(inertia.props[:total]).to eq(translations.size)
+      expect(inertia.props[:resources].size).to eq(per_page)
+      expect(inertia.props[:search]).to include(q: '', language: nil, page: 1, matches: translations.size,
+                                                pages: (translations.size / per_page.to_f).ceil,)
+    end
+
+    it 'never shows a resource twice across the pages, and shows each one' do
+      get '/resources/translation'
+      pages = inertia.props[:search][:pages]
+
+      ids = (1..pages).flat_map do |page|
+        get '/resources/translation', params: { page: page }
+        expect(inertia.props[:search][:page]).to eq(page)
+        inertia.props[:resources].pluck(:id)
+      end
+      expect(ids.size).to eq(ids.uniq.size)
+      expect(ids).to match_array(translations.map(&:id))
+    end
+
+    it 'narrows the list by a language name' do
+      get '/resources/translation', params: { q: 'urdu' }
+
+      urdu = translations.select { |resource| language_of(resource)&.name == 'Urdu' }
+      expect(urdu.size).to be > 1
+      expect(inertia.props[:search]).to include(q: 'urdu', matches: urdu.size)
+      expect(inertia.props[:resources].pluck(:id)).to match_array(urdu.map(&:id).first(per_page))
+      expect(inertia.props[:resources].pluck(:language)).to all(eq('Urdu'))
+    end
+
+    it 'narrows the list by a resource name' do
+      resource = translations.max_by { |r| r.display_name.length }
+      get '/resources/translation', params: { q: resource.display_name }
+
+      expect(inertia.props[:resources].pluck(:id)).to include(resource.id)
+      expect(inertia.props[:search][:matches]).to be < translations.size
+    end
+
+    it 'lists only the languages that have a translation, and filters by one' do
+      get '/resources/translation'
+
+      languages = translations.filter_map { |resource| language_of(resource) }
+      offered = inertia.props[:search][:languages]
+      expect(offered.pluck(:key)).to match_array(languages.map(&:iso_code).uniq)
+      expect(offered.find { |language| language[:key] == 'ur' }).to include(
+        name: 'Urdu', count: languages.count { |language| language.iso_code == 'ur' },
+      )
+
+      get '/resources/translation', params: { language: 'ur' }
+
+      expect(inertia.props[:search]).to include(language: 'ur')
+      expect(inertia.props[:resources].pluck(:language)).to all(eq('Urdu'))
+      expect(inertia.props[:search][:matches]).to eq(languages.count { |language| language.iso_code == 'ur' })
+    end
+
+    it 'takes only the query, language and page from the query string' do
+      get '/resources/translation', params: { type: 'tafsir', format: 'docx', sort: 'updated' }
+
+      expect(inertia.props[:search][:matches]).to eq(translations.size)
+    end
+
+    it 'sends no search state and every card for a type with few resources' do
+      get '/resources/font', params: { q: 'zzzz', page: 2 }
+
+      expect(inertia.props[:search]).to be_nil
+      published = DownloadableResource.published.where(resource_type: 'font')
+      expect(published.count).to be <= Catalog::TypesController::SEARCH_ABOVE
+      expect(inertia.props[:total]).to eq(published.count)
+      expect(inertia.props[:resources].pluck(:id)).to match_array(published.ids)
+    end
+  end
+
   describe 'with the catalog page group off', page_groups: [] do
     it 'renders the old ERB view at the same URLs' do
-      %w[translation mushaf-layout surah-info].each do |type|
+      ['translation', 'mushaf-layout', 'surah-info'].each do |type|
         get "/resources/#{type}"
 
         expect(response).to have_http_status(:ok)

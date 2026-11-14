@@ -5,18 +5,19 @@ module Catalog
   # category each belongs to. This file is the one source for that copy. Pages receive it as
   # props; the React side holds no copy of it.
   module Taxonomy
-    Category = Data.define(:key, :label)
+    # `hint` is the one line under the category's row on the home page.
+    Category = Data.define(:key, :label, :hint)
     Type = Data.define(:key, :label, :title, :summary, :description, :category)
 
     CATEGORIES = [
-      Category.new(key: 'audio', label: 'Audio'),
-      Category.new(key: 'layout', label: 'Mushaf layouts'),
-      Category.new(key: 'script', label: 'Script and fonts'),
-      Category.new(key: 'translation', label: 'Translation'),
-      Category.new(key: 'tafsir', label: 'Tafsir and commentary'),
-      Category.new(key: 'linguistics', label: 'Linguistics'),
-      Category.new(key: 'topics', label: 'Topics and themes'),
-      Category.new(key: 'metadata', label: 'Metadata')
+      Category.new(key: 'audio', label: 'Audio', hint: 'Recitations with word timing'),
+      Category.new(key: 'layout', label: 'Mushaf layouts', hint: 'Printed mushaf page layouts'),
+      Category.new(key: 'script', label: 'Script and fonts', hint: 'Quran text and fonts'),
+      Category.new(key: 'translation', label: 'Translation', hint: 'Many languages, word by word too'),
+      Category.new(key: 'tafsir', label: 'Tafsir and commentary', hint: 'Commentaries and surah introductions'),
+      Category.new(key: 'linguistics', label: 'Linguistics', hint: 'Roots, lemmas and grammar'),
+      Category.new(key: 'topics', label: 'Topics and themes', hint: 'Topics, themes and similar ayahs'),
+      Category.new(key: 'metadata', label: 'Metadata', hint: 'Surah, juz, hizb and page data'),
     ].index_by(&:key).freeze
 
     TYPES = [
@@ -25,86 +26,86 @@ module Catalog
         summary: 'Surah and ayah audio, with timestamps for each ayah and word.',
         description: 'Audio files of full Quran recitations, surah by surah or ayah by ayah. Many recitations ' \
                      'have segment data: the start and end time of each ayah and each word. Use the segments ' \
-                     'to highlight the text while the audio plays.'
+                     'to highlight the text while the audio plays.',
       ),
       Type.new(
         key: 'mushaf-layout', label: 'Mushaf layout', title: 'Mushaf layouts', category: CATEGORIES.fetch('layout'),
         summary: 'Page, line and word positions of printed mushaf editions.',
         description: 'Page, line and word positions of printed mushaf editions. Use a layout to show Quran ' \
-                     'pages as they look in print. Use it with the matching font and script.'
+                     'pages as they look in print. Use it with the matching font and script.',
       ),
       Type.new(
         key: 'quran-script', label: 'Quran script', title: 'Quran scripts', category: CATEGORIES.fetch('script'),
         summary: 'The Quran text in Unicode, ayah by ayah and word by word.',
         description: 'The Quran text in Unicode, ayah by ayah and word by word. Scripts include Madani ' \
-                     '(Uthmani), IndoPak and simple text. Some scripts have tajweed marks.'
+                     '(Uthmani), IndoPak and simple text. Some scripts have tajweed marks.',
       ),
       Type.new(
         key: 'font', label: 'Font', title: 'Fonts', category: CATEGORIES.fetch('script'),
         summary: 'Quran fonts, glyph fonts for each mushaf page, and surah name fonts.',
         description: 'Fonts for Quran text. There are Unicode fonts, glyph fonts with one file for each ' \
-                     'mushaf page, and fonts for surah names and surah headers.'
+                     'mushaf page, and fonts for surah names and surah headers.',
       ),
       Type.new(
         key: 'translation', label: 'Translation', title: 'Translations', category: CATEGORIES.fetch('translation'),
         summary: 'Ayah by ayah and word by word translations in many languages.',
         description: 'Translations of the Quran in many languages. Each translation is ayah by ayah or ' \
-                     'word by word.'
+                     'word by word.',
       ),
       Type.new(
         key: 'transliteration', label: 'Transliteration', title: 'Transliterations',
         category: CATEGORIES.fetch('translation'),
         summary: 'The Arabic text in Latin letters, to help people read it aloud.',
         description: 'The Arabic text written in Latin letters, to help people read it aloud. ' \
-                     'Transliterations are ayah by ayah or word by word.'
+                     'Transliterations are ayah by ayah or word by word.',
       ),
       Type.new(
         key: 'tafsir', label: 'Tafsir', title: 'Tafsirs', category: CATEGORIES.fetch('tafsir'),
         summary: 'Short and detailed commentaries, for one ayah or a group of ayahs.',
         description: 'Commentaries on the Quran in many languages. Some are short and some are detailed. ' \
-                     'Each tafsir entry is for one ayah or for a group of ayahs.'
+                     'Each tafsir entry is for one ayah or for a group of ayahs.',
       ),
       Type.new(
         key: 'surah-info', label: 'Surah info', title: 'Surah info', category: CATEGORIES.fetch('tafsir'),
         summary: 'An introduction to each surah.',
-        description: 'An introduction to each surah: when it was revealed, its main themes and its context.'
+        description: 'An introduction to each surah: when it was revealed, its main themes and its context.',
       ),
       Type.new(
         key: 'morphology', label: 'Morphology', title: 'Morphology and grammar',
         category: CATEGORIES.fetch('linguistics'),
         summary: 'Roots, lemmas, stems, grammar and dependency graphs.',
         description: 'Language data for each word of the Quran: roots, lemmas, stems, grammar terms and ' \
-                     'dependency graphs.'
+                     'dependency graphs.',
       ),
       Type.new(
         key: 'mutashabihat', label: 'Mutashabihat', title: 'Mutashabihat', category: CATEGORIES.fetch('topics'),
         summary: 'Similar phrases that are easy to confuse when you memorise.',
         description: 'Phrases that occur in more than one place in the Quran and are easy to confuse. ' \
-                     'Use this data to help people memorise.'
+                     'Use this data to help people memorise.',
       ),
       Type.new(
         key: 'similar-ayah', label: 'Similar ayah', title: 'Similar ayahs', category: CATEGORIES.fetch('topics'),
         summary: 'Ayahs with similar wording, with a match score.',
         description: 'Pairs of ayahs with similar wording. Each pair has a score that shows how closely ' \
-                     'the ayahs match.'
+                     'the ayahs match.',
       ),
       Type.new(
         key: 'ayah-topics', label: 'Ayah topics', title: 'Ayah topics', category: CATEGORIES.fetch('topics'),
         summary: 'Topics and concepts, with the ayahs that mention them.',
-        description: 'Topics and concepts, with the ayahs that mention each one.'
+        description: 'Topics and concepts, with the ayahs that mention each one.',
       ),
       Type.new(
         key: 'ayah-theme', label: 'Ayah theme', title: 'Ayah themes', category: CATEGORIES.fetch('topics'),
         summary: 'Themes for groups of consecutive ayahs.',
-        description: 'Themes for groups of consecutive ayahs. Each theme covers a range of ayahs.'
+        description: 'Themes for groups of consecutive ayahs. Each theme covers a range of ayahs.',
       ),
       Type.new(
         key: 'quran-metadata', label: 'Quran metadata', title: 'Quran metadata',
         category: CATEGORIES.fetch('metadata'),
         summary: 'Surah, ayah and word data, and juz, hizb, rub, manzil, ruku and sajda boundaries.',
         description: 'The structure of the Quran: surahs, ayahs and words, and where each juz, hizb, rub, ' \
-                     'manzil, ruku and sajda starts and ends.'
-      )
+                     'manzil, ruku and sajda starts and ends.',
+      ),
     ].index_by(&:key).freeze
 
     # A value of one of the search vocabularies below, with its label.
@@ -120,7 +121,7 @@ module Catalog
       Option.new(key: 'font', label: 'Font file'),
       Option.new(key: 'svg', label: 'SVG'),
       Option.new(key: 'image', label: 'Images'),
-      Option.new(key: 'other', label: 'Other')
+      Option.new(key: 'other', label: 'Other'),
     ].freeze
 
     FONT_FILE_TYPES = ['ttf', 'otf', 'woff', 'woff2', 'font pack'].freeze
@@ -128,21 +129,21 @@ module Catalog
     SCRIPT_FAMILIES = [
       Option.new(key: 'madani', label: 'Madani'),
       Option.new(key: 'indopak', label: 'IndoPak'),
-      Option.new(key: 'other', label: 'Other scripts')
+      Option.new(key: 'other', label: 'Other scripts'),
     ].freeze
 
     STATUSES = [
       Option.new(key: 'stable', label: 'Stable'),
       Option.new(key: 'beta', label: 'Beta'),
       Option.new(key: 'legacy', label: 'Legacy'),
-      Option.new(key: 'superseded', label: 'Superseded')
+      Option.new(key: 'superseded', label: 'Superseded'),
     ].freeze
 
     RENDERINGS = [
       Option.new(key: 'unicode_font', label: 'Unicode text and font'),
       Option.new(key: 'glyph_page', label: 'Glyph font for each page'),
       Option.new(key: 'image', label: 'Images'),
-      Option.new(key: 'svg', label: 'SVG')
+      Option.new(key: 'svg', label: 'SVG'),
     ].freeze
 
     # How to choose among the resources of a type, for the "Which one should I pick?" block of a
@@ -155,7 +156,7 @@ module Catalog
                         'readers. IndoPak scripts are for readers in South Asia. A glyph script needs its own ' \
                         'font, which the table names.',
       'font' => 'Use the font that your layout or script needs. The tables on the layout and script pages ' \
-                'name the font for each one.'
+                'name the font for each one.',
     }.freeze
     PICK_DEFAULT = 'Use a current resource. Older versions stay available for apps that already use them.'
 
@@ -166,12 +167,12 @@ module Catalog
       Option.new(key: 'lines_per_page', label: 'Lines per page'),
       Option.new(key: 'rendering', label: 'Rendering'),
       Option.new(key: 'font', label: 'Font'),
-      Option.new(key: 'status', label: 'Status')
+      Option.new(key: 'status', label: 'Status'),
     ].index_by(&:key).freeze
     COMPARISONS = {
-      'mushaf-layout' => %w[script_family pages lines_per_page rendering font status],
-      'quran-script' => %w[script_family rendering font status],
-      'font' => %w[script_family rendering status]
+      'mushaf-layout' => ['script_family', 'pages', 'lines_per_page', 'rendering', 'font', 'status'],
+      'quran-script' => ['script_family', 'rendering', 'font', 'status'],
+      'font' => ['script_family', 'rendering', 'status'],
     }.freeze
 
     # Granularity is the resource's cardinality type.
@@ -188,13 +189,13 @@ module Catalog
       Option.new(key: '1_juz', label: 'Juz'),
       Option.new(key: '1_manzil', label: 'Manzil'),
       Option.new(key: '1_sajda', label: 'Sajda'),
-      Option.new(key: 'quran', label: 'Whole Quran')
+      Option.new(key: 'quran', label: 'Whole Quran'),
     ].freeze
 
     SORTS = [
       Option.new(key: 'popular', label: 'Most downloaded'),
       Option.new(key: 'name', label: 'Name'),
-      Option.new(key: 'updated', label: 'Recently updated')
+      Option.new(key: 'updated', label: 'Recently updated'),
     ].freeze
 
     # The resource guide (/docs/:key) of each type.
@@ -205,7 +206,7 @@ module Catalog
       'tafsir' => 'resource-tafsirs', 'surah-info' => 'resource-surah-information',
       'morphology' => 'resource-morphology', 'mutashabihat' => 'resource-mutashabihat',
       'similar-ayah' => 'resource-similar-ayah', 'ayah-topics' => 'resource-ayah-topics',
-      'ayah-theme' => 'resource-ayah-theme', 'quran-metadata' => 'resource-quran-metadata'
+      'ayah-theme' => 'resource-ayah-theme', 'quran-metadata' => 'resource-quran-metadata',
     }.freeze
 
     # The option of the `resource_type` dropdown in .github/ISSUE_TEMPLATE/content_issue.yml for
@@ -215,7 +216,7 @@ module Catalog
       'translation' => 'Translation', 'tafsir' => 'Tafsir', 'transliteration' => 'Transliteration',
       'recitation' => 'Recitation / segments', 'morphology' => 'Morphology / grammar',
       'surah-info' => 'Surah info', 'ayah-topics' => 'Ayah topics', 'ayah-theme' => 'Ayah themes',
-      'similar-ayah' => 'Similar ayah', 'mutashabihat' => 'Mutashabihat', 'quran-metadata' => 'Quran metadata'
+      'similar-ayah' => 'Similar ayah', 'mutashabihat' => 'Mutashabihat', 'quran-metadata' => 'Quran metadata',
     }.freeze
 
     def self.types
@@ -259,6 +260,11 @@ module Catalog
       return 'image' if type == 'images'
 
       FORMATS.any? { |format| format.key == type } ? type : 'other'
+    end
+
+    # The formats of a set of file types, each once, in vocabulary order.
+    def self.formats_of(file_types)
+      FORMATS.map(&:key) & file_types.map { |file_type| format_for(file_type) }
     end
   end
 end

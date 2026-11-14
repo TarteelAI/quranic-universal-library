@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_10_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_120000) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "apps", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url", null: false
+    t.string "platforms", default: [], null: false, array: true
+    t.string "uses", default: [], null: false, array: true
+    t.string "contact"
+    t.boolean "consent", default: false, null: false
+    t.boolean "featured", default: false, null: false
+    t.boolean "published", default: false, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "import_key"
+    t.string "kind"
+    t.text "description"
+    t.string "evidence"
+    t.index ["import_key"], name: "index_apps_on_import_key", unique: true
+    t.index ["user_id"], name: "index_apps_on_user_id"
   end
 
   create_table "audio_repair_ingest_items", force: :cascade do |t|
@@ -865,6 +885,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_120000) do
     t.index ["licence_id"], name: "index_resource_permissions_on_licence_id"
   end
 
+  create_table "resource_request_votes", force: :cascade do |t|
+    t.bigint "resource_request_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_request_id", "user_id"], name: "index_resource_request_votes_unique", unique: true
+    t.index ["user_id"], name: "index_resource_request_votes_on_user_id"
+  end
+
+  create_table "resource_requests", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.string "resource_type", null: false
+    t.string "language"
+    t.string "status", default: "open", null: false
+    t.boolean "hidden", default: false, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_resource_requests_on_user_id"
+  end
+
   create_table "segment_pipeline_draft_deliveries", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "audio_recitation_id"
@@ -1062,8 +1104,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_120000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "apps", "users", on_delete: :nullify
   add_foreign_key "downloadable_files", "downloadable_resources"
   add_foreign_key "downloadable_resources", "downloadable_resources", column: "superseded_by_id", on_delete: :nullify
+  add_foreign_key "resource_request_votes", "resource_requests", on_delete: :cascade
+  add_foreign_key "resource_request_votes", "users", on_delete: :cascade
+  add_foreign_key "resource_requests", "users", on_delete: :nullify
   add_foreign_key "user_downloads", "downloadable_files"
   add_foreign_key "user_downloads", "users"
 end

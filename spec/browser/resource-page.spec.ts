@@ -34,7 +34,7 @@ function rails<T>(code: string): T {
   }
 }
 
-type Fixture = { path: string; fileId: number }
+type Fixture = { path: string; id: number; fileId: number }
 type Fixtures = { plain: Fixture; changelog: string; restricted: string }
 
 let fixtures: Fixtures
@@ -49,7 +49,7 @@ test.beforeAll(() => {
     plain = published.where(resource_type: 'translation').find do |r|
       !r.restrict_download? && file.(r) && !changed.include?(r.resource_content_id)
     end
-    puts({ plain: { path: path.(plain), fileId: file.(plain).id },
+    puts({ plain: { path: path.(plain), id: plain.id, fileId: file.(plain).id },
            changelog: path.(published.find { |r| changed.include?(r.resource_content_id) }),
            restricted: path.(published.find(&:restrict_download?)) }.to_json)
   `)
@@ -192,6 +192,65 @@ test('the open tab is in the URL, Back and Forward follow it, and a tab URL load
   await expect(page.getByRole('tabpanel').getByRole('heading', { name: 'Licence not yet confirmed' })).toBeVisible()
 })
 
+test('the Docs tab holds the format guide, opens from ?tab=docs on load and on Back, and the old docs URL redirects to it', async ({
+  page,
+}) => {
+  const { path, id } = fixtures.plain
+  await page.goto(path)
+  await hydrated(page)
+  await expect(page.getByRole('complementary', { name: 'Important notice' })).toBeVisible()
+
+  await page.getByRole('tab', { name: 'Docs' }).click()
+  await expect(page).toHaveURL(new RegExp(`${path}\\?tab=docs$`))
+  const guide = page.getByRole('tabpanel', { name: 'Docs' }).getByRole('heading', { name: /^About / })
+  await expect(guide).toBeVisible()
+
+  await page.getByRole('tab', { name: 'Licence' }).click()
+  await expect(page).toHaveURL(new RegExp(`${path}\\?tab=licence$`))
+  await page.goBack()
+  await expect(page.getByRole('tab', { name: 'Docs' })).toHaveAttribute('aria-selected', 'true')
+  await expect(guide).toBeVisible()
+
+  await page.goto(`${path}?tab=docs`)
+  await expect(page.getByRole('tab', { name: 'Docs' })).toHaveAttribute('aria-selected', 'true')
+  await expect(guide).toBeVisible()
+
+  const type = path.split('/')[2]
+  await page.goto(`/resources/${type}/${id}/docs`)
+  await expect(page).toHaveURL(new RegExp(`${path}\\?tab=docs$`))
+  await expect(guide).toBeVisible()
+})
+
+test('the copied file URL is the download route, and following it obeys the download mode', async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  const { path, fileId } = fixtures.plain
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.goto(path)
+  await hydrated(page)
+
+  const file = panel(page)
+    .getByRole('listitem')
+    .filter({ has: page.locator(`a[href$="/download/${fileId}"]`) })
+  await file.getByRole('button', { name: 'Copy link' }).click()
+  await expect(file.getByRole('button', { name: 'Copied' })).toBeVisible()
+  const copied = await page.evaluate(() => navigator.clipboard.readText())
+  expect(copied).toBe(`${baseURL}${path}/download/${fileId}`)
+  await expect(file.getByText(copied)).toBeVisible()
+
+  const response = await page.request.get(copied, { maxRedirects: 0 })
+  expect(response.status()).toBe(302)
+  const location = response.headers()['location']
+  if ((await downloadMode(page)) === 'sign_in') {
+    expect(new URL(location, baseURL).pathname).toBe('/users/sign_in')
+  } else {
+    expect(location).not.toContain('/resources/')
+    expect(location).toMatch(/\.(zip|bz2)/)
+  }
+})
+
 test('a resource with changelog entries has the Changelog tab with them', async ({ page }) => {
   await page.goto(fixtures.changelog)
   await hydrated(page)
@@ -200,7 +259,7 @@ test('a resource with changelog entries has the Changelog tab with them', async 
   await expect(page).toHaveURL(/\?tab=changelog$/)
   const entries = page.getByRole('list', { name: 'Changelog' }).getByRole('listitem')
   expect(await entries.count()).toBeGreaterThan(0)
-  await expect(entries.first().getByRole('link')).toHaveAttribute('href', /^\/change_logs\/\d+$/)
+  await expect(entries.first().getByRole('link')).toHaveAttribute('href', /^\/changelog\/\d+$/)
 })
 
 test('the page fits the phone width and reports no hydration error', async ({ page }) => {

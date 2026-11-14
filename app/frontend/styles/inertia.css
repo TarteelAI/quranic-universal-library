@@ -308,3 +308,62 @@
     font-size: 0.7em;
   }
 }
+
+/* Docs prose: the sanitized HTML of a docs page (Content::DocPage), after the v8 docs pages
+   (ds/src/app/docs/ui.tsx). Headings sit below the sticky header when a contents link scrolls. */
+@layer components {
+  .docs-prose {
+    @apply flex flex-col gap-4 text-[15.5px] leading-7 text-foreground/85;
+  }
+  .docs-prose :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+    @apply max-w-[68ch];
+  }
+  .docs-prose :is(h1, h2, h3, h4, h5, h6) {
+    @apply scroll-mt-24 font-medium tracking-tight text-foreground;
+  }
+  .docs-prose h1 {
+    @apply headline text-3xl sm:text-4xl;
+  }
+  .docs-prose h2 {
+    @apply mt-6 text-2xl;
+  }
+  .docs-prose h3 {
+    @apply mt-2 text-[17px];
+  }
+  .docs-prose :is(h4, h5, h6) {
+    @apply text-base;
+  }
+  .docs-prose a {
+    @apply font-medium underline decoration-foreground/25 underline-offset-[3px] transition-colors hover:decoration-foreground;
+  }
+  .docs-prose :is(ul, ol) {
+    @apply flex flex-col gap-2 ps-5 marker:text-muted-foreground;
+  }
+  .docs-prose ul {
+    @apply list-disc;
+  }
+  .docs-prose ol {
+    @apply list-decimal;
+  }
+  .docs-prose li {
+    @apply ps-1;
+  }
+  .docs-prose :not(pre) > code {
+    @apply rounded-[5px] bg-secondary px-1.5 py-0.5 font-mono text-[0.86em] text-foreground;
+  }
+  .docs-prose pre {
+    @apply overflow-x-auto rounded-lg bg-secondary p-4 font-mono text-[13px] leading-6;
+  }
+  .docs-prose blockquote {
+    @apply border-s-2 border-border ps-4 text-muted-foreground;
+  }
+  .docs-prose table {
+    @apply block max-w-full overflow-x-auto text-sm;
+  }
+  .docs-prose :is(th, td) {
+    @apply border-b border-border px-3 py-2 text-start align-top;
+  }
+  .docs-prose th {
+    @apply font-medium text-foreground;
+  }
+}

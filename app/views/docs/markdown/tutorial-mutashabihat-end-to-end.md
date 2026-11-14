@@ -28,8 +28,8 @@ Use mutashabihat data when building:
 1. Open [https://qul.tarteel.ai/resources/mutashabihat](https://qul.tarteel.ai/resources/mutashabihat).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Mutashabihat Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download file(s) (commonly `json`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -38,12 +38,12 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On mutashabihat detail pages:
 
-- `Mutashabihat Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah`
   - Displays similar phrase relationships for selected ayah
   - Shows phrase words and repeat statistics
   - Lists phrase ayahs where the phrase appears
-- `Help` tab:
+- `Docs` tab:
   - Explains `phrases.json` and `phrase_verses.json`
   - Shows lookup flow to retrieve related phrases
 
@@ -118,7 +118,7 @@ Interactive preview (temporary sandbox):
 You can edit this code for testing. Edits are not saved and may not persist after refresh.
 
 ```playground-js
-// This sandbox mirrors the Help flow: ayah -> phrase IDs -> phrase objects.
+// This sandbox mirrors the Docs flow: ayah -> phrase IDs -> phrase objects.
 // It also mirrors Preview behavior: Jump to Ayah -> repeated phrase cards -> View all ayahs.
 
 const phraseVerses = {
@@ -215,7 +215,7 @@ const dropdownStyle = [
 
 app.innerHTML = `
   <h3 style="margin:0 0 8px;">Mutashabihat Preview (Phrase-Level)</h3>
-  <p style="margin:0 0 12px;color:#475569;">Preview behavior + Help data model on one screen</p>
+  <p style="margin:0 0 12px;color:#475569;">Preview behavior + Docs data model on one screen</p>
   <div style="margin:0 0 10px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#334155;">
     Start with <strong>1:1</strong> (Bismillah). Then switch to <strong>27:30</strong> or <strong>2:112</strong> to see repeated phrase behavior.
   </div>
@@ -230,9 +230,9 @@ app.innerHTML = `
   <div id="result" style="margin-bottom:10px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;"></div>
   <div id="lookup" style="margin-bottom:10px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;"></div>
   <div style="padding:12px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;">
-    <div style="margin-bottom:6px;"><strong>Help sample: phrase_verses.json</strong></div>
+    <div style="margin-bottom:6px;"><strong>Docs sample: phrase_verses.json</strong></div>
     <pre id="help-phrase-verses" style="margin:0 0 10px;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;overflow:auto;"></pre>
-    <div style="margin-bottom:6px;"><strong>Help sample: phrases.json</strong></div>
+    <div style="margin-bottom:6px;"><strong>Docs sample: phrases.json</strong></div>
     <pre id="help-phrases" style="margin:0;padding:10px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;overflow:auto;"></pre>
   </div>
 `;
@@ -255,7 +255,7 @@ const render = () => {
   current.textContent = `Selected ayah: ${key}`;
   ayahTextBox.textContent = ayahTextByKey[key] || "";
   lookup.innerHTML = `
-    <div style="margin-bottom:6px;"><strong>Lookup flow (from Help):</strong> ayah -> phrase IDs -> phrase objects</div>
+    <div style="margin-bottom:6px;"><strong>Lookup flow (from Docs):</strong> ayah -> phrase IDs -> phrase objects</div>
     <div><strong>phrase_verses.json[&quot;${key}&quot;]:</strong> [${ids.join(", ")}]</div>
   `;
 

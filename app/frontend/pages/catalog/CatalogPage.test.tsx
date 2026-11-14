@@ -8,7 +8,7 @@ import type { CatalogResourcesIndex } from '@/types/serializers'
 
 import CatalogPage from './CatalogPage'
 
-const SEARCH_PROPS = ['filters', 'results', 'facets', 'total', 'page', 'pages']
+const SEARCH_PROPS = ['filters', 'results', 'groups', 'facets', 'total', 'page', 'pages']
 
 const filtered: CatalogResourcesIndex = {
   ...catalogPageProps,
@@ -34,6 +34,10 @@ describe('catalog/CatalogPage', () => {
     )
     expect(screen.getByText('Translation · English · Ayah by ayah')).toBeDefined()
     expect(screen.getByText('JSON · SQLite')).toBeDefined()
+    expect(screen.getByText('English translation of the Quran, ayah by ayah.')).toBeDefined()
+    // The tafsir has no card preview here: its type icon is a tile beside the title.
+    expect(cards[1].querySelector('[data-testid="card-preview"]')).toBeNull()
+    expect(cards[1].querySelector('.bg-cat-tafsir-subtle svg')).not.toBeNull()
   })
 
   it('opens a detail page from a card with an in-app visit', () => {
@@ -102,7 +106,7 @@ describe('catalog/CatalogPage', () => {
     act(() => vi.advanceTimersByTime(300))
 
     expect(get).toHaveBeenCalledTimes(1)
-    expect(get).toHaveBeenCalledWith('/resources?q=urdu', {}, expect.objectContaining({ replace: true }))
+    expect(get).toHaveBeenCalledWith('/resources?q=urdu&sort=popular', {}, expect.objectContaining({ replace: true }))
   })
 
   it('shows the empty state and the request card when nothing matches', () => {
@@ -113,5 +117,65 @@ describe('catalog/CatalogPage', () => {
     expect(screen.getByRole('link', { name: 'Request a resource' }).getAttribute('href')).toBe(
       'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
     )
+  })
+
+  it('shows the request card in the empty search state with no filters too', () => {
+    renderPage(CatalogPage, { props: { ...catalogPageProps, results: [], total: 0 } })
+
+    expect(screen.getByText('Nothing matches this search')).toBeDefined()
+    expect(screen.getByText("Can't find what you need?")).toBeDefined()
+  })
+
+  it('puts the results under a heading per category when they come grouped', () => {
+    renderPage(CatalogPage, {
+      props: {
+        ...catalogPageProps,
+        filters: { ...catalogPageProps.filters, sort: null },
+        groups: [
+          { category: { key: 'translation', label: 'Translation' }, total: 210, count: 1 },
+          { category: { key: 'tafsir', label: 'Tafsir and commentary' }, total: 114, count: 1 },
+        ],
+      },
+    })
+
+    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Sort' }).value).toBe('')
+    expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
+      'Translation',
+      'Tafsir and commentary',
+    ])
+    expect(within(screen.getByRole('list', { name: 'Translation' })).getByRole('article').textContent).toContain(
+      'Sahih International',
+    )
+    expect(
+      within(screen.getByRole('list', { name: 'Tafsir and commentary' })).getByRole('article').textContent,
+    ).toContain('Tafsir Ibn Kathir')
+    expect(screen.queryByRole('list', { name: 'Resources' })).toBeNull()
+  })
+
+  it('switches to the list view with a history entry, and keeps it in the paging links', () => {
+    const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+    const { unmount } = renderPage(CatalogPage, { props: filtered })
+
+    const grid = screen.getByRole('button', { name: 'Grid view' })
+    expect(grid.getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: 'List view' }))
+    expect(get).toHaveBeenCalledWith(
+      '/resources?q=sahih&script[]=madani&script[]=indopak&format=json&sort=name&view=list',
+      {},
+      expect.objectContaining({ only: SEARCH_PROPS, replace: false }),
+    )
+    unmount()
+
+    renderPage(CatalogPage, { props: { ...filtered, filters: { ...filtered.filters, view: 'list' } } })
+    expect(screen.getByRole('button', { name: 'List view' }).getAttribute('aria-pressed')).toBe('true')
+    const cards = within(screen.getByRole('list', { name: 'Resources' })).getAllByRole('article')
+    // A list row has no preview and no summary.
+    expect(cards[0].querySelector('[data-testid="card-preview"]')).toBeNull()
+    expect(screen.queryByText('English translation of the Quran, ayah by ayah.')).toBeNull()
+    expect(
+      within(screen.getByRole('navigation', { name: 'Pages' }))
+        .getByRole('link', { name: 'Next' })
+        .getAttribute('href'),
+    ).toBe('/resources?q=sahih&script[]=madani&script[]=indopak&format=json&sort=name&page=3&view=list')
   })
 })

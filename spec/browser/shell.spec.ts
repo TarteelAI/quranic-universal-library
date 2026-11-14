@@ -4,7 +4,7 @@ import { expect, test } from './support/test'
 
 // The parts of the `nav` shared prop (SiteNavResource) the tests read.
 type SiteNavLink = { label: string; href: string; external: boolean; inertia: boolean }
-type SiteNavGroup = { heading: string; links: SiteNavLink[] }
+type SiteNavGroup = { heading: string; links: SiteNavLink[]; tools: boolean }
 type SiteNavMenu = SiteNavLink & { overview: string; dense: boolean; groups: SiteNavGroup[]; aside: SiteNavGroup[] }
 type SiteNav = { menus: SiteNavMenu[]; search: SiteNavLink; footer: SiteNavGroup[] }
 
@@ -150,7 +150,7 @@ test.describe('site header and footer', () => {
     expect(await sameDocument(page)).toBe(true)
   })
 
-  test('every header and footer link: old pages load in full with 200, new pages are Inertia visits', async ({
+  test('every header and footer link: old pages load in full with 200, new pages are Inertia visits, and the only old pages are contributor tools', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'one width is enough for the link list')
@@ -158,6 +158,15 @@ test.describe('site header and footer', () => {
     await page.goto(PAGE)
     const nav = await siteNav(page)
     const origin = new URL(page.url()).origin
+    // The old pages a link may still open: the contributor tools, and the translation tool the
+    // Resources menu links as "Fix a translation". Sign-in and the CMS are not menu or footer links.
+    const contributorTools = new Set(
+      [
+        ...nav.menus.flatMap((menu) => menu.groups.filter((group) => group.tools).flatMap((group) => group.links)),
+        { href: '/translations' },
+      ].map((link) => link.href),
+    )
+    const oldPages = new Set<string>()
 
     const targets: { where: string; link: SiteNavLink; open: () => Locator | Promise<Locator> }[] = []
     for (const menu of nav.menus) {
@@ -210,19 +219,54 @@ test.describe('site header and footer', () => {
       await target.click()
       const status = (await response).status()
       await page.waitForURL(url, { timeout: 60_000 })
-      if (link.inertia) await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      // A locator, not a role: the request link's page opens with a modal dialog over it.
+      if (link.inertia) await expect(page.locator('h1')).toBeVisible()
       const kept = await sameDocument(page)
-      results.push(`${where}: ${link.href} ${status} ${kept ? 'inertia visit' : 'full page load'}`)
+      const oldPage = (await page.locator('script[data-page="app"]').count()) === 0
+      if (oldPage) oldPages.add(link.href)
+      results.push(
+        `${where}: ${link.href} ${status} ${kept ? 'inertia visit' : 'full page load'}${oldPage ? ', old page' : ''}`,
+      )
 
       expect(status, `${where} ${link.href}`).toBe(200)
       expect(kept, `${where} ${link.href} is ${link.inertia ? 'an Inertia visit' : 'a full page load'}`).toBe(
         link.inertia,
       )
+      if (oldPage) expect(contributorTools.has(link.href), `${where} ${link.href} opens an old page`).toBe(true)
     }
     await testInfo.attach('links', { body: results.join('\n'), contentType: 'text/plain' })
     console.log(
-      `[links] ${results.length} links, ${results.filter((line) => line.endsWith('inertia visit')).length} Inertia visits, all 200`,
+      `[links] ${results.length} links, ${results.filter((line) => line.endsWith('inertia visit')).length} Inertia visits, all 200; old pages: ${[...oldPages].join(' ')}`,
     )
+  })
+
+  test('a tab loaded under another page group setting gets the current navigation on its next Inertia visit', async ({
+    page,
+    stubs,
+  }) => {
+    // The tab's first page as it was under another setting: an older version and navigation
+    await stubs.route(`**${PAGE}`, async (route) => {
+      const response = await route.fetch()
+      const body = (await response.text())
+        .replace(/"version":"[^"]*"/, '"version":"another-setting"')
+        .replace('"heading":"Docs"', '"heading":"Old docs"')
+      await route.fulfill({ response, body })
+    })
+    await page.goto(PAGE)
+    await hydrated(page)
+    const footer = page.getByRole('contentinfo')
+    await expect(footer.getByText('Old docs', { exact: true })).toBeVisible()
+    await markDocument(page)
+
+    const faq = (await siteNav(page)).footer.flatMap((group) => group.links).find((link) => link.label === 'FAQ')!
+    expect(faq.inertia).toBe(true)
+    await footer.getByRole('link', { name: 'FAQ', exact: true }).click()
+
+    await page.waitForURL('**/faq')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+    expect(await sameDocument(page)).toBe(false)
+    await expect(footer.getByText('Docs', { exact: true })).toBeVisible()
+    await expect(footer.getByText('Old docs', { exact: true })).toHaveCount(0)
   })
 })
 

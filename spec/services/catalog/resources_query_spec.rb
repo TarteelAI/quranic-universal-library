@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 # The catalog query object and serializers run without a controller, request or session, so the
@@ -8,7 +10,9 @@ RSpec.describe Catalog::ResourcesQuery do
 
     expect(resources.map(&:id)).to match_array(DownloadableResource.published.where(resource_type: 'tafsir').ids)
     expect(resources.map { |r| r.name.downcase }).to eq(resources.map { |r| r.name.downcase }.sort)
-    expect(resources).to all(satisfy { |r| r.association(:language).loaded? && r.association(:resource_content).loaded? })
+    expect(resources).to all(satisfy do |r|
+                               r.association(:language).loaded? && r.association(:resource_content).loaded?
+                             end)
   end
 
   it 'returns every published resource without a type' do
@@ -19,16 +23,16 @@ RSpec.describe Catalog::ResourcesQuery do
     type = Catalog::Taxonomy.type('surah-info')
     resources = described_class.new(type: type.key).call
     props = Catalog::TypesShowResource.new(
-      { type: type, types: Catalog::Taxonomy.types, resources: resources,
-        comparison: Catalog::Comparison.new(type, resources).call }
+      { type: type, types: Catalog::Taxonomy.types, resources: resources, total: resources.size, search: nil,
+        comparison: Catalog::Comparison.new(type, resources).call, },
     ).serializable_hash
 
     expect(props['type']).to include('key' => 'surah-info', 'title' => 'Surah info',
-                                     'category' => { 'key' => 'tafsir', 'label' => 'Tafsir and commentary' })
+                                     'category' => { 'key' => 'tafsir', 'label' => 'Tafsir and commentary' },)
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
-      'id', 'name', 'type', 'toParam', 'filesCount', 'language', 'granularity', 'status', 'scriptFamily',
-      'recommendation', 'supersededBy'
+      'id', 'name', 'type', 'toParam', 'summary', 'formats', 'language', 'granularity', 'status', 'scriptFamily',
+      'recommendation', 'previewKind', 'supersededBy',
     )
     expect(props['resources']).to all(include('language' => be_present))
   end
@@ -56,7 +60,7 @@ RSpec.describe Catalog::Taxonomy do
       'json' => 'json', 'simple.json' => 'json', 'translation-with-footnote-tags.json' => 'json',
       'letter-segments-json' => 'json', 'sqlite' => 'sqlite', 'translation-text-chunk.sqlite' => 'sqlite',
       'letter-segments-sqlite' => 'sqlite', 'csv' => 'csv', 'docx' => 'docx', 'ttf' => 'font', 'woff2' => 'font',
-      'OTF' => 'font', 'svg' => 'svg', 'images' => 'image', 'Ligatures' => 'other', nil => 'other'
+      'OTF' => 'font', 'svg' => 'svg', 'images' => 'image', 'Ligatures' => 'other', nil => 'other',
     }.each { |file_type, format| expect(described_class.format_for(file_type)).to eq(format), file_type.inspect }
 
     keys = described_class.formats.map(&:key)

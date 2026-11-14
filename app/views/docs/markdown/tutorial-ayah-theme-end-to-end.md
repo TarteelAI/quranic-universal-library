@@ -30,8 +30,8 @@ Use ayah-theme data when building:
 1. Open [https://qul.tarteel.ai/resources/ayah-theme](https://qul.tarteel.ai/resources/ayah-theme).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Theme Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available download format(s) (commonly `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -40,11 +40,11 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On ayah-theme detail pages:
 
-- `Theme Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah`
   - Theme summary for selected ayah/range
   - Range coverage hints (for example multiple ayahs)
-- `Help` tab:
+- `Docs` tab:
   - Theme field definitions
   - Range logic (`ayah_from` to `ayah_to`)
 

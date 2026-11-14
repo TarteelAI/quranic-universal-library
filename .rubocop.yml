@@ -1,10 +1,12 @@
+# RuboCop 1.31 (Gemfile.lock) predates Ruby 3.3: it uses StringIO without requiring it, and its
+# newest TargetRubyVersion is 3.2. Drop both workarounds when the rubocop gems move.
 require:
+  - stringio
   - rubocop-rails
   - rubocop-performance
-  - rubocop-minitest
 
 AllCops:
-  TargetRubyVersion: 3.3
+  TargetRubyVersion: 3.2
   TargetRailsVersion: 8.0
   NewCops: enable
   SuggestExtensions: false
@@ -257,6 +259,8 @@ Metrics/ParameterLists:
 # Naming Cops
 Naming/VariableNumber:
   EnforcedStyle: snake_case
+  AllowedIdentifiers:
+    - v1
 
 Naming/PredicateName:
   ForbiddenPrefixes:
@@ -296,6 +300,18 @@ Rails/BulkChangeTable:
 
 Rails/HelperInstanceVariable:
   Enabled: false
+
+# Models write validation messages inline.
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+# Rails.env.local? (Rails 7.1+) is not an environment name.
+Rails/UnknownEnv:
+  Environments:
+    - development
+    - test
+    - production
+    - local
 
 Rails/ApplicationRecord:
   Enabled: true
@@ -410,44 +426,4 @@ Performance/RedundantSplitRegexpArgument:
   Enabled: true
 
 Performance/ArraySemiInfiniteRangeSlice:
-  Enabled: true
-
-# Minitest Cops (for test suite)
-Minitest/MultipleAssertions:
-  Max: 10
-
-Minitest/AssertPredicate:
-  Enabled: true
-
-Minitest/AssertTruthy:
-  Enabled: true
-
-Minitest/RefuteFalse:
-  Enabled: true
-
-Minitest/AssertInDelta:
-  Enabled: true
-
-Minitest/AssertKindOf:
-  Enabled: true
-
-Minitest/AssertOutput:
-  Enabled: true
-
-Minitest/AssertPathExists:
-  Enabled: true
-
-Minitest/AssertSilent:
-  Enabled: true
-
-Minitest/LiteralAsActualArgument:
-  Enabled: true
-
-Minitest/UnspecifiedException:
-  Enabled: true
-
-Minitest/AssertionInLifecycleHook:
-  Enabled: true
-
-Minitest/AssertEmptyLiteral:
   Enabled: true

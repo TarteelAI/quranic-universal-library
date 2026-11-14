@@ -29,8 +29,8 @@ Use recitation data when you are building:
 1. Open [https://qul.tarteel.ai/resources/recitation](https://qul.tarteel.ai/resources/recitation).
 2. Open the first published card in the default page order.
 3. Confirm the resource detail page includes:
-   - A `Recitation` preview tab
-   - A `Help` tab with segment format examples
+   - A `Preview` tab
+   - A `Docs` tab with segment format examples
 4. Download the available file format (`JSON`, `SQLite`, or both).
 
 This avoids hardcoding a resource ID while keeping onboarding concrete.
@@ -39,11 +39,11 @@ This avoids hardcoding a resource ID while keeping onboarding concrete.
 
 On the recitation detail page, the preview helps you validate usability before download:
 
-- `Recitation` tab:
+- `Preview` tab:
   - Jump-to-ayah selector
   - Previous/next ayah navigation
   - Audio player with timing-driven highlighting behavior
-- `Help` tab:
+- `Docs` tab:
   - Difference between surah-by-surah and ayah-by-ayah data
   - Segment/timestamp sample formats for integration
 

@@ -1,19 +1,29 @@
 import type { ReactElement } from 'react'
 
 import * as layout from '@/components/layout'
+import * as cardPreview from '@/components/previews/card-preview'
 import * as appIcon from '@/components/qul/app-icon'
+import * as appSubmission from '@/components/qul/app-submission'
+import * as bundle from '@/components/qul/bundle'
 import * as catalog from '@/components/qul/catalog'
 import * as chrome from '@/components/qul/chrome'
+import * as copyButton from '@/components/qul/copy-button'
+import * as data from '@/components/qul/data'
+import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
 import * as flash from '@/components/qul/flash'
+import * as gatedForm from '@/components/qul/gated-form'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
 import * as pageHeader from '@/components/qul/page-header'
+import * as requestDialog from '@/components/qul/request-dialog'
 import * as resourceCard from '@/components/qul/resource-card'
 import * as shardRing from '@/components/qul/shard-ring'
 import * as spotlight from '@/components/qul/spotlight'
+import * as start from '@/components/qul/start'
 import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
+import * as toolCard from '@/components/qul/tool-card'
 import * as badge from '@/components/ui/badge'
 import * as button from '@/components/ui/button'
 import * as card from '@/components/ui/card'
@@ -23,25 +33,37 @@ import * as misc from '@/components/ui/misc'
 import * as overlays from '@/components/ui/overlays'
 import * as tabs from '@/components/ui/tabs'
 
-import { resourcePageProps } from './catalog'
-import { homePageProps } from './site'
+import { catalogPageProps, resourcePageProps } from './catalog'
+import { docsNavigation, tutorialDoc } from './content'
+import { appsPageProps, homePageProps } from './site'
 import { nav as navProps } from './shell'
+import { kitCard as kitCardProps } from './start'
 
 const modules = {
   layout,
+  cardPreview,
   appIcon,
+  appSubmission,
+  bundle,
   catalog,
   chrome,
+  copyButton,
+  data,
+  docs,
   downloadPanel,
   flash,
+  gatedForm,
   icons,
   nav,
   pageHeader,
+  requestDialog,
   resourceCard,
   shardRing,
   spotlight,
+  start,
   statusBadge,
   theme,
+  toolCard,
   badge,
   button,
   card,
@@ -60,18 +82,28 @@ export const componentNames = Object.values(modules)
   .sort()
 
 const { Container, SiteShell } = layout
+const { CardPreview } = cardPreview
 const { AppIcon } = appIcon
+const { AppSubmissionDialog } = appSubmission
+const { AddToBundle, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
-const { EmptyState, FacetGroup, RequestCard } = catalog
+const { EmptyState, FacetGroup, FilterChip } = catalog
+const { RequestButton, RequestCard, RequestDialogProvider } = requestDialog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
+const { CopyButton } = copyButton
+const { SchemaTable } = data
+const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
 const { FlashMessages } = flash
+const { GatedForm } = gatedForm
+const { GoalCard, GoalIcon, KitCard, ResultCard } = start
 const { GitHubMark, QulIcon, ResourceIcon } = icons
 const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
 const { RecommendedBadge, StatusBadge } = statusBadge
+const { ToolCard } = toolCard
 const { ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
@@ -196,6 +228,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   DownloadPanel: {
     element: (
       <DownloadPanel
+        id={1}
         type="tafsir"
         slug="tafsir-ibn-kathir"
         files={resourcePageProps.files}
@@ -207,6 +240,21 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: '5.1 MB',
   },
+  DocBody: { element: <DocBody segments={tutorialDoc.segments} />, text: 'What you will build' },
+  CodeBlock: { element: <CodeBlock label="Shell" code="bin/rails server" />, text: 'bin/rails server' },
+  Playground: { element: <Playground code="console.log(1)" />, text: 'console.log(1)' },
+  DocContents: { element: <DocContents contents={tutorialDoc.contents} />, text: 'Run the example' },
+  DocsNav: { element: <DocsNav navigation={docsNavigation} current="datasets" />, text: 'aria-current="page"' },
+  DocsLayout: {
+    element: (
+      <DocsLayout navigation={docsNavigation} current="datasets" trail={['Download Resources', 'Datasets']}>
+        Page body
+      </DocsLayout>
+    ),
+    text: 'Page body',
+  },
+  CopyButton: { element: <CopyButton text={() => 'copied'} label="Copy link" />, text: 'aria-label="Copy link"' },
+  SchemaTable: { element: <SchemaTable schema={resourcePageProps.schemas[0]} />, text: 'the ayah this row is for.' },
   WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
   AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
   ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },
@@ -220,6 +268,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     element: (
       <PageHeader
         breadcrumb={[{ label: 'Resources', href: '/resources' }, { label: 'Fonts' }]}
+        icon={<ResourceIcon category="script" size="xl" />}
         title="Fonts"
         actions={
           <Button variant="outline" asChild>
@@ -231,8 +280,36 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'Font format docs',
   },
   ResourceCard: {
-    element: <ResourceCard title="Sahih International" href="/resources/translation/1" facts={['Translation']} />,
+    element: (
+      <ResourceCard
+        title="Sahih International"
+        bundleId={1}
+        href="/resources/translation/1"
+        category="translation"
+        facts={['Translation']}
+        summary="English translation of the Quran, ayah by ayah."
+        formats={['JSON', 'SQLite']}
+        preview={<CardPreview kind="text" url="/resources/translation/1/preview" />}
+      />
+    ),
+    text: 'JSON · SQLite',
+  },
+  BundleToggle: {
+    element: <BundleToggle id={1} name="Sahih International" />,
+    text: 'Add Sahih International to bundle',
+  },
+  AddToBundle: { element: <AddToBundle ids={[1, 2]} label="Add kit to bundle" />, text: 'Add kit to bundle' },
+  BundleTray: { element: <BundleTray />, text: 'Bundle, 0 resources' },
+  ResultCard: {
+    element: <ResultCard result={catalogPageProps.results[0]} vocabularies={catalogPageProps.vocabularies} />,
     text: 'Sahih International',
+  },
+  GoalCard: { element: <GoalCard goal={homePageProps.goals[0]} href="/start?goal=reader" />, text: 'Quran reader app' },
+  GoalIcon: { element: <GoalIcon goal="audio" />, text: '<svg' },
+  KitCard: { element: <KitCard kit={kitCardProps} />, text: 'View kit' },
+  CardPreview: {
+    element: <CardPreview kind="font" url="/resources/font/qpc-hafs/preview" />,
+    text: 'data-state="waiting"',
   },
   StatusBadge: {
     element: (
@@ -243,6 +320,22 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
       />
     ),
     text: 'Syllables Transliteration',
+  },
+  ToolCard: {
+    element: (
+      <ToolCard
+        tool={{
+          label: 'Ayah audio segments',
+          href: '/segments/ayah',
+          description: 'Word timestamps, ayah by ayah.',
+          category: 'audio',
+          icon: 'timer',
+          external: false,
+          inertia: false,
+        }}
+      />
+    ),
+    text: 'Word timestamps, ayah by ayah.',
   },
   RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
@@ -262,7 +355,40 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     text: 'English',
   },
   EmptyState: { element: <EmptyState title="Nothing matches this search" />, text: 'Nothing matches this search' },
+  FilterChip: {
+    element: <FilterChip option={{ key: 'ios', label: 'iOS' }} selected onClick={() => {}} />,
+    text: 'aria-pressed="true"',
+  },
+  GatedForm: {
+    element: (
+      <GatedForm returnTo="/apps?submit=1" purpose="submit your app">
+        <Input aria-label="App name" />
+      </GatedForm>
+    ),
+    text: 'user_return_to=%2Fapps%3Fsubmit%3D1',
+  },
+  AppSubmissionDialog: {
+    element: (
+      <AppSubmissionDialog
+        open
+        onOpenChange={() => {}}
+        platforms={appsPageProps.platforms}
+        types={appsPageProps.submissionTypes}
+      />
+    ),
+    text: '',
+    openText: 'Which QUL resources does it use?',
+  },
   RequestCard: { element: <RequestCard link={navProps.request} />, text: 'resource_request.yml' },
+  RequestButton: { element: <RequestButton link={navProps.request} />, text: 'resource_request.yml' },
+  RequestDialogProvider: {
+    element: (
+      <RequestDialogProvider>
+        <p>Page under the request dialog</p>
+      </RequestDialogProvider>
+    ),
+    text: 'Page under the request dialog',
+  },
   Badge: { element: <Badge variant="brand">Recommended</Badge>, text: 'Recommended' },
   Button: { element: <Button variant="outline">Download</Button>, text: 'Download' },
   Card: { element: cardElement, text: 'Card content' },

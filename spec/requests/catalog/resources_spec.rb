@@ -1,19 +1,21 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
   let(:published) { DownloadableResource.published }
 
   # SQL statements a block sends to either database, without schema and transaction queries.
-  def count_queries(&block)
+  def count_queries(&)
     count = 0
     counter = lambda do |*, payload|
-      count += 1 unless payload[:cached] || %w[SCHEMA TRANSACTION].include?(payload[:name])
+      count += 1 unless payload[:cached] || ['SCHEMA', 'TRANSACTION'].include?(payload[:name])
     end
-    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &block)
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
     count
   end
 
-  describe 'GET /resources with the catalog page group on', page_groups: %w[catalog] do
+  describe 'GET /resources with the catalog page group on', page_groups: ['catalog'] do
     it 'renders the catalog page with results, a total, facets and the echoed filters' do
       get '/resources'
 
@@ -23,17 +25,18 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(inertia).to have_props(
         total: published.count,
         page: 1,
-        filters: { q: '', type: nil, language: nil, script: [], format: nil, granularity: nil, status: nil,
-                   sort: 'popular', page: 1 }
+        filters: { q: '', category: nil, type: nil, language: nil, script: [], format: nil, granularity: nil,
+                   status: nil, sort: nil, page: 1, view: 'grid', },
       )
       expect(inertia.props[:results].size).to eq(Catalog::SearchQuery::PER_PAGE)
       expect(inertia.props[:results].first.keys).to contain_exactly(
-        'id', 'name', 'type', 'toParam', 'language', 'granularity', 'formats', 'status', 'recommended'
+        'id', 'name', 'type', 'toParam', 'summary', 'language', 'granularity', 'formats', 'status', 'recommended',
+        'previewKind',
       )
-      expect(inertia.props[:facets].keys).to contain_exactly('type', 'language', 'script', 'format', 'granularity',
-                                                              'status')
+      expect(inertia.props[:facets].keys).to contain_exactly('category', 'type', 'language', 'script', 'format',
+                                                             'granularity', 'status',)
       expect(inertia.props[:facets][:type]).to include({ value: 'translation',
-                                                         count: published.where(resource_type: 'translation').count })
+                                                         count: published.where(resource_type: 'translation').count, })
     end
 
     it 'sends the vocabularies once: labels for every facet value and sort' do
@@ -41,10 +44,12 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
 
       vocabularies = inertia.props[:vocabularies]
       expect(vocabularies[:types].pluck(:key)).to eq(Catalog::Taxonomy.types.map(&:key))
+      # Only what the filters and cards show: the type pages carry each type's copy.
+      expect(vocabularies[:types].first.keys).to contain_exactly('key', 'label', 'category')
       expect(vocabularies[:formats].pluck(:key)).to eq(Catalog::Taxonomy.formats.map(&:key))
       expect(vocabularies[:scriptFamilies].pluck(:key)).to eq(DownloadableResource.script_families.keys)
       expect(vocabularies[:statuses].pluck(:key)).to eq(DownloadableResource.statuses.keys)
-      expect(vocabularies[:sorts].pluck(:key)).to eq(%w[popular name updated])
+      expect(vocabularies[:sorts].pluck(:key)).to eq(['popular', 'name', 'updated'])
       expect(vocabularies[:granularities].pluck(:key)).to include('1_ayah', '1_word', '1_chapter')
       expect(vocabularies[:languages]).to include({ key: 'ar', name: 'Arabic', nativeName: 'العربية' })
 
@@ -53,15 +58,26 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
     end
 
     it 'applies the filters from the query string' do
-      get '/resources', params: { q: 'english', type: 'translation', script: %w[madani indopak], sort: 'name' }
+      get '/resources', params: { q: 'english', type: 'translation', script: ['madani', 'indopak'], sort: 'name' }
 
-      expect(inertia.props[:filters]).to include(q: 'english', type: 'translation', script: %w[madani indopak],
-                                                 sort: 'name')
+      expect(inertia.props[:filters]).to include(q: 'english', type: 'translation', script: ['madani', 'indopak'],
+                                                 sort: 'name',)
       expected = Catalog::SearchQuery.new(
-        Catalog::SearchFilters.from(q: 'english', type: 'translation', script: %w[madani indopak], sort: 'name')
+        Catalog::SearchFilters.from(q: 'english', type: 'translation', script: ['madani', 'indopak'], sort: 'name'),
       ).call
       expect(inertia.props[:total]).to eq(expected.total)
       expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
+    end
+
+    it 'filters by category, counting the types within it' do
+      get '/resources', params: { category: 'tafsir' }
+
+      types = Catalog::Taxonomy.types.select { |type| type.category.key == 'tafsir' }.map(&:key)
+      expect(inertia.props[:filters]).to include(category: 'tafsir')
+      expect(inertia.props[:total]).to eq(published.where(resource_type: types).count)
+      expect(inertia.props[:facets][:type].pluck(:value)).to match_array(types)
+      audio = published.where(resource_type: 'recitation').count
+      expect(inertia.props[:facets][:category]).to include({ value: 'audio', count: audio })
     end
 
     it 'finds resources through an Arabic native language name' do
@@ -72,12 +88,13 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
     end
 
     it 'ignores invalid filter values instead of failing' do
-      get '/resources', params: { type: 'nope', script: { 'x' => 'madani', 'y' => 'nope' }, format: ['json'],
-                                  language: 'xx', status: '', sort: 'random', page: '-3', granularity: { a: 1 } }
+      get '/resources', params: { category: 'nope', type: 'nope', script: { 'x' => 'madani', 'y' => 'nope' },
+                                  format: ['json'], language: 'xx', status: '', sort: 'random', page: '-3',
+                                  granularity: { a: 1 }, }
 
       expect(response).to have_http_status(:ok)
-      expect(inertia.props[:filters]).to include(type: nil, script: ['madani'], format: nil, language: nil,
-                                                 status: nil, sort: 'popular', page: 1, granularity: nil)
+      expect(inertia.props[:filters]).to include(category: nil, type: nil, script: ['madani'], format: nil,
+                                                 language: nil, status: nil, sort: nil, page: 1, granularity: nil,)
       expect(inertia.props[:total]).to eq(published.where(script_family: 'madani').count)
     end
 
@@ -106,7 +123,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(chips).to eq(['Remove “english”', 'Remove Madani', 'Remove IndoPak', 'Remove JSON'])
 
       expected = Catalog::SearchQuery.new(
-        Catalog::SearchFilters.from(q: 'english', script: %w[madani indopak], format: 'json', sort: 'name')
+        Catalog::SearchFilters.from(q: 'english', script: ['madani', 'indopak'], format: 'json', sort: 'name'),
       ).call
       expect(app.at('h1 span').text).to eq(expected.total.to_s)
       expect(app.css('ul[aria-label="Resources"] article h3').map(&:text))
@@ -130,13 +147,74 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       unfiltered = count_queries { get '/resources' }
       filtered = count_queries do
         get '/resources', params: { q: 'tafsir', type: 'tafsir', language: 'ar', format: 'json', status: 'stable',
-                                    granularity: '1_ayah', sort: 'updated', page: 2 }
+                                    granularity: '1_ayah', sort: 'updated', page: 2, }
       end
       empty = count_queries { get '/resources', params: { q: 'zzzz-no-such-resource' } }
 
       expect(inertia.props[:total]).to eq(0)
       expect([filtered, empty]).to all(eq(unfiltered))
       expect(unfiltered).to be <= 8
+    end
+  end
+
+  describe 'GET /resources: grouping by category', page_groups: ['catalog'] do
+    let(:category_order) { Catalog::Taxonomy::CATEGORIES.keys }
+
+    def category_of(result)
+      Catalog::Taxonomy.type(result[:type]).category.key
+    end
+
+    it 'groups the results by category in taxonomy order with no sort and no query, across pages' do
+      ranks = [1, 6, 7].flat_map do |page|
+        get '/resources', params: { page: page }
+
+        expect(inertia.props[:filters]).to include(sort: nil, q: '')
+        groups = inertia.props[:groups]
+        categories = inertia.props[:results].map { |result| category_of(result) }
+        expect(groups.map { |group| group[:category][:key] }).to eq(categories.uniq)
+        expect(groups.sum { |group| group[:count] }).to eq(inertia.props[:results].size)
+        groups.each do |group|
+          key = group[:category][:key]
+          expect(group[:category][:label]).to eq(Catalog::Taxonomy::CATEGORIES.fetch(key).label)
+          expect(group[:total]).to eq(
+            published.where(resource_type: Catalog::Taxonomy.types.select { |t| t.category.key == key }.map(&:key))
+                     .count,
+          )
+        end
+        categories.map { |key| category_order.index(key) }
+      end
+      expect(ranks).to eq(ranks.sort)
+      expect(ranks.uniq.size).to be > 1
+    end
+
+    it 'sends one list, most downloaded first, when a sort is chosen' do
+      get '/resources', params: { sort: 'popular' }
+
+      expect(inertia.props[:filters]).to include(sort: 'popular')
+      expect(inertia.props[:groups]).to be_nil
+      expected = Catalog::SearchQuery.new(Catalog::SearchFilters.from(sort: 'popular')).call
+      expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
+    end
+
+    it 'sends one list when there is a query' do
+      get '/resources', params: { q: 'english' }
+
+      expect(inertia.props[:groups]).to be_nil
+      expected = Catalog::SearchQuery.new(Catalog::SearchFilters.from(q: 'english', sort: 'popular')).call
+      expect(inertia.props[:results].pluck(:id)).to eq(expected.results.map { |row| row.resource.id })
+      categories = inertia.props[:results].map { |result| category_order.index(category_of(result)) }
+      expect(categories).not_to eq(categories.sort)
+    end
+
+    it 'keeps the view in the filters: grid unless the URL asks for the list' do
+      get '/resources'
+      expect(inertia.props[:filters]).to include(view: 'grid')
+
+      get '/resources', params: { view: 'list', q: 'english' }
+      expect(inertia.props[:filters]).to include(view: 'list', q: 'english')
+
+      get '/resources', params: { view: 'table' }
+      expect(inertia.props[:filters]).to include(view: 'grid')
     end
   end
 
@@ -165,7 +243,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(body['results'].pluck('id')).to eq(expected.matches.first(Catalog::SpotlightController::LIMIT)
                                                          .map { |row| row.resource.id })
       expect(body['results'].first.keys).to contain_exactly('id', 'name', 'type', 'typeLabel', 'category', 'toParam',
-                                                             'language', 'formats')
+                                                            'language', 'formats',)
     end
 
     it 'names the category and the format labels of each result, and no download counts' do

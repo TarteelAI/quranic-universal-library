@@ -2,8 +2,7 @@ import type { Page, Request } from '@playwright/test'
 
 import { expect, test } from './support/test'
 
-const REQUEST_FORM = 'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml'
-const SEARCH_PROPS = 'filters,results,facets,total,page,pages'
+const SEARCH_PROPS = 'filters,results,groups,facets,total,page,pages'
 
 // React has taken over the server-rendered page, so its handlers respond.
 async function hydrated(page: Page) {
@@ -82,7 +81,11 @@ test.describe('catalog search', () => {
 
     await expect(page).toHaveURL(/\/resources\?type=tafsir$/)
     await expect.poll(() => resultCount(page)).toBeLessThan(before)
-    const facts = await page.getByRole('list', { name: 'Resources' }).locator('article h3 + p').allTextContents()
+    // No sort and no query: the results come under their category's heading.
+    const facts = await page
+      .getByRole('list', { name: 'Tafsir and commentary' })
+      .locator('article h3 + p')
+      .allTextContents()
     expect(facts.every((fact) => fact.startsWith('Tafsir'))).toBe(true)
     expect(await sameDocument(page)).toBe(true)
   })
@@ -162,21 +165,15 @@ test.describe('catalog search', () => {
     expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0)
   })
 
-  test('a filter combination with no results shows the empty state and the request card', async ({ page, context }) => {
+  // With the `requests` group on, the card opens the request dialog (requests.spec.ts).
+  test('a filter combination with no results shows the empty state and the request card', async ({ page }) => {
     await page.goto('/resources?type=font&language=ur')
     await hydrated(page)
 
     expect(await resultCount(page)).toBe(0)
     await expect(page.getByText('Nothing matches this search')).toBeVisible()
-    const request = page.getByRole('link', { name: 'Request a resource' })
-    await expect(request).toHaveAttribute('href', REQUEST_FORM)
-
-    // The new tab asks GitHub for the form (GitHub may then send a signed-out visitor to sign in).
-    const opened = context.waitForEvent('page')
-    const asked = context.waitForEvent('request', (r) => r.url() === REQUEST_FORM)
-    await request.click()
-    expect((await opened) === page).toBe(false)
-    expect((await asked).isNavigationRequest()).toBe(true)
+    await page.getByRole('main').getByRole('link', { name: 'Request a resource' }).click()
+    await expect(page.getByRole('dialog', { name: 'Request a resource' })).toBeVisible()
   })
 })
 

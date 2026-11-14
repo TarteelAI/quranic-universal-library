@@ -14,15 +14,24 @@ describe the rules the code follows rather than weaknesses of the running site.
 ## Quality gate
 
 ```bash
-bin/gate                 # standalone tests, generated-types drift check, tsc, ESLint + Prettier,
-                         # RSpec and Vitest; needs fresh test clones and the development clones
+bin/gate                 # standalone tests, RuboCop on changed files, generated-types drift check,
+                         # tsc, ESLint + Prettier, RSpec and Vitest; needs fresh test clones and
+                         # the development clones
 ```
+
+In the Docker setup (`qul-dev`, below) `bin/gate` cannot run whole in one place: the container
+has no yarn and an old Node, and the host may lack a Ruby in the Gemfile range. Run the Ruby
+steps in `qul-dev` (the standalone tests with `RUBYOPT=-rbundler/setup`, `bin/rails
+typelizer:check`, `bundle exec rubocop <files>`, `VITE_RUBY_AUTO_BUILD=false bundle exec
+rspec`) and the yarn steps plus `node_modules/.bin/vite build --ssr` on the host, the SSR build
+before RSpec.
 
 Narrow checks while working:
 
 ```bash
 ruby -Itest test/path/to/file_test.rb        # standalone tests: no bundler, no database
 bundle exec rspec spec/path/to/file_spec.rb  # specs: Rails on the test clones
+bundle exec rubocop path/to/file.rb          # RuboCop (.rubocop.yml); bin/gate runs it on changed files
 bin/rails typelizer:check                    # generated TypeScript is current (development env)
 yarn typecheck                               # tsc on app/frontend
 yarn lint:frontend && yarn format:frontend   # ESLint and Prettier on app/frontend
@@ -149,21 +158,75 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below) and `apps` (`PageGroups` in `app/services/page_groups.rb`). Unset means every URL is
-served by the old ERB views. A group takes over only the URLs that have a new page so far (for
+below), `apps`, `content`, `start` and `requests` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
-page: off, it is a 404 and no new page links to it. Its entries are `config/apps.yml` (read through
-`AppDirectory`, icons in `public/app-icons`); the "Submit your app" links open the
-`app_submission.yml` issue form.
+page: off, it is a 404 and no new page links to it. Its entries are the published `App` rows of the
+CMS database (`AppDirectory`, featured first; the home page's apps band shows the first eight),
+which editors publish, edit, feature and remove in the CMS (`/cms/apps`, admins only). `bin/rails
+apps:import` makes the entries of `config/apps.yml` (icons in `public/app-icons`) published rows
+once, keyed on the entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
+app" form (`?submit=1` opens it; the home page's button links there) posts to `POST /apps`
+(`Site::AppSubmissionsController`), which needs a signed-in user, takes at most
+`App::DAILY_LIMIT` submissions per user and day, and stores an unpublished `App` row.
+`content` serves the docs index `/docs` and `/docs/:key` (`Content::DocsController`, body from
+`Content::DocPage`, side navigation from `Content::DocsNavigation`, both read from
+`config/docs.yml`) for page loads and Inertia visits only (`Content::DocsRequest`): the old pages'
+help dialogs fetch `/docs/:key` with `fetch` (Accept `*/*`) or as XHR and keep the old answer, and
+so do the keys only an ERB partial under `app/views/docs` serves. The docs search index
+`/docs/search-index` (`Content::DocsSearchIndex`, JSON) belongs to the group too: the docs layout's
+search field and the spotlight's Docs group fetch it once per page load, on first use, and match in
+the browser (`lib/docs-search.ts`); the shared `nav.docsSearch` says whether it exists.
+`content` also serves `/faq`, `/credits` and the tools overview `/tools` (`Content::PagesController`).
+They read what the old pages read; FAQ answers and credits descriptions are editor HTML reduced to
+prose on the server (`Content::Prose`). The tools overview groups `ToolsHelper#developer_tools` as
+the Contribute menu does (`SiteNav::ContributeTools.overview`) and links to the old tool pages.
+`content` also serves the changelog `/changelog` and `/changelog/:id` (`Content::ChangelogController`,
+entries from `Content::Changelog`, 20 per page, an out-of-range `?page=` is a 404). The old
+`/change_logs` URLs answer 301 there (an old page of 10 goes to the new page holding its entries),
+and the detail page's Changelog tab links to the new entries.
+`start` serves the guided setup `/start` (`Start::SetupController`), which has no old page: off,
+it is a 404 and no new page links to it. Its answers are in the query string (`goal`, `platform`,
+`feature`, `script`, `lang`, comma lists; `GuidedSetup::Answers`), and it opens at the first
+unanswered step. It ends on `/resources?goal=…`, which the routes send to the setup's results
+while `start` and `catalog` are both on: a section per need (`GuidedSetup.result`, which maps the
+answers to checklist items, each with the catalog filters that list it) with its first cards and a
+link to that catalog search. With `catalog` off the setup ends on a plain link to `/resources`.
+`start` also serves the starter kits `/kits` and `/kits/:key` (`Start::KitsController`): curated
+sets of resources in `config/kits.yml`, read through `Kits`, which name each resource by slug
+(`spec/services/kits_spec.rb` fails when one is not published; an item unpublished later drops out
+of its kit). With `start` on, the home page shows the goal cards (each opens `/start?goal=…`) and the
+first three kits, its hero and closing buttons open `/start`, and the header has the Start building
+menu; with it off, none of them appear.
+`requests` serves resource requests, which have no old page (off, they are 404s and the request links
+of the new pages open the GitHub issue form). The public list `/requests` (`Requests::RequestsController#index`)
+sorts by votes or, with `?sort=date`, newest first, 20 to a page (an out-of-range `?page=` is a 404).
+With the group on, `nav.request` is `/requests?request=new`: `?request=new` opens the request dialog
+(`components/qul/request-dialog.tsx`, in `SiteShell`) on any new page, which is where sign-in returns,
+and the request cards open it in place. `POST /requests` creates one, `POST /requests/:id/vote`
+votes and `DELETE /requests/:id/vote` takes the vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
+from and enqueues nothing; a user sends at most `ResourceRequest::DAILY_LIMIT` requests a day. A vote
+is one row per user and request (unique index `index_resource_request_votes_unique`, inserted with
+ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
+and whether the current user voted, by votes or by date, one query a page, and no author or voter.
+Editors set the status and hide requests in the CMS (`/cms/resource_requests`, admins only).
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
-- The catalog page (`/resources`) keeps every filter, the query, the sort and the page in the
-  query string. A filter change is a partial reload (`only` the search props, `preserveState`)
-  that adds a history entry; typing searches after a pause and replaces the entry. Back restores
-  the page from history and remounts it, so local state starts again from the props.
+- The catalog page (`/resources`) keeps every filter, the query, the sort, the page and the view
+  (`view=list`; grid is the default) in the query string. A filter change is a partial reload
+  (`only` the search props, `preserveState`) that adds a history entry; typing searches after a
+  pause and replaces the entry. Back restores the page from history and remounts it, so local
+  state starts again from the props. With no sort and no query the results are ordered by
+  category (taxonomy order, most downloaded first in each) and `groups` names the category runs
+  on the page; with either, they are one list. A type page with more than
+  `Catalog::TypesController::SEARCH_ABOVE` resources is searched the same way (`q`, `language`,
+  `page` in the query string, through `Catalog::SearchQuery`), 24 cards to a page.
+  `category=<key>` filters the catalog to one category (the home page's category rows link
+  there). The home page's data showcase loads each tab's preview as an optional prop
+  (`recitationPreview`, …) once the open tab nears the screen (`WhenVisible`).
 
 - New routes go in the one block in `config/routes.rb` that wraps them in
   `constraints(PageGroups.constraint(:catalog))`. The block sits above the old routes for the same
@@ -172,6 +235,21 @@ groups, for every new page: the header's search button and ⌘K / Ctrl K open th
 - Request specs set the groups per example group: `page_groups: %w[catalog]` or
   `page_groups: []` (`spec/clone_helper.rb`). Write a spec for both states.
 
+### Card previews (sprint 002, story 002-03)
+
+A resource card on the catalog and type pages shows a preview fitted to its type. The page props
+carry only each card's `previewKind` (`Previews::Card.kind`); the card fetches the preview as JSON
+from `/resources/:type/:slug/preview` (`Catalog::PreviewsController`, catalog group) once it comes
+within 200 px of the viewport (`components/previews/card-preview.tsx`), so its fonts are declared
+and downloaded only then. The JSON is the detail page's provider (`Previews.for`) asked for the
+start of the Quran and cut by a card serializer (`Previews::Card*Resource`): a layout's page 1,
+a recitation's Al-Fatihah, ayah 1:2 of a script, translation, transliteration or tafsir (text cut
+to `Previews::Card::TEXT_LIMIT`), and a line in a font. A 404 or an unexpected kind removes the
+preview well and the card shows without it. The record types have no entry in
+`Previews::Card::KINDS`: their cards show the type icon beside the title instead. Each card
+names its own V4 colour palette (`paletteName` of `FontFaces`), so the cards of one page do not
+replace each other's palette rule.
+
 ### Downloads
 
 Files download from `/resources/:type/:slug/download/:file_id` and from the old token URL
@@ -179,6 +257,12 @@ Files download from `/resources/:type/:slug/download/:file_id` and from the old 
 (`Catalog::DownloadsController`) whatever the page groups. Both end in a redirect to the file's
 storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 
+- The bundle tray (header, `components/qul/bundle.tsx`) lists these same links, so it changes no
+  download rule or count. The bundle is a list of resource ids in `localStorage` (`qul-bundle`,
+  `lib/bundle.ts`); the server never stores it, and the server render and hydration see it empty.
+  The tray asks `/bundle?ids=…` (`Catalog::BundlesController`, catalog group) what the ids are
+  now: an id that is no longer a published resource, and a restricted resource, come back
+  without files and show as unavailable. With `catalog` off there is no tray (`nav.bundle`).
 - `QUL_DOWNLOAD_MODE` (`DownloadMode`): `sign_in` (the default) sends an anonymous visitor to
   sign-in, which returns to `/resources/:type/:slug?download=<file id>` (with the `catalog` group
   off, to the download URL itself, because the old page ignores the parameter). The detail page
@@ -217,15 +301,22 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   measurement id, so each page view leaves the browser twice.
 - The detail page (`Catalog::ResourcesController#show`, props from `Catalog::ResourcePage`) is the
   only URL of a resource: an id URL, a wrong type and the old `/:tab` and `/copyright` URLs
-  redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`).
-- Links to old pages (`/`, docs, tools) are plain `<a>` with the typed route helpers; links
-  between new pages are Inertia `<Link>`.
+  redirect to it with a 301. Its open tab is `?tab=` (a client-side `router.push`). The Data and
+  Docs tabs come from the old format-doc partial of the resource (`app/views/resources/docs`),
+  rendered with the old presenter and parsed by `Catalog::FormatDoc`: the whole doc as docs
+  segments for Docs, its column tables and lists and its first code block for Data. The partials
+  stay the only copy; a resource whose partial is missing has no Docs tab.
+- Links to old pages (contributor tools, sign-in, a page whose group is off) are plain `<a>` with
+  the typed route helpers; links between new pages are Inertia `<Link>`.
 - Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the
   flash messages (`notice` and `alert`), the page and the footer. The header and footer links
   come from the server (`SiteNav`, shared prop `nav`, a once prop), and each link says whether a
   new page serves it (`inertia`), which depends on the page groups; `NavAnchor` renders an
-  Inertia `<Link>` or a plain `<a>` from that. The contributor tools in the Contribute menu are
-  `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
+  Inertia `<Link>` or a plain `<a>` from that. The Inertia version names the page groups
+  (`config/initializers/inertia_rails.rb`), so a tab loaded under another setting reloads in full
+  on its next visit and gets the current navigation. With `content` on, the only old pages the
+  header, menus and footer link are the contributor tools and sign-in. The contributor tools in
+  the Contribute menu are `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
   or `{ user: null }`; sign-in links pass the current path as `user_return_to`.
 - Theme: light and dark tokens in `app/frontend/styles/inertia.css`, switched by the `dark`
   class on `<html>`. An inline script in the layout sets it before the first paint from the
@@ -268,6 +359,22 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   Path-scoped resolutions crash yarn 1.22, so they are not used. The new tools work with those
   versions; typed linting with `allowDefaultProject` would not (it needs minimatch 10).
 
+### Forms that write (sprint 002, story 002-02)
+
+- A form only a signed-in user can send is a `GatedForm` (`components/qul/gated-form.tsx`): from
+  the `auth` shared prop it disables every field (a `<fieldset disabled>`) and shows a sign-in
+  link whose `user_return_to` is a URL that shows the form open. The server checks sign-in
+  itself; an anonymous Inertia submit gets `inertia_location` to sign-in (a full visit, since
+  sign-in is an old page).
+- Submit with `useForm(...).post` (the XSRF header as above). With a `File` in the data Inertia
+  sends multipart, otherwise JSON; `createInertiaApp` turns off `forceIndicesArrayFormatInFormData`
+  so arrays arrive as `field[]`, which Rails reads as arrays.
+- Validation errors: `redirect_back_or_to <path>, inertia: { errors: record.errors.to_hash(true) }`.
+  They reach the next page as the `errors` prop, arrays of full messages (`errorValueType`), and
+  `useForm` keeps the typed values because a post preserves state.
+- Attachments: build the blob with `metadata: { analyzed: true }` (see `App#icon_upload=`), or
+  attaching enqueues `ActiveStorage::AnalyzeJob`, and ActiveJob is Sidekiq outside test.
+
 ### Vite when Rails runs in Docker
 
 `node_modules` holds macOS binaries, so Vite runs on the host and Rails in the container:
@@ -296,9 +403,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).
@@ -307,6 +414,16 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
   GA4 spec needs network access.
 - Output (traces, screenshots, the HTML report) goes to `tmp/playwright/`.
 - `QUL_BROWSER_BASE_URL` points the run at another server.
+- A second Rails server inside `qul-dev` (for example on 3001) is not on the host's `localhost`:
+  the container publishes only 3000. Forward a host port to the container's IP
+  (`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' qul-dev`) with a
+  few lines of Node (`net.createServer`), since the app answers only a `localhost` Host.
+- A run that migrates, imports or writes uses fresh clones under other names, so the
+  development clones stay as they are: `QUL_CMS_CONTENT_DB_NAME=<x> QUL_QURAN_CONTENT_DB_NAME=<y>
+  bin/snapshot-clones development`, with the same two variables on the server, the image and
+  `QUL_BROWSER_RAILS_RUNNER`. App icons are stored on `qul_exports` in production, so the icon
+  tests need development Rails (local disk); the whole suite runs there, and the new-page specs
+  also run against the production image.
 
 ## Production image
 
@@ -332,7 +449,7 @@ this file and local Vite builds out of the image.
   by position first. Use `reorder` whenever the order matters.
 - **Font palettes.** `@font-palette-values` rules with the same name do not merge per family: the
   last one wins. When several V4 Tajweed page fonts share a screen, emit one rule whose
-  `font-family` lists all of them.
+  `font-family` lists all of them, or give each preview's rule its own name (the resource cards).
 - **Dependencies.** The Dockerfile installs no devDependencies (`NODE_ENV=production`): build
   tools are regular dependencies, test and lint tools are devDependencies. The `resolutions` in
   `package.json` apply to every copy of a package, so check `yarn.lock` after `yarn add` and run

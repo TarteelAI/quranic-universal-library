@@ -1,10 +1,9 @@
-import { ArrowUpRightIcon } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import type { CatalogCategory, SiteNavLink } from '@/types/serializers'
+import type { CatalogCategory, CatalogOption } from '@/types/serializers'
 
 import { QulIcon, ResourceIcon, type IconName } from './icons'
 
@@ -63,7 +62,7 @@ function FacetGroup({ title, options, onToggle, limit, className }: FacetGroupPr
   )
 }
 
-/* ---------------- EmptyState / RequestCard ---------------- */
+/* ---------------- EmptyState ---------------- */
 
 export interface EmptyStateProps {
   icon?: IconName
@@ -93,35 +92,32 @@ function EmptyState({ icon = 'research', title, description, action, className }
   )
 }
 
-export interface RequestCardProps {
-  /** The resource request form (the `nav.request` shared prop) */
-  link: Pick<SiteNavLink, 'href' | 'label'>
-  className?: string
+/* ---------------- FilterChip ---------------- */
+
+export interface FilterChipProps extends Omit<React.ComponentProps<'button'>, 'onClick'> {
+  option: CatalogOption
+  selected: boolean
+  onClick: () => void
 }
 
-/** "Can't find it? Request it." at the end of a list and in empty states: links to the issue form. */
-function RequestCard({ link, className }: RequestCardProps) {
+/** A pill that toggles one value: the apps directory's filters and the app submission form. */
+function FilterChip({ option, selected, onClick, className, ...props }: FilterChipProps) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
       className={cn(
-        'flex flex-col items-start gap-4 rounded-xl bg-card p-5 shadow-xs sm:flex-row sm:items-center sm:p-6',
+        'inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm transition-colors hover:border-foreground/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5',
+        selected && 'border-primary bg-primary text-primary-foreground hover:border-primary',
         className,
       )}
+      {...props}
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-        <QulIcon name="request" size={20} />
-      </span>
-      <div className="flex-1">
-        <p className="font-medium">Can't find what you need?</p>
-        <p className="text-sm text-muted-foreground">Tell us what's missing on GitHub.</p>
-      </div>
-      <Button variant="outline" asChild>
-        <a href={link.href} target="_blank" rel="noreferrer">
-          {link.label} <ArrowUpRightIcon />
-        </a>
-      </Button>
-    </div>
+      {selected && <CheckIcon />}
+      {option.label}
+    </button>
   )
 }
 
-export { FacetGroup, EmptyState, RequestCard }
+export { FacetGroup, EmptyState, FilterChip }

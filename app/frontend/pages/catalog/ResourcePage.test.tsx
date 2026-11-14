@@ -113,6 +113,92 @@ describe('catalog/ResourcePage', () => {
     expect(push).toHaveBeenLastCalledWith(expect.objectContaining({ url }))
   })
 
+  it('shows the schemas and a code sample of the format doc on the Data tab, and the whole doc on the Docs tab', () => {
+    const push = vi.spyOn(router, 'push').mockImplementation(() => {})
+    const { unmount } = renderPage(ResourcePage, { props: { ...props, tab: 'data' }, url: `${url}?tab=data` })
+
+    const schema = screen.getByRole('figure', { name: 'SQLite columns' })
+    expect(
+      within(schema)
+        .getAllByRole('row')
+        .map((row) => row.textContent),
+    ).toEqual(['ColumnDescription', 'ayah_keythe ayah this row is for.', 'textthe tafsir.'])
+    const example = screen.getByRole('region', { name: 'Example' })
+    expect(within(example).getByText('{ "2:4": "2:3" }')).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: 'Docs tab' }))
+    expect(push).toHaveBeenCalledWith(expect.objectContaining({ url: `${url}?tab=docs` }))
+    unmount()
+
+    renderPage(ResourcePage, { props: { ...props, tab: 'docs' }, url: `${url}?tab=docs` })
+    expect(screen.getByRole('tab', { name: 'Docs' }).getAttribute('aria-selected')).toBe('true')
+    const panel = screen.getByRole('tabpanel')
+    expect(within(panel).getByRole('heading', { name: 'About tafsir data' })).toBeDefined()
+    expect(within(panel).getByText('{ "2:4": "2:3" }')).toBeDefined()
+  })
+
+  it('says so on the Data tab when the format doc lists no fields, and when there is no format doc', () => {
+    const { unmount } = renderPage(ResourcePage, {
+      props: { ...props, tab: 'data', schemas: [], codeSample: null },
+      url: `${url}?tab=data`,
+    })
+    expect(screen.getByText('The format guide does not list the fields of these files.')).toBeDefined()
+    expect(screen.queryByRole('region', { name: 'Example' })).toBeNull()
+    unmount()
+
+    renderPage(ResourcePage, {
+      props: { ...props, tab: 'data', formatGuide: null, schemas: [], codeSample: null },
+      url: `${url}?tab=data`,
+    })
+    expect(screen.getByText('There is no format guide for this resource yet.')).toBeDefined()
+    expect(screen.queryByRole('tab', { name: 'Docs' })).toBeNull()
+  })
+
+  it('shows the content notice on translations and tafsirs only', () => {
+    const notice = { name: 'Important notice' }
+    const withType = (type: string) => ({ ...props, resource: { ...props.resource, type } })
+
+    for (const type of ['tafsir', 'translation']) {
+      const { unmount } = renderPage(ResourcePage, { props: withType(type), url })
+      const aside = screen.getByRole('complementary', notice)
+      expect(aside.textContent).toContain(type === 'tafsir' ? 'No tafsir can' : 'No translation of the')
+      expect(within(aside).getByRole('link', { name: 'please report it to us' }).getAttribute('href')).toBe(
+        props.issueUrl,
+      )
+      unmount()
+    }
+    for (const type of ['transliteration', 'surah-info', 'recitation', 'quran-script']) {
+      const { unmount } = renderPage(ResourcePage, { props: withType(type), url })
+      expect(screen.queryByRole('complementary', notice)).toBeNull()
+      unmount()
+    }
+  })
+
+  it('shows the version and updated date in the download panel, and no empty label without them', () => {
+    const { unmount } = renderPage(ResourcePage, { props, url })
+    const panel = screen.getByRole('complementary', { name: 'Download' })
+    expect(within(panel).getByText('Version').nextElementSibling?.textContent).toBe('1703808000')
+    expect(within(panel).getByText('Updated').nextElementSibling?.textContent).toBe('29 December 2023')
+    unmount()
+
+    renderPage(ResourcePage, { props: { ...props, release: { version: null, updatedOn: null } }, url })
+    const bare = screen.getByRole('complementary', { name: 'Download' })
+    expect(within(bare).queryByText('Version')).toBeNull()
+    expect(within(bare).queryByText('Updated')).toBeNull()
+  })
+
+  it('copies the full download URL of a file', async () => {
+    const writeText = vi.fn(() => Promise.resolve())
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    renderPage(ResourcePage, { props, url })
+
+    const files = screen.getByRole('list', { name: 'Files' })
+    const full = `${window.location.origin}/resources/tafsir/tafsir-ibn-kathir/download/11`
+    expect(within(files).getByText(full)).toBeDefined()
+    fireEvent.click(within(files).getAllByRole('button', { name: 'Copy link' })[0])
+    expect(writeText).toHaveBeenCalledWith(full)
+    expect(await within(files).findByRole('button', { name: 'Copied' })).toBeDefined()
+  })
+
   it('has no Changelog tab without entries, and lists the entries when there are some', () => {
     const { unmount } = renderPage(ResourcePage, { props: { ...props, changelog: [] }, url })
     expect(screen.queryByRole('tab', { name: 'Changelog' })).toBeNull()

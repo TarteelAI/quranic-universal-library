@@ -28,4 +28,7 @@ void createInertiaApp({
   },
   serverHead: true,
   strictMode: true,
+  // A form with a file goes as multipart. Rails reads `app[platforms][]` as an array, but the
+  // Inertia default `app[platforms][0]` as a hash.
+  defaults: { form: { forceIndicesArrayFormatInFormData: false } },
 })

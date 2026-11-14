@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 module Site
-  # An entry of the apps directory (AppDirectory::App). Its platforms are labels.
+  # A published app of the apps directory (App). Its platforms are labels. Never the contact.
   class AppResource < ApplicationResource
     typelize id: :string, name: :string, url: :string, kind: :string, description: :string, featured: :boolean,
              icon_url: [:string, { nullable: true }], platforms: [:string, { multi: true }]
-    attributes :id, :name, :url, :kind, :description, :featured
+    attributes :name, :url, :kind, :description, :featured
+
+    attribute(:id) { |app| app.id.to_s }
 
     attribute :icon_url do |app|
-      "#{AppDirectory::ICONS_PATH}/#{app.icon}" if app.icon
+      Rails.application.routes.url_helpers.rails_blob_path(app.icon, only_path: true) if app.icon.attached?
     end
 
     attribute :platforms do |app|

@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/overlays'
+import { type DocsHit, searchDocs, useDocsIndex } from '@/lib/docs-search'
 import { cn } from '@/lib/utils'
 import { catalogResources, catalogSpotlight, detailResources } from '@/routes'
 import type { CatalogSpotlightResult, SiteNav, SiteNavGroup, SiteNavLink } from '@/types/serializers'
@@ -33,7 +34,7 @@ import { navIcon } from './nav'
 
 // Typing waits this long for a pause before it asks the server.
 const DEBOUNCE_MS = 250
-// At most this many pages and this many tools are shown for a query.
+// At most this many docs pages, pages and tools are shown for a query.
 const NAV_LIMIT = 4
 
 type Found = { results: CatalogSpotlightResult[]; total: number }
@@ -137,7 +138,7 @@ const tile = (icon: React.ReactNode) => (
   </span>
 )
 
-// Docs are left out of the results until the docs pages move to the new site and are indexed.
+// Docs links are never pages here: the docs group finds the docs pages while they are new pages.
 const isDocs = (link: Pick<SiteNavLink, 'href'>) => /^\/docs(\/|$)/.test(link.href)
 
 // The detail page belongs to the catalog page group, as the catalog search link does.
@@ -154,6 +155,18 @@ function resourceItem(result: CatalogSpotlightResult, inertia: boolean): Item {
 
 // The parts of a link a result is made from: a menu's overview link has only the first three.
 type NavLinkLike = Pick<SiteNavLink, 'label' | 'href' | 'inertia'> & Partial<SiteNavLink>
+
+// A docs page is a new page while the docs search is on (SiteNav#docs_search).
+function docsItem(hit: DocsHit): Item {
+  return {
+    id: `docs:${hit.key}`,
+    label: hit.title,
+    detail: hit.detail ?? undefined,
+    href: hit.href,
+    inertia: true,
+    icon: tile(<BookOpenIcon />),
+  }
+}
 
 function linkIcon(link: NavLinkLike, group: NavItem['group']) {
   if (link.category) return <ResourceIcon category={link.category} size="sm" />
@@ -261,6 +274,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
   const query = input.trim()
   const popular = usePopularResources()
   const answer = useSpotlightSearch(query)
+  const docsIndex = useDocsIndex(nav.docsSearch && query !== '')
   const navItems = React.useMemo(() => navSearchItems(nav), [nav])
   const listId = React.useId()
   const listRef = React.useRef<HTMLUListElement>(null)
@@ -270,6 +284,7 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
   const sections: Section[] = query
     ? [
         { heading: 'Resources', items: (answer?.results ?? []).map(toItem) },
+        { heading: 'Docs', items: docsIndex ? searchDocs(docsIndex, query, NAV_LIMIT).map(docsItem) : [] },
         { heading: 'Pages', items: matchNav(navItems, query, 'Pages') },
         { heading: 'Tools', items: matchNav(navItems, query, 'Tools') },
       ]
@@ -301,10 +316,11 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
     listRef.current?.querySelector(`[data-index="${current}"]`)?.scrollIntoView?.({ block: 'nearest' })
   }, [current])
 
+  const searched = nav.docsSearch ? 'resources, docs, pages or tools' : 'resources, pages or tools'
   let status: string | null = null
   if (query && !answer) status = 'Searching…'
   else if (answer?.failed) status = 'Resources could not be loaded. Pages, tools and the full search still work.'
-  else if (query && items.length === 1) status = `No resources, pages or tools match “${query}”.`
+  else if (query && items.length === 1) status = `No ${searched} match “${query}”.`
 
   const choose = (item: Item) => {
     onNavigate()
@@ -368,7 +384,9 @@ function SpotlightPanel({ shortcut, onNavigate }: SpotlightPanelProps) {
           aria-activedescendant={items.length ? optionId(current) : undefined}
           autoComplete="off"
           spellCheck={false}
-          placeholder="Search resources, pages and tools…"
+          placeholder={
+            nav.docsSearch ? 'Search resources, docs, pages and tools…' : 'Search resources, pages and tools…'
+          }
           className="h-14 min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground"
           value={input}
           onChange={(event) => {
@@ -432,9 +450,10 @@ export interface SpotlightProps {
 
 /**
  * Search from any new page: the header's search button, or ⌘K / Ctrl K. On open it shows the
- * most popular resources and quick links; as the user types, catalog results from /spotlight
- * and the pages and contribution tools of the site navigation. Enter opens the highlighted
- * result, or the catalog with every result. Closing returns focus to where it was.
+ * most popular resources and quick links; as the user types, catalog results from /spotlight,
+ * docs pages from the docs search index (while the docs pages are new pages), and the pages and
+ * contribution tools of the site navigation. Enter opens the highlighted result, or the catalog
+ * with every result. Closing returns focus to where it was.
  */
 function Spotlight({ open, onOpenChange }: SpotlightProps) {
   const returnFocus = React.useRef<HTMLElement | null>(null)

@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { destroyUserSession, newUserSession } from '@/routes'
 import type { AuthUser, SiteNavGroup } from '@/types/serializers'
 
+import { BundleTray } from './bundle'
 import { GitHubMark } from './icons'
 import { MARK_SVG, WORDMARK_SVG } from './logo-paths'
 import { MegaMenu, MobileNav, NavAnchor } from './nav'
@@ -189,6 +190,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
         <MegaMenu menus={nav.menus} url={url} className="hidden lg:flex" />
         <div className="ms-auto flex items-center gap-1.5">
           <Spotlight open={searchOpen} onOpenChange={setSearchOpen} />
+          <BundleTray />
           <Button variant="ghost" size="icon-sm" asChild className="hidden sm:inline-flex">
             <a href={REPO_URL} target="_blank" rel="noreferrer" aria-label="QUL on GitHub">
               <GitHubMark />

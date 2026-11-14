@@ -1,0 +1,71 @@
+import { Fragment, type ReactNode } from 'react'
+
+import { cn } from '@/lib/utils'
+
+export interface PageHeaderProps {
+  /** Breadcrumb trail; the last item is the current page */
+  breadcrumb?: { label: string; href?: string }[]
+  eyebrow?: ReactNode
+  /** A leading visual, e.g. the type icon (<ResourceIcon size="xl" />) */
+  icon?: ReactNode
+  title: ReactNode
+  /** Resource count, shown small and muted after the title */
+  count?: number
+  description?: ReactNode
+  /** Buttons beside the title, e.g. a link to the format docs */
+  actions?: ReactNode
+  className?: string
+}
+
+// From the v7 design (ds/src/components/qul/chrome.tsx).
+export function PageHeader({
+  breadcrumb,
+  eyebrow,
+  icon,
+  title,
+  count,
+  description,
+  actions,
+  className,
+}: PageHeaderProps) {
+  return (
+    <div className={cn('flex flex-col gap-4', className)}>
+      {breadcrumb && (
+        <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          {breadcrumb.map((item, index) => (
+            <Fragment key={item.label}>
+              {index > 0 && <span aria-hidden="true">›</span>}
+              {item.href ? (
+                <a href={item.href} className="hover:text-foreground">
+                  {item.label}
+                </a>
+              ) : (
+                <span className="text-foreground">{item.label}</span>
+              )}
+            </Fragment>
+          ))}
+        </nav>
+      )}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div className="flex flex-1 items-start gap-5">
+          {icon}
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            {eyebrow && (
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">{eyebrow}</div>
+            )}
+            <h1 className="headline text-3xl sm:text-4xl">
+              {title}
+              {count !== undefined && (
+                <span className="ms-3 align-middle font-mono text-sm font-normal tracking-normal text-muted-foreground tabular-nums">
+                  {count}
+                </span>
+              )}
+            </h1>
+            {description && <p className="max-w-2xl text-base text-pretty text-muted-foreground">{description}</p>}
+          </div>
+        </div>
+        {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,369 @@
+/* Tailwind 4 for the Inertia pages. Class detection is limited to app/frontend, so the old
+   pages' Tailwind 3 build (config/tailwind.config.js) and this one never see each other.
+
+   Tokens are from the approved v7 design (qul-redesign ds/src/styles/qul.css): a light grey
+   canvas, borderless white cards, near-black ink, and QUL green as an accent only. Category
+   tokens (--cat-*) are for small icons and type labels, never for surfaces. Light is the
+   default; the `dark` class on <html> switches theme (lib/theme.ts and the inline script in
+   the inertia layout). The interface fonts are self-hosted from the @fontsource-variable
+   packages (entrypoints/inertia.tsx). */
+@import 'tailwindcss' source('../');
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --radius: 0.75rem;
+
+  /* Light grey canvas, borderless white cards, near-black ink */
+  --background: oklch(0.97 0.002 155);
+  --foreground: oklch(0.2 0.012 160);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --surface: oklch(0.96 0.002 155);
+
+  /* Primary actions are ink. Green is reserved for --brand. */
+  --primary: oklch(0.2 0.012 160);
+  --primary-foreground: oklch(0.99 0 0);
+  --brand: oklch(0.74 0.17 150);
+  --brand-subtle: oklch(0.955 0.045 155);
+  /* Readable green for small text and icons on white */
+  --brand-foreground: oklch(0.48 0.12 152);
+
+  --secondary: oklch(0.955 0.002 155);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.955 0.002 155);
+  --muted-foreground: oklch(0.52 0.008 160);
+  --accent: oklch(0.96 0.002 155);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.58 0.2 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.915 0.003 155);
+  --input: oklch(0.88 0.004 155);
+  --ring: oklch(0.74 0.17 150);
+
+  --success: oklch(0.52 0.12 151);
+  --success-subtle: oklch(0.95 0.04 155);
+  --warning: oklch(0.58 0.12 70);
+  --warning-subtle: oklch(0.96 0.05 85);
+  --info: oklch(0.52 0.13 245);
+  --info-subtle: oklch(0.95 0.03 240);
+  --error: oklch(0.56 0.19 25);
+  --error-subtle: oklch(0.95 0.03 25);
+
+  /* Category hues — base for icons/text, subtle for small icon tiles */
+  --cat-audio: oklch(0.55 0.15 300);
+  --cat-audio-subtle: oklch(0.96 0.025 305);
+  --cat-layout: oklch(0.55 0.1 118);
+  --cat-layout-subtle: oklch(0.965 0.04 112);
+  --cat-script: oklch(0.57 0.17 350);
+  --cat-script-subtle: oklch(0.965 0.022 350);
+  --cat-translation: oklch(0.53 0.13 245);
+  --cat-translation-subtle: oklch(0.96 0.022 240);
+  --cat-tafsir: oklch(0.54 0.09 192);
+  --cat-tafsir-subtle: oklch(0.96 0.025 188);
+  --cat-linguistics: oklch(0.57 0.12 68);
+  --cat-linguistics-subtle: oklch(0.965 0.03 80);
+  --cat-topics: oklch(0.57 0.15 30);
+  --cat-topics-subtle: oklch(0.965 0.022 30);
+  --cat-metadata: oklch(0.5 0.02 240);
+  --cat-metadata-subtle: oklch(0.96 0.004 240);
+
+  --shadow-color: 160 10% 15%;
+  color-scheme: light;
+}
+
+.dark {
+  --background: oklch(0.165 0.006 160);
+  --foreground: oklch(0.95 0.004 150);
+  --card: oklch(0.2 0.007 160);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.225 0.008 160);
+  --popover-foreground: var(--foreground);
+  --surface: oklch(0.185 0.006 160);
+
+  --primary: oklch(0.95 0.004 150);
+  --primary-foreground: oklch(0.18 0.008 160);
+  --brand: oklch(0.74 0.16 150);
+  --brand-subtle: oklch(0.27 0.045 155);
+  --brand-foreground: oklch(0.82 0.13 152);
+
+  --secondary: oklch(0.25 0.007 160);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.25 0.007 160);
+  --muted-foreground: oklch(0.7 0.008 155);
+  --accent: oklch(0.25 0.007 160);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.66 0.19 25);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0.29 0.007 160);
+  --input: oklch(0.34 0.008 160);
+  --ring: oklch(0.72 0.14 151);
+
+  --success: oklch(0.78 0.15 151);
+  --success-subtle: oklch(0.3 0.06 155);
+  --warning: oklch(0.82 0.13 80);
+  --warning-subtle: oklch(0.31 0.05 75);
+  --info: oklch(0.76 0.12 245);
+  --info-subtle: oklch(0.29 0.05 250);
+  --error: oklch(0.72 0.17 25);
+  --error-subtle: oklch(0.3 0.06 25);
+
+  --cat-audio: oklch(0.78 0.13 300);
+  --cat-audio-subtle: oklch(0.27 0.04 300);
+  --cat-layout: oklch(0.84 0.13 112);
+  --cat-layout-subtle: oklch(0.27 0.035 115);
+  --cat-script: oklch(0.78 0.15 350);
+  --cat-script-subtle: oklch(0.27 0.04 350);
+  --cat-translation: oklch(0.78 0.11 245);
+  --cat-translation-subtle: oklch(0.27 0.035 245);
+  --cat-tafsir: oklch(0.8 0.09 190);
+  --cat-tafsir-subtle: oklch(0.27 0.03 190);
+  --cat-linguistics: oklch(0.83 0.12 75);
+  --cat-linguistics-subtle: oklch(0.28 0.035 70);
+  --cat-topics: oklch(0.78 0.13 30);
+  --cat-topics-subtle: oklch(0.28 0.04 30);
+  --cat-metadata: oklch(0.78 0.02 240);
+  --cat-metadata-subtle: oklch(0.27 0.01 240);
+
+  --shadow-color: 160 20% 2%;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-info: var(--info);
+  --color-info-subtle: var(--info-subtle);
+  --color-error: var(--error);
+  --color-error-subtle: var(--error-subtle);
+
+  --color-cat-audio: var(--cat-audio);
+  --color-cat-audio-subtle: var(--cat-audio-subtle);
+  --color-cat-layout: var(--cat-layout);
+  --color-cat-layout-subtle: var(--cat-layout-subtle);
+  --color-cat-script: var(--cat-script);
+  --color-cat-script-subtle: var(--cat-script-subtle);
+  --color-cat-translation: var(--cat-translation);
+  --color-cat-translation-subtle: var(--cat-translation-subtle);
+  --color-cat-tafsir: var(--cat-tafsir);
+  --color-cat-tafsir-subtle: var(--cat-tafsir-subtle);
+  --color-cat-linguistics: var(--cat-linguistics);
+  --color-cat-linguistics-subtle: var(--cat-linguistics-subtle);
+  --color-cat-topics: var(--cat-topics);
+  --color-cat-topics-subtle: var(--cat-topics-subtle);
+  --color-cat-metadata: var(--cat-metadata);
+  --color-cat-metadata-subtle: var(--cat-metadata-subtle);
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+
+  --font-sans: 'Host Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, monospace;
+  --font-arabic: 'Noto Naskh Arabic Variable', 'Noto Naskh Arabic', serif;
+  --font-quran-madani: 'Digital Khatt', 'Noto Naskh Arabic Variable', serif;
+  --font-quran-indopak: 'IndoPak Nastaleeq', 'Noto Naskh Arabic Variable', serif;
+
+  /* Cards are separated by tone plus a whisper of shadow; real shadows only for things that float or lift on hover */
+  --shadow-xs: 0 1px 2px hsl(var(--shadow-color) / 0.04);
+  --shadow-sm: 0 1px 2px hsl(var(--shadow-color) / 0.05);
+  --shadow-md: 0 2px 6px hsl(var(--shadow-color) / 0.05), 0 10px 24px -8px hsl(var(--shadow-color) / 0.12);
+  --shadow-lg: 0 4px 10px hsl(var(--shadow-color) / 0.05), 0 24px 48px -12px hsl(var(--shadow-color) / 0.2);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    letter-spacing: -0.005em;
+  }
+}
+
+/* Arabic text helpers: generous leading, no letter-spacing, right-aligned by default. */
+@utility quran-text {
+  direction: rtl;
+  text-align: right;
+  line-height: 2.1;
+  letter-spacing: 0;
+  font-feature-settings: normal;
+  word-spacing: 0.05em;
+}
+
+/* Display type: medium weight, tight tracking. Page and section titles only. */
+@utility headline {
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+/* Tajweed rules in Quran script previews: the <rule class="..."> tags of the tajweed text, in the
+   colours the old pages use (app/assets/stylesheets/shared/tajweed_color_new.scss). The text sits
+   on the light paper card in both themes. */
+@layer components {
+  .tajweed rule.tafkheem {
+    color: #006994;
+  }
+  .tajweed rule.izhar {
+    color: darkgreen;
+  }
+  .tajweed rule.izhar_shafawi {
+    color: blue;
+  }
+  .tajweed rule.ikhafa_shafawi {
+    color: #d500b7;
+  }
+  .tajweed rule:is(.ham_wasl, .slnt, .laam_shamsiyah) {
+    color: #aaaaaa;
+  }
+  .tajweed rule.madda_normal {
+    color: #537fff;
+  }
+  .tajweed rule.madda_permissible {
+    color: #f38e02;
+  }
+  .tajweed rule.madda_necessary {
+    color: #a9045c;
+  }
+  .tajweed rule:is(.madda_obligatory, .madda_obligatory_mottasel, .madda_obligatory_monfasel) {
+    color: #f2007f;
+  }
+  .tajweed rule.qalaqah {
+    color: #009ee6;
+  }
+  .tajweed rule.ikhafa {
+    color: #9400a8;
+  }
+  .tajweed rule.iqlab {
+    color: #26bffd;
+  }
+  .tajweed rule.idgham_shafawi {
+    color: #58b800;
+  }
+  .tajweed rule:is(.idgham_ghunnah, .idgham_wo_ghunnah) {
+    color: #169200;
+  }
+  .tajweed rule:is(.idgham_mutajanisayn, .idgham_mutaqaribayn) {
+    color: #a1a1a1;
+  }
+  .tajweed rule.ghunnah {
+    color: #ff7e1e;
+  }
+}
+
+/* Editor HTML in text and record previews (translations, tafsirs, surah info): the tags
+   Previews.sanitize keeps, spaced as reading text. */
+@layer components {
+  .preview-html :is(p, ul, ol, blockquote) + :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+    margin-top: 0.75em;
+  }
+  .preview-html :is(h1, h2, h3, h4, h5, h6) {
+    margin-top: 1em;
+    font-weight: 600;
+  }
+  .preview-html :is(ul, ol) {
+    padding-inline-start: 1.5em;
+    list-style: revert;
+  }
+  .preview-html blockquote {
+    border-inline-start: 2px solid var(--border);
+    padding-inline-start: 0.75em;
+  }
+  .preview-html sup {
+    font-size: 0.7em;
+  }
+}
+
+/* Docs prose: the sanitized HTML of a docs page (Content::DocPage), after the v8 docs pages
+   (ds/src/app/docs/ui.tsx). Headings sit below the sticky header when a contents link scrolls. */
+@layer components {
+  .docs-prose {
+    @apply flex flex-col gap-4 text-[15.5px] leading-7 text-foreground/85;
+  }
+  .docs-prose :is(p, ul, ol, blockquote, h1, h2, h3, h4, h5, h6) {
+    @apply max-w-[68ch];
+  }
+  .docs-prose :is(h1, h2, h3, h4, h5, h6) {
+    @apply scroll-mt-24 font-medium tracking-tight text-foreground;
+  }
+  .docs-prose h1 {
+    @apply headline text-3xl sm:text-4xl;
+  }
+  .docs-prose h2 {
+    @apply mt-6 text-2xl;
+  }
+  .docs-prose h3 {
+    @apply mt-2 text-[17px];
+  }
+  .docs-prose :is(h4, h5, h6) {
+    @apply text-base;
+  }
+  .docs-prose a {
+    @apply font-medium underline decoration-foreground/25 underline-offset-[3px] transition-colors hover:decoration-foreground;
+  }
+  .docs-prose :is(ul, ol) {
+    @apply flex flex-col gap-2 ps-5 marker:text-muted-foreground;
+  }
+  .docs-prose ul {
+    @apply list-disc;
+  }
+  .docs-prose ol {
+    @apply list-decimal;
+  }
+  .docs-prose li {
+    @apply ps-1;
+  }
+  .docs-prose :not(pre) > code {
+    @apply rounded-[5px] bg-secondary px-1.5 py-0.5 font-mono text-[0.86em] text-foreground;
+  }
+  .docs-prose pre {
+    @apply overflow-x-auto rounded-lg bg-secondary p-4 font-mono text-[13px] leading-6;
+  }
+  .docs-prose blockquote {
+    @apply border-s-2 border-border ps-4 text-muted-foreground;
+  }
+  .docs-prose table {
+    @apply block max-w-full overflow-x-auto text-sm;
+  }
+  .docs-prose :is(th, td) {
+    @apply border-b border-border px-3 py-2 text-start align-top;
+  }
+  .docs-prose th {
+    @apply font-medium text-foreground;
+  }
+}

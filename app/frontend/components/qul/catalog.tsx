@@ -1,0 +1,123 @@
+import { CheckIcon } from 'lucide-react'
+import * as React from 'react'
+
+import { Checkbox } from '@/components/ui/misc'
+import { cn } from '@/lib/utils'
+import type { CatalogCategory, CatalogOption } from '@/types/serializers'
+
+import { QulIcon, ResourceIcon, type IconName } from './icons'
+
+/* ---------------- FacetGroup ---------------- */
+
+export interface FacetOption {
+  value: string
+  label: string
+  count: number
+  checked: boolean
+  /** Shows the category icon before the label (resource types) */
+  category?: CatalogCategory['key']
+}
+
+export interface FacetGroupProps {
+  title: string
+  options: FacetOption[]
+  onToggle: (value: string) => void
+  /** Shows this many options and a button for the rest; checked options always show. */
+  limit?: number
+  className?: string
+}
+
+/** One section of the catalog filter rail: a checkbox per value, with its result count. */
+function FacetGroup({ title, options, onToggle, limit, className }: FacetGroupProps) {
+  const [expanded, setExpanded] = React.useState(false)
+  const hidden = limit && !expanded ? options.slice(limit).filter((option) => !option.checked) : []
+  const shown = options.filter((option) => !hidden.includes(option))
+
+  return (
+    <fieldset className={cn('flex flex-col gap-1', className)}>
+      <legend className="mb-2 text-sm font-medium">{title}</legend>
+      {shown.map((option) => (
+        <label
+          key={option.value}
+          className="flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-secondary"
+        >
+          <Checkbox checked={option.checked} onCheckedChange={() => onToggle(option.value)} />
+          {option.category && (
+            <ResourceIcon category={option.category} variant="plain" size="sm" className="[&_svg]:size-4" />
+          )}
+          <span className="min-w-0 flex-1 truncate">{option.label}</span>
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">{option.count}</span>
+        </label>
+      ))}
+      {hidden.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="w-fit px-2 py-1 text-xs text-muted-foreground underline decoration-foreground/30 underline-offset-4 hover:text-foreground"
+        >
+          Show {hidden.length} more
+        </button>
+      )}
+    </fieldset>
+  )
+}
+
+/* ---------------- EmptyState ---------------- */
+
+export interface EmptyStateProps {
+  icon?: IconName
+  title: string
+  description?: string
+  action?: React.ReactNode
+  className?: string
+}
+
+function EmptyState({ icon = 'research', title, description, action, className }: EmptyStateProps) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center gap-4 rounded-xl border border-dashed bg-card px-6 py-12 text-center',
+        className,
+      )}
+    >
+      <span className="flex size-12 items-center justify-center rounded-lg bg-secondary">
+        <QulIcon name={icon} size={24} />
+      </span>
+      <div>
+        <p className="text-lg font-medium tracking-tight">{title}</p>
+        {description && <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
+      </div>
+      {action}
+    </div>
+  )
+}
+
+/* ---------------- FilterChip ---------------- */
+
+export interface FilterChipProps extends Omit<React.ComponentProps<'button'>, 'onClick'> {
+  option: CatalogOption
+  selected: boolean
+  onClick: () => void
+}
+
+/** A pill that toggles one value: the apps directory's filters and the app submission form. */
+function FilterChip({ option, selected, onClick, className, ...props }: FilterChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={cn(
+        'inline-flex h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm transition-colors hover:border-foreground/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-3.5',
+        selected && 'border-primary bg-primary text-primary-foreground hover:border-primary',
+        className,
+      )}
+      {...props}
+    >
+      {selected && <CheckIcon />}
+      {option.label}
+    </button>
+  )
+}
+
+export { FacetGroup, EmptyState, FilterChip }

@@ -1,0 +1,262 @@
+import { router } from '@inertiajs/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import { layoutPageProps, typePageProps } from '@/test/catalog'
+import { renderPage } from '@/test/inertia'
+import type { CatalogTypesShow } from '@/types/serializers'
+
+import TypePage from './TypePage'
+
+describe('catalog/TypePage', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('shows the type title, its description and the resource count', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Translations2')
+    expect(screen.getByText('Translations of the Quran in many languages.')).toBeDefined()
+  })
+
+  it('shows one card per resource, linking to its detail page', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    const cards = within(screen.getByRole('list', { name: 'Translations' })).getAllByRole('article')
+    expect(cards).toHaveLength(2)
+    expect(screen.getByRole('link', { name: 'Sahih International' }).getAttribute('href')).toBe(
+      '/resources/translation/sahih-international',
+    )
+    expect(screen.getByText('Translation · English · Ayah by Ayah')).toBeDefined()
+    expect(screen.getByText('Translation · Word by word')).toBeDefined()
+    expect(screen.getByText('JSON · SQLite')).toBeDefined()
+    expect(screen.getByText('English translation of the Quran, ayah by ayah.')).toBeDefined()
+    expect(within(cards[0]).getByTestId('card-preview').dataset.kind).toBe('text')
+  })
+
+  it('shows the type icon in the header', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    const header = screen.getByRole('heading', { level: 1 }).parentElement!.parentElement!
+    expect(header.querySelector('.bg-cat-translation-subtle svg')).not.toBeNull()
+  })
+
+  it('opens a detail page from a card with an in-app visit', () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    renderPage(TypePage, { props: typePageProps })
+
+    fireEvent.click(screen.getByRole('link', { name: 'Sahih International' }))
+    expect(visit).toHaveBeenCalledWith('/resources/translation/sahih-international', expect.anything())
+  })
+
+  it("links to the type's format docs, a page outside the new pages, with a plain link", () => {
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    renderPage(TypePage, { props: typePageProps })
+
+    const docs = screen.getByRole('link', { name: 'Translation format docs' })
+    expect(docs.getAttribute('href')).toBe('/docs/resource-translations')
+    fireEvent.click(docs)
+    expect(visit).not.toHaveBeenCalled()
+  })
+
+  it('shows no format docs link for a type without a guide', () => {
+    renderPage(TypePage, { props: { ...typePageProps, guidePath: null } })
+
+    expect(screen.queryByRole('link', { name: /format docs/ })).toBeNull()
+  })
+
+  it('links to every type page and marks the current one', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    const nav = screen.getByRole('navigation', { name: 'Other resource types' })
+    expect(within(nav).getByRole('link', { name: 'Tafsirs' }).getAttribute('href')).toBe('/resources/tafsir')
+    expect(within(nav).getByRole('link', { name: 'Translations' }).getAttribute('aria-current')).toBe('page')
+  })
+
+  it('says so when no resource of the type is published', () => {
+    renderPage(TypePage, { props: { ...typePageProps, resources: [], total: 0 } })
+
+    expect(screen.getByText('No resources of this type are published yet.')).toBeDefined()
+  })
+
+  it('shows no "Which one should I pick?" block and no older versions for a type without status data', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    expect(screen.queryByRole('heading', { name: 'Which one should I pick?' })).toBeNull()
+    expect(screen.queryByText(/Older versions/)).toBeNull()
+    expect(screen.queryByRole('table')).toBeNull()
+  })
+
+  it('puts recommended resources first, marks a drafted one as not yet reviewed, and collapses older ones', () => {
+    renderPage(TypePage, { props: layoutPageProps })
+
+    expect(screen.getByRole('heading', { level: 2, name: 'Which one should I pick?' })).toBeDefined()
+    expect(screen.getByText('Use the layout of the printed mushaf that your readers know.')).toBeDefined()
+
+    const recommended = within(screen.getByRole('list', { name: 'Recommended' })).getAllByRole('article')
+    expect(recommended.map((card) => within(card).getByRole('heading').textContent)).toEqual([
+      'KFGQPC V2 layout',
+      'Indopak 15 lines',
+    ])
+    expect(within(recommended[0]).getByText('Recommended')).toBeDefined()
+    expect(within(recommended[0]).queryByText(/not yet reviewed/)).toBeNull()
+    expect(within(recommended[1]).getByText('Suggested, not yet reviewed')).toBeDefined()
+
+    const current = within(screen.getByRole('list', { name: 'Mushaf layouts' })).getAllByRole('article')
+    expect(current.map((card) => within(card).getByRole('heading').textContent)).toEqual(['Mushaf Qatar'])
+    expect(within(current[0]).getByText('Mushaf layout · Madani')).toBeDefined()
+
+    const older = screen.getByText(/Older versions \(2\)/).closest('details')
+    expect(older?.open).toBe(false)
+    // jsdom does not toggle <details> on a summary click; the browser test covers that.
+    older!.open = true
+    const olderCards = within(screen.getByRole('list', { name: 'Older versions' })).getAllByRole('article')
+    expect(olderCards).toHaveLength(2)
+    expect(within(olderCards[0]).getByText('Legacy')).toBeDefined()
+    const superseded = olderCards[1]
+    expect(within(superseded).getByText('Superseded')).toBeDefined()
+    expect(within(superseded).getByRole('link', { name: 'Replaced by KFGQPC V2 layout' }).getAttribute('href')).toBe(
+      '/resources/mushaf-layout/kfgqpc-v2-layout',
+    )
+  })
+
+  it('shows every card once across the groups', () => {
+    const { container } = renderPage(TypePage, { props: layoutPageProps })
+
+    expect(container.querySelectorAll('article')).toHaveLength(layoutPageProps.resources.length)
+  })
+
+  it('shows the comparison table with typed facts, linking each layout and its font', () => {
+    renderPage(TypePage, { props: layoutPageProps })
+
+    const table = screen.getByRole('table', { name: 'Comparison' })
+    const headers = within(table)
+      .getAllByRole('columnheader')
+      .map((cell) => cell.textContent)
+    expect(headers).toEqual([
+      'Mushaf layout',
+      'Script family',
+      'Pages',
+      'Lines per page',
+      'Rendering',
+      'Font',
+      'Status',
+    ])
+    const [, first, second] = within(table).getAllByRole('row')
+    expect(
+      within(first)
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent),
+    ).toEqual(['KFGQPC V2 layout', 'Madani', '604', '15', 'Glyph font for each page', 'QPC V2 Font', 'Stable'])
+    expect(within(first).getByRole('link', { name: 'QPC V2 Font' }).getAttribute('href')).toBe(
+      '/resources/font/qpc-v2-font',
+    )
+    const visit = vi.spyOn(router, 'visit').mockImplementation(() => {})
+    fireEvent.click(within(first).getByRole('link', { name: 'KFGQPC V2 layout' }))
+    expect(visit).toHaveBeenCalledWith('/resources/mushaf-layout/kfgqpc-v2-layout', expect.anything())
+    fireEvent.click(within(first).getByRole('link', { name: 'QPC V2 Font' }))
+    expect(visit).toHaveBeenLastCalledWith('/resources/font/qpc-v2-font', expect.anything())
+    expect(
+      within(second)
+        .getAllByRole('cell')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Old Indopak layout', '–', '–', '–', '–', '–', 'Legacy'])
+  })
+
+  describe('a type with many resources', () => {
+    const searched: CatalogTypesShow = {
+      ...typePageProps,
+      total: 204,
+      search: {
+        q: 'sahih',
+        language: 'en',
+        page: 2,
+        pages: 3,
+        matches: 60,
+        languages: [
+          { key: 'en', name: 'English', count: 60 },
+          { key: 'ur', name: 'Urdu', count: 12 },
+        ],
+      },
+    }
+
+    afterEach(() => vi.useRealTimers())
+
+    it('shows the search, the language filter and the pages, from the URL', () => {
+      renderPage(TypePage, { props: searched })
+
+      expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Translations204')
+      expect(screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search translations' }).value).toBe('sahih')
+      const language = screen.getByRole<HTMLSelectElement>('combobox', { name: 'Language' })
+      expect(language.value).toBe('en')
+      expect(
+        within(language)
+          .getAllByRole('option')
+          .map((option) => option.textContent),
+      ).toEqual(['All languages', 'English (60)', 'Urdu (12)'])
+      const pages = within(screen.getByRole('navigation', { name: 'Pages' }))
+      expect(pages.getByText('Page 2 of 3')).toBeDefined()
+      expect(pages.getByRole('link', { name: 'Next' }).getAttribute('href')).toBe(
+        '/resources/translation?q=sahih&language=en&page=3',
+      )
+      expect(pages.getByRole('link', { name: 'Previous' }).getAttribute('href')).toBe(
+        '/resources/translation?q=sahih&language=en',
+      )
+    })
+
+    it('reloads the cards when the language changes, adding a history entry', () => {
+      const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+      renderPage(TypePage, { props: searched })
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Language' }), { target: { value: 'ur' } })
+      expect(get).toHaveBeenCalledWith(
+        '/resources/translation?q=sahih&language=ur',
+        {},
+        { only: ['resources', 'search'], preserveState: true, preserveScroll: true, replace: false },
+      )
+    })
+
+    it('searches once the typing pauses, replacing the history entry', () => {
+      vi.useFakeTimers()
+      const get = vi.spyOn(router, 'get').mockImplementation(() => {})
+      renderPage(TypePage, { props: searched })
+
+      fireEvent.change(screen.getByRole('searchbox', { name: 'Search translations' }), { target: { value: 'urdu' } })
+      expect(get).not.toHaveBeenCalled()
+      act(() => vi.advanceTimersByTime(300))
+      expect(get).toHaveBeenCalledWith(
+        '/resources/translation?q=urdu&language=en',
+        {},
+        expect.objectContaining({ replace: true }),
+      )
+    })
+
+    it('says so when nothing matches, and still offers the request card', () => {
+      renderPage(TypePage, { props: { ...searched, resources: [], search: { ...searched.search!, matches: 0 } } })
+
+      expect(screen.getByText('Nothing matches this search')).toBeDefined()
+      expect(screen.queryByText('No resources of this type are published yet.')).toBeNull()
+      expect(screen.getByRole('link', { name: 'Request a resource' })).toBeDefined()
+    })
+  })
+
+  it('shows no search, language filter or pages for a type with few resources', () => {
+    renderPage(TypePage, { props: typePageProps })
+
+    expect(screen.queryByRole('searchbox')).toBeNull()
+    expect(screen.queryByRole('combobox', { name: 'Language' })).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Pages' })).toBeNull()
+  })
+
+  it('shows the request card on every type page, linking where the header request link does', () => {
+    for (const props of [typePageProps, layoutPageProps, { ...typePageProps, resources: [], total: 0 }]) {
+      const { unmount } = renderPage(TypePage, { props })
+      expect(screen.getByText("Can't find what you need?")).toBeDefined()
+      expect(screen.getByRole('link', { name: 'Request a resource' }).getAttribute('href')).toBe(
+        'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
+      )
+      unmount()
+    }
+  })
+})

@@ -31,7 +31,7 @@ Use Quran Script data when you are building:
 2. Keep the default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab
-   - `Help` tab
+   - `Docs` tab
 4. Confirm available downloads:
    - `sqlite`
    - `json`
@@ -47,7 +47,7 @@ On the script detail page:
   - `Jump to Ayah` selector
   - Previous/next ayah navigation
   - Rendered Arabic script output (often word-by-word blocks in word resources)
-- `Help` tab:
+- `Docs` tab:
   - Sample JSON structure
   - Field descriptions (`verse_key`, `text`, `script_type`, `font_family`, `words`)
   - Rendering notes and usage examples (CSS + JS)

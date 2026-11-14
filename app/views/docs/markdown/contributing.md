@@ -25,9 +25,20 @@ git switch -c docs/your-topic
 
 ## Documentation Contributions
 
-- Edit files in `docs/` first (source of truth).
+- Edit the markdown files in `app/views/docs/markdown` (source of truth). `config/docs.yml` lists the pages, their titles and their order.
 - Ensure links are valid in both GitHub and website docs rendering.
 - Update root `README.md` only when entrypoint links or quick-start instructions change.
+
+## Requesting a Resource
+
+Missing a translation, recitation or other resource? Use **Request a resource** in the site
+header. Sign in to send a request, or vote for one already on the list; the requests with the
+most votes are easier to plan. Each account can send a few requests a day.
+
+## Submitting Your App
+
+Built something with QUL data? Sign in and use **Submit your app** on the Apps page. Give its name, a
+link, the platforms it runs on and the QUL resources it uses; an icon is optional. Your app appears in the directory after a QUL editor reviews it.
 
 ## Reporting Data Issues
 

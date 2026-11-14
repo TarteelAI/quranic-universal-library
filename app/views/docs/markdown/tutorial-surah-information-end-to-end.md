@@ -32,8 +32,8 @@ Use surah-info data when building:
 1. Open [https://qul.tarteel.ai/resources/surah-info](https://qul.tarteel.ai/resources/surah-info).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Surah Info Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available downloads (`csv`, `json`, `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -42,12 +42,12 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On surah-info detail pages:
 
-- `Surah Info Preview` tab:
+- `Preview` tab:
   - `Jump to Surah`
   - Next/previous surah navigation
   - Short summary paragraph
   - Detailed content blocks (for example `Name`, `Period of Revelation`, `Theme`)
-- `Help` tab:
+- `Docs` tab:
   - Resource purpose and coverage (themes/topics/reasons for revelation/summaries)
   - Format availability (`SQLite`, `CSV`, `JSON`)
   - Note that some records include both short summary and detailed long-form text

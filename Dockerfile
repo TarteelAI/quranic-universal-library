@@ -139,6 +139,11 @@ RUN mkdir -p /etc/service/sidekiq
 ADD docker/sidekiq.run /etc/service/sidekiq/run
 RUN chmod +x /etc/service/sidekiq/run
 
+# Inertia SSR (Node), beside Passenger
+RUN mkdir -p /etc/service/inertia-ssr
+ADD docker/inertia-ssr.run /etc/service/inertia-ssr/run
+RUN chmod +x /etc/service/inertia-ssr/run
+
 # logrotate
 COPY docker/nginx.logrotate.conf /etc/logrotate.d/nginx
 RUN cp /etc/cron.daily/logrotate /etc/cron.hourly

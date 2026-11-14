@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "apps", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url", null: false
+    t.string "platforms", default: [], null: false, array: true
+    t.string "uses", default: [], null: false, array: true
+    t.string "contact"
+    t.boolean "consent", default: false, null: false
+    t.boolean "featured", default: false, null: false
+    t.boolean "published", default: false, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "import_key"
+    t.string "kind"
+    t.text "description"
+    t.string "evidence"
+    t.index ["import_key"], name: "index_apps_on_import_key", unique: true
+    t.index ["user_id"], name: "index_apps_on_user_id"
   end
 
   create_table "audio_repair_ingest_items", force: :cascade do |t|
@@ -223,6 +243,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.datetime "updated_at", null: false
     t.boolean "published", default: true
     t.text "info"
+    t.integer "anonymous_download_count", default: 0, null: false
     t.index ["downloadable_resource_id"], name: "index_downloadable_files_on_downloadable_resource_id"
     t.index ["token"], name: "index_downloadable_files_on_token"
   end
@@ -232,6 +253,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.integer "related_resource_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "relation_type", default: "pairs_with", null: false
+    t.check_constraint "relation_type::text = ANY (ARRAY['requires'::character varying, 'pairs_with'::character varying, 'alternative'::character varying, 'supersedes'::character varying]::text[])", name: "downloadable_related_resources_relation_type"
   end
 
   create_table "downloadable_resource_taggings", force: :cascade do |t|
@@ -270,7 +293,18 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.jsonb "meta_data", default: {}
     t.string "slug"
     t.string "short_summary"
+    t.string "status", default: "stable", null: false
+    t.bigint "superseded_by_id"
+    t.boolean "recommended", default: false, null: false
+    t.string "script_family"
+    t.string "rendering"
+    t.string "display_name"
+    t.jsonb "review", default: {}, null: false
     t.index ["slug"], name: "index_downloadable_resources_on_slug", unique: true
+    t.index ["superseded_by_id"], name: "index_downloadable_resources_on_superseded_by_id"
+    t.check_constraint "rendering::text = ANY (ARRAY['unicode_font'::character varying, 'glyph_page'::character varying, 'image'::character varying, 'svg'::character varying]::text[])", name: "downloadable_resources_rendering"
+    t.check_constraint "script_family::text = ANY (ARRAY['madani'::character varying, 'indopak'::character varying, 'other'::character varying]::text[])", name: "downloadable_resources_script_family"
+    t.check_constraint "status::text = ANY (ARRAY['stable'::character varying, 'beta'::character varying, 'legacy'::character varying, 'superseded'::character varying]::text[])", name: "downloadable_resources_status"
   end
 
   create_table "draft_ayah_themes", force: :cascade do |t|
@@ -851,6 +885,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.index ["licence_id"], name: "index_resource_permissions_on_licence_id"
   end
 
+  create_table "resource_request_votes", force: :cascade do |t|
+    t.bigint "resource_request_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["resource_request_id", "user_id"], name: "index_resource_request_votes_unique", unique: true
+    t.index ["user_id"], name: "index_resource_request_votes_on_user_id"
+  end
+
+  create_table "resource_requests", force: :cascade do |t|
+    t.string "title", null: false
+    t.text "description", null: false
+    t.string "resource_type", null: false
+    t.string "language"
+    t.string "status", default: "open", null: false
+    t.boolean "hidden", default: false, null: false
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_resource_requests_on_user_id"
+  end
+
   create_table "segment_pipeline_draft_deliveries", force: :cascade do |t|
     t.string "slug", null: false
     t.integer "audio_recitation_id"
@@ -1048,7 +1104,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "apps", "users", on_delete: :nullify
   add_foreign_key "downloadable_files", "downloadable_resources"
+  add_foreign_key "downloadable_resources", "downloadable_resources", column: "superseded_by_id", on_delete: :nullify
+  add_foreign_key "resource_request_votes", "resource_requests", on_delete: :cascade
+  add_foreign_key "resource_request_votes", "users", on_delete: :cascade
+  add_foreign_key "resource_requests", "users", on_delete: :nullify
   add_foreign_key "user_downloads", "downloadable_files"
   add_foreign_key "user_downloads", "users"
 end

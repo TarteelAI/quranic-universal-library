@@ -29,8 +29,8 @@ Use metadata resources when you are building:
 1. Open [https://qul.tarteel.ai/resources/quran-metadata](https://qul.tarteel.ai/resources/quran-metadata).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Preview` tab (resource-specific title like `Surah names Preview`)
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm available downloads (`json`, `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -42,7 +42,7 @@ On metadata detail pages:
 - `Preview` tab:
   - Displays current metadata item examples
   - Provides navigation controls where relevant
-- `Help` tab:
+- `Docs` tab:
   - Documents field definitions and enum values
   - Clarifies how structural references map to Quran sections
 

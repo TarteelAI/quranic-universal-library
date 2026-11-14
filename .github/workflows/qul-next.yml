@@ -1,0 +1,48 @@
+name: Frontend (qul-next)
+
+# The part of bin/gate that needs no database. RSpec, the Typelizer drift check and the
+# Playwright tests need the snapshot and stay local (AGENTS.md, "Quality gate").
+# Never add main here: deploy.yml deploys every push to main.
+on:
+  push:
+    branches: [qul-next, 'sprint/**', 'stack/**']
+  pull_request:
+    branches: [qul-next, 'sprint/**', 'stack/**']
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      # Install scripts only download Cypress and Puppeteer browsers, which nothing here uses.
+      - name: Install
+        run: yarn install --frozen-lockfile --ignore-scripts
+
+      - name: TypeScript (also compiles the committed generated types and routes)
+        run: yarn -s typecheck
+
+      - name: ESLint
+        run: yarn -s lint:frontend
+
+      - name: Prettier
+        run: yarn -s format:frontend
+
+      - name: Vitest (component and SSR render tests)
+        run: yarn -s test:frontend
+
+      - name: Vite client build
+        run: yarn -s vite build
+
+      - name: Vite SSR build
+        run: yarn -s vite build --ssr

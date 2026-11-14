@@ -6,10 +6,10 @@ Get the QUL application running locally so you can develop and test code changes
 
 ## Requirements
 
-- Ruby `3.3.3` (see `.ruby-version`)
+- Ruby (the version in `.ruby-version`)
 - PostgreSQL
 - Redis (used by Sidekiq for background jobs)
-- Node.js and Yarn (for asset compilation)
+- Node.js (the version in `.node-version`) and Yarn (for asset compilation)
 
 ## Clone and Install
 
@@ -37,7 +37,9 @@ Until this is loaded, pages that touch Quran content (verses, words, translation
 bin/dev
 ```
 
-This boots the Rails server together with the asset watchers. The app is then available at [http://localhost:3000](http://localhost:3000), and the admin interface is built with Active Admin.
+This boots the Rails server together with the asset watchers and the Vite dev server. The app is then available at [http://localhost:3000](http://localhost:3000), and the admin interface is built with Active Admin.
+
+The new website pages replace the old ones one group of pages at a time. Locally they show only for the groups listed in `QUL_PAGE_GROUPS` (for example `QUL_PAGE_GROUPS=home,catalog,apps,content,start` in `.env`); see `.env.sample`.
 
 ## Next Steps
 

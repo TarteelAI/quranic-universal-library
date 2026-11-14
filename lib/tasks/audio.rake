@@ -33,7 +33,7 @@ namespace :audio do
 
       when :copy
         # Copy left channel only (avoid -3dB drop)
-        system("ffmpeg", "-i", mp3_path, "-map_channel", "0.0.0", "-ar", "16000", "-c:a", "pcm_s16le", wav_path)
+        system("ffmpeg", "-i", mp3_path, "-af", "pan=mono|c0=c0", "-ar", "16000", "-c:a", "pcm_s16le", wav_path)
 
       when :gain
         # Downmix stereo → mono but boost by +3dB to compensate

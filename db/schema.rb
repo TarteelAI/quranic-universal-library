@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -931,6 +931,26 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_02_160000) do
     t.string "source_ref"
     t.index ["audio_recitation_id", "chapter_id"], name: "index_segment_pipeline_runs_on_reciter_and_chapter", unique: true
     t.index ["source"], name: "index_segment_pipeline_runs_on_source"
+  end
+
+  create_table "showcase_projects", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "project_type", default: "app", null: false
+    t.text "description"
+    t.string "platforms", default: [], array: true
+    t.string "website_url"
+    t.string "app_store_url"
+    t.string "play_store_url"
+    t.string "repository_url"
+    t.string "owner_name"
+    t.string "owner_type", default: "individual"
+    t.text "qul_resources_used"
+    t.integer "user_id"
+    t.boolean "published", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["published"], name: "index_showcase_projects_on_published"
+    t.index ["user_id"], name: "index_showcase_projects_on_user_id"
   end
 
   create_table "synonyms", force: :cascade do |t|

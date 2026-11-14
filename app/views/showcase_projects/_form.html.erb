@@ -1,0 +1,99 @@
+<% input_class = 'block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]' %>
+<% label_class = 'block text-sm text-black mb-1' %>
+<% hint_class = 'text-xs text-gray-500 mt-1' %>
+<% required_mark = tag.span('*', class: 'text-red-600', aria: { hidden: true }) %>
+
+<%= form_with model: project do |f| %>
+  <%= render 'shared/form_errors', object: project %>
+
+  <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Project</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :name, safe_join(['Project name', required_mark], ' '), class: label_class %>
+        <%= f.text_field :name, required: true, maxlength: 60, placeholder: "Your project's name", class: input_class %>
+      </div>
+      <div>
+        <%= f.label :project_type, 'Project type', class: label_class %>
+        <%= f.select :project_type, ShowcaseProject::PROJECT_TYPES.invert, {}, class: input_class %>
+      </div>
+    </div>
+
+    <fieldset class="mt-4">
+      <legend class="<%= label_class %>">Platforms <%= required_mark %><span class="sr-only">(required)</span></legend>
+      <div class="flex flex-wrap gap-x-6 gap-y-2">
+        <%= f.collection_check_boxes :platforms, ShowcaseProject::PLATFORMS.to_a, :first, :last do |box| %>
+          <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+            <%= box.check_box class: 'rounded border-gray-300 text-[#46ac7a] focus:ring-[#46ac7a]' %>
+            <%= box.text %>
+          </label>
+        <% end %>
+      </div>
+    </fieldset>
+
+    <div class="mt-4">
+      <%= f.label :description, safe_join(['Short description', required_mark], ' '), class: label_class %>
+      <%= f.text_area :description, rows: 3, required: true, minlength: 100, maxlength: 200, placeholder: "What your project does and who it's for", aria: { describedby: 'description-hint' }, class: input_class %>
+      <p id="description-hint" class="<%= hint_class %>">100–200 characters.</p>
+    </div>
+
+    <div class="mt-4">
+      <%= f.label :qul_resources_used, safe_join(['QUL resources used', required_mark], ' '), class: label_class %>
+      <%= f.text_field :qul_resources_used, required: true, maxlength: 200, placeholder: 'e.g. Translations, Mushaf layouts, recitations', class: input_class %>
+    </div>
+
+    <div class="mt-4">
+      <%= f.label :logo_file, 'Logo', class: label_class %>
+      <% if project.logo.attached? %>
+        <%= image_tag project.logo, alt: 'Current logo', class: 'w-14 h-14 rounded-xl border border-gray-200 object-cover mb-2' %>
+      <% end %>
+      <%= f.file_field :logo_file, accept: ShowcaseProject::LOGO_CONTENT_TYPES.join(','), aria: { describedby: 'logo-hint' }, class: 'block w-full text-sm text-gray-700' %>
+      <p id="logo-hint" class="<%= hint_class %>">Optional. Square PNG, JPG or WebP, up to 1 MB.</p>
+    </div>
+  </section>
+
+  <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-1">Links <%= required_mark %></h2>
+    <p class="<%= hint_class %> mb-4">Add at least one link.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :website_url, 'Website', class: label_class %>
+        <%= f.url_field :website_url, placeholder: 'https://', class: input_class %>
+      </div>
+      <div>
+        <%= f.label :repository_url, 'Source code', class: label_class %>
+        <%= f.url_field :repository_url, placeholder: 'https://github.com/...', class: input_class %>
+      </div>
+      <div>
+        <%= f.label :app_store_url, 'App Store', class: label_class %>
+        <%= f.url_field :app_store_url, placeholder: 'https://apps.apple.com/...', class: input_class %>
+      </div>
+      <div>
+        <%= f.label :play_store_url, 'Google Play', class: label_class %>
+        <%= f.url_field :play_store_url, placeholder: 'https://play.google.com/...', class: input_class %>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white border border-black/10 rounded-xl p-6 mb-6">
+    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">Owner</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <%= f.label :owner_name, safe_join(['Name shown on the card', required_mark], ' '), class: label_class %>
+        <%= f.text_field :owner_name, required: true, maxlength: 80, placeholder: 'Your name or organization', class: input_class %>
+      </div>
+      <div>
+        <%= f.label :owner_type, 'Owner type', class: label_class %>
+        <%= f.select :owner_type, ShowcaseProject::OWNER_TYPES.invert, {}, class: input_class %>
+      </div>
+    </div>
+  </section>
+
+  <div class="flex items-center gap-4">
+    <%= f.submit submit_label, class: 'btn btn-dark' %>
+    <%= link_to 'Cancel', showcase_projects_path, class: 'text-sm underline hover:text-[#46ac7a]' %>
+  </div>
+<% end %>

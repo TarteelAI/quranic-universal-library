@@ -45,4 +45,48 @@ class BaseExporterTest < Minitest::Test
       db&.close
     end
   end
+
+  def test_create_sqlite_table_uses_fast_write_pragmas
+    Dir.mktmpdir do |dir|
+      exporter = Exporter::BaseExporter.new(base_path: dir, name: 'tafsir')
+      statement = exporter.create_sqlite_table(File.join(dir, 'tafsir.db'), 'tafsir', COLUMNS)
+      db = statement.instance_variable_get(:@connection)
+
+      assert_equal 0, db.get_first_value('PRAGMA synchronous')
+      assert_equal 'memory', db.get_first_value('PRAGMA journal_mode')
+    ensure
+      statement&.close
+      db&.close
+    end
+  end
+
+  def test_close_sqlite_table_closes_resources_and_is_idempotent
+    Dir.mktmpdir do |dir|
+      exporter = Exporter::BaseExporter.new(base_path: dir, name: 'tafsir')
+      statement = exporter.create_sqlite_table(File.join(dir, 'tafsir.db'), 'tafsir', COLUMNS)
+      db = statement.instance_variable_get(:@connection)
+      exporter.define_singleton_method(:sleep) { |*| }
+
+      exporter.close_sqlite_table
+
+      assert statement.closed?
+      assert db.closed?
+      exporter.close_sqlite_table
+      assert_empty exporter.instance_variable_get(:@db_statements)
+      assert_empty exporter.instance_variable_get(:@dbs)
+    end
+  end
+
+  def test_close_sqlite_table_does_not_sleep
+    Dir.mktmpdir do |dir|
+      exporter = Exporter::BaseExporter.new(base_path: dir, name: 'tafsir')
+      exporter.create_sqlite_table(File.join(dir, 'tafsir.db'), 'tafsir', COLUMNS)
+      slept = false
+      exporter.define_singleton_method(:sleep) { |*| slept = true }
+
+      exporter.close_sqlite_table
+
+      refute slept
+    end
+  end
 end

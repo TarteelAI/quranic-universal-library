@@ -27,3 +27,6 @@ merged forward, never rebased or force-pushed, while the sprint runs.
 - The gate at the layer 4 head failed only at Prettier (`spec/browser/kits.spec.ts`, formatting
   from before this layer); 252ed82c formats it. Then every step passed (RuboCop 143 files, RSpec
   505 examples, Vitest 444 tests).
+- 002-20 and 002-21 were never in a layer; they reach `qul-next` through the sprint merge
+  (002-22). Once that merge is pushed, #1044, #1045, #1046 and #1048 show as merged, as sprint
+  001's layers did.

@@ -49,7 +49,7 @@
         <%= image_tag project.logo, alt: 'Current logo', class: 'w-14 h-14 rounded-xl border border-gray-200 object-cover mb-2' %>
       <% end %>
       <%= f.file_field :logo_file, accept: ShowcaseProject::LOGO_CONTENT_TYPES.join(','), aria: { describedby: 'logo-hint' }, class: 'block w-full text-sm text-gray-700' %>
-      <p id="logo-hint" class="<%= hint_class %>">Optional. Square PNG, JPG or WebP, up to 1 MB.</p>
+      <p id="logo-hint" class="<%= hint_class %>">Optional. PNG, JPG or WebP, up to 1 MB. Square images look best.</p>
     </div>
   </section>
 

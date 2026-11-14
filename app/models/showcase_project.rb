@@ -59,7 +59,7 @@ class ShowcaseProject < ApplicationRecord
   scope :published, -> { where(published: true).order(created_at: :desc) }
 
   before_validation :normalize_platforms
-  after_save_commit :attach_logo_file, if: :logo_file
+  after_save :attach_logo_file, if: -> { logo_file.present? }
 
   validates :name, presence: true, length: { maximum: 60 }
   validates :description, presence: true, length: { in: 100..200 }

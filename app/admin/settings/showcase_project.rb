@@ -1,5 +1,6 @@
 ActiveAdmin.register ShowcaseProject do
   menu parent: 'Settings', priority: 11, label: 'Showcase'
+  includes :user
 
   filter :name
   filter :project_type, as: :select, collection: -> { ShowcaseProject::PROJECT_TYPES.invert }

@@ -246,6 +246,11 @@ Rails.application.routes.draw do
         end
         member do
           post :attach
+          post :detach
+          post :measure
+          get :preview
+          get :preview_data
+          get :compare_audio
           post :create_recitation
           post :dismiss
           delete :drafts, action: :destroy_drafts

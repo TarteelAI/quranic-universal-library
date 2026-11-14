@@ -112,7 +112,7 @@ gem 'rest-client'
 
 gem 'sidekiq', '~> 7.2.4'
 gem 'sidekiq-scheduler', '~> 5.0.3'
-gem 'sidekiq-status'
+gem 'sidekiq-status', '~> 3.0.3'
 
 gem 'tzinfo-data'
 

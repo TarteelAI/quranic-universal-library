@@ -53,7 +53,7 @@ module AudioSegment
         reciter_dir = File.join(file_path, resource_content.id.to_s)
         FileUtils.mkdir_p(reciter_dir)
 
-        segments_path = export_gapless_recitation_segments(recitation, reciter_dir, true)
+        segments_path = export_gapless_recitation_segments(recitation, reciter_dir)
         audio_files_path = export_gapless_recitation_audio_files(recitation, reciter_dir)
         validate_gapless_recitation(recitation)
 
@@ -194,38 +194,17 @@ module AudioSegment
       uploader = UploadToCdn.new
 
       grouped.each do |chapter_id, surah_segments|
-        json_ayahs = []
-        previous_ayah_end_time = nil
+        ranges = surah_segments.map { |seg| [seg.timestamp_from.to_i, seg.timestamp_to.to_i] }
+        # Stored times are kept exact. Only the exported ayah ranges change:
+        # see AyahGapFiller. Word timings are exported unchanged.
+        ranges = AyahGapFiller.call(ranges) unless allow_gaps_between_ayah
 
-        surah_segments.each_with_index do |seg, index|
-          ayah_segments = get_ayah_segments(seg)
-          verse = seg.verse
-
-          next_ayah = surah_segments[index+1]
-
-          if allow_gaps_between_ayah
-            start_time = seg.timestamp_from.to_i
-            end_time = seg.timestamp_to.to_i
-          else
-            start_time = if previous_ayah_end_time
-                           [previous_ayah_end_time + 1, seg.timestamp_from.to_i].max
-                         else
-                           seg.timestamp_from.to_i
-                         end
-
-            end_time = if next_ayah
-                         [seg.timestamp_to.to_i, next_ayah.timestamp_from.to_i - 1].max
-                       else
-                         seg.timestamp_to.to_i
-                       end
-            previous_ayah_end_time = end_time
-          end
-
-          json_ayahs << {
-            ayah: verse.verse_number,
+        json_ayahs = surah_segments.zip(ranges).map do |seg, (start_time, end_time)|
+          {
+            ayah: seg.verse.verse_number,
             start: start_time,
             end: end_time,
-            words: ayah_segments
+            words: get_ayah_segments(seg)
           }
         end
 

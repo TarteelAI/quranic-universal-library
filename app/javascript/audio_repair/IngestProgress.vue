@@ -238,10 +238,20 @@
                     @change="toggleOne(item.id)"
                   />
                 </td>
-                <td class="px-3 py-2 font-mono">{{ item.chapter_id }}</td>
+                <td class="px-3 py-2 font-mono">
+                  <a :href="urlFor(surahUrl, item.id)" class="text-indigo-700 hover:underline" title="Open this surah">{{ item.chapter_id }}</a>
+                </td>
                 <td class="px-3 py-2">
-                  {{ item.name }}
+                  <a :href="urlFor(surahUrl, item.id)" class="hover:underline" title="Open this surah">{{ item.name }}</a>
                   <span v-if="!item.expects_head_trim" class="text-[10px] text-gray-400 block">no basmala</span>
+                  <a
+                    v-if="item.source_url"
+                    :href="item.source_url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[10px] text-indigo-600 hover:underline block"
+                    :title="item.source_url"
+                  >source ↗</a>
                 </td>
                 <td class="px-3 py-2">
                   <span class="text-xs px-2 py-0.5 rounded" :class="statusBadge(item)">{{ item.display_status }}</span>

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["player", "alignedWord", "sttWord", "ayahSelect", "ayahInput"]
+  static targets = ["player", "alignedWord", "sttWord", "ayahSelect", "ayahInput", "stopToggle", "status"]
   static values = { audioUrl: String, ayahs: Array }
 
   connect() {
@@ -12,9 +12,30 @@ export default class extends Controller {
     if (this.hasPlayerTarget) {
       this.playerTarget.addEventListener("timeupdate", this.onTimeUpdate)
     }
+    this.selectFromUrl()
+    this.onAyahPicked = () => this.selectFromUrl()
+    window.addEventListener("segment-pipeline:ayah", this.onAyahPicked)
+  }
+
+  // ?ayah=2:76 (or 76) preselects that ayah and cues the audio at it. Playing
+  // still needs a click: browsers block audio that starts on its own.
+  selectFromUrl() {
+    const value = new URLSearchParams(globalThis.location?.search || "").get("ayah")
+    if (!value) {
+      if (this.hasAyahSelectTarget) this.ayahSelectTarget.value = ""
+      if (this.hasStatusTarget) this.statusTarget.textContent = ""
+      return
+    }
+    const point = this.findPoint(value)
+    if (!point || point.start == null || !this.hasPlayerTarget) return
+
+    if (this.hasAyahSelectTarget) this.ayahSelectTarget.value = point.key
+    this.playerTarget.currentTime = point.start
+    this.showStatus(point)
   }
 
   disconnect() {
+    window.removeEventListener("segment-pipeline:ayah", this.onAyahPicked)
     if (this.hasPlayerTarget) {
       this.playerTarget.removeEventListener("timeupdate", this.onTimeUpdate)
     }
@@ -46,16 +67,28 @@ export default class extends Controller {
   jumpTo(value) {
     if (!value || !this.hasPlayerTarget) return false
 
-    const points = this.ayahsValue || []
-    const point =
-      points.find((p) => p.key === value) ||
-      points.find((p) => String(p.number) === String(value))
+    const point = this.findPoint(value)
     if (!point || point.start == null) return false
 
-    this.stopAt = null
+    // Play just this ayah unless "stop at the end of the ayah" is unticked.
+    const stop = !this.hasStopToggleTarget || this.stopToggleTarget.checked
+    this.stopAt = stop && point.end != null ? point.end : null
     this.playerTarget.currentTime = point.start
     this.playerTarget.play()
+    this.showStatus(point)
     return true
+  }
+
+  findPoint(value) {
+    const points = this.ayahsValue || []
+    return points.find((p) => p.key === value) ||
+      points.find((p) => String(p.number) === String(value))
+  }
+
+  showStatus(point) {
+    if (!this.hasStatusTarget) return
+    const range = point.end != null ? ` · ${Number(point.start).toFixed(2)}–${Number(point.end).toFixed(2)}s` : ""
+    this.statusTarget.textContent = `${point.key}${range}`
   }
 
   onTimeUpdate() {

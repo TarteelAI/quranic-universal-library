@@ -15,12 +15,19 @@ export const FULL = "full"
 //   wordSegments [[position, startMs, endMs], ...] in recitation order
 //   wordsCount   how many words the ayah actually has, so a run covering all of
 //                them can be called a full repeat rather than a long partial one
-//   →            [{ fromWord, toWord, full, label, startMs }]
+//   →            [{ fromWord, toWord, full, label, startMs, takes }]
+//                takes: every time the run was recited, [{ startMs, endMs }] in
+//                order, so each one can be played on its own
 export function findRepeats(wordSegments, wordsCount) {
   const positions = (wordSegments || []).map((segment) => Number(segment[0]))
   const seen = {}
   const found = []
-  const seenRanges = {}
+  const byRange = {}
+  const take = (at, length) => {
+    const first = wordSegments[at]
+    const last = wordSegments[at + length - 1]
+    return { startMs: first ? Number(first[1]) : null, endMs: last ? Number(last[2]) : null }
+  }
 
   for (let i = 0; i < positions.length; i++) {
     const previous = seen[positions[i]]
@@ -37,16 +44,22 @@ export function findRepeats(wordSegments, wordsCount) {
           }
         }
 
-        if (identical) {
-          const fromWord = positions[i]
-          const toWord = positions[i + length - 1]
+        const fromWord = positions[i]
+        const toWord = positions[i + length - 1]
+
+        // Alternating takes (1 2 1 2) also match shifted by one word, as a
+        // backwards "2–1" run. That is the same repeat seen again, not a new one.
+        if (identical && fromWord <= toWord) {
           const rangeKey = `${fromWord}-${toWord}`
 
-          if (!seenRanges[rangeKey]) {
-            seenRanges[rangeKey] = true
-            const full = fromWord === 1 && wordsCount > 0 && toWord >= wordsCount
+          const existing = byRange[rangeKey]
 
-            found.push({
+          if (existing) {
+            // A third (or later) take of the same run.
+            existing.takes.push(take(i, length))
+          } else {
+            const full = fromWord === 1 && wordsCount > 0 && toWord >= wordsCount
+            const entry = {
               fromWord,
               toWord,
               full,
@@ -54,7 +67,10 @@ export function findRepeats(wordSegments, wordsCount) {
                 ? `whole ayah (${fromWord}–${toWord})`
                 : (fromWord === toWord ? `word ${fromWord}` : `words ${fromWord}–${toWord}`),
               startMs: wordSegments[i] ? Number(wordSegments[i][1]) : null,
-            })
+              takes: [take(previous, length), take(i, length)],
+            }
+            byRange[rangeKey] = entry
+            found.push(entry)
           }
         }
       }

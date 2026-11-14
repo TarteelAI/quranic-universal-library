@@ -9,7 +9,27 @@
           <span v-if="s.trim_approved_at" class="text-xs text-gray-500 ml-2">trim approved</span>
           <span v-if="!s.expects_head_trim" class="text-xs text-gray-400 ml-2">no preceding basmala</span>
         </div>
-        <a :href="backUrl" class="btn btn-sm btn-outline-secondary">← back to the run</a>
+        <div class="flex items-center gap-2">
+          <button
+            v-if="canDownload"
+            class="btn btn-sm btn-primary"
+            :disabled="busy || downloading"
+            @click="downloadAgain"
+          >{{ downloading ? 'Downloading…' : 'Download again' }}</button>
+          <a :href="backUrl" class="btn btn-sm btn-outline-secondary">← back to the run</a>
+        </div>
+      </div>
+
+      <div v-if="s.status === 'failed' && s.last_error" class="text-xs text-red-700 bg-red-50 border border-red-200 rounded p-2 mb-3 break-all">
+        {{ s.last_error }}
+      </div>
+      <div v-if="downloading" class="mb-3">
+        <div class="text-xs text-gray-600 mb-1">
+          Downloading {{ mb(s.bytes_downloaded) }}<template v-if="s.bytes_total"> of {{ mb(s.bytes_total) }}</template>
+        </div>
+        <div class="w-full bg-gray-200 rounded h-1.5 overflow-hidden">
+          <div class="h-1.5 bg-indigo-600 transition-all" :style="{ width: (s.percent || 0) + '%' }"></div>
+        </div>
       </div>
 
       <!-- ===== Original ===== -->
@@ -32,6 +52,19 @@
           </template>
           <p v-else class="text-xs text-gray-500">Not downloaded.</p>
         </div>
+      </section>
+
+      <!-- ===== Trim ===== -->
+      <section v-if="s.files.original" class="mb-3">
+        <IngestTrim
+          :key="trimKey"
+          :item="s"
+          :item-url="itemUrl"
+          :detect-url="detectUrl"
+          :approve-url="approveUrl"
+          @close="trimKey++"
+          @updated="onTrimUpdated"
+        />
       </section>
 
       <!-- ===== Trimmed (virtual) ===== -->
@@ -179,11 +212,18 @@
 </template>
 
 <script>
+import IngestTrim from "./IngestTrim.vue";
+
 export default {
   name: "IngestSurah",
+  components: { IngestTrim },
   props: {
     dataUrl: { type: String, required: true },
     reencodeUrl: { type: String, required: true },
+    retryUrl: { type: String, required: true },
+    itemUrl: { type: String, required: true },
+    detectUrl: { type: String, required: true },
+    approveUrl: { type: String, required: true },
     polarityUrlEndpoint: { type: String, required: true },
     backUrl: { type: String, required: true }
   },
@@ -198,10 +238,18 @@ export default {
       trimAudio: null,
       trimPlayhead: 0,
       trimTimer: null,
-      pollTimer: null
+      pollTimer: null,
+      trimKey: 0
     };
   },
   computed: {
+    // A surah whose download failed, or that has no original on disk.
+    canDownload() {
+      return this.s && (this.s.status === "failed" || !this.s.files.original) && !this.downloading;
+    },
+    downloading() {
+      return this.s && ["pending", "downloading"].includes(this.s.status) && !this.s.files.original;
+    },
     hasChecks() {
       return this.s && this.s.checks && Object.keys(this.s.checks).length > 0;
     },
@@ -265,9 +313,40 @@ export default {
         const data = await this.api(this.dataUrl);
         this.s = data;
         this.bitrate = data.bitrate || "128k";
-        if (data.status === "encoding") this.poll();
+        if (this.isWorking(data)) this.poll();
       } catch (e) {
         this.error = e.message;
+      }
+    },
+
+    isWorking(data) {
+      return data.status === "encoding" || (["pending", "downloading"].includes(data.status) && !data.files.original);
+    },
+
+    // A cut was detected or approved (approving starts the encode): reload
+    // the whole page state, files included, and follow the encode.
+    async onTrimUpdated() {
+      try {
+        this.s = await this.api(this.dataUrl);
+        if (this.isWorking(this.s)) this.poll();
+      } catch (e) {
+        this.error = e.message;
+      }
+    },
+
+    async downloadAgain() {
+      this.busy = true;
+      this.error = null;
+      try {
+        const body = new FormData();
+        body.append("item_id", this.s.id);
+        await this.api(this.retryUrl, { method: "POST", body });
+        this.s = await this.api(this.dataUrl);
+        this.poll();
+      } catch (e) {
+        this.error = e.message;
+      } finally {
+        this.busy = false;
       }
     },
 
@@ -277,7 +356,7 @@ export default {
         try {
           const data = await this.api(this.dataUrl);
           this.s = data;
-          if (data.status !== "encoding") clearInterval(this.pollTimer);
+          if (!this.isWorking(data)) clearInterval(this.pollTimer);
         } catch {
           clearInterval(this.pollTimer);
         }

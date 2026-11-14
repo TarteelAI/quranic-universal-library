@@ -231,7 +231,9 @@ module Audio
         next if gap <= TRAILING_GAP_THRESHOLD_MS
 
         suggestion = "Extend #{last_segment.verse_key} end by #{gap} ms (from #{last_segment.timestamp_to} to #{duration} ms) to cover the tail, or trim the extra audio if it is silence."
-        issues << issue(last_segment, "Audio file ##{audio_file_id} is #{duration} ms but the last segment (#{last_segment.verse_key}) ends at #{last_segment.timestamp_to} ms — #{gap} ms (#{(gap / 1000.0).round}s) of audio after the last ayah is unsegmented.", 'bg-danger', 'trailing_gap', suggestion: suggestion)
+        # Starts with the ayah key, like every other message, so a reader (or the
+        # validation page's review link) can tell where it is without the file id.
+        issues << issue(last_segment, "#{last_segment.verse_key} is the last ayah and ends at #{last_segment.timestamp_to} ms, but the audio runs to #{duration} ms — #{(gap / 1000.0).round(1)} s after it is unsegmented.", 'bg-danger', 'trailing_gap', suggestion: suggestion)
       end
 
       issues

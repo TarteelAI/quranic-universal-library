@@ -173,6 +173,81 @@ module Audio
       save(validate: false)
     end
 
+    # Marks a return to an earlier ayah inside repeated_segments, next to the
+    # within-ayah ranges: [[9, 15], {"cross_ayah": [71, 72]}].
+    CROSS_AYAH_KEY = 'cross_ayah'
+
+    scope :has_cross_ayah_repeat, lambda { |value = true|
+      marked = where(has_repetition: true).where('repeated_segments LIKE ?', "%\"#{CROSS_AYAH_KEY}\"%")
+      ActiveModel::Type::Boolean.new.cast(value) ? marked : where.not(id: marked.select(:id))
+    }
+
+    def self.ransackable_scopes(*)
+      %i[has_cross_ayah_repeat]
+    end
+
+    def cross_ayah_repeats
+      rows = Audio::Segment.where(audio_recitation_id: audio_recitation_id, chapter_id: chapter_id)
+                           .pluck(:verse_number, :segments)
+      self.class.cross_ayah_repeats_in(rows)[verse_number] || []
+    end
+
+    def self.cross_ayah_repeats_in(rows)
+      words = rows.to_h do |vn, segs|
+        list = (Audio::SegmentNormalizer.parse(segs) || segs)
+        list = Array(list).select { |w| w.is_a?(Array) && w.size >= 3 && w[1].is_a?(Numeric) && w[2].is_a?(Numeric) }
+        [vn, list.map { |w| [w[0].to_i, w[1].to_f, w[2].to_f] }]
+      end
+      # Every real word of the surah by start time, to find what lies in a gap.
+      timeline = words.flat_map { |vn, list| list.select { |w| w[2] > w[1] }.map { |w| [w[1], w[2], vn] } }.sort
+      starts = timeline.map(&:first)
+
+      words.each_with_object({}) do |(vn, list), found|
+        list.each_cons(2) do |a, b|
+          next unless b[1] > a[2]
+
+          from = starts.bsearch_index { |t| t >= a[2] } || starts.size
+          ayahs = []
+          while from < starts.size && starts[from] < b[1]
+            start, finish, other = timeline[from]
+            ayahs << other if other != vn && start >= a[2] && finish <= b[1]
+            from += 1
+          end
+          next if ayahs.empty?
+
+          (found[vn] ||= []) << { after_word: a[0], back_to_word: b[0], gap_from: a[2].to_i, gap_to: b[1].to_i,
+                                  ayahs: ayahs.uniq.sort }
+        end
+      end
+    end
+
+    def self.track_repetition!(recitation_id, chapter_id: nil)
+      scope = where(audio_recitation_id: recitation_id)
+      scope = scope.where(chapter_id: chapter_id) if chapter_id
+      changed = 0
+
+      scope.select(:id, :chapter_id, :verse_number, :segments, :has_repetition, :repeated_segments)
+           .group_by(&:chapter_id).each_value do |segments|
+        cross = cross_ayah_repeats_in(segments.map { |s| [s.verse_number, s.segments] })
+        segments.each do |segment|
+          within = segment.find_repeated_segments
+          returns = cross[segment.verse_number]
+          stored =
+            if returns
+              (within + [{ CROSS_AYAH_KEY => returns.flat_map { |r| r[:ayahs] }.uniq.sort }]).to_json
+            else
+              within.to_s
+            end
+          flag = within.present? || returns.present?
+          next if segment.has_repetition == flag && segment.repeated_segments == stored
+
+          segment.update_columns(has_repetition: flag, repeated_segments: stored)
+          changed += 1
+        end
+      end
+      changed
+    end
+
     def get_segments(drop_metadata: false)
       return [] if segments.blank?
 

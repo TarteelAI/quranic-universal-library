@@ -30,6 +30,7 @@ ActiveAdmin.register Audio::Segment do
   filter :chapter_id, as: :searchable_select,
                       ajax: { resource: Chapter }
   filter :has_repetition
+  filter :has_cross_ayah_repeat, as: :select, collection: [['Yes', 'true']], label: 'Cross-ayah repeat'
 
   index do
     id_column
@@ -42,6 +43,12 @@ ActiveAdmin.register Audio::Segment do
 
     column :duration_ms do |resource|
       resource.timestamp_to.to_i - resource.timestamp_from.to_i
+    end
+
+    if ActiveModel::Type::Boolean.new.cast(params.dig(:q, :has_cross_ayah_repeat))
+      column 'Cross ayah summary' do |resource|
+        ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource)
+      end
     end
 
     actions
@@ -61,6 +68,7 @@ ActiveAdmin.register Audio::Segment do
       row :duration_ms
       row :has_repetition
       row :repeated_segments
+      row('Cross-ayah repeat') { ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource).presence || 'None' }
 
       if resource.letter_segments.present?
         row :letter_segments do

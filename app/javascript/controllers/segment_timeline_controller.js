@@ -18,7 +18,13 @@ export default class extends Controller {
   }
 
   select(event) {
-    this.show(event.currentTarget.dataset.stepKey)
+    const key = event.currentTarget.dataset.stepKey
+    this.show(key)
+    // Put the tab in the URL so the address can be copied and shared as is.
+    // replaceState, not pushState: switching tabs should not fill the history.
+    const url = new URL(window.location.href)
+    url.searchParams.set("step", key)
+    window.history.replaceState(window.history.state, "", url)
   }
 
   show(key) {

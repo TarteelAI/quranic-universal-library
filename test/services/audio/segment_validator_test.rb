@@ -263,6 +263,8 @@ class SegmentValidatorTest < Minitest::Test
     refute_nil issue
     assert_equal 'bg-danger', issue[:severity]
     assert_includes issue[:text], 'unsegmented'
+    # Named by its ayah, not the audio file id, like every other message.
+    assert_match(/\A32:1 is the last ayah and ends at 5000 ms, but the audio runs to 20000 ms — 15.0 s/, issue[:text])
   end
 
   def test_trailing_gap_within_threshold_is_ignored

@@ -48,6 +48,9 @@ export default class extends Controller {
     this.player.addEventListener("pause", () => { this.playing = false; this.syncPlayButton(); this.stopLoop() })
     this.player.addEventListener("ended", () => { this.playing = false; this.syncPlayButton(); this.stopLoop() })
     window.addEventListener("resize", this.onResize)
+    // The ayah picker above the steps changed ?ayah=: move to that ayah.
+    this.onAyahPicked = () => this.goToLinkedAyah()
+    window.addEventListener("segment-pipeline:ayah", this.onAyahPicked)
 
     // Lazy-load only when the tab actually becomes visible (the panel is
     // display:none until selected, so the canvas has no width before that).
@@ -58,6 +61,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    window.removeEventListener("segment-pipeline:ayah", this.onAyahPicked)
     this.stopLoop()
     this.player.pause()
     this.observer?.disconnect()
@@ -93,6 +97,7 @@ export default class extends Controller {
       this.buffer = null // render tracks without the waveform
     }
     this.render()
+    this.goToLinkedAyah()
   }
 
   // --- geometry ------------------------------------------------------------
@@ -135,6 +140,21 @@ export default class extends Controller {
 
   onScroll() {
     if (this.timeline) this.render()
+  }
+
+  // Seek and scroll to the ayah in ?ayah= (key "2:76" or number), once the
+  // timeline has loaded. Called on load and when the ayah picker changes.
+  goToLinkedAyah() {
+    const key = new URLSearchParams(window.location.search).get("ayah")
+    if (!key || !this.timeline) return
+
+    const number = key.split(":").pop()
+    const ayah = this.timeline.ayahs.find((a) => String(a.number) === number)
+    if (!ayah || ayah.start == null) return
+
+    this.player.currentTime = ayah.start
+    this.scrollTarget.scrollLeft = Math.max(ayah.start * this.pps - this.viewportWidth() / 4, 0)
+    this.render()
   }
 
   zoomIn() { this.zoom(1.5) }

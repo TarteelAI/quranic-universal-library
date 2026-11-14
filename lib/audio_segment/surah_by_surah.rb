@@ -81,6 +81,7 @@ module AudioSegment
 
       update_audio_stats
       update_segment_percentile
+      track_repetition
     end
 
     def update_segment_percentile
@@ -143,21 +144,10 @@ module AudioSegment
       closest_segment
     end
 
+    # Repeats within an ayah and returns to an earlier ayah; see
+    # Audio::Segment.track_repetition!.
     def track_repetition(chapter_id: nil)
-      segments = Audio::Segment.where(audio_recitation_id: recitation.id).order('verse_id asc')
-
-      if chapter_id
-        segments = segments.where(chapter_id: chapter_id)
-      end
-
-      segments.each do |segment|
-        repetition = segment.find_repeated_segments
-
-        segment.update_columns(
-          has_repetition: repetition.present?,
-          repeated_segments: repetition.to_s
-        )
-      end
+      Audio::Segment.track_repetition!(recitation.id, chapter_id: chapter_id)
     end
 
     protected

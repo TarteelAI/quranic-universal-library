@@ -51,3 +51,14 @@ fixes it.
 answers only a `localhost` Host (`config/initializers/hosts.rb`). Forward a host port with
 a few lines of Node (`net.createServer` piping `localhost:3001` to `<ip>:3001`; the host has no
 `socat`) and run `QUL_BROWSER_BASE_URL=http://localhost:3001 yarn test:browser …`.
+
+### Validation runs on scratch clones, and which server the browser suite needs — 002-20
+
+`QUL_CMS_CONTENT_DB_NAME=<x> QUL_QURAN_CONTENT_DB_NAME=<y> bin/snapshot-clones development` (in
+`qul-dev`) makes fresh, marked clones under other names, so a validation run can migrate,
+backfill, import and write without touching the development clones the shared `:3000` server
+uses; pass the same two variables to the image, a second Rails server and
+`QUL_BROWSER_RAILS_RUNNER`. The whole browser suite cannot run against the production image:
+app icons are stored on `qul_exports` in production, so the icon upload and the home band's icon
+tests need development Rails (local disk). Run the suite on development Rails and the new-page
+specs against the image.

@@ -177,9 +177,9 @@ module GuidedSetup
     Result.new(items: needs(answers).flat_map { |need| items(need, answers) }, formats: formats(answers.platforms))
   end
 
-  # The languages of the language types in the published catalog, most resources first.
-  def self.languages
-    rows = Catalog::SearchQuery.new(Catalog::SearchFilters.from({})).call.matches
+  # The languages of the language types in the published catalog, most resources first. `rows` are
+  # the catalog of a Catalog::SearchQuery already loaded.
+  def self.languages(rows: Catalog::SearchQuery.new(Catalog::SearchFilters.from({})).rows)
     counts = rows.select { |row| LANGUAGE_TYPES.include?(row.resource.resource_type) }.filter_map(&:language).tally
     counts.map { |language, count| Language.new(key: language.iso_code, name: language.name, count: count) }
       .sort_by { |language| [-language.count, language.name] }

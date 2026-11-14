@@ -4,10 +4,12 @@ module Catalog
   # /resources/:type/:slug/preview: a published resource's card preview as JSON (Previews::Card),
   # which a resource card fetches once it is on screen. A type without a card preview, a resource
   # that cannot be shown and a wrong type are 404s. Same-origin and internal: not versioned and
-  # not part of the public API.
+  # not part of the public API. Cards fetch it while the page loads, so it never writes the session
+  # cookie back: an answer arriving after the sign-in page would replace the return path.
   class PreviewsController < ApplicationController
     MAX_AGE = 1.hour
 
+    before_action { request.session_options[:skip] = true }
     rescue_from ActiveRecord::RecordNotFound, with: -> { head :not_found }
 
     def show

@@ -136,6 +136,18 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(response.headers['Set-Cookie']).to be_nil
     end
 
+    # A preview that answers after the sign-in page would otherwise put back the session it was
+    # sent with, and sign-in would lose its return path.
+    it 'leaves the session cookie of a visitor who has one alone' do
+      get '/users/sign_in', params: { user_return_to: '/resources/mushaf-layout' }
+      expect(response.headers['Set-Cookie']).to include('_quran_com-community_session=')
+
+      get preview_path(named('mushaf-layout', 'KFGQPC V2 layout'))
+
+      expect(response).to have_http_status(:ok)
+      expect(response.headers['Set-Cookie']).to be_nil
+    end
+
     it 'is a 404 for a type without card previews, a layout without a font, a wrong type and an unknown slug' do
       layout = named('mushaf-layout', 'KFGQPC V2 layout')
       paths = [

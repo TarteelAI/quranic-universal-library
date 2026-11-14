@@ -17,7 +17,7 @@ module Start
 
     def show
       @languages = GuidedSetup.languages
-      @answers = GuidedSetup::Answers.from(request.query_parameters, languages: @languages.map(&:key))
+      @answers = answers
 
       render_inertia 'start/SetupPage', meta: page_meta(
         title: 'Start building - QUL',
@@ -26,13 +26,15 @@ module Start
       )
     end
 
+    # The catalog is loaded once and searched for every section.
     def results
-      @languages = GuidedSetup.languages
-      @answers = GuidedSetup::Answers.from(request.query_parameters, languages: @languages.map(&:key))
+      catalog = Catalog::SearchQuery.new(Catalog::SearchFilters.from({})).rows
+      @languages = GuidedSetup.languages(rows: catalog)
+      @answers = answers
       return redirect_to start_setup_path(request.query_parameters) if @answers.goals.empty?
 
       @result = GuidedSetup.result(@answers)
-      @sections = @result.items.map { |item| section(item) }
+      @sections = @result.items.map { |item| section(item, catalog) }
 
       render_inertia 'start/SetupResultsPage', meta: page_meta(
         title: 'Resources for your app - QUL',
@@ -42,10 +44,14 @@ module Start
 
     private
 
-    def section(item)
+    def answers
+      GuidedSetup::Answers.from(request.query_parameters, languages: @languages.map(&:key))
+    end
+
+    def section(item, catalog)
       label = item.need.label
       label += " in #{@languages.find { |language| language.key == item.language }.name}" if item.language
-      search = Catalog::SearchQuery.new(Catalog::SearchFilters.from(item.filters), per_page: CARDS).call
+      search = Catalog::SearchQuery.new(Catalog::SearchFilters.from(item.filters), per_page: CARDS, rows: catalog).call
       Section.new(item: item, label: label, search: search)
     end
   end

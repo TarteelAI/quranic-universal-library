@@ -34,13 +34,19 @@ module Catalog
 
     CATEGORY_ORDER = Taxonomy::CATEGORIES.keys.each_with_index.to_h.freeze
 
-    def initialize(filters, per_page: PER_PAGE)
+    # `rows` are another query's `rows`, to search the same catalog again without loading it.
+    def initialize(filters, per_page: PER_PAGE, rows: nil)
       @filters = filters
       @per_page = per_page
+      @rows = rows
+    end
+
+    # The published catalog as rows, loaded on first use.
+    def rows
+      @rows ||= load_rows
     end
 
     def call # rubocop:disable Metrics/AbcSize -- one pipeline: search, filter, sort, page, count
-      rows = load_rows
       languages = rows.filter_map(&:language).uniq.sort_by(&:name)
       filters = @filters
       filters = filters.with(language: nil) if languages.none? { |language| language.iso_code == filters.language }

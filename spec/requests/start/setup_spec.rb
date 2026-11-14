@@ -102,6 +102,23 @@ RSpec.describe 'Guided setup (/start)', type: :request do
       expect(app.text).to include('Filtered for your Quran reader app', 'Your app needs', 'Translation in Urdu')
     end
 
+    it 'loads the catalog once, however many languages are picked' do
+      loaded = ['en', 'en,ur,bn,ru,tr,id,fr,es'].map do |languages|
+        count = 0
+        counter = lambda do |*, payload|
+          count += payload[:record_count] if payload[:class_name] == 'DownloadableResource'
+        end
+        ActiveSupport::Notifications.subscribed(counter, 'instantiation.active_record') do
+          get "/resources?goal=study&feature=translation,tafsir,wbw&lang=#{languages}"
+        end
+        expect(inertia.props[:sections].size).to eq(3 * languages.split(',').size)
+        count
+      end
+
+      expect(loaded.first).to be_positive
+      expect(loaded.last).to eq(loaded.first)
+    end
+
     it 'links each section to the catalog search that lists all of it' do
       get "/resources?#{complete}"
       section = inertia.props[:sections].find { |entry| entry[:key] == 'translation-en' }

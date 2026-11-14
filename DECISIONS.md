@@ -101,6 +101,7 @@ them is in [`AGENTS.md`](AGENTS.md).
   submissions come through a GitHub issue form.
 - **Why:** a small, slow-changing list with a public review trail and no schema.
 - **Cost:** featuring an app needs a commit and a deploy.
+- **Superseded** by the Sprint 002 decision "The apps directory moves into the CMS database".
 
 ### The branch has its own database-free CI
 

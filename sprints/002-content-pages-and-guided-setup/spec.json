@@ -1072,8 +1072,35 @@
       "testFirst": false,
       "difficulty": "low",
       "review": false,
-      "passes": false,
-      "notes": "Seed targets: `AGENTS.md` sections \"Page groups\", \"Conventions for a new page\", \"Integration answers\" and \"Quality gate\"; `GLOSSARY.md`; `DECISIONS.md` line \"The apps directory is a file in this repo\" (add a line that the Sprint 002 entry replaces it; do not delete history); `sprints/README.md` if the file table changed. Keep the public-repo rule: rules and behaviour only."
+      "passes": true,
+      "notes": "Seed targets: `AGENTS.md` sections \"Page groups\", \"Conventions for a new page\", \"Integration answers\" and \"Quality gate\"; `GLOSSARY.md`; `DECISIONS.md` line \"The apps directory is a file in this repo\" (add a line that the Sprint 002 entry replaces it; do not delete history); `sprints/README.md` if the file table changed. Keep the public-repo rule: rules and behaviour only.",
+      "completedAt": "2026-11-14T00:11:52Z",
+      "filesChanged": [
+        "AGENTS.md",
+        "GLOSSARY.md",
+        "DECISIONS.md",
+        ".env.sample",
+        "app/views/docs/markdown/contributing.md"
+      ],
+      "handoff": {
+        "done": [
+          "AGENTS.md: page groups, docs, gated forms, bundle, write limits were already current from the stories; added the qul-dev/host gate split with the Ruby lint and standalone commands (graduated 002-03 lesson) and, under Browser tests, the second-server port forward (002-05) and scratch-clone validation runs (002-20).",
+          "GLOSSARY.md: page group lists all six groups; added content page, guided setup, kit, bundle, request, app submission, gated form.",
+          "DECISIONS.md: sprint 001 apps-file entry marked superseded by the Sprint 002 entry; history kept. Sprint 002 entries checked against code (limits 5/3 match ResourceRequest/App::DAILY_LIMIT; kits in config/kits.yml; six groups).",
+          ".env.sample: QUL_PAGE_GROUPS example includes requests.",
+          "Public docs contributing.md: sections Requesting a Resource and Submitting Your App (labels match SiteNav and app-submission.tsx).",
+          "Checks: PageGroups::GROUPS = home,catalog,apps,content,start,requests (rails runner in qul-dev); bundle exec rubocop on a file runs, no offenses; RUBYOPT=-rbundler/setup loads activesupport; QUL_BROWSER_RAILS_RUNNER read in spec/browser/resource-page.spec.ts; docs_spec.rb 21 examples 0 failures after the docs edit.",
+          "git grep apps.yml / issue form in *.md (excl. sprints): only AGENTS.md (apps.yml as the apps:import source; issue form as the requests-off fallback, both true) and DECISIONS.md (superseded history)."
+        ],
+        "decisions": [
+          "catalog.spec.ts lesson (002-01) not graduated: the test was already fixed.",
+          "docker/README.md unchanged: the image run did not change this sprint.",
+          "Public docs avoid exact limits and URLs that 404 while a group is off."
+        ],
+        "concerns": [
+          "Public docs text was not viewed rendered in a browser; docs_spec covers parsing only."
+        ]
+      }
     },
     {
       "id": "002-22",

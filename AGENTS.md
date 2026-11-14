@@ -19,6 +19,13 @@ bin/gate                 # standalone tests, RuboCop on changed files, generated
                          # the development clones
 ```
 
+In the Docker setup (`qul-dev`, below) `bin/gate` cannot run whole in one place: the container
+has no yarn and an old Node, and the host may lack a Ruby in the Gemfile range. Run the Ruby
+steps in `qul-dev` (the standalone tests with `RUBYOPT=-rbundler/setup`, `bin/rails
+typelizer:check`, `bundle exec rubocop <files>`, `VITE_RUBY_AUTO_BUILD=false bundle exec
+rspec`) and the yarn steps plus `node_modules/.bin/vite build --ssr` on the host, the SSR build
+before RSpec.
+
 Narrow checks while working:
 
 ```bash
@@ -407,6 +414,16 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
   GA4 spec needs network access.
 - Output (traces, screenshots, the HTML report) goes to `tmp/playwright/`.
 - `QUL_BROWSER_BASE_URL` points the run at another server.
+- A second Rails server inside `qul-dev` (for example on 3001) is not on the host's `localhost`:
+  the container publishes only 3000. Forward a host port to the container's IP
+  (`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' qul-dev`) with a
+  few lines of Node (`net.createServer`), since the app answers only a `localhost` Host.
+- A run that migrates, imports or writes uses fresh clones under other names, so the
+  development clones stay as they are: `QUL_CMS_CONTENT_DB_NAME=<x> QUL_QURAN_CONTENT_DB_NAME=<y>
+  bin/snapshot-clones development`, with the same two variables on the server, the image and
+  `QUL_BROWSER_RAILS_RUNNER`. App icons are stored on `qul_exports` in production, so the icon
+  tests need development Rails (local disk); the whole suite runs there, and the new-page specs
+  also run against the production image.
 
 ## Production image
 

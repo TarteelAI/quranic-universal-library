@@ -395,6 +395,10 @@
   font-family: digitalkhatt-v2, qpc-hafs, serif;
   // Digital Khatt's space has a negative advance; see treebank_controller.js.
   word-spacing: 0.5em;
+  // Keep Quran text RTL even inside LTR (English/Russian) i'rab lines,
+  // otherwise the ornate brackets ﴿ ﴾ around head words render reversed.
+  direction: rtl;
+  unicode-bidi: isolate;
 }
 
 .irab-table {
@@ -403,6 +407,12 @@
   .irab-word-cell {
     font-size: 1.4rem;
     min-width: 80px;
+
+    // Segments of one word sit in adjacent spans; isolating each would
+    // split the bidi run and can break cursive joining between them.
+    .treebank-quran-text {
+      unicode-bidi: normal;
+    }
   }
 
   .irab-line-cell {
@@ -442,5 +452,27 @@
     &.black { color: #111; }
     &.silver { color: #999; }
     &.purple { color: #8e44ad; }
+  }
+}
+
+.irab-table {
+  .irab-verse-row td {
+    background: #f9fafb;
+    color: #6b7280;
+  }
+
+  .irab-verse-row.is-current td {
+    color: #1a5c38;
+  }
+
+  // In a multi-ayah sentence, mark the ayah the page is about.
+  .irab-current-verse {
+    background: #f0fdf4;
+  }
+
+  .irab-phrase-line {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed #e5e7eb;
   }
 }

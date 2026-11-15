@@ -17,7 +17,9 @@ module Morphology
 end unless defined?(Morphology::WordSegment::POS_TAG_COLORS)
 
 require_relative '../../../../app/services/morphology/treebank/colors'
+require_relative '../../../../app/services/morphology/treebank/relation_label'
 require_relative '../../../../app/services/morphology/treebank/irab_line'
+require_relative '../../../../app/services/morphology/treebank/irab_phrase_line'
 
 class IrabLineTest < Minitest::Test
   AR = {
@@ -25,6 +27,21 @@ class IrabLineTest < Minitest::Test
     'morphology.pos_tags.V'    => 'فعل',
     'morphology.pos_tags.P'    => 'حرف جر',
     'morphology.pos_tags.PRON' => 'ضمير',
+    'morphology.pos_tags.ACC'  => 'حرف نصب',
+    'morphology.edge_relations.pred' => 'خبر',
+    'morphology.edge_relations.conj' => 'معطوف',
+    'morphology.edge_relations.sub'  => 'صلة',
+    'morphology.edge_relations.VS'   => 'جملة فعلية',
+    'morphology.irab.governed.subj'  => 'اسم %{governor}',
+    'morphology.irab.governed.pred'  => 'خبر %{governor}',
+    'morphology.irab.dep_connector.default' => 'ل',
+    'morphology.irab.dep_connector.gen'     => 'ب',
+    'morphology.irab.dep_connector.conj'    => 'على ',
+    'morphology.irab.nominal_case_word.GEN' => ' مجرور',
+    'morphology.irab.verb_mood_word.JUS'    => ' مجزوم',
+    'morphology.irab.mubtada'               => '. وهو مبتدأ للجملة الاسمية.',
+    'morphology.irab.mubtada_elided_pred'   => '. وهو مبتدأ للجملة الاسمية وخبره محذوف.',
+    'morphology.irab.phrase_dep_intro'      => '. ',
     'morphology.edge_relations.gen'  => 'مجرور',
     'morphology.edge_relations.subj' => 'فاعل',
     'morphology.edge_relations.obj'  => 'مفعول به',
@@ -55,6 +72,8 @@ class IrabLineTest < Minitest::Test
     :verb_mood, :special_group, :lemma_name, :root_name, :verb_form,
     :rel_label, :rel_governor, :text_uthmani, :text_qpc_hafs,
     :token_type, :word_number, :position_in_word,
+    :chapter_number, :verse_number, :position_in_sentence,
+    :constituent_label, :constituent_text,
     keyword_init: true
   )
 
@@ -116,9 +135,13 @@ class IrabLineTest < Minitest::Test
     }.merge(overrides))
   end
 
-  def build_line(token, head_token, translator: nil)
+  def build_line(token, head_token, translator: nil, **opts)
     t = translator || make_translator
-    Morphology::Treebank::IrabLine.new(token, head_token: head_token, translator: t)
+    Morphology::Treebank::IrabLine.new(token, head_token: head_token, translator: t, **opts)
+  end
+
+  def texts(frags)
+    frags.flat_map { |f| f[:children] ? f[:children].map { |c| c[:text] } : [f[:text]] }
   end
 
   def test_fragments_returns_array
@@ -126,10 +149,13 @@ class IrabLineTest < Minitest::Test
     assert_instance_of Array, line.fragments
   end
 
-  def test_pos_fragment_is_first_and_colored
+  def test_line_opens_with_segment_text_then_pos
     line = build_line(make_token(pos_key: 'N'), make_head_token)
     frags = line.fragments
-    pos_frag = frags.first
+    assert_equal 'اسْمِ', frags[0][:text]
+    assert_equal true, frags[0][:quran_font]
+    assert_equal ': ', frags[1][:text]
+    pos_frag = frags[2]
     assert_equal 'اسم', pos_frag[:text]
     assert_equal 'sky', pos_frag[:color_class]
     assert_equal false, pos_frag[:quran_font]
@@ -159,7 +185,7 @@ class IrabLineTest < Minitest::Test
     token = make_token(pos_key: 'N', nominal_case: 'GEN', text_uthmani: 'اسْمِ')
     line = build_line(token, make_head_token)
     frags = line.fragments
-    case_frag = frags.find { |f| f[:text].include?('مجرور') }
+    case_frag = frags.find { |f| f[:text].to_s.include?('وعلامة') }
     assert case_frag, "expected genitive case explanation, got #{frags.map { |f| f[:text] }.inspect}"
     assert_equal 'مجرور وعلامة جره الكسره الظاهرة على اخره.', case_frag[:text]
   end
@@ -232,6 +258,65 @@ class IrabLineTest < Minitest::Test
     compound_frag = frags.find { |f| f[:text].include?('ال‍') && f[:text].include?('جر') }
     assert compound_frag, "expected compound head POS fragment with ال‍-joined second word, got #{frags.map { |f| f[:text] }.inspect}"
     assert_equal 'حرف ال‍جر', compound_frag[:text]
+    assert_includes texts(frags), " ب\u200D", 'gen joins its head with ب: مجرور بحرف الجر'
+  end
+
+  def test_one_word_head_takes_the_article
+    token = make_token(pos_key: 'V', rel_label: 'conj')
+    head = make_head_token(pos_key: 'V', text_qpc_hafs: 'تُوبُ')
+    assert_includes texts(build_line(token, head).fragments), ' على ال‍'.sub('‍', "\u200D")
+  end
+
+  def test_governed_subject_is_ism_not_fail
+    token = make_token(pos_key: 'PRON', rel_label: 'subj', rel_governor: 'إنّ')
+    head = make_head_token(pos_key: 'ACC', text_qpc_hafs: 'إِنَّ')
+    t = texts(build_line(token, head).fragments)
+    assert_includes t, 'اسم إنّ'
+    refute t.any? { |x| x.include?('فاعل') }
+  end
+
+  def test_case_and_mood_words_follow_number_and_gender
+    t = texts(build_line(make_token(pos_key: 'N', nominal_case: 'GEN'), nil).fragments)
+    assert_includes t, ' مجرور'
+    t = texts(build_line(make_token(pos_key: 'V', verb_mood: 'JUS', text_qpc_hafs: 'يَكُنْ'), nil).fragments)
+    assert_includes t, ' مجزوم'
+  end
+
+  def test_jussive_explanation_uses_stored_mood_without_prefix
+    token = make_token(pos_key: 'V', verb_mood: 'JUS', text_qpc_hafs: 'يَكُنْ')
+    t = texts(build_line(token, nil).fragments)
+    assert_includes t, 'مجزوم بالسكون لانه معتل الاخر.'
+  end
+
+  def test_mubtada_line_when_a_predicate_points_here
+    token = make_token(pos_key: 'N', rel_label: 'root')
+    pred = make_token(id: 9, rel_label: 'pred', token_type: 'surface')
+    assert_includes texts(build_line(token, nil, predicate_token: pred).fragments), '. وهو مبتدأ للجملة الاسمية.'
+    hidden = make_token(id: 9, rel_label: 'pred', token_type: 'elided')
+    assert_includes texts(build_line(token, nil, predicate_token: hidden).fragments), '. وهو مبتدأ للجملة الاسمية وخبره محذوف.'
+  end
+
+  def test_phrase_head_leaves_its_relation_to_the_phrase_line
+    token = make_token(pos_key: 'V', rel_label: 'sub')
+    head = make_head_token(pos_key: 'ACC', text_qpc_hafs: 'أَن')
+    refute_includes texts(build_line(token, head, phrase_head: true).fragments), '. وهو '
+  end
+
+  def test_phrase_line
+    verb = make_token(id: 30, pos_key: 'V', rel_label: 'sub', constituent_label: 'VS',
+                      text_qpc_hafs: 'ٱسْتَغْفِرُ', chapter_number: 11, verse_number: 3, word_number: 2, position_in_sentence: 30)
+    suffix = make_token(id: 31, pos_key: 'PRON', text_qpc_hafs: 'وا۟', chapter_number: 11, verse_number: 3, word_number: 2, position_in_sentence: 31)
+    noun = make_token(id: 32, pos_key: 'N', text_qpc_hafs: 'رَبَّكُمْ', chapter_number: 11, verse_number: 3, word_number: 3, position_in_sentence: 32)
+    head = make_head_token(pos_key: 'ACC', text_qpc_hafs: 'أَنِ')
+    line = Morphology::Treebank::IrabPhraseLine.new(verb, head_token: head, span_tokens: [noun, suffix, verb],
+                                                    translator: make_translator)
+    t = texts(line.fragments)
+    assert_equal 'جملة فعلية', t.first
+    assert_includes t, 'ٱسْتَغْفِرُوا۟ رَبَّكُمْ'
+    assert_includes t, '. '
+    assert_equal 'ٱسْتَغْفِرُ', verb.text_qpc_hafs, 'building the phrase must not modify the token text'
+    assert_includes t, 'صلة'
+    assert_includes t, 'أَنِ'
   end
 
   def test_no_dependency_clause_when_rel_label_blank

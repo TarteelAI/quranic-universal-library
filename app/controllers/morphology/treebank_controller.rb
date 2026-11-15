@@ -1,5 +1,9 @@
 module Morphology
   class TreebankController < CommunityController
+    # Bump when the payload or its labels change without a re-import, so the
+    # cached JSON (keyed on token updated_at) is not served stale.
+    PAYLOAD_VERSION = 2
+
     before_action :normalize_page_param, only: %i[index]
     def index
       scope = Verse.all
@@ -166,7 +170,7 @@ module Morphology
 
       chapter = Chapter.find_by(chapter_number: chapter_number)
 
-      cache_key = ['treebank-data', chapter_number, verse_number, locale, Morphology::WordToken.maximum(:updated_at)]
+      cache_key = ['treebank-data', PAYLOAD_VERSION, chapter_number, verse_number, locale, Morphology::WordToken.maximum(:updated_at)]
 
       payload = Rails.cache.fetch(cache_key) do
         sentences = Morphology::Sentence

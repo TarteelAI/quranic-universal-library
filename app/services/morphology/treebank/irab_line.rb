@@ -18,29 +18,42 @@ module Morphology
 
       HIDDEN_TYPES = %w[implicit_pronoun elided].freeze
 
-      def initialize(token, head_token:, translator:, locale: 'ar')
+      ZWJ = "\u200D".freeze
+
+      # predicate_token: the خبر pointing at this token, when it heads a
+      # nominal sentence. phrase_head: the token's relation is told on the
+      # phrase line of the constituent it heads (IrabPhraseLine), as NoorBayan
+      # does, so this line leaves it out.
+      def initialize(token, head_token:, translator:, locale: 'ar', predicate_token: nil, phrase_head: false)
         @token = token
         @head_token = head_token
         @translator = translator
         @locale = locale.to_s
+        @predicate_token = predicate_token
+        @phrase_head = phrase_head
       end
 
+      # Same field order as NoorBayan's iirab.py.
       def fragments
         result = []
+        result.concat(segment_fragments)
         result.concat(pos_fragments)
         result.concat(prefix_fragments)
         result.concat(suffix_fragments)
         result.concat(verb_aspect_fragments)
         result.concat(derived_noun_fragments)
         result.concat(nominal_state_fragments)
-        result.concat(verb_voice_fragments)
         result.concat(special_group_fragments)
+        result.concat(verb_voice_fragments)
         result.concat(number_fragments)
         result.concat(gender_fragments)
+        result.concat(verb_mood_word_fragments)
+        result.concat(nominal_case_word_fragments)
         result.concat(lemma_fragments)
-        result.concat(root_fragments)
         result.concat(verb_form_fragments)
-        result.concat(dependency_fragments)
+        result.concat(root_fragments)
+        result.concat(dependency_fragments) unless @phrase_head
+        result.concat(mubtada_fragments)
         result.concat(case_explanation_fragments)
         result
       end
@@ -91,11 +104,6 @@ module Morphology
         @translator.call("morphology.pos_tags.#{pos_key.to_s.upcase}", locale: locale, default: pos_key.to_s)
       end
 
-      def translate_relation(rel_label)
-        return '' if rel_label.to_s.strip.empty?
-        @translator.call("morphology.edge_relations.#{rel_label}", locale: @locale, default: rel_label.to_s)
-      end
-
       def frag(text, color_class: 'black', quran_font: false, link_type: nil, link_key: nil)
         { text: text, color_class: color_class, quran_font: quran_font, link_type: link_type, link_key: link_key }
       end
@@ -106,6 +114,15 @@ module Morphology
           frag(value, color_class: color_class, quran_font: quran_value, link_type: link_type, link_key: link_key),
           frag('»', color_class: 'black')
         ]
+      end
+
+      # The segment this line describes, as iirab.py opens each line with it:
+      # "بِ: حرف جر".
+      def segment_fragments
+        text = (t_attr(:text_digital_khatt) || t_attr(:text_qpc_hafs) || t_attr(:text_uthmani)).to_s
+        return [] if text.strip.empty?
+
+        [frag(text, color_class: pos_color, quran_font: true), frag(': ')]
       end
 
       def pos_fragments
@@ -170,6 +187,27 @@ module Morphology
         [frag(t("gender.#{raw}", default: raw))]
       end
 
+      def verb_mood_word_fragments
+        raw = verb_mood
+        return [] if raw.empty?
+
+        word = t("verb_mood_word.#{raw}", default: '')
+        word.to_s.empty? ? [] : [frag(word)]
+      end
+
+      def nominal_case_word_fragments
+        raw = t_attr(:nominal_case).to_s
+        return [] if raw.empty?
+
+        word = t("nominal_case_word.#{raw}", default: '')
+        word.to_s.empty? ? [] : [frag(word)]
+      end
+
+      # Stored as JUS/SUBJ; older fixtures carry NoorBayan's MOOD: prefix.
+      def verb_mood
+        t_attr(:verb_mood).to_s.delete_prefix('MOOD:')
+      end
+
       def lemma_fragments
         val = t_attr(:lemma_name)
         return [] if val.to_s.strip.empty?
@@ -218,23 +256,62 @@ module Morphology
 
         result = []
         result << frag(t('dep_intro', default: ''), color_class: 'black')
-        result << frag(translate_relation(rel), color_class: rel_color)
+        result << frag(relation_label(rel), color_class: rel_color)
 
         head_pos_key = head_attr(:pos_key).to_s
         head_pos = translate_pos(head_pos_key)
         head_tok_type = head_attr(:token_type).to_s
         head_text = (head_attr(:text_digital_khatt) || head_attr(:text_qpc_hafs)).to_s
 
-        result << frag(t('dep_to', default: ''), color_class: 'black')
+        result << frag(head_link(rel, head_pos), color_class: 'black')
         result << frag(head_pos_label(head_pos), color_class: head_pos_color)
 
         if HIDDEN_TYPES.include?(head_tok_type)
           result << frag(elided_word(head_pos_key), color_class: 'black')
         else
+          # Space stays outside the RTL-isolated bracket run so it separates
+          # the reference from the preceding word in LTR lines too.
+          result << frag(' ')
           result << head_reference_fragment(head_text)
         end
 
         result
+      end
+
+      def relation_label(rel)
+        Morphology::Treebank::RelationLabel.call(
+          rel, t_attr(:rel_governor), locale: @locale, translator: @translator
+        )
+      end
+
+      # Arabic joins the relation to the head with the preposition the
+      # relation takes, plus the article on a one-word head: "مجرور بحرف
+      # الجر", "معطوف على الفعل", "صفة للاسم". A two-word head ("حرف جر") is
+      # an iḍāfa, so the article moves to its second word (head_pos_label).
+      # Locales without connectors keep their single dep_to.
+      def head_link(rel, head_pos)
+        connector = t("dep_connector.#{rel}", default: '').presence ||
+                    t('dep_connector.default', default: '').presence
+        return t('dep_to', default: '') if connector.nil?
+
+        lead = if head_pos.split(' ').length == 1
+                 connector == 'ل' ? 'لل' : "#{connector}ال"
+               else
+                 connector
+               end
+        lead.end_with?(' ') ? " #{lead}" : " #{lead}#{ZWJ}"
+      end
+
+      # iirab.py: a token that a خبر points at is the مبتدأ of a nominal
+      # sentence, and says so when the predicate is elided.
+      def mubtada_fragments
+        return [] unless @predicate_token
+        return [] unless t_attr(:rel_label).to_s == 'root'
+
+        pred_type = self.class.read_attr(@predicate_token, :token_type).to_s
+        key = HIDDEN_TYPES.include?(pred_type) ? 'mubtada_elided_pred' : 'mubtada'
+        text = t(key, default: '')
+        text.to_s.empty? ? [] : [frag(text)]
       end
 
       def head_pos_label(head_pos)
@@ -252,7 +329,7 @@ module Morphology
         {
           wrapper_class: 'treebank-quran-text',
           children: [
-            { text: ' ﴿', color_class: 'black' },
+            { text: '﴿', color_class: 'black' },
             { text: head_text, color_class: 'green' },
             { text: '﴾', color_class: 'black' }
           ]
@@ -261,7 +338,6 @@ module Morphology
 
       def case_explanation_fragments
         nominal_case = t_attr(:nominal_case).to_s
-        verb_mood = t_attr(:verb_mood).to_s
         return [] if nominal_case.empty? && verb_mood.empty?
 
         ending = final_harakah
@@ -269,9 +345,9 @@ module Morphology
         p = nil
 
         unless verb_mood.empty?
-          if verb_mood == 'MOOD:JUS' && ending == 'ْ'
+          if verb_mood == 'JUS' && ending == 'ْ'
             p = frag(t('case.jussive_sukun', default: ''), color_class: 'purple')
-          elsif verb_mood == 'MOOD:SUBJ' && ending == 'َ'
+          elsif verb_mood == 'SUBJ' && ending == 'َ'
             p = frag(t('case.subjunctive_fatha', default: ''), color_class: 'green')
           end
         end

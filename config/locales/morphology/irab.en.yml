@@ -64,6 +64,19 @@ en:
       def_infix: ""
       elided_m: " (elided)."
       elided_f: " (elided)."
+      governed:
+        subj: "Subject of %{governor}"
+        pred: "Predicate of %{governor}"
+      nominal_case_word:
+        NOM: " nominative"
+        ACC: " accusative"
+        GEN: " genitive"
+      verb_mood_word:
+        IND: " indicative"
+        SUBJ: " subjunctive"
+        JUS: " jussive"
+      mubtada: ". It is the subject (mubtada) of the nominal sentence."
+      mubtada_elided_pred: ". It is the subject (mubtada) of the nominal sentence; its predicate is elided."
       case:
         jussive_sukun: " — jussive, marked by the sukun as it is defective at the end."
         subjunctive_fatha: " — subjunctive, marked by the visible fatha at the end."

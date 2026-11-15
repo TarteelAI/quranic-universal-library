@@ -315,11 +315,10 @@ module Morphology
     end
 
     def build_rel_label(t)
-      rel = t_attr(t, :rel_label).to_s
-      governor = t_attr(t, :rel_governor)
-
-      base = translate_relation(rel)
-      [base, governor].compact.reject { |s| s.to_s.strip.empty? }.join(' ')
+      Morphology::Treebank::RelationLabel.call(
+        t_attr(t, :rel_label), t_attr(t, :rel_governor),
+        locale: @locale, translator: @translator
+      )
     end
 
     def translate_pos(pos_key)

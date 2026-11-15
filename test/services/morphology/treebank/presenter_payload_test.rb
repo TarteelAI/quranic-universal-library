@@ -18,6 +18,7 @@ module Morphology
 end
 
 require_relative '../../../../app/services/morphology/treebank/colors'
+require_relative '../../../../app/services/morphology/treebank/relation_label'
 require_relative '../../../../app/presenters/morphology/treebank_presenter'
 
 class PresenterPayloadTest < Minitest::Test

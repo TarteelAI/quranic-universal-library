@@ -4,12 +4,11 @@
     chapter_number: chapter_number,
     verse_number:   verse_number
   )
-  rows    = irab_rows_obj.rows
+  rows     = irab_rows_obj.rows
   head_map = irab_rows_obj.head_map
+  multi_verse = rows.map { |r| r[:verse_key] }.uniq.size > 1
 
-  t_attr = ->(obj, key) {
-    obj.respond_to?(key) ? obj.public_send(key) : obj[key]
-  }
+  t_attr = ->(obj, key) { Morphology::Treebank::IrabLine.read_attr(obj, key) }
 
   line_locale = local_assigns.fetch(:locale, 'ar').to_s
   line_dir    = %w[en ru].include?(line_locale) ? 'ltr' : 'rtl'
@@ -17,25 +16,46 @@
 %>
 <table dir="rtl" class="irab-table w-full border-collapse">
   <tbody>
+    <% previous_verse = nil %>
     <% rows.each do |row| %>
+      <% if multi_verse && row[:verse_key] != previous_verse %>
+        <tr class="irab-verse-row<%= ' is-current' if row[:current] %>">
+          <td colspan="2" class="px-3 py-1 text-sm font-semibold" dir="ltr">
+            <%= link_to row[:verse_key], morphology_treebank_ayah_path(*row[:verse_key].split(':'), locale: line_locale) %>
+          </td>
+        </tr>
+        <% previous_verse = row[:verse_key] %>
+      <% end %>
       <% segments = row[:word_tokens] %>
-      <tr class="border-b border-gray-200">
+      <tr class="border-b border-gray-200<%= ' irab-current-verse' if multi_verse && row[:current] %>">
         <td dir="rtl" class="irab-word-cell px-3 py-2 align-top whitespace-nowrap"><% segments.each do |seg| %><% color = Morphology::Treebank::Colors.pos(t_attr.call(seg, :pos_key).to_s) %><span class="treebank-quran-text quran-text <%= color %>"><%= (t_attr.call(seg, :text_digital_khatt) || t_attr.call(seg, :text_qpc_hafs)).to_s %></span><% end %></td>
         <td dir="rtl" class="irab-line-cell px-3 py-2 align-top">
           <% segments.each do |seg| %>
             <%
               head_token_id = t_attr.call(seg, :head_token_id)
-              head_tok = head_token_id ? head_map[head_token_id] : nil
-              line = Morphology::Treebank::IrabLine.new(seg, head_token: head_tok, translator: irab_translator, locale: line_locale)
-              frags = line.fragments
+              line = Morphology::Treebank::IrabLine.new(
+                seg,
+                head_token: head_token_id ? head_map[head_token_id] : nil,
+                translator: irab_translator,
+                locale: line_locale,
+                predicate_token: irab_rows_obj.predicate_for(seg),
+                phrase_head: irab_rows_obj.phrase_head?(seg)
+              )
             %>
-            <span class="irab-segment-line <%= line_class %>" dir="<%= line_dir %>"><% frags.each do |frag| %><% if frag[:wrapper_class] %><span class="<%= frag[:wrapper_class] %>"><% frag[:children].each do |child| %><% if child[:color_class].to_s == 'black' %><span><%= child[:text] %></span><% else %><span class="<%= child[:color_class] %>"><%= child[:text] %></span><% end %><% end %></span><% else %><%
-              classes = []
-              classes << 'treebank-quran-text' if frag[:quran_font]
-              classes << frag[:color_class] unless frag[:color_class].to_s == 'black'
-              link = frag[:link_type] && frag[:link_key].present?
-              modal_url = link ? (frag[:link_type] == :root ? morphology_root_path(frag[:link_key]) : morphology_lemma_path(frag[:link_key])) : nil
-            %><% if link %><a class="text-blue-700 underline<%= ' treebank-quran-text' if frag[:quran_font] %>" data-controller="ajax-modal" data-css-class="modal-lg" data-url="<%= modal_url %>" href="#_"><%= frag[:text] %></a><% elsif classes.any? %><span class="<%= classes.join(' ') %>"><%= frag[:text] %></span><% else %><%= frag[:text] %><% end %><% end %><% end %></span>
+            <%= render 'morphology/treebank/irab_fragments', frags: line.fragments, line_class: line_class, line_dir: line_dir %>
+          <% end %>
+          <% row[:phrase_tokens].each do |phrase_tok| %>
+            <%
+              head_token_id = t_attr.call(phrase_tok, :head_token_id)
+              phrase_line = Morphology::Treebank::IrabPhraseLine.new(
+                phrase_tok,
+                head_token: head_token_id ? head_map[head_token_id] : nil,
+                span_tokens: irab_rows_obj.span_tokens(phrase_tok),
+                translator: irab_translator,
+                locale: line_locale
+              )
+            %>
+            <%= render 'morphology/treebank/irab_fragments', frags: phrase_line.fragments, line_class: line_class, line_dir: line_dir, phrase: true %>
           <% end %>
         </td>
       </tr>

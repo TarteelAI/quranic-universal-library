@@ -61,13 +61,34 @@ ar:
       root_intro: "، الجذر له «"
       verb_form_intro: "، النمط له «"
       dep_intro: ". وهو "
+      phrase_dep_intro: ". "
       dep_to: " لل‍"
       def_infix: " ال‍"
       elided_m: " المحذوف."
       elided_f: " المحذوفة."
+      governed:
+        subj: "اسم %{governor}"
+        pred: "خبر %{governor}"
+      # Joins the relation to the head's part of speech: "مجرور بحرف الجر",
+      # "معطوف على الفعل". One-word heads take the article (لل / بال).
+      dep_connector:
+        default: "ل"
+        gen: "ب"
+        link: "ب"
+        conj: "على "
+      nominal_case_word:
+        NOM: " مرفوع"
+        ACC: " منصوب"
+        GEN: " مجرور"
+      verb_mood_word:
+        IND: " مرفوع"
+        SUBJ: " منصوب"
+        JUS: " مجزوم"
+      mubtada: ". وهو مبتدأ للجملة الاسمية."
+      mubtada_elided_pred: ". وهو مبتدأ للجملة الاسمية وخبره محذوف."
       case:
-        jussive_sukun: مجزوم بالسكون لانه معتل الاخر.
-        subjunctive_fatha: منصوب وعلامة نصبه الفتحة الظاهرة على اخره.
-        nominative_damma: مرفوع وعلامة رفعه الضمة الظاهرة على اخره.
-        accusative_fatha: منصوب وعلامة نصبه الفتحة الظاهرة على اخره.
-        genitive_kasra: مجرور وعلامة جره الكسره الظاهرة على اخره.
+        jussive_sukun: " مجزوم بالسكون لانه معتل الاخر."
+        subjunctive_fatha: " منصوب وعلامة نصبه الفتحة الظاهرة على اخره."
+        nominative_damma: " مرفوع وعلامة رفعه الضمة الظاهرة على اخره."
+        accusative_fatha: " منصوب وعلامة نصبه الفتحة الظاهرة على اخره."
+        genitive_kasra: " مجرور وعلامة جره الكسره الظاهرة على اخره."

@@ -19,6 +19,25 @@
           <div class="flex items-center gap-2">
             <%= render 'morphology/treebank/language_dropdown', expandable: true %>
 
+            <div class="inline-flex items-stretch bg-white border border-gray-300 rounded text-sm overflow-hidden"
+                 title="Text size in the graph">
+              <button type="button"
+                      data-action="click->treebank#fontDecrease"
+                      class="px-2 py-1.5 hover:bg-gray-50"
+                      title="Smaller text">
+                <i class="fa fa-minus text-xs"></i>
+              </button>
+              <span class="flex items-center gap-1 px-2 border-x border-gray-300 text-xs text-gray-600 select-none tabular-nums">
+                <i class="fa fa-font"></i>
+                <span data-treebank-target="fontScaleDisplay">100%</span>
+              </span>
+              <button type="button"
+                      data-action="click->treebank#fontIncrease"
+                      class="px-2 py-1.5 hover:bg-gray-50"
+                      title="Larger text">
+                <i class="fa fa-plus text-xs"></i>
+              </button>
+            </div>
             <button type="button"
                     id="treebank-zoom-in"
                     data-treebank-target="zoomIn"
@@ -40,7 +59,7 @@
                     data-treebank-target="zoomReset"
                     data-action="click->treebank#zoomReset"
                     class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
-                    title="Reset zoom">
+                    title="Reset zoom and text size">
               <i class="fa fa-compress"></i>
             </button>
             <button type="button"
@@ -68,6 +87,25 @@
           <div class="flex items-center gap-2">
             <%= render 'morphology/treebank/language_dropdown' %>
 
+            <div class="inline-flex items-stretch bg-white border border-gray-300 rounded text-sm overflow-hidden"
+                 title="Text size in the graph">
+              <button type="button"
+                      data-action="click->treebank#fontDecrease"
+                      class="px-2 py-1.5 hover:bg-gray-50"
+                      title="Smaller text">
+                <i class="fa fa-minus text-xs"></i>
+              </button>
+              <span class="flex items-center gap-1 px-2 border-x border-gray-300 text-xs text-gray-600 select-none tabular-nums">
+                <i class="fa fa-font"></i>
+                <span data-treebank-target="fontScaleDisplay">100%</span>
+              </span>
+              <button type="button"
+                      data-action="click->treebank#fontIncrease"
+                      class="px-2 py-1.5 hover:bg-gray-50"
+                      title="Larger text">
+                <i class="fa fa-plus text-xs"></i>
+              </button>
+            </div>
             <button type="button"
                     id="treebank-zoom-in"
                     data-treebank-target="zoomIn"
@@ -89,7 +127,7 @@
                     data-treebank-target="zoomReset"
                     data-action="click->treebank#zoomReset"
                     class="px-2 py-1.5 bg-white border border-gray-300 rounded text-sm hover:bg-gray-50"
-                    title="Reset zoom">
+                    title="Reset zoom and text size">
               <i class="fa fa-compress"></i>
             </button>
             <button type="button"

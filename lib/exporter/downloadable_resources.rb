@@ -9,7 +9,7 @@ require 'zip'
 module Exporter
   class DownloadableResources
     def export_all
-      FileUtils.rmdir("tmp/export")
+      FileUtils.rm_rf("tmp/export")
 
       export_surah_info
       export_tafsirs

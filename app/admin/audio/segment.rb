@@ -76,11 +76,14 @@ ActiveAdmin.register Audio::Segment do
       row('Cross-ayah repeat') { ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource).presence || 'None' }
 
       returns = resource.cross_ayah_repeats
+      passes = resource.recitation_passes(returns)
+      words = resource.verse&.words&.order(:position)&.pluck(:position, :text_qpc_hafs).to_h || {}
+      pass_label = ->(pass) { pass[:pass].zero? ? 'first' : "repeat #{pass[:pass]}" }
+
       if returns.any?
         row('Recitation passes') do
-          words = resource.verse&.words&.order(:position)&.pluck(:position, :text_qpc_hafs).to_h || {}
-          table_for resource.recitation_passes(returns), class: 'index_table' do
-            column('Pass') { |p| p[:pass].zero? ? 'first' : "repeat #{p[:pass]}" }
+          table_for passes, class: 'index_table' do
+            column('Pass') { |p| pass_label[p] }
             column('From') { |p| p[:time_from] }
             column('To') { |p| p[:time_to] }
             column('Duration') { |p| "#{p[:time_to].to_i - p[:time_from].to_i} ms" }
@@ -102,12 +105,25 @@ ActiveAdmin.register Audio::Segment do
         end
       end
 
+      # Word timings per recitation pass, so a return to this ayah after
+      # other ayahs gets its own list next to the first one.
       row :segments do
-        div do
-          resource.get_segments.each do |s|
-            div "#{s.join(', ')}  (#{s[2].to_i - s[1].to_i} ms)"
+        passes.each do |pass|
+          if passes.size > 1
+            h4 "#{pass[:pass].zero? ? 'First pass' : "Repeat #{pass[:pass]}"}: #{pass[:time_from]}–#{pass[:time_to]} " \
+               "(#{pass[:time_to].to_i - pass[:time_from].to_i} ms)", style: 'margin: 8px 0 4px'
+          end
+
+          table_for pass[:segments], class: 'index_table' do
+            column('Word#') { |w| w[0] }
+            column('Word') { |w| span words[w[0]], class: 'qpc-hafs' }
+            column('From') { |w| w[1] }
+            column('To') { |w| w[2] }
+            column('Duration') { |w| "#{w[2].to_i - w[1].to_i} ms" }
+            column('Waqaf') { |w| 'yes' if w[3].is_a?(Hash) && w[3]['waqaf'] }
           end
         end
+        nil # Arbre would print the passes array that `each` returns
       end
     end
   end

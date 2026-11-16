@@ -1,4 +1,4 @@
-FROM phusion/passenger-customizable:3.1.6
+FROM phusion/passenger-customizable:3.2.3
 
 # set correct environment variables
 ENV HOME /root
@@ -11,12 +11,21 @@ CMD ["/sbin/my_init"]
 # if present. Without this, phusion installs its default Node 22, whose npm is broken
 # (missing promise-retry).
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
-    apt-get install -y nodejs
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
 # customizing passenger-customizable image
-RUN /pd_build/ruby-3.3.*.sh
-RUN bash -lc 'rvm --default use ruby-3.3.10'
+# rvm builds Ruby from source and keeps the build tree; gems compile against
+# the headers under /usr/local/rvm/rubies, so the tree is not needed at runtime.
+# The script also installs rustc (plus LLVM) only to compile YJIT, and leaves it behind.
+RUN /pd_build/ruby-3.3.*.sh && \
+    apt-get remove -y rustc && apt-get autoremove -y && \
+    rm -rf /usr/local/rvm/src /usr/local/rvm/archives /var/lib/apt/lists/*
+RUN bash -lc 'rvm --default use ruby-3.3.13'
+# As app, the user Passenger runs QUL as: it looks in that user's ~/.passenger. Otherwise every
+# app process start compiles it under /tmp (extconf.rb + make in a shell).
+RUN setuser app bash -lc 'passenger-config build-native-support' && rm -f /tmp/passenger_native_support-*.log
 RUN /pd_build/redis.sh
 
 # set environment variables
@@ -143,14 +152,15 @@ RUN chmod +x /etc/service/sidekiq/run
 COPY docker/nginx.logrotate.conf /etc/logrotate.d/nginx
 RUN cp /etc/cron.daily/logrotate /etc/cron.hourly
 
-RUN apt-get update
-RUN apt-get install -y curl build-essential autoconf automake ffmpeg
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl build-essential autoconf automake ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
 
 # setup gems
 WORKDIR /tmp
 ADD Gemfile Gemfile
 ADD Gemfile.lock Gemfile.lock
-RUN bundle install
+RUN bundle install && rm -rf "$(gem env gemdir)"/cache/*.gem
 
 # setup the app
 RUN mkdir /home/app/qul
@@ -166,18 +176,19 @@ RUN chown app Gemfile.lock
 RUN mkdir -p /var/log/nginx/qul.tarteel.ai
 
 # install JS deps inside the image
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile && yarn cache clean
 
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump
-RUN apt-get update && apt-get install -y wget \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
-    && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-    && apt-get --allow-releaseinfo-change update \
-    && apt-get install -y postgresql-client-16
+RUN apt-get update && apt-get install -y --no-install-recommends wget \
+    && wget --quiet -O /etc/apt/keyrings/pgdg.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/etc/apt/keyrings/pgdg.asc] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends postgresql-client-16 \
+    && rm -rf /var/lib/apt/lists/*
 
 # cleanup apt
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

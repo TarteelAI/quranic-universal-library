@@ -49,7 +49,7 @@ class SegmentRepetitionTest < Minitest::Test
   end
 
   def test_alternating_takes_are_one_repeat_not_backwards_runs
-    words = [1, 2, 1, 2, 3].each_with_index.map { |w, i| [w, i * 100, i * 100 + 100] }
+    words = [1, 2, 1, 2, 1, 2].each_with_index.map { |w, i| [w, i * 100, i * 100 + 100] }
     assert_equal [[1, 2]], R.within_repeats(words)
   end
 end

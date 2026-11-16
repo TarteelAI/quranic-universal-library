@@ -37,7 +37,9 @@ export default class extends SegmentPlayer {
     const segment = this.segmentsData[key]
     if (segment) {
       this.player.seek(segment.time_from / 1000);
-      this.currentPass = [key, 0, segment.time_from, segment.time_to];
+      const timeline = this.timelines?.[this.currentChapter] || [];
+      this.currentPass = timeline.find((entry) => entry[0] === key && entry[1] === 0) ||
+        [key, 0, segment.time_from, segment.time_to];
       this.playWindowEndMs = null;
 
       if (this.player.state() === 'loaded') {
@@ -74,6 +76,34 @@ export default class extends SegmentPlayer {
 
   findAyahKeyAtTime(time) {
     return this.findPassAtTime(time)?.[0] || null;
+  }
+
+  // Range and ayah-repeat boundaries. An ayah followed by returns (28, then
+  // 27 and 28 again) is one block: it ends after the last return and repeats
+  // from its first pass, so a range never stops or advances mid-return.
+  currentVerseStartMs() {
+    return this.currentBlock()?.startMs ?? super.currentVerseStartMs();
+  }
+
+  currentVerseEndMs() {
+    return this.currentBlock()?.endMs ?? super.currentVerseEndMs();
+  }
+
+  currentBlock() {
+    const timeline = this.timelines?.[this.currentChapter] || [];
+    const pass = this.currentPass;
+    if (!pass || pass[0] !== this.currentVerseKey) return null;
+
+    let index = timeline.indexOf(pass);
+    if (index < 0) return null;
+
+    let first = index;
+    while (first > 0 && timeline[first][1] > 0) first--;
+
+    let last = index;
+    while (last + 1 < timeline.length && timeline[last + 1][1] > 0) last++;
+
+    return { startMs: timeline[first][2], endMs: timeline[last][3] };
   }
 
   // Word timings of one pass: 0 is the ayah's `segments`, N is `repeats[N - 1]`.

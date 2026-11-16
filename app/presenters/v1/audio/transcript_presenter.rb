@@ -60,15 +60,11 @@ module V1
       def transcript_entries
         return @transcript_entries if defined?(@transcript_entries)
 
-        returns = ::Audio::Segment.cross_ayah_returns_for(segments)
-        entries = segments.flat_map do |segment|
-          segment.transcript_passes(
-            returns[[segment.chapter_id, segment.verse_number]],
-            script: requested_quran_script,
-            as_array: as_array?
-          )
+        passes = ::Audio::Segment.passes_in_recitation_order(::Audio::Segment.with_passes(segments))
+        entries = passes.map do |segment, pass|
+          key, text = segment.pass_transcript(pass, script: requested_quran_script, as_array: as_array?)
+          [key, pass[:pass], pass[:time_from], pass[:time_to], text]
         end
-        entries = entries.each_with_index.sort_by { |entry, i| [entry[2].to_i, i] }.map(&:first) if returns.present?
 
         @transcript_entries = entries
       end

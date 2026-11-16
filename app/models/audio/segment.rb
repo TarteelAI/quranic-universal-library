@@ -49,6 +49,20 @@ module Audio
     validate :segments_must_be_arrays
     before_save :normalize_segments
     before_save :sync_timing
+    # Any change to the word list (builder, CMS, rake tasks) can add or remove
+    # a repeat here or in another ayah of the surah, since a return to an
+    # earlier ayah is found from the whole surah.
+    after_commit :track_surah_repetition, on: %i[create update], if: :saved_change_to_segments?
+
+    # Skips the per-save recompute for bulk writes that run
+    # track_repetition! once at the end (imports).
+    def self.without_repetition_tracking
+      previous = Thread.current[:skip_segment_repetition_tracking]
+      Thread.current[:skip_segment_repetition_tracking] = true
+      yield
+    ensure
+      Thread.current[:skip_segment_repetition_tracking] = previous
+    end
 
     # The CMS form (and any other HTML form) submits jsonb columns as strings.
     # Parse them here so a String never gets persisted inside the jsonb column,
@@ -107,22 +121,36 @@ module Audio
       end
     end
 
-    # The ayah's text per recitation pass. The first pass keeps the ayah key,
-    # later ones get "70:27:r1", "70:27:r2", ...
-    #
-    #   → [[key, pass, time_from, time_to, words_or_text], ...]
-    def transcript_passes(returns = nil, script: :text_imlaei, as_array: false)
-      words_by_position = if verse.words.loaded?
-                            verse.words.map { |word| [word.position, word[script]] }.to_h
-                          else
-                            verse.words.order(:position).pluck(:position, script).to_h
-                          end
+    # One pass's text. The first pass keeps the ayah key, later ones get
+    # "70:27:r1", "70:27:r2", ...   → [key, words_or_text]
+    def pass_transcript(pass, script: :text_imlaei, as_array: false)
+      @words_by_position ||= {}
+      words_by_position = @words_by_position[script] ||=
+        if verse.words.loaded?
+          verse.words.map { |word| [word.position, word[script]] }.to_h
+        else
+          verse.words.order(:position).pluck(:position, script).to_h
+        end
 
-      recitation_passes(returns).map do |pass|
-        words = pass[:segments].map { |seg| words_by_position[seg[0]] }.compact_blank
-        key = pass[:pass].zero? ? verse_key : "#{verse_key}:r#{pass[:pass]}"
-        [key, pass[:pass], pass[:time_from], pass[:time_to], as_array ? words : words.join(' ')]
-      end
+      words = pass[:segments].map { |seg| words_by_position[seg[0]] }.compact_blank
+      key = pass[:pass].zero? ? verse_key : "#{verse_key}:r#{pass[:pass]}"
+      [key, as_array ? words : words.join(' ')]
+    end
+
+    # Each segment with its recitation passes: [[segment, passes], ...].
+    def self.with_passes(segments)
+      segments = segments.to_a
+      returns = cross_ayah_returns_for(segments)
+      segments.map { |segment| [segment, segment.recitation_passes(returns[[segment.chapter_id, segment.verse_number]])] }
+    end
+
+    # Every pass of with_passes in recitation order: [[segment, pass], ...].
+    # Ayah order already is recitation order unless an ayah was returned to.
+    def self.passes_in_recitation_order(segments_with_passes)
+      flat = segments_with_passes.flat_map { |segment, passes| passes.map { |pass| [segment, pass] } }
+      return flat if segments_with_passes.all? { |_, passes| passes.size == 1 }
+
+      flat.each_with_index.sort_by { |(_, pass), i| [pass[:time_from].to_i, i] }.map(&:first)
     end
 
     # cross_ayah_repeats_in for the surahs of these segments, keyed by
@@ -330,6 +358,13 @@ module Audio
     end
 
     private
+
+    def track_surah_repetition
+      return if Thread.current[:skip_segment_repetition_tracking]
+      return if audio_recitation_id.blank? || chapter_id.blank?
+
+      self.class.track_repetition!(audio_recitation_id, chapter_id: chapter_id)
+    end
 
     def segments_must_be_arrays
       errors.add(:segments, 'must be a JSON array of [word, from, to] entries') unless segments.nil? || segments.is_a?(Array)

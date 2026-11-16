@@ -12,9 +12,8 @@ end
 # reciting others (27, 28, then 27 again), the later passes are in `repeats`.
 # Repeats inside one ayah stay in `segments`.
 json.segments do
-  entries.each do |entry|
-    segment = entry[:segment]
-    first, *repeats = entry[:passes]
+  entries.each do |segment, passes|
+    first, *repeats = passes
 
     json.set! segment.verse_key do
       json.time_from first[:time_from]

@@ -103,10 +103,6 @@ class SurahAudioFilesController < CommunityController
           key
         )
       end
-
-      # A word list edit can add or remove a repeat, here or in a neighbouring
-      # ayah (a return to an earlier ayah is found from the whole surah).
-      Audio::Segment.track_repetition!(@recitation.id, chapter_id: audio_file.chapter_id)
     end
 
     render json: {

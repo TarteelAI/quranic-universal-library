@@ -64,6 +64,18 @@ module AudioSegment
 
       fix_timing_table_columns(TimingTable)
 
+      # Repeat markers are recomputed once for the whole recitation below,
+      # not after every ayah's save.
+      Audio::Segment.without_repetition_tracking do
+        import_all_verse_segments
+      end
+
+      update_audio_stats
+      update_segment_percentile
+      track_repetition
+    end
+
+    def import_all_verse_segments
       Verse.unscoped.order('verse_index ASC').find_each do |verse|
         verse_segment = TimingTable.where(
           sura: verse.chapter_id,
@@ -78,10 +90,6 @@ module AudioSegment
 
         import_verse_segments(verse, verse_segment, next_verse_segment)
       end
-
-      update_audio_stats
-      update_segment_percentile
-      track_repetition
     end
 
     def update_segment_percentile

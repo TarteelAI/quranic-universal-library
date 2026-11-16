@@ -9,7 +9,11 @@
 namespace :segments do
   desc 'Recompute has_repetition, including returns to an earlier ayah (IDS=1,2 to limit)'
   task track_repetition: :environment do
-    ids = ENV['IDS'].to_s.split(',').map(&:strip).reject(&:blank?).map(&:to_i).presence
+    tokens = ENV['IDS'].to_s.split(',').map(&:strip).reject(&:blank?)
+    invalid = tokens.grep_v(/\A\d+\z/)
+    abort "IDS must be recitation ids separated by commas, got: #{invalid.join(', ')}" if invalid.any?
+
+    ids = tokens.map(&:to_i).presence
     ids ||= Audio::Segment.distinct.order(:audio_recitation_id).pluck(:audio_recitation_id)
 
     ids.each do |id|

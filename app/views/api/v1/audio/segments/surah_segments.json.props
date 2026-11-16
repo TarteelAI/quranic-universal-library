@@ -1,4 +1,4 @@
-segments   = @presenter.surah_segments
+entries    = @presenter.surah_segment_passes
 audio      = @presenter.surah_audio
 pagination = @presenter.pagination
 
@@ -8,16 +8,25 @@ json.audio do
   json.audio_size audio.file_size
 end
 
+# Each ayah's first recitation pass. When the reciter came back to an ayah after
+# reciting others (27, 28, then 27 again), the later passes are in `repeats`.
+# Repeats inside one ayah stay in `segments`.
 json.segments do
-  segments.each do |segment|
+  entries.each do |segment, passes|
+    first, *repeats = passes
+
     json.set! segment.verse_key do
-      json.time_from segment.timestamp_from
-      json.time_to   segment.timestamp_to
-      json.duration  segment.duration
-      json.segments  segment.segments
+      json.time_from first[:time_from]
+      json.time_to   first[:time_to]
+      json.duration  repeats.empty? ? segment.duration : ((first[:time_to].to_i - first[:time_from].to_i) / 1000.0).round
+      json.segments  first[:segments]
+      json.repeats   repeats.map { |pass| pass.slice(:time_from, :time_to, :segments) } if repeats.any?
     end
   end
 end
+
+# Recitation order: [verse_key, pass, time_from, time_to], pass 0 = `segments`.
+json.timeline @presenter.surah_timeline
 
 json.pagination do
   json.next_page     pagination.next

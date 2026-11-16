@@ -1439,7 +1439,11 @@ const store = createStore({
         versesCount
       );
 
-      state.currentWord = word;
+      // `word` belongs to `verse`. When looping or locked to this ayah the view
+      // stays put, so a word from another ayah (e.g. an earlier ayah's return
+      // pass) must not light up here.
+      const otherVerse = verse && verse != currentVerseNumber;
+      state.currentWord = otherVerse && (isLooingAyah || state.lockAyah) ? null : word;
 
       if (isLooingAyah) {
         if (time > verseSegment.timestamp_to) {

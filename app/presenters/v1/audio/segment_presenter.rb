@@ -40,6 +40,23 @@ module V1
         segments
       end
 
+      # The loaded ayahs as { segment:, passes: } (see Audio::Segment#recitation_passes).
+      def surah_segment_passes
+        @surah_segment_passes ||= begin
+          list = surah_segments.to_a
+          returns = ::Audio::Segment.cross_ayah_returns_for(list)
+          list.map { |segment| { segment: segment, passes: segment.recitation_passes(returns[[segment.chapter_id, segment.verse_number]]) } }
+        end
+      end
+
+      # Every pass in recitation order: [[verse_key, pass, time_from, time_to], ...].
+      # pass 0 is the ayah's `segments`, pass N is `repeats[N - 1]`.
+      def surah_timeline
+        surah_segment_passes.flat_map do |entry|
+          entry[:passes].map { |pass| [entry[:segment].verse_key, pass[:pass], pass[:time_from], pass[:time_to]] }
+        end.each_with_index.sort_by { |row, i| [row[2].to_i, i] }.map(&:first)
+      end
+
       protected
 
       def finder

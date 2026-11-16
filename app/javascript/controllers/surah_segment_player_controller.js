@@ -37,6 +37,7 @@ export default class extends SegmentPlayer {
     const segment = this.segmentsData[key]
     if (segment) {
       this.player.seek(segment.time_from / 1000);
+      this.currentPass = [key, 0, segment.time_from, segment.time_to];
       this.playWindowEndMs = null;
 
       if (this.player.state() === 'loaded') {
@@ -45,50 +46,59 @@ export default class extends SegmentPlayer {
     }
   }
 
-  findAyahKeyAtTime(time) {
-    const segments = this.segmentsData
+  // The recitation pass playing at `time`, from the API's `timeline`
+  // ([verseKey, pass, fromMs, toMs] in recitation order). A reciter can go
+  // back to an earlier ayah (27, 28, then 27 again), so the ayah at a moment
+  // can't be found from the ayah windows alone.
+  findPassAtTime(time) {
+    const timeline = this.timelines?.[this.currentChapter] || [];
 
-    let left = 1;
-    let right = QuranUtils.getSurahAyahCount(this.currentChapter);
+    let left = 0;
+    let right = timeline.length - 1;
 
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
-      const key = `${this.currentChapter}:${mid}`;
-      const segment = segments[key];
+      const [, , from, to] = timeline[mid];
 
-      if (!segment) {
-        left = mid + 1;
-        continue;
-      }
-
-      const {time_from, time_to} = segment;
-
-      if (time < time_from) {
+      if (time < from) {
         right = mid - 1;
-      } else if (time > time_to) {
+      } else if (time > to) {
         left = mid + 1;
       } else {
-        return key;
+        return timeline[mid];
       }
     }
 
     return null;
   }
 
+  findAyahKeyAtTime(time) {
+    return this.findPassAtTime(time)?.[0] || null;
+  }
+
+  // Word timings of one pass: 0 is the ayah's `segments`, N is `repeats[N - 1]`.
+  passSegments(verseKey, pass) {
+    const verse = this.segmentsData[verseKey];
+    if (!verse) return [];
+    return (pass ? verse.repeats?.[pass - 1]?.segments : verse.segments) || [];
+  }
+
   async updateVerse(time) {
-    const segments = this.segmentsData[this.currentVerseKey];
-    if (segments && time >= segments.time_from && time <= segments.time_to) {
+    const current = this.currentPass;
+    if (current && current[0] === this.currentVerseKey && time >= current[2] && time <= current[3]) {
       return
     }
 
-    const key = this.findAyahKeyAtTime(time);
+    const pass = this.findPassAtTime(time);
+    if (!pass) return;
 
-    if (!key) return;
-    await this.jumpToVerse(key);
+    this.currentPass = pass;
+    if (pass[0] !== this.currentVerseKey) await this.jumpToVerse(pass[0]);
   }
 
   findSegmentAtTime(time) {
-    const segments = this.segmentsData[this.currentVerseKey]?.segments || [];
+    const pass = this.currentPass && this.currentPass[0] === this.currentVerseKey ? this.currentPass[1] : 0;
+    const segments = this.passSegments(this.currentVerseKey, pass);
     if (!segments.length) return null;
 
     let left = 0;
@@ -109,7 +119,6 @@ export default class extends SegmentPlayer {
 
     return null;
   }
-
 
   getAudioUrl() {
     return this.audioData.url
@@ -135,5 +144,17 @@ export default class extends SegmentPlayer {
       ...this.segmentsData,
       ...data.segments
     };
+
+    this.timelines = {
+      ...this.timelines,
+      [parseInt(parts[0], 10)]: data.timeline || this.windowsTimeline(data.segments)
+    };
+  }
+
+  // Older responses without `timeline`: one pass per ayah from its window.
+  windowsTimeline(segments) {
+    return Object.entries(segments || {})
+      .map(([key, verse]) => [key, 0, verse.time_from, verse.time_to])
+      .sort((a, b) => a[2] - b[2]);
   }
 }

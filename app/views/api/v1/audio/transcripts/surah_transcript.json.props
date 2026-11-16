@@ -4,10 +4,14 @@ pagination = @presenter.pagination
 json.script @presenter.requested_quran_script
 
 json.transcript do
-  segments.each do |segment|
-    json.set! segment.verse_key, @presenter.text_for(segment)
+  @presenter.transcript_entries.each do |key, _pass, _from, _to, text|
+    json.set! key, text
   end
 end
+
+# Recitation order: [ayah_key, transcript_key, pass, time_from, time_to].
+# JSON object key order is not kept by every client, so use this for order.
+json.timeline @presenter.transcript_entries.map { |key, pass, from, to, _| [key.split(':').first(2).join(':'), key, pass, from, to] }
 
 json.pagination do
   json.next_page     pagination.next

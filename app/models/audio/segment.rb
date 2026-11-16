@@ -79,6 +79,85 @@ module Audio
       as_array ? words : words.join(' ')
     end
 
+    # The ayah split into recitation passes when the reciter came back to it
+    # after reciting other ayahs (27, 28, then 27 again). Repeats inside the
+    # ayah stay in their pass. `returns` is this ayah's entry from
+    # cross_ayah_repeats_in; without it there is a single pass.
+    #
+    #   → [{ pass:, time_from:, time_to:, segments: }, ...]   pass 0 = first
+    #
+    # Pass windows never overlap other ayahs: the first pass ends at its last
+    # word when there are returns, later passes span their own words (the last
+    # one keeps the ayah's timestamp_to when that is later).
+    def recitation_passes(returns = nil)
+      list = get_segments
+      return [{ pass: 0, time_from: timestamp_from, time_to: timestamp_to, segments: list }] if returns.blank? || list.blank?
+
+      chunks = self.class.split_passes(list, returns)
+      last = chunks.size - 1
+
+      chunks.each_with_index.map do |words, i|
+        first_start = words.first[1].to_i
+        last_end = words.map { |w| w[2].to_i }.max
+        from = i.zero? && timestamp_from ? [timestamp_from, first_start].min : first_start
+        to = i == last && timestamp_to ? [timestamp_to, last_end].max : last_end
+        to = [timestamp_to, last_end].min if i.zero? && timestamp_to
+
+        { pass: i, time_from: from, time_to: to, segments: words }
+      end
+    end
+
+    # The ayah's text per recitation pass. The first pass keeps the ayah key,
+    # later ones get "70:27:r1", "70:27:r2", ...
+    #
+    #   → [[key, pass, time_from, time_to, words_or_text], ...]
+    def transcript_passes(returns = nil, script: :text_imlaei, as_array: false)
+      words_by_position = if verse.words.loaded?
+                            verse.words.map { |word| [word.position, word[script]] }.to_h
+                          else
+                            verse.words.order(:position).pluck(:position, script).to_h
+                          end
+
+      recitation_passes(returns).map do |pass|
+        words = pass[:segments].map { |seg| words_by_position[seg[0]] }.compact_blank
+        key = pass[:pass].zero? ? verse_key : "#{verse_key}:r#{pass[:pass]}"
+        [key, pass[:pass], pass[:time_from], pass[:time_to], as_array ? words : words.join(' ')]
+      end
+    end
+
+    # cross_ayah_repeats_in for the surahs of these segments, keyed by
+    # [chapter_id, verse_number]. Only queries when one of them is marked.
+    def self.cross_ayah_returns_for(segments)
+      marked = segments.select(&:cross_ayah_repeat?)
+      return {} if marked.empty?
+
+      marked.map { |s| [s.audio_recitation_id, s.chapter_id] }.uniq.each_with_object({}) do |(recitation, chapter), found|
+        rows = where(audio_recitation_id: recitation, chapter_id: chapter).pluck(:verse_number, :segments)
+        cross_ayah_repeats_in(rows).each { |vn, returns| found[[chapter, vn]] = returns }
+      end
+    end
+
+    # What track_repetition! stored, read back without recomputing:
+    #   { within: [[from_word, to_word], ...], returns_after: [ayah numbers] }
+    # returns_after lists the ayahs recited before the reciter came back here.
+    def stored_repetition
+      parsed = begin
+        JSON.parse(repeated_segments.to_s)
+      rescue JSON::ParserError
+        []
+      end
+      parsed = [] unless parsed.is_a?(Array)
+
+      {
+        within: parsed.select { |r| r.is_a?(Array) },
+        returns_after: parsed.select { |r| r.is_a?(Hash) }.flat_map { |r| Array(r[CROSS_AYAH_KEY]) }
+      }
+    end
+
+    def cross_ayah_repeat?
+      repeated_segments.to_s.include?("\"#{CROSS_AYAH_KEY}\"")
+    end
+
     def surah_number
       chapter_id
     end
@@ -193,32 +272,11 @@ module Audio
     end
 
     def self.cross_ayah_repeats_in(rows)
-      words = rows.to_h do |vn, segs|
-        list = (Audio::SegmentNormalizer.parse(segs) || segs)
-        list = Array(list).select { |w| w.is_a?(Array) && w.size >= 3 && w[1].is_a?(Numeric) && w[2].is_a?(Numeric) }
-        [vn, list.map { |w| [w[0].to_i, w[1].to_f, w[2].to_f] }]
-      end
-      # Every real word of the surah by start time, to find what lies in a gap.
-      timeline = words.flat_map { |vn, list| list.select { |w| w[2] > w[1] }.map { |w| [w[1], w[2], vn] } }.sort
-      starts = timeline.map(&:first)
+      Audio::SegmentRepetition.cross_ayah_returns(rows)
+    end
 
-      words.each_with_object({}) do |(vn, list), found|
-        list.each_cons(2) do |a, b|
-          next unless b[1] > a[2]
-
-          from = starts.bsearch_index { |t| t >= a[2] } || starts.size
-          ayahs = []
-          while from < starts.size && starts[from] < b[1]
-            start, finish, other = timeline[from]
-            ayahs << other if other != vn && start >= a[2] && finish <= b[1]
-            from += 1
-          end
-          next if ayahs.empty?
-
-          (found[vn] ||= []) << { after_word: a[0], back_to_word: b[0], gap_from: a[2].to_i, gap_to: b[1].to_i,
-                                  ayahs: ayahs.uniq.sort }
-        end
-      end
+    def self.split_passes(list, returns)
+      Audio::SegmentRepetition.split_passes(list, returns)
     end
 
     def self.track_repetition!(recitation_id, chapter_id: nil)
@@ -230,8 +288,10 @@ module Audio
            .group_by(&:chapter_id).each_value do |segments|
         cross = cross_ayah_repeats_in(segments.map { |s| [s.verse_number, s.segments] })
         segments.each do |segment|
-          within = segment.find_repeated_segments
           returns = cross[segment.verse_number]
+          # Repeats inside the ayah, per pass: coming back after other ayahs is
+          # the cross-ayah marker, not a repeat of the ayah's own words.
+          within = Audio::SegmentRepetition.within_repeats_by_pass(segment.get_segments, returns)
           stored =
             if returns
               (within + [{ CROSS_AYAH_KEY => returns.flat_map { |r| r[:ayahs] }.uniq.sort }]).to_json
@@ -265,28 +325,8 @@ module Audio
       end.compact_blank
     end
 
-    def find_repeated_segments
-      segment_list = get_segments.map do |s|
-        s[0]
-      end
-
-      ranges = []
-      seen = {}
-
-      segment_list.each_with_index do |num, i|
-        prev_index = seen[num]
-
-        if prev_index
-          length = i - prev_index
-          if segment_list[prev_index, length] == segment_list[i, length]
-            ranges << [segment_list[i], segment_list[i + length - 1]]
-          end
-        end
-
-        seen[num] = i
-      end
-
-      ranges.uniq
+    def find_repeated_segments(list = get_segments)
+      Audio::SegmentRepetition.within_repeats(list)
     end
 
     private

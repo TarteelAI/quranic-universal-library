@@ -54,6 +54,25 @@ module V1
         segment.transcript(script: requested_quran_script, as_array: as_array?)
       end
 
+      # Every recitation pass of the loaded ayahs, in recitation order:
+      # [[key, pass, time_from, time_to, text], ...]. An ayah the reciter came
+      # back to after other ayahs has extra passes keyed "70:27:r1", "70:27:r2".
+      def transcript_entries
+        return @transcript_entries if defined?(@transcript_entries)
+
+        returns = ::Audio::Segment.cross_ayah_returns_for(segments)
+        entries = segments.flat_map do |segment|
+          segment.transcript_passes(
+            returns[[segment.chapter_id, segment.verse_number]],
+            script: requested_quran_script,
+            as_array: as_array?
+          )
+        end
+        entries = entries.each_with_index.sort_by { |entry, i| [entry[2].to_i, i] }.map(&:first) if returns.present?
+
+        @transcript_entries = entries
+      end
+
       protected
 
       def finder

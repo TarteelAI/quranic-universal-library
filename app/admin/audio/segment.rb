@@ -45,6 +45,10 @@ ActiveAdmin.register Audio::Segment do
       resource.timestamp_to.to_i - resource.timestamp_from.to_i
     end
 
+    column :repeats do |resource|
+      ActiveAdminViewHelpers.segment_repeat_summary(resource) if resource.has_repetition?
+    end
+
     if ActiveModel::Type::Boolean.new.cast(params.dig(:q, :has_cross_ayah_repeat))
       column 'Cross ayah summary' do |resource|
         ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource)
@@ -68,7 +72,23 @@ ActiveAdmin.register Audio::Segment do
       row :duration_ms
       row :has_repetition
       row :repeated_segments
+      row('Repeats in this ayah') { ActiveAdminViewHelpers.within_ayah_repeat_summary(resource).presence || 'None' }
       row('Cross-ayah repeat') { ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource).presence || 'None' }
+
+      returns = resource.cross_ayah_repeats
+      if returns.any?
+        row('Recitation passes') do
+          words = resource.verse&.words&.order(:position)&.pluck(:position, :text_qpc_hafs).to_h || {}
+          table_for resource.recitation_passes(returns), class: 'index_table' do
+            column('Pass') { |p| p[:pass].zero? ? 'first' : "repeat #{p[:pass]}" }
+            column('From') { |p| p[:time_from] }
+            column('To') { |p| p[:time_to] }
+            column('Duration') { |p| "#{p[:time_to].to_i - p[:time_from].to_i} ms" }
+            column('Words') { |p| p[:segments].map(&:first).join(' ') }
+            column('Text') { |p| span p[:segments].map { |w| words[w[0]] }.compact.join(' '), class: 'qpc-hafs' }
+          end
+        end
+      end
 
       if resource.letter_segments.present?
         row :letter_segments do

@@ -39,9 +39,13 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # Holds KUBECONFIG_DEPLOY_QUL_STAGING; restricted to the qul-next branch.
+    environment: staging
     permissions: {}
     steps:
-      - name: Rollout and migrate
+      # The pod migrates before it serves: a failed migration fails the rollout and the old
+      # pod stays up. This login can only set the image on qul-staging.
+      - name: Rollout
         env:
           KUBECONFIG_B64: ${{ secrets.KUBECONFIG_DEPLOY_QUL_STAGING }}
           SHA: ${{ github.sha }}
@@ -52,6 +56,3 @@ jobs:
           IMAGE="tarteel/quranic-universal-library:qul-next-$SHA"
           kubectl set image deployment/qul-staging qul-staging="$IMAGE" -n tarteel-deployments
           kubectl rollout status deployment/qul-staging -n tarteel-deployments --timeout=10m
-          # Migrations change only the CMS database (the staging copy).
-          kubectl exec deployment/qul-staging -n tarteel-deployments -- \
-            /sbin/setuser app bash -lc 'cd /home/app/qul && RAILS_ENV=production bin/rails db:migrate'

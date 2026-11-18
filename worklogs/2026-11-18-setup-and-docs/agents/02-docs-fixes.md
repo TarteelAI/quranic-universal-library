@@ -1,6 +1,6 @@
 ---
 agent: docs-fixes
-status: in-progress
+status: done
 ---
 
 ## Task
@@ -110,11 +110,75 @@ for the minimum necessary: no rewrites, no restructuring, no tutorial trimming.
   export) in the getting-started, downloading-data, data-model, FAQ, best-practices, contributing,
   download-resources and guide-template pages and two tutorials; FAQ licence answer; site links
   relative (`/resources/...`). README.md and api.md untouched.
+- docs: format docs. Mushaf layout partial replaced (was the tag-description script) with a
+  format doc; file schemas and samples added to recitation (ayah JSON corrected to the real keyed
+  shape), font and surah-info partials. Resource pages spec now expects schemas for every type
+  and a sample for surah-info.
 
 ## Done
 
+- Identifiers: no `data[0]`, `surah_id` or `word_position` left in `app/views/docs/markdown`.
+  Getting started, downloading data, data model (new column table per export), FAQ, best
+  practices, contributing, download-resources, guide template; tutorials quran-metadata
+  (`surah_id` -> `id`, the `chapters` column) and surah-information (`surah_id` -> `surah_number`).
+  Checked against `lib/exporter/export_quran_word_script.rb`, `export_quran_ayah_script.rb`,
+  `export_translation.rb`, `export_transliteration.rb`, `export_word_translation.rb`,
+  `export_word_transliteration.rb`, `export_word_recitation.rb`, `export_ayah_recitation.rb`,
+  `export_quran_meta_data.rb`, `export_tafsir.rb`, `export_ayah_theme.rb`, `export_topics.rb`,
+  `export_quranic_morphology.rb`.
+- `_mushaf_layout.html.erb`: from `lib/exporter/export_mushaf_layout.rb` and
+  `downloadable_resources.rb#export_mushaf_layouts` (`pages`/`info` tables, `info.json` + `N.json`
+  with type/alignment/first_word_id/last_word_id/data/surah_number, docx skipped for image
+  layouts). Page 1 sample checked against the clone's first approved layout via the exporter's own
+  methods (words 1-5 on line 2, surah_name line 1).
+- `_recitation.html.erb`: `export_ayah_recitation.rb` (JSON keyed by `"1:1"`, `surah_number`,
+  `ayah_number`, `audio_url`, `duration`, `segments`; table `verses`) and
+  `export_surah_recitation.rb` (`surah.json`, `segments.json`, tables `surah_list`, `segments`,
+  optional letter segments).
+- `_font.html.erb`: `export_font.rb` + `#export_fonts` (one download per format, page fonts
+  `p1`-`p604`, `ligatures.json`; ligature sample from the clone).
+- `_surah_info.html.erb`: `export_surah_info.rb` (`surah_number`, `surah_name`, `text`,
+  `short_text`; JSON keyed by surah number; CSV and `surah_infos` table). `surah_name` is
+  `chapter.name_simple`, so transliterated in every language; `short_text` empty for some
+  languages (checked on the clone).
+- FAQ licence answer; 70 site links made relative across 37 markdown files.
+- Specs green: `spec/requests/catalog/resource_pages_spec.rb`, `spec/requests/content/docs_spec.rb`,
+  `spec/requests/content/docs_search_spec.rb` (53 examples, run with
+  `VITE_RUBY_AUTO_BUILD=false`). Data tab parse checked with `Catalog::FormatDoc` on the clone:
+  mushaf-layout gets pages/info/JSON schemas and the page JSON sample; recitation, font and
+  surah-info now have schemas.
+
 ## Decisions
+
+- Deliberate `surah_number`/`ayah_number` left in markdown: `tutorial-ayah-theme-end-to-end.md`
+  (`export_ayah_theme.rb` uses `surah_number`), `tutorial-mushaf-layout-end-to-end.md`
+  (`export_mushaf_layout.rb` uses `surah_number`), and the new column table in getting-started /
+  data-model naming the exports that use them (metadata, recitations, word-by-word data).
+- `morphology/_word_morphology.html.erb` left empty: `ExportQuranicMorphology#export_morphology`
+  is `todo` (writes `pending.json`), so there is no export to document.
+- `README.md` keeps absolute links: config/docs.yml does not serve it (GitHub-facing); `api.md`
+  untouched per brief. The code comment in the mushaf tutorial playground now reads
+  `/resources/mushaf-layout/12`.
+- Markdown paragraphs written on one line: `DocsPageService` renders with `hard_wrap`, so wrapped
+  lines become `<br>`.
+- Mushaf "Download" and "Line type" tables use headers FormatDoc does not read as schemas, so the
+  Data tab lists only real tables and fields.
 
 ## Concerns
 
+- `tutorial-quran-metadata-end-to-end.md` playground uses juz rows with `from_surah`/`from_ayah`/
+  `to_surah`/`to_ayah`; the juz export has `first_verse_key`/`last_verse_key`. Left: fixing it
+  means rewriting the playground logic, beyond the brief.
+- `_surah_info.html.erb` intro says some languages ship "a short summary and a longer article" as
+  two versions; really every row has both `text` and `short_text`. Left as is, the new field list
+  states it.
+- Test env setup done on the host for the specs (gitignored, not committed): `RAILS_ENV=test
+  vite build`, `vite build --ssr`, and the CSS builds copied from the main checkout's
+  `app/assets/builds` (the container's tailwindcss gem has no aarch64-linux binary). The SSR
+  bundle goes stale whenever the other agent edits `app/frontend`; rebuild before SSR specs.
+
 ## Not done / open
+
+- Not looked at in a browser: no server on http://localhost:3001 (curl got no answer). Owed: a
+  look at `/docs/getting-started`, `/docs/data-model` (the new table) and a mushaf layout's Docs
+  and Data tabs.

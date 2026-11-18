@@ -202,10 +202,8 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
     end
 
     describe 'Data and Docs tabs (the format doc of the type, app/views/resources/docs)' do
-      # The format docs of these types (the first published resource of each) describe no table or
-      # file, or hold no code block. The content is not rewritten here (sprint 002 PRD).
-      doc_without_schema = ['recitation', 'font', 'surah-info']
-      doc_without_sample = ['surah-info', 'ayah-topics', 'ayah-theme']
+      # The format docs of these types (the first published resource of each) hold no code block.
+      doc_without_sample = ['ayah-topics', 'ayah-theme']
 
       it 'gives every type its format guide for the Docs tab, and its schemas and a code sample for the Data tab' do
         DownloadableResource::RESOURCE_TYPES.each do |type|
@@ -216,7 +214,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
 
           expect(props[:tab]).to eq('docs'), type
           expect(props[:formatGuide]&.pluck(:kind)).to include('html'), "#{type}: no format guide"
-          expect(props[:schemas].present?).to eq(doc_without_schema.exclude?(type)), "#{type}: schemas"
+          expect(props[:schemas]).to be_present, "#{type}: schemas"
           expect(props[:schemas]).to all(include(name: be_present, columns: be_present))
           expect(props[:codeSample].present?).to eq(doc_without_sample.exclude?(type)), "#{type}: code sample"
           expect(props[:codeSample]).to include(kind: 'code', code: be_present) if props[:codeSample]

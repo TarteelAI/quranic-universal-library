@@ -85,7 +85,7 @@ const { Container, SiteShell } = layout
 const { CardPreview } = cardPreview
 const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
-const { AddToBundle, BundleToggle, BundleTray } = bundle
+const { AddToBundle, BundleFormats, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, FilterChip } = catalog
 const { RequestButton, RequestCard, RequestDialogProvider } = requestDialog
@@ -300,6 +300,14 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   AddToBundle: { element: <AddToBundle ids={[1, 2]} label="Add kit to bundle" />, text: 'Add kit to bundle' },
   BundleTray: { element: <BundleTray />, text: 'Bundle, 0 resources' },
+  BundleFormats: {
+    element: (
+      <BundleFormats formats={[{ key: 'sqlite', label: 'SQLite' }]}>
+        <BundleTray />
+      </BundleFormats>
+    ),
+    text: 'Bundle, 0 resources',
+  },
   ResultCard: {
     element: <ResultCard result={catalogPageProps.results[0]} vocabularies={catalogPageProps.vocabularies} />,
     text: 'Sahih International',

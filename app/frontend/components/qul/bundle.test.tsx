@@ -6,13 +6,13 @@ import { renderPage } from '@/test/inertia'
 import { nav, signedInAuth } from '@/test/shell'
 import type { CatalogBundle, CatalogBundleItem } from '@/types/serializers'
 
-import { AddToBundle, BundleToggle, BundleTray, bundleText } from './bundle'
+import { AddToBundle, BundleFormats, BundleToggle, BundleTray, bundleText } from './bundle'
 import { ResourceCard } from './resource-card'
 
 const file = (id: number, name: string, formatLabel = 'JSON') => ({
   id,
   name,
-  format: 'json' as const,
+  format: formatLabel.toLowerCase() as 'json' | 'sqlite' | 'font',
   formatLabel,
   byteSize: 2048,
   md5: 'abc',
@@ -196,6 +196,46 @@ describe('the bundle tray', () => {
         'https://qul.tarteel.ai/resources/tafsir/ibn-kathir/download/12',
       ].join('\n'),
     )
+  })
+
+  it("lists the files in the answers' formats where a resource has them, with a switch to all files", async () => {
+    const font: CatalogBundleItem = {
+      id: 5,
+      restricted: false,
+      resource: { id: 5, name: 'IndoPak font', type: 'font', toParam: 'indopak-font' },
+      category: 'script',
+      files: [file(51, 'IndoPak font TTF', 'Font')],
+    }
+    window.localStorage.setItem(BUNDLE_KEY, JSON.stringify([1, 5]))
+    answer([ibnKathir, font])
+    const writeText = vi.fn(() => Promise.resolve())
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
+    renderPage(
+      () => (
+        <BundleFormats formats={[{ key: 'sqlite', label: 'SQLite' }]}>
+          <BundleTray />
+        </BundleFormats>
+      ),
+      { props: {} },
+    )
+
+    const tray = within(openTray())
+    const names = (resource: string) =>
+      within(tray.getByRole('list', { name: `Files of ${resource}` }))
+        .getAllByRole('link')
+        .map((link) => link.textContent)
+    await tray.findByText('Tafsir Ibn Kathir')
+    expect(tray.getByText(/For your app: only the SQLite files where a resource has them/)).toBeTruthy()
+    expect(names('Tafsir Ibn Kathir')).toEqual([expect.stringContaining('Tafsir Ibn Kathir SQLite')])
+    // A resource with no file in those formats keeps all of its files.
+    expect(names('IndoPak font')).toEqual([expect.stringContaining('IndoPak font TTF')])
+    fireEvent.click(tray.getByRole('button', { name: 'Copy list' }))
+    expect(writeText).toHaveBeenCalledWith(expect.not.stringContaining('/download/11'))
+
+    fireEvent.click(tray.getByRole('button', { name: 'Show all files' }))
+    expect(names('Tafsir Ibn Kathir')).toHaveLength(2)
+    fireEvent.click(tray.getByRole('button', { name: 'Only files for your app' }))
+    expect(names('Tafsir Ibn Kathir')).toHaveLength(1)
   })
 
   it('asks an anonymous visitor to sign in first in sign-in mode, and nobody else', async () => {

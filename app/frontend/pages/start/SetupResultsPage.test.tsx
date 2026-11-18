@@ -1,12 +1,19 @@
-import { screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, screen, within } from '@testing-library/react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { BUNDLE_KEY, resetBundle } from '@/lib/bundle'
 import { renderPage } from '@/test/inertia'
 import { setupResultsProps } from '@/test/start'
 
 import SetupResultsPage from './SetupResultsPage'
 
 describe('start/SetupResultsPage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    window.localStorage.clear()
+    resetBundle()
+  })
+
   it('shows the banner, the needs checklist and a section of resources per need', () => {
     renderPage(SetupResultsPage, { props: setupResultsProps, url: '/resources?goal=reader' })
 
@@ -40,5 +47,40 @@ describe('start/SetupResultsPage', () => {
     expect(tajweed.getByRole('link', { name: 'Browse all Quran script resources' }).getAttribute('href')).toBe(
       '/resources/quran-script',
     )
+  })
+
+  it("points the bundle tray at the answers' file formats", async () => {
+    window.localStorage.setItem(BUNDLE_KEY, JSON.stringify([1]))
+    resetBundle()
+    const file = (id: number, format: 'json' | 'sqlite', formatLabel: string) => ({
+      id,
+      name: `Saheeh ${formatLabel}`,
+      format,
+      formatLabel,
+      byteSize: 2048,
+      md5: 'abc',
+    })
+    const item = {
+      id: 1,
+      restricted: false,
+      resource: { id: 1, name: 'Saheeh International', type: 'translation', toParam: 'saheeh' },
+      category: 'translation' as const,
+      files: [file(11, 'json', 'JSON'), file(12, 'sqlite', 'SQLite')],
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(new Response(JSON.stringify({ items: [item], downloadMode: 'public' })))),
+    )
+    renderPage(SetupResultsPage, { props: setupResultsProps, url: '/resources?goal=reader' })
+
+    fireEvent.click(screen.getByRole('button', { name: /^Bundle, / }))
+    const tray = within(screen.getByRole('dialog', { name: 'Bundle' }))
+    const files = await tray.findByRole('list', { name: 'Files of Saheeh International' })
+    expect(
+      within(files)
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual([expect.stringContaining('Saheeh SQLite')])
+    expect(tray.getByRole('button', { name: 'Show all files' })).toBeTruthy()
   })
 })

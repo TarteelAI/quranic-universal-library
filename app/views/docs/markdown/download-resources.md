@@ -7,7 +7,7 @@ Discover, download, and integrate QUL datasets in your own app or research workf
 - [Getting Started](getting-started.md) — the 5-minute path from picking a dataset to rendering your first ayah.
 - [Downloading & Using Data](downloading-data.md) — formats (JSON, SQLite), download options, and integration notes.
 - [Datasets](datasets.md) — a category-by-category overview of what's available.
-- [Data Model](data-model.md) — the identifiers (`surah_id`, `ayah_number`, `word_position`) used to join datasets.
+- [Data Model](data-model.md) — the keys (ayah key `"2:255"`, word location `"1:1:2"`) used to join datasets.
 
 ## Go Deeper
 
@@ -18,4 +18,4 @@ Discover, download, and integrate QUL datasets in your own app or research workf
 ## Browse Everything
 
 Open the resources directory to browse and download every published dataset:
-[https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+[/resources](/resources)

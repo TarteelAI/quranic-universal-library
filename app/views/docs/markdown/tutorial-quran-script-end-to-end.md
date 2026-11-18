@@ -15,7 +15,7 @@ Depending on the selected package, script data can include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script)
+- [/resources/quran-script](/resources/quran-script)
 
 ## 2) When to Use It
 
@@ -27,7 +27,7 @@ Use Quran Script data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script).
+1. Open [/resources/quran-script](/resources/quran-script).
 2. Keep the default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

@@ -14,7 +14,7 @@ Common file types include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/font](https://qul.tarteel.ai/resources/font)
+- [/resources/font](/resources/font)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use font resources when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/font](https://qul.tarteel.ai/resources/font).
+1. Open [/resources/font](/resources/font).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

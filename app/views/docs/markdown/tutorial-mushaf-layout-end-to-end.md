@@ -10,7 +10,7 @@ In practice, this includes page lines and word ranges you can use to render page
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/mushaf-layout](https://qul.tarteel.ai/resources/mushaf-layout)
+- [/resources/mushaf-layout](/resources/mushaf-layout)
 
 ## 2) When to Use It
 
@@ -22,7 +22,7 @@ Use mushaf layout data when you are building:
 
 ## Why Mushaf Layout Is Different (and Helpful)
 
-The sample code on the Docs tab and the preview on a detail page (for example [https://qul.tarteel.ai/resources/mushaf-layout/12](https://qul.tarteel.ai/resources/mushaf-layout/12)) show a key difference:
+The sample code on the Docs tab and the preview on a detail page (for example [/resources/mushaf-layout/12](/resources/mushaf-layout/12)) show a key difference:
 
 - `mushaf-layout` is a rendering-structure resource, not only a content resource.
 - It tells your app *how* to render a page (`line_number`, `line_type`, `is_centered`, `first_word_id`, `last_word_id`).
@@ -36,7 +36,7 @@ Why this is useful:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/mushaf-layout](https://qul.tarteel.ai/resources/mushaf-layout).
+1. Open [/resources/mushaf-layout](/resources/mushaf-layout).
 2. Keep the default listing order and open the first published card.
 3. Confirm the resource detail page includes:
    - `Preview` tab
@@ -141,7 +141,7 @@ You can edit this code for testing. Edits are not saved and may not persist afte
 
 ```playground-js
 // This playground follows the Docs tab sample pattern from:
-// https://qul.tarteel.ai/resources/mushaf-layout/12
+// /resources/mushaf-layout/12
 
 // Surah labels used by line_type = "surah_name".
 const SurahNames = {

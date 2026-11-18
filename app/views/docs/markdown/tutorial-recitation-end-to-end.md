@@ -14,7 +14,7 @@ Depending on the selected package, you can get:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/recitation](https://qul.tarteel.ai/resources/recitation)
+- [/resources/recitation](/resources/recitation)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use recitation data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/recitation](https://qul.tarteel.ai/resources/recitation).
+1. Open [/resources/recitation](/resources/recitation).
 2. Open the first published card in the default page order.
 3. Confirm the resource detail page includes:
    - A `Preview` tab

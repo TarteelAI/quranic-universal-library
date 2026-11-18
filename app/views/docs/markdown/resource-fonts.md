@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/font](https://qul.tarteel.ai/resources/font)
+- [/resources/font](/resources/font)

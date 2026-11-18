@@ -7,12 +7,30 @@ import { setupPageProps } from '@/test/start'
 
 import SetupPage from './SetupPage'
 
+// jsdom does not scroll; the page scrolls each new step's heading into view.
+const scrollIntoView = vi.fn()
+Element.prototype.scrollIntoView = scrollIntoView
+
 function pressed(name: string) {
   return screen.getByRole('button', { name: new RegExp(name) }).getAttribute('aria-pressed')
 }
 
 describe('start/SetupPage', () => {
-  afterEach(() => vi.restoreAllMocks())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    scrollIntoView.mockClear()
+  })
+
+  it("scrolls each new step's heading into view, not the first one's", () => {
+    vi.spyOn(router, 'replace').mockImplementation(() => {})
+    renderPage(SetupPage, { props: setupPageProps, url: '/start' })
+    expect(scrollIntoView).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /Quran reader app/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Continue/ }))
+    expect(scrollIntoView).toHaveBeenCalledTimes(1)
+    expect(scrollIntoView.mock.contexts[0]).toBe(screen.getByRole('heading', { name: 'Where will it run?' }))
+  })
 
   it('walks the five steps, keeping the answered steps in the URL', () => {
     const replace = vi.spyOn(router, 'replace').mockImplementation(() => {})

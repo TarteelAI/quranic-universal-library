@@ -13,7 +13,7 @@ The help model typically includes files such as:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/mutashabihat](https://qul.tarteel.ai/resources/mutashabihat)
+- [/resources/mutashabihat](/resources/mutashabihat)
 
 ## 2) When to Use It
 
@@ -25,7 +25,7 @@ Use mutashabihat data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/mutashabihat](https://qul.tarteel.ai/resources/mutashabihat).
+1. Open [/resources/mutashabihat](/resources/mutashabihat).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

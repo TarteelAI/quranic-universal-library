@@ -106,6 +106,27 @@ test.describe('guided setup (002-15)', () => {
     })
   }
 
+  test("every step's Back and Continue are on screen, and Continue brings the next heading into view", async ({
+    page,
+  }) => {
+    await page.goto('/start')
+    await hydrated(page)
+
+    const steps = ['Where will it run?', 'Which features do you need?', 'Which script do your users read?']
+    await page.getByRole('button', { name: /^Print, images and video/ }).click()
+    for (const heading of steps) {
+      await expect(continueButton(page)).toBeInViewport()
+      await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeInViewport()
+      await continueButton(page).click()
+      await expect(page.getByRole('heading', { name: heading })).toBeInViewport()
+    }
+    await page.getByRole('button', { name: /^IndoPak/ }).click()
+    await continueButton(page).click()
+    await expect(page.getByRole('heading', { name: 'Which languages?' })).toBeInViewport()
+    // The languages step is screens long on a phone; the finish button stays on screen.
+    await expect(page.getByRole('link', { name: 'Show matching resources' })).toBeInViewport()
+  })
+
   test('a partial setup reopens at its first unanswered step', async ({ page }) => {
     await page.goto('/start?goal=reader&platform=ios')
     await hydrated(page)

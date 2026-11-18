@@ -42,7 +42,7 @@ export const setupPageProps: StartSetupShow = {
 }
 
 // Props of start/SetupResultsPage, shaped like Start::SetupResultsResource: a reader app with an
-// English translation and a need nothing fits.
+// English translation, a need nothing fits and a need the chosen script has nothing for.
 export const setupResultsProps: StartSetupResults = {
   goals: ['Quran reader app'],
   platforms: ['iOS', 'Android'],
@@ -56,6 +56,7 @@ export const setupResultsProps: StartSetupResults = {
       type: 'translation',
       total: 9,
       catalogPath: '/resources?granularity=1_ayah&language=en&type=translation',
+      scripts: [],
       results: [catalogPageProps.results[0]],
     },
     {
@@ -64,10 +65,26 @@ export const setupResultsProps: StartSetupResults = {
       type: 'tafsir',
       total: 0,
       catalogPath: '/resources?language=ur&type=tafsir',
+      scripts: [],
+      results: [],
+    },
+    {
+      key: 'tajweed',
+      label: 'Tajweed text',
+      type: 'quran-script',
+      total: 0,
+      catalogPath: '/resources?q=tajweed&script=indopak&type=quran-script',
+      scripts: ['IndoPak'],
       results: [],
     },
   ],
-  vocabularies: catalogPageProps.vocabularies,
+  vocabularies: {
+    ...catalogPageProps.vocabularies,
+    types: [
+      ...catalogPageProps.vocabularies.types,
+      { key: 'quran-script', label: 'Quran script', category: { key: 'script', label: 'Script and fonts' } },
+    ],
+  },
 }
 
 // Shaped like Start::KitCardResource.

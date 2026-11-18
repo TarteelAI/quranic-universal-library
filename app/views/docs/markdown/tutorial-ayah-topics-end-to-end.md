@@ -14,7 +14,7 @@ Typical content includes:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics)
+- [/resources/ayah-topics](/resources/ayah-topics)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use ayah-topics data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics).
+1. Open [/resources/ayah-topics](/resources/ayah-topics).
 2. Keep default listing order and open the first published card.
 3. Confirm page sections include:
    - Topics listing/search area

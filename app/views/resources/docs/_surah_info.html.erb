@@ -15,5 +15,28 @@
     The long version contains HTML tags for headings, paragraphs and emphasis, so render it as HTML
     rather than as plain text.
   </div>
+
+  <h2>Data format</h2>
+  <p>
+    The JSON file is one object keyed by surah number. The CSV file and the <code>surah_infos</code> table of the
+    SQLite file have the same fields, one row per surah.
+  </p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "1": {
+    "surah_number": 1,
+    "surah_name": "Al-Fatihah",
+    "text": "&lt;h2&gt;Name&lt;/h2&gt;&lt;p&gt;This Surah is named Al-Fatihah because of its subject matter...&lt;/p&gt;",
+    "short_text": "This Surah is named Al-Fatihah because of its subject matter..."
+  }
+}</code></pre>
+  </div>
+  <ul>
+    <li><code>surah_number</code>: the surah, 1 to 114.</li>
+    <li><code>surah_name</code>: the surah's transliterated name, such as <code>Al-Fatihah</code>, in every language.</li>
+    <li><code>text</code>: the long article, as HTML.</li>
+    <li><code>short_text</code>: a short summary. Empty for some languages.</li>
+  </ul>
 </div>
     

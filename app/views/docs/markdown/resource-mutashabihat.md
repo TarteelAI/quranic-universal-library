@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/mutashabihat](https://qul.tarteel.ai/resources/mutashabihat)
+- [/resources/mutashabihat](/resources/mutashabihat)

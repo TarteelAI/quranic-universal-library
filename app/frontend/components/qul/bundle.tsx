@@ -16,7 +16,7 @@ import { addToBundle, removeFromBundle, toggleInBundle, useBundle } from '@/lib/
 import { formatBytes } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { catalogBundle, catalogDownload, detailResources, newUserSession } from '@/routes'
-import type { CatalogBundle, CatalogBundleItem, CatalogResourceRef } from '@/types/serializers'
+import type { CatalogBundle, CatalogBundleItem, CatalogOption, CatalogResourceRef } from '@/types/serializers'
 
 import { QulIcon, ResourceIcon } from './icons'
 import { NavAnchor } from './nav'
@@ -29,6 +29,21 @@ import { NavAnchor } from './nav'
 
 function useBundleEnabled() {
   return usePage().props.nav.bundle
+}
+
+// The file formats the page's answers point to (the guided setup's results), or none. With some,
+// the tray lists those files of a resource first-hand and folds the others behind one switch.
+const FormatsContext = React.createContext<CatalogOption[]>([])
+
+/** Tells the bundle tray inside it which file formats suit the visitor's app. */
+export function BundleFormats({ formats, children }: { formats: CatalogOption[]; children: React.ReactNode }) {
+  return <FormatsContext.Provider value={formats}>{children}</FormatsContext.Provider>
+}
+
+// The files to list: those in `formats` when the resource has any, else all of them.
+function shownFiles(item: CatalogBundleItem, formats: string[] | null) {
+  const matching = formats && item.files.filter((file) => formats.includes(file.format))
+  return matching && matching.length > 0 ? matching : item.files
 }
 
 /** The + / check on a resource card that adds the resource to the bundle or takes it out. */
@@ -130,8 +145,9 @@ function downloadPath(resource: CatalogResourceRef, fileId: number) {
 }
 
 /** The bundle as text to paste somewhere: each resource's name, then the URL of each of its files. */
-export function bundleText(items: CatalogBundleItem[], origin: string) {
+export function bundleText(items: CatalogBundleItem[], origin: string, formats: string[] | null = null) {
   return items
+    .map((item) => ({ resource: item.resource, files: shownFiles(item, formats) }))
     .flatMap(({ resource, files }) =>
       resource && files.length > 0
         ? [[resource.name, ...files.map((file) => `${origin}${downloadPath(resource, file.id)}`)].join('\n')]
@@ -153,7 +169,7 @@ function RemoveButton({ id, name }: { id: number; name: string }) {
   )
 }
 
-function BundleEntry({ item }: { item: CatalogBundleItem }) {
+function BundleEntry({ item, formats }: { item: CatalogBundleItem; formats: string[] | null }) {
   const { resource } = item
   if (!resource)
     return (
@@ -186,7 +202,7 @@ function BundleEntry({ item }: { item: CatalogBundleItem }) {
         <p className="ps-9 text-xs text-muted-foreground">{note}</p>
       ) : (
         <ul aria-label={`Files of ${resource.name}`} className="flex flex-col gap-1 ps-9">
-          {item.files.map((file) => (
+          {shownFiles(item, formats).map((file) => (
             <li key={file.id}>
               <a
                 href={downloadPath(resource, file.id)}
@@ -209,6 +225,8 @@ function BundleEntry({ item }: { item: CatalogBundleItem }) {
 /** What the tray shows for the ids it holds: the list, the copy button and the sign-in note. */
 function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
   const { url, props } = usePage()
+  const suited = React.useContext(FormatsContext)
+  const [allFiles, setAllFiles] = React.useState(false)
   if (ids.length === 0)
     return (
       <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
@@ -221,17 +239,35 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
 
   const items = lookup.bundle.items.filter((item) => ids.includes(item.id))
   const signIn = lookup.bundle.downloadMode === 'sign_in' && !props.auth.user
+  const formats = suited.length > 0 && !allFiles ? suited.map((format) => format.key) : null
+  const folds = suited.length > 0 && items.some((item) => shownFiles(item, formats).length < item.files.length)
 
   return (
     <div className="flex min-h-0 flex-col gap-4">
+      {(folds || allFiles) && (
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-brand-subtle px-3 py-2 text-sm">
+          <p>
+            {allFiles
+              ? 'Showing every file.'
+              : `For your app: only the ${suited.map((format) => format.label).join(' or ')} files where a resource has them.`}
+          </p>
+          <button
+            type="button"
+            onClick={() => setAllFiles(!allFiles)}
+            className="shrink-0 cursor-pointer font-medium underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+          >
+            {allFiles ? 'Only files for your app' : 'Show all files'}
+          </button>
+        </div>
+      )}
       <ul aria-label="Resources in your bundle" className="flex min-h-0 flex-col divide-y overflow-y-auto">
         {items.map((item) => (
-          <BundleEntry key={item.id} item={item} />
+          <BundleEntry key={item.id} item={item} formats={formats} />
         ))}
       </ul>
       <div className="flex items-center justify-between gap-3 border-t pt-4">
         <p className="text-sm text-muted-foreground">Copy the list of names and download links.</p>
-        <CopyButton text={() => bundleText(items, window.location.origin)} label="Copy list" />
+        <CopyButton text={() => bundleText(items, window.location.origin, formats)} label="Copy list" />
       </div>
       {signIn && (
         <p className="text-sm text-muted-foreground">

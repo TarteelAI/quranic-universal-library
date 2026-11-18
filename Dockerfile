@@ -193,5 +193,14 @@ RUN chown -R app tmp
 # ... and to production.log
 RUN chown app log/production.log
 
+# Review overlay (staging builds only; see .env.sample). Last, so a new commit rebuilds no
+# earlier layer.
+ARG REVIEW_OVERLAY_SCRIPT
+ARG REVIEW_OVERLAY_DROP
+ARG GIT_SHA
+ENV REVIEW_OVERLAY_SCRIPT=${REVIEW_OVERLAY_SCRIPT}
+ENV REVIEW_OVERLAY_DROP=${REVIEW_OVERLAY_DROP}
+ENV GIT_SHA=${GIT_SHA}
+
 # expose port 3000
 EXPOSE 3000

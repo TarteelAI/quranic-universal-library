@@ -18,6 +18,10 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    # Reads the review overlay variables; creates no deployment.
+    environment:
+      name: staging
+      deployment: false
     outputs:
       digest: ${{ steps.build.outputs.digest }}
     steps:
@@ -35,6 +39,10 @@ jobs:
         with:
           push: true
           tags: tarteel/quranic-universal-library:qul-next-${{ github.sha }}
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+            REVIEW_OVERLAY_SCRIPT=${{ vars.REVIEW_OVERLAY_SCRIPT }}
+            REVIEW_OVERLAY_DROP=${{ vars.REVIEW_OVERLAY_DROP }}
           cache-from: type=gha,scope=staging
           cache-to: type=gha,mode=max,scope=staging
 

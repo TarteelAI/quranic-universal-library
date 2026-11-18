@@ -1,7 +1,7 @@
 name: Staging (qul-next)
 
-# Builds qul-next and rolls it out to the qul-staging deployment, which runs on copies of the
-# production databases. Never tags latest: deploy.yml owns that tag and production.
+# Builds and signs qul-next; TarteelAI/infra deploys only images this workflow signed on qul-next.
+# Never tags latest: deploy.yml owns that tag and production.
 on:
   push:
     branches: [qul-next]
@@ -18,6 +18,8 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v6
 
@@ -29,6 +31,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - uses: docker/build-push-action@v7
+        id: build
         with:
           push: true
           tags: tarteel/quranic-universal-library:qul-next-${{ github.sha }}
@@ -37,22 +40,66 @@ jobs:
 
   deploy:
     needs: build
+    if: github.ref == 'refs/heads/qul-next'
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
-    # Holds KUBECONFIG_DEPLOY_QUL_STAGING; restricted to the qul-next branch.
-    environment: staging
-    permissions: {}
+    timeout-minutes: 50
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      # The pod migrates before it serves: a failed migration fails the rollout and the old
-      # pod stays up. This login can only set the image on qul-staging.
-      - name: Rollout
+      - uses: sigstore/cosign-installer@v4.1.3
+        with:
+          cosign-release: "v3.1.4"
+
+      - uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Sign
         env:
-          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_DEPLOY_QUL_STAGING }}
+          IMAGE: tarteel/quranic-universal-library
+          DIGEST: ${{ needs.build.outputs.digest }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
           SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
         run: |
-          mkdir -p "$HOME/.kube"
-          echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
-          IMAGE="tarteel/quranic-universal-library:qul-next-$SHA"
-          kubectl set image deployment/qul-staging qul-staging="$IMAGE" -n tarteel-deployments
-          kubectl rollout status deployment/qul-staging -n tarteel-deployments --timeout=10m
+          cosign sign --yes -a "run_id=$RUN_ID" -a "run_attempt=$RUN_ATTEMPT" -a "sha=$SHA" -a "actor=$ACTOR" \
+            "$IMAGE@$DIGEST"
+
+      - name: Token for infra
+        id: app
+        uses: actions/create-github-app-token@v3.3.0
+        with:
+          client-id: ${{ vars.INFRA_PROMOTE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.INFRA_PROMOTE_APP_KEY }}
+          owner: TarteelAI
+          repositories: infra
+          permission-actions: write
+
+      - name: Deploy
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          DIGEST: ${{ needs.build.outputs.digest }}
+          TAG: qul-next-${{ github.sha }}
+        run: |
+          gh workflow run flux-promote.yml -R TarteelAI/infra --ref main \
+            -f image=tarteel/quranic-universal-library -f tag="$TAG" -f digest="$DIGEST" -f deployment=qul-staging \
+            -f repo="$GITHUB_REPOSITORY" -f run_id="$GITHUB_RUN_ID" -f run_attempt="$GITHUB_RUN_ATTEMPT"
+          export TITLE="promote qul-staging for $GITHUB_REPOSITORY run $GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT"
+          for _ in $(seq 30); do
+            sleep 5
+            id="$(gh run list -R TarteelAI/infra -w flux-promote.yml -e workflow_dispatch -L 50 \
+              --json databaseId,displayTitle --jq 'map(select(.displayTitle == env.TITLE))[0].databaseId // empty')"
+            [[ -n "$id" ]] && break
+          done
+          [[ -n "$id" ]] || { echo "::error::The deploy did not start"; exit 1; }
+          deadline=$((SECONDS + 2700))
+          until [[ "$(gh run view "$id" -R TarteelAI/infra --json status --jq .status)" == completed ]]; do
+            (( SECONDS < deadline )) || { echo "::error::The deploy is still running after 45 min"; exit 1; }
+            sleep 20
+          done
+          conclusion="$(gh run view "$id" -R TarteelAI/infra --json conclusion --jq .conclusion)"
+          echo "Deploy: $conclusion" >> "$GITHUB_STEP_SUMMARY"
+          [[ "$conclusion" == success ]] || { echo "::error::The deploy finished with $conclusion"; exit 1; }

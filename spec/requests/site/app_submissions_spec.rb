@@ -145,10 +145,10 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       sign_in create_account
 
       library = valid_app.merge(project_type: 'library', app_store_url: 'https://apps.apple.com/app/id1',
-                                play_store_url: 'https://play.google.com/store/apps/details?id=a.b')
+                                play_store_url: 'https://play.google.com/store/apps/details?id=a.b',)
       expect { submit(library) }.to change(App, :count).by(1)
       expect(App.last).to have_attributes(project_type: 'library', platforms: [], app_store_url: nil,
-                                          play_store_url: nil)
+                                          play_store_url: nil,)
 
       expect { submit(valid_app.merge(project_type: 'tool', platforms: [])) }.to change(App, :count).by(1)
 

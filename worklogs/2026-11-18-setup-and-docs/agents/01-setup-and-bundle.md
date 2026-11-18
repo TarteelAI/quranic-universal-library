@@ -123,6 +123,7 @@ app again", a last-step summary). Do not add those.
 
 - Item 1 decision recorded (no code): the script filter stays strict; the fix is an honest empty state, plus the backfill on staging/production.
 - Item 1: setup results sections carry `scripts` (labels of the script filter); an empty script-narrowed section says no resources of that script are tagged yet and links to the type page (all scripts), never another script's resources as matches. Request spec + Vitest.
+- Item 2: the setup's Back/Continue bar is `sticky bottom-0` (in the flow, so it covers nothing at the end; safe-area padding), on every width; a step change scrolls the new heading into view (`block: 'nearest'`, `scroll-mt-24` under the sticky header), not on first render. Vitest + Playwright (both projects).
 
 ## Done
 

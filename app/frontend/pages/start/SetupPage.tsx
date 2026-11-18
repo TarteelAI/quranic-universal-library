@@ -63,6 +63,15 @@ export default function SetupPage({
     features: initial.answered.includes('feature') ? initial.features : featuresFor(initial.goals),
   }))
   const [languageQuery, setLanguageQuery] = React.useState('')
+  // After a step change the new step's heading comes into view (below the sticky header), since
+  // Continue sits at the end of a step that can be screens long. Not on the first render.
+  const heading = React.useRef<HTMLHeadingElement>(null)
+  const shownStep = React.useRef(step)
+  React.useEffect(() => {
+    if (shownStep.current === step) return
+    shownStep.current = step
+    heading.current?.scrollIntoView({ block: 'nearest' })
+  }, [step])
 
   function featuresFor(keys: string[]) {
     const wanted = new Set(goals.filter((goal) => keys.includes(goal.key)).flatMap((goal) => goal.features))
@@ -122,7 +131,11 @@ export default function SetupPage({
 
       <Container className="max-w-4xl py-12">
         {current === 'goal' && (
-          <StepBody title="What are you building?" text="Pick one or more. Your goal sets the features on step 3.">
+          <StepBody
+            headingRef={heading}
+            title="What are you building?"
+            text="Pick one or more. Your goal sets the features on step 3."
+          >
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {goals.map((goal) => (
                 <Tile
@@ -146,6 +159,7 @@ export default function SetupPage({
 
         {current === 'platform' && (
           <StepBody
+            headingRef={heading}
             title="Where will it run?"
             text="This sets the file formats we point you to: SQLite for phones, JSON for the web, CSV for data work. Pick none to see every format."
           >
@@ -168,7 +182,11 @@ export default function SetupPage({
         )}
 
         {current === 'feature' && (
-          <StepBody title="Which features do you need?" text="Selected from your goal. Add or remove any.">
+          <StepBody
+            headingRef={heading}
+            title="Which features do you need?"
+            text="Selected from your goal. Add or remove any."
+          >
             <div role="group" aria-label="Features" className="flex flex-wrap gap-2">
               {features.map((feature) => (
                 <FilterChip
@@ -188,6 +206,7 @@ export default function SetupPage({
 
         {current === 'script' && (
           <StepBody
+            headingRef={heading}
             title="Which script do your users read?"
             text="This sets the Quran text, the font and the page layout. Pick one or both."
           >
@@ -214,6 +233,7 @@ export default function SetupPage({
 
         {current === 'lang' && (
           <StepBody
+            headingRef={heading}
             title="Which languages?"
             text="For translations, tafsir and word by word. The numbers show how many resources each language has."
           >
@@ -240,7 +260,9 @@ export default function SetupPage({
           </StepBody>
         )}
 
-        <div className="mt-12 flex items-center justify-between gap-3 border-t pt-6">
+        {/* Sticks to the bottom of the window while the step runs past it, so Continue never
+            sits screens below a long step; it is in the flow, so it covers nothing at the end. */}
+        <div className="sticky bottom-0 z-10 mt-12 flex items-center justify-between gap-3 border-t bg-background py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
           <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={step === 0}>
             <ArrowLeftIcon /> Back
           </Button>
@@ -308,11 +330,23 @@ function StepProgress({ current, onStepClick }: { current: number; onStepClick: 
   )
 }
 
-function StepBody({ title, text, children }: { title: string; text: string; children: React.ReactNode }) {
+function StepBody({
+  headingRef,
+  title,
+  text,
+  children,
+}: {
+  headingRef: React.Ref<HTMLHeadingElement>
+  title: string
+  text: string
+  children: React.ReactNode
+}) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="headline text-3xl sm:text-4xl">{title}</h1>
+        <h1 ref={headingRef} className="headline scroll-mt-24 text-3xl sm:text-4xl">
+          {title}
+        </h1>
         <p className="mt-2 text-muted-foreground">{text}</p>
       </div>
       <div className="flex flex-col gap-4">{children}</div>

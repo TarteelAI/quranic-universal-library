@@ -57,6 +57,8 @@ RSpec.describe ActiveStorage::Service::R2Service do
 
     expect(blob_url(configs, 'qul_exports', 'qul-exports/a/b c.zip'))
       .to eq('https://cdn.example.test/qul-exports/a/b%20c.zip')
+    expect(blob_url(configs, 'qul_exports', 'qul-exports/a/'))
+      .to eq('https://cdn.example.test/qul-exports/a/')
   end
 
   it 'signs private files on the endpoint host, for a day' do

@@ -19,7 +19,7 @@ module ActiveStorage
       return super unless @public_host
 
       # Escaped per segment, as Aws::S3::Object#public_url does.
-      path = key.split('/').map { |segment| Seahorse::Util.uri_escape(segment) }.join('/')
+      path = key.split('/', -1).map { |segment| Seahorse::Util.uri_escape(segment) }.join('/')
       "#{@public_host}/#{path}"
     end
   end

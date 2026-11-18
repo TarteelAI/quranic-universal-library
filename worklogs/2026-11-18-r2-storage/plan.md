@@ -39,5 +39,11 @@ names, measured sizes and open decisions, is the team drop `qul-r2-runbook` on d
    creates a credential, writes a secret, starts a copy or changes DNS.
 3. Staging runs on R2 first. Production switches with the qul-next launch.
 
-The PR is mergeable before any data moves: with today's settings the three services behave as
-they do now, apart from the shorter signed-link lifetime.
+The PR is not a no-op on today's settings, so two things come before a deployment runs it:
+
+- `amazon_s3` points at `QUL_BACKUPS_BUCKET`. Its existing files must be in that bucket first,
+  or their rows return 404.
+- Where `CDN_HOST` is set and `QUL_STORAGE_PUBLIC_HOST` is not, `qul_exports` links start at
+  `CDN_HOST`. Confirm that host serves the exports bucket at its root.
+
+Signed links last 1 day. The old 2-week setting never applied; the running value was 5 minutes.

@@ -1,6 +1,6 @@
 ---
 agent: setup-and-bundle
-status: in-progress
+status: done
 ---
 
 ## Task
@@ -125,8 +125,26 @@ app again", a last-step summary). Do not add those.
 - Item 1: setup results sections carry `scripts` (labels of the script filter); an empty script-narrowed section says no resources of that script are tagged yet and links to the type page (all scripts), never another script's resources as matches. Request spec + Vitest.
 - Item 2: the setup's Back/Continue bar is `sticky bottom-0` (in the flow, so it covers nothing at the end; safe-area padding), on every width; a step change scrolls the new heading into view (`block: 'nearest'`, `scroll-mt-24` under the sticky header), not on first render. Vitest + Playwright (both projects).
 - Item 3: `BundleFormats` (context in bundle.tsx) tells the tray which formats suit the app; only the setup results page provides it (its answers' formats). There the tray lists only a resource's files in those formats when it has some (else all its files), with a "Show all files" switch; Copy list copies what is shown. Elsewhere (catalog, kits, detail) the tray is unchanged. Vitest (tray + results page) and kit entry.
+- Handoff: status done, sections filled.
 
 ## Done
+
+- Item 1: honest empty state for a script-narrowed need (no fallback); verdict under Decisions.
+- Item 2: sticky Back/Continue bar on every step and width; new step's heading scrolled into view.
+- Item 3: on the setup results, the bundle tray lists only the files in the answers' formats
+  where a resource has some, with "Show all files"; unchanged elsewhere.
+- Checks run green: `yarn -s typecheck`; ESLint + Prettier on changed files; Vitest on
+  `pages/start`, `components/qul/bundle.test.tsx` and the kit tests (216); rspec
+  `spec/requests/start/setup_spec.rb` + `spec/services/guided_setup_spec.rb` (42); rubocop on
+  changed Ruby; `typelizer:check` up to date; Playwright `start.spec.ts bundle.spec.ts
+  kits.spec.ts` against the local app on :3001, both projects (23 passed, 2 skipped; a few
+  existing specs were reported flaky, passed on retry).
+- Looked at on the local app (`qul-polish`, :3001, vite-dev build): the languages step at 390px
+  mid-scroll with the finish bar pinned at the bottom; the print + IndoPak results' Tajweed text
+  section ("No IndoPak resources of this kind are tagged yet. Browse all Quran script
+  resources"); the tray on `/resources?goal=reader&platform=ios,android…` with Saheeh
+  International (id 193): 4 SQLite files and the switch, 8 after "Show all files"; on `/resources`
+  the same tray shows 8 files and no switch.
 
 ## Decisions
 
@@ -155,4 +173,20 @@ to) so the page can word that; nothing else changes. Plus the human step: run
 
 ## Concerns
 
+- Item 3 narrows Saheeh International from 8 files to 4 SQLite variants (simple, footnote tags,
+  inline footnote, text chunk); the tray still gives no hint which variant to take. That needs a
+  per-file description and was left out to keep the change small.
+- The tray filter works only on the setup results page (the formats come from that page). After
+  leaving it, the tray lists every file again. That is deliberate: nothing about the answers is
+  stored. A visitor who adds from the results and opens the tray on a detail page sees all files.
+- `formats` on the results props are labels; the page maps them to keys through
+  `vocabularies.formats` (same Taxonomy source). If those ever differ, the tray just shows all files.
+
 ## Not done / open
+
+- Human step for the PR body: run `bin/rails catalog:backfill` on staging and production. Without
+  it `script_family` stays empty there, and every Mushaf layout / Quran font / Quran text need
+  shows the new "No <script> resources of this kind are tagged yet" state instead of resources.
+  Not verified on staging (unreachable from here).
+- Full `bin/gate` not run (orchestrator runs it). Not pushed, no PR (per brief override).
+- The `qul-polish` container is still serving Rails on host :3001 (started for the checks).

@@ -40,6 +40,19 @@ module V1
         segments
       end
 
+      # The loaded ayahs as [[segment, passes], ...] (see Audio::Segment#recitation_passes).
+      def surah_segment_passes
+        @surah_segment_passes ||= ::Audio::Segment.with_passes(surah_segments)
+      end
+
+      # Every pass in recitation order: [[verse_key, pass, time_from, time_to], ...].
+      # pass 0 is the ayah's `segments`, pass N is `repeats[N - 1]`.
+      def surah_timeline
+        ::Audio::Segment.passes_in_recitation_order(surah_segment_passes).map do |segment, pass|
+          [segment.verse_key, pass[:pass], pass[:time_from], pass[:time_to]]
+        end
+      end
+
       protected
 
       def finder

@@ -24,15 +24,22 @@ export default class extends Controller {
     this.diffVerses = new Set()    // verseIndex values that disagree
     this.rowsByVerse = new Map()   // verseIndex -> the row element
     this.repeatsByVerse = new Map()// verseIndex -> { kind, repeats }
+    this.bars = []                 // { verseIndex, from, to, el, fill, clock }
+    this.focusVerse = null         // the ayah last played or dragged, preferred
+                                   // when two ayah ranges overlap the clock
     this.onTime = () => this.tick()
     this.onMeta = () => this.renderClock()
     this.playerTarget.addEventListener("timeupdate", this.onTime)
     this.playerTarget.addEventListener("loadedmetadata", this.onMeta)
     this.playerTarget.addEventListener("ended", () => this.setPlayLabel(false))
+    // The ayah picker above the steps (ayah_filter_controller) changed ?ayah=.
+    this.onAyahPicked = () => { this.redraw(); this.focusLinkedAyah() }
+    window.addEventListener("segment-pipeline:ayah", this.onAyahPicked)
     this.load()
   }
 
   disconnect() {
+    globalThis.removeEventListener?.("segment-pipeline:ayah", this.onAyahPicked)
     this.closeJson()
     this.playerTarget.pause()
     this.playerTarget.removeEventListener("timeupdate", this.onTime)
@@ -83,6 +90,7 @@ export default class extends Controller {
     this.wordNodes = []
     this.letterNodes = []
     this.diffs = []
+    this.bars = []
 
     if (!this.verses.length) {
       this.statusTarget.textContent = "No timings for this surah yet."
@@ -95,6 +103,32 @@ export default class extends Controller {
     })
     this.summarise(hasLive, hasDraft)
     this.redraw()
+    this.focusLinkedAyah()
+  }
+
+  // ?ayah=2:5 (an ayah key, e.g. from an audit report) opens the page on that
+  // ayah: scroll to its row, outline it, and cue the audio at its start
+  // without playing it.
+  focusLinkedAyah() {
+    this.rowsByVerse.forEach((row) => {
+      row.classList.remove("ring-2")
+      if (row.style) row.style.boxShadow = ""
+    })
+    const key = this.linkedAyah()
+    if (!key) return
+
+    const verseIndex = this.verses.findIndex((v) => String(v.key) === key)
+    const row = this.rowsByVerse.get(verseIndex)
+    if (!row) return
+
+    row.classList.add("ring-2")
+    row.style.boxShadow = "0 0 0 2px #f59e0b" // amber, set inline: no rebuilt CSS needed
+    row.scrollIntoView({ block: "center" })
+
+    const range = this.ayahRange(this.verses[verseIndex])
+    this.focusVerse = verseIndex
+    if (range) this.playerTarget.currentTime = Math.max(0, range.from / 1000)
+    this.tick()
   }
 
   // Per word, how far apart the two layers put its boundaries. Without this the
@@ -107,6 +141,12 @@ export default class extends Controller {
         ? "Nothing staged to compare against yet — only the live segments are shown."
         : "No live segments for this surah yet — only the draft is shown."
       this.nextDiffTarget.hidden = true
+      // A draft with nothing live is new, and the recitation page counts it as
+      // differing (DraftSegment#suspicious?). Mark it so here too, or the
+      // "differ" link from that page opens on an empty list.
+      this.diffVerses = new Set(
+        hasLive ? [] : this.verses.flatMap((verse, index) => (verse.draft ? [index] : []))
+      )
       return
     }
 
@@ -185,7 +225,7 @@ export default class extends Controller {
     jump.className = "px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 hover:bg-gray-200"
     jump.textContent = "▶"
     jump.title = "Play on from this ayah"
-    jump.addEventListener("click", () => this.playFrom(verse))
+    jump.addEventListener("click", () => { this.focusVerse = verseIndex; this.playFrom(verse) })
     head.appendChild(jump)
 
     const label = document.createElement("span")
@@ -195,14 +235,20 @@ export default class extends Controller {
 
     // Each layer's range is its own play button: the two often differ, and the
     // only way to judge which is right is to hear each one on its own.
-    head.appendChild(this.rangeChip("current", verse.live, "indigo"))
-    head.appendChild(this.rangeChip("draft", verse.draft, "amber"))
+    head.appendChild(this.rangeChip("current", verse.live, "indigo", verseIndex))
+    head.appendChild(this.rangeChip("draft", verse.draft, "amber", verseIndex))
 
     const repeat = this.repeatChip(verse, verseIndex)
     if (repeat) head.appendChild(repeat)
     head.appendChild(this.jsonButton(verse))
     head.appendChild(this.reviewControls(verse, verseIndex))
     row.appendChild(head)
+    const bar = this.ayahBar(verse, verseIndex)
+    if (bar) row.appendChild(bar)
+    const takes = this.takesRow(verseIndex)
+    if (takes) row.appendChild(takes)
+    const issues = this.issuesList(verse)
+    if (issues) row.appendChild(issues)
     this.rowsByVerse.set(verseIndex, row)
 
     // One word row per enabled layer, so a disagreement shows as the two rows
@@ -414,18 +460,197 @@ export default class extends Controller {
 
     const chip = document.createElement("button")
     chip.type = "button"
-    chip.className = `px-1.5 py-0.5 rounded ${this.constructor.REPEAT_TONES[kind]}`
+    chip.className = `px-1.5 py-0.5 rounded whitespace-nowrap ${this.constructor.REPEAT_TONES[kind]}`
     chip.dataset.repeat = kind
     chip.textContent = `↻ ${repeats.map((r) => r.label).join(", ")}`
-    chip.title = "Play from the repeat"
+    chip.title = "Play on from the repeat"
     chip.addEventListener("click", () => {
       const start = repeats.map((r) => r.startMs).filter((ms) => ms != null).sort((a, b) => a - b)[0]
       if (start != null) {
+        this.focusVerse = verseIndex
         this.playUntil = null
         this.seekTo(start)
       }
     })
     return chip
+  }
+
+  // A line under the ayah's bar with one button per take of each repeat, each
+  // playing just that take, so the takes can be heard one after another.
+  takesRow(verseIndex) {
+    const found = this.repeatsByVerse.get(verseIndex)
+    if (!found) return null
+
+    const tone = this.constructor.REPEAT_TONES[found.kind]
+    const line = document.createElement("div")
+    line.className = "flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 mb-1"
+    line.dataset.takes = String(verseIndex)
+
+    found.repeats.forEach((repeat) => {
+      const group = document.createElement("span")
+      group.className = "flex items-center gap-1"
+      const label = document.createElement("span")
+      label.textContent = `↻ ${repeat.label}:`
+      group.appendChild(label)
+
+      ;(repeat.takes || []).forEach((take, index) => {
+        if (take.startMs == null || take.endMs == null) return
+
+        const button = document.createElement("button")
+        button.type = "button"
+        button.className = `px-1.5 py-0.5 rounded tabular-nums whitespace-nowrap ${tone}`
+        button.dataset.take = `${repeat.fromWord}-${repeat.toWord}-${index + 1}`
+        button.textContent = `▶ ${index + 1}`
+        button.title = `Play take ${index + 1} of ${repeat.label}: ` +
+          `${(take.startMs / 1000).toFixed(2)}–${(take.endMs / 1000).toFixed(2)}s`
+        button.addEventListener("click", () => {
+          this.focusVerse = verseIndex
+          this.playRange({ from: take.startMs, to: take.endMs })
+        })
+        group.appendChild(button)
+      })
+      line.appendChild(group)
+    })
+    return line
+  }
+
+  // The validator's issues for this ayah, per layer, with the ayah key taken
+  // off the front: the row already says which ayah it is. A word key stays
+  // ("word 4: …") because it says where in the ayah to listen.
+  issuesList(verse) {
+    const issues = verse.issues || {}
+    const layers = [["draft", "draft", "text-amber-700"], ["live", "current", "text-indigo-700"]]
+      .filter(([layer]) => (issues[layer] || []).length)
+    if (!layers.length) return null
+
+    const box = document.createElement("ul")
+    box.className = "text-xs text-gray-600 mb-1 space-y-0.5"
+    box.dataset.issues = verse.key
+
+    layers.forEach(([layer, label, tone]) => {
+      issues[layer].forEach(([category, text]) => {
+        const item = document.createElement("li")
+        const tag = document.createElement("span")
+        tag.className = `font-medium ${tone}`
+        tag.textContent = `${label} `
+        const cat = document.createElement("span")
+        cat.className = "font-mono text-red-700"
+        cat.textContent = `${category} `
+        const body = document.createElement("span")
+        body.textContent = this.issueText(verse.key, text)
+        item.appendChild(tag)
+        item.appendChild(cat)
+        item.appendChild(body)
+        box.appendChild(item)
+      })
+    })
+    return box
+  }
+
+  issueText(verseKey, text) {
+    const prefix = `${verseKey}:`
+    if (text.startsWith(prefix)) {
+      const rest = text.slice(prefix.length)
+      const word = rest.match(/^(\d+)\s*/)
+      return word ? `word ${word[1]}: ${rest.slice(word[0].length)}` : rest
+    }
+    return text.startsWith(verseKey) ? text.slice(verseKey.length).trim() : text
+  }
+
+  // The span the ayah's progress bar covers: from the earlier layer's start to
+  // the later layer's end, so both layers' audio is reachable by dragging.
+  ayahRange(verse) {
+    const layers = [verse.live, verse.draft].filter((d) => d && d.from != null && d.to != null)
+    if (!layers.length) return null
+
+    const from = Math.min(...layers.map((d) => Number(d.from)))
+    const to = Math.max(...layers.map((d) => Number(d.to)))
+    return to > from ? { from, to } : null
+  }
+
+  // A thin bar per ayah: it fills while the clock is inside the ayah, and
+  // clicking or dragging on it seeks to that point of the ayah. Repeat takes
+  // are shaded on it, so you can see where each one is and drag straight to it.
+  ayahBar(verse, verseIndex) {
+    const range = this.ayahRange(verse)
+    if (!range) return null
+
+    const wrap = document.createElement("div")
+    wrap.className = "flex items-center gap-2 mt-1 mb-1"
+    wrap.dataset.ayahBar = String(verseIndex)
+
+    const track = document.createElement("div")
+    track.className = "relative flex-1 h-2.5 rounded-full bg-gray-200 cursor-pointer"
+    track.style.touchAction = "none" // let a drag seek instead of scrolling the page
+    track.title = "Click or drag to seek within this ayah"
+
+    const span = range.to - range.from
+    const pct = (ms) => `${Math.min(100, Math.max(0, ((ms - range.from) / span) * 100))}%`
+
+    const repeats = (this.repeatsByVerse.get(verseIndex) || {}).repeats || []
+    repeats.forEach((repeat) => {
+      ;(repeat.takes || []).forEach((take) => {
+        if (take.startMs == null || take.endMs == null) return
+        const shade = document.createElement("div")
+        shade.className = "absolute inset-y-0 rounded-full"
+        shade.style.background = "rgba(168, 85, 247, 0.35)" // purple, like the repeat chips
+        shade.style.left = pct(take.startMs)
+        shade.style.width = `calc(${pct(take.endMs)} - ${pct(take.startMs)})`
+        track.appendChild(shade)
+      })
+    })
+
+    const fill = document.createElement("div")
+    fill.className = "absolute inset-y-0 left-0 rounded-full bg-amber-500 opacity-80 pointer-events-none"
+    fill.style.width = "0%"
+    track.appendChild(fill)
+
+    const clock = document.createElement("span")
+    clock.className = "text-xs tabular-nums text-gray-400 w-24 text-right"
+    clock.textContent = `0.0 / ${(span / 1000).toFixed(1)}s`
+
+    const seekAt = (event) => {
+      const box = track.getBoundingClientRect()
+      if (!box.width) return
+      const ratio = Math.min(1, Math.max(0, (event.clientX - box.left) / box.width))
+      this.focusVerse = verseIndex
+      this.playUntil = null
+      this.playerTarget.currentTime = (range.from + ratio * span) / 1000
+      this.tick()
+    }
+    track.addEventListener("pointerdown", (event) => {
+      this.dragging = true
+      track.setPointerCapture?.(event.pointerId)
+      seekAt(event)
+    })
+    track.addEventListener("pointermove", (event) => { if (this.dragging) seekAt(event) })
+    const stop = () => { this.dragging = false }
+    track.addEventListener("pointerup", stop)
+    track.addEventListener("pointercancel", stop)
+
+    wrap.appendChild(track)
+    wrap.appendChild(clock)
+    this.bars.push({ verseIndex, from: range.from, to: range.to, fill, clock })
+    return wrap
+  }
+
+  // Fill the bar of the ayah the clock is in and empty the one it left. When
+  // ayah ranges overlap, the ayah you last played or dragged wins.
+  paintBars(ms) {
+    const inside = (bar) => ms >= bar.from && ms < bar.to
+    const focused = this.bars.find((bar) => bar.verseIndex === this.focusVerse && inside(bar))
+    const bar = focused || this.bars.find(inside)
+
+    if (this.activeBar && this.activeBar !== bar) {
+      this.activeBar.fill.style.width = "0%"
+      this.activeBar.clock.textContent = `0.0 / ${((this.activeBar.to - this.activeBar.from) / 1000).toFixed(1)}s`
+    }
+    this.activeBar = bar
+    if (!bar) return
+
+    const span = bar.to - bar.from
+    bar.fill.style.width = `${((ms - bar.from) / span) * 100}%`
+    bar.clock.textContent = `${((ms - bar.from) / 1000).toFixed(1)} / ${(span / 1000).toFixed(1)}s`
   }
 
   static REPEAT_TONES = {
@@ -501,7 +726,7 @@ export default class extends Controller {
   // The range readout doubles as the button that plays it — playback stops at
   // the range's end, so "current" and "draft" are actually distinguishable
   // instead of both running on into the rest of the surah.
-  rangeChip(label, data, tone) {
+  rangeChip(label, data, tone, verseIndex) {
     if (!data || data.from == null) {
       const empty = document.createElement("span")
       empty.className = "text-gray-300"
@@ -515,16 +740,15 @@ export default class extends Controller {
     chip.dataset.playRange = label
     chip.textContent = `▶ ${label} ${(data.from / 1000).toFixed(2)}–${(data.to / 1000).toFixed(2)}s`
     chip.title = `Play just the ${label} range (${data.to - data.from} ms)`
-    chip.addEventListener("click", () => this.playRange(data))
+    chip.addEventListener("click", () => { this.focusVerse = verseIndex; this.playRange(data) })
     return chip
   }
 
   wordRow(verse, verseIndex, layer) {
     const row = document.createElement("div")
     row.className = "digitalkhatt-v2 leading-loose flex flex-wrap gap-x-3 gap-y-1 justify-end py-1"
+    row.style.fontSize = "24px" // the font's class default is 30px; two rows of that is a lot to scan
     row.dir = "rtl"
-    row.dataset.layer = layer
-    row.dataset.kind = "words"
 
     const timings = new Map()
     ;((verse[layer] || {}).words || []).forEach(([position, from, to]) => {
@@ -556,7 +780,25 @@ export default class extends Controller {
         span.classList.add("opacity-30") // no timing on this layer for this word
       }
     })
-    return row
+    // Label and tint each layer's row: both rows hold the same text, so
+    // without this it is hard to tell which highlight belongs to which layer.
+    const block = document.createElement("div")
+    block.className = layer === "draft"
+      ? "flex items-start gap-2 border-t border-dashed border-gray-200 mt-1 pt-1"
+      : "flex items-start gap-2"
+    block.dataset.layer = layer
+    block.dataset.kind = "words"
+    block.style.borderLeft = `3px solid ${layer === "draft" ? "#fcd34d" : "#a5b4fc"}`
+    block.style.paddingLeft = "6px"
+
+    const label = document.createElement("span")
+    label.className = `text-xs font-medium w-12 shrink-0 pt-2 ${layer === "draft" ? "text-amber-700" : "text-indigo-700"}`
+    label.textContent = layer === "draft" ? "draft" : "current"
+    block.appendChild(label)
+
+    row.classList.add("flex-1", "min-w-0")
+    block.appendChild(row)
+    return block
   }
 
   // The word is either plain text, or — when this layer has letter timings that
@@ -727,7 +969,14 @@ export default class extends Controller {
     differ: (ctx, index) => ctx.diffVerses.has(index),
     repeat: (ctx, index) => ctx.repeatsByVerse.has(index),
     repeat_partial: (ctx, index) => ctx.repeatsByVerse.get(index)?.kind === PARTIAL,
-    repeat_full: (ctx, index) => ctx.repeatsByVerse.get(index)?.kind === FULL
+    repeat_full: (ctx, index) => ctx.repeatsByVerse.get(index)?.kind === FULL,
+    issues: (ctx, index) => ctx.issueCount(index, "live") + ctx.issueCount(index, "draft") > 0,
+    issues_draft: (ctx, index) => ctx.issueCount(index, "draft") > 0,
+    issues_live: (ctx, index) => ctx.issueCount(index, "live") > 0
+  }
+
+  issueCount(verseIndex, layer) {
+    return (((this.verses[verseIndex] || {}).issues || {})[layer] || []).length
   }
 
   filterMode() {
@@ -735,19 +984,25 @@ export default class extends Controller {
     return this.constructor.FILTERS[value] ? value : "all"
   }
 
+  // ?ayah=2:76, set by a shared link or the ayah picker above the steps.
+  linkedAyah() {
+    return new URLSearchParams(globalThis.location?.search || "").get("ayah") || ""
+  }
+
   applyVerseFilter() {
     const mode = this.filterMode()
     const keeps = this.constructor.FILTERS[mode]
+    const ayah = this.linkedAyah()
     let shown = 0
 
     this.rowsByVerse.forEach((row, verseIndex) => {
-      const keep = keeps(this, verseIndex)
+      const keep = keeps(this, verseIndex) && (!ayah || String(this.verses[verseIndex]?.key) === ayah)
       row.hidden = !keep
       if (keep) shown++
     })
 
     if (this.hasFilterNoteTarget) {
-      this.filterNoteTarget.textContent = mode === "all"
+      this.filterNoteTarget.textContent = mode === "all" && !ayah
         ? this.repeatSummary()
         : `Showing ${shown} of ${this.rowsByVerse.size} ayahs.`
     }
@@ -845,6 +1100,8 @@ export default class extends Controller {
         this.setPlayLabel(false)
       }
     }
+
+    this.paintBars(ms)
 
     const showLive = this.liveToggleTarget.checked
     const showDraft = this.draftToggleTarget.checked

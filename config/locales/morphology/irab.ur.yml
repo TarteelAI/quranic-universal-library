@@ -64,6 +64,19 @@ ur:
       def_infix: ""
       elided_m: " (محذوف)۔"
       elided_f: " (محذوف)۔"
+      governed:
+        subj: "اسم %{governor}"
+        pred: "خبر %{governor}"
+      nominal_case_word:
+        NOM: " مرفوع"
+        ACC: " منصوب"
+        GEN: " مجرور"
+      verb_mood_word:
+        IND: " مرفوع"
+        SUBJ: " منصوب"
+        JUS: " مجزوم"
+      mubtada: "۔ یہ جملہ اسمیہ کا مبتدا ہے۔"
+      mubtada_elided_pred: "۔ یہ جملہ اسمیہ کا مبتدا ہے اور اس کی خبر محذوف ہے۔"
       case:
         jussive_sukun: " — مجزوم بالسکون، کیونکہ یہ معتل الآخر ہے۔"
         subjunctive_fatha: " — منصوب، اور علامتِ نصب آخر میں ظاہر فتحہ ہے۔"

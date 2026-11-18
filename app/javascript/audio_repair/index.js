@@ -79,6 +79,10 @@ if (surah) {
   createApp(IngestSurah, {
     dataUrl: surah.dataset.dataUrl,
     reencodeUrl: surah.dataset.reencodeUrl,
+    retryUrl: surah.dataset.retryUrl,
+    itemUrl: surah.dataset.itemUrl,
+    detectUrl: surah.dataset.detectUrl,
+    approveUrl: surah.dataset.approveUrl,
     polarityUrlEndpoint: surah.dataset.polarityUrl,
     backUrl: surah.dataset.backUrl
   }).mount("#audio-repair-surah");

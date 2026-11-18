@@ -20,8 +20,7 @@ class Morphology::WordToken < QulQuranRecord
   def rel_label_name
     return if rel_label.blank?
 
-    base = I18n.t("morphology.edge_relations.#{rel_label}", default: rel_label)
-    [base, rel_governor].compact_blank.join(' ')
+    Morphology::Treebank::RelationLabel.call(rel_label, rel_governor, locale: I18n.locale)
   end
 
   def pos_name

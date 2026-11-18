@@ -30,6 +30,7 @@ ActiveAdmin.register Audio::Segment do
   filter :chapter_id, as: :searchable_select,
                       ajax: { resource: Chapter }
   filter :has_repetition
+  filter :has_cross_ayah_repeat, as: :select, collection: [['Yes', 'true']], label: 'Cross-ayah repeat'
 
   index do
     id_column
@@ -42,6 +43,16 @@ ActiveAdmin.register Audio::Segment do
 
     column :duration_ms do |resource|
       resource.timestamp_to.to_i - resource.timestamp_from.to_i
+    end
+
+    column :repeats do |resource|
+      ActiveAdminViewHelpers.segment_repeat_summary(resource) if resource.has_repetition?
+    end
+
+    if ActiveModel::Type::Boolean.new.cast(params.dig(:q, :has_cross_ayah_repeat))
+      column 'Cross ayah summary' do |resource|
+        ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource)
+      end
     end
 
     actions
@@ -61,6 +72,26 @@ ActiveAdmin.register Audio::Segment do
       row :duration_ms
       row :has_repetition
       row :repeated_segments
+      row('Repeats in this ayah') { ActiveAdminViewHelpers.within_ayah_repeat_summary(resource).presence || 'None' }
+      row('Cross-ayah repeat') { ActiveAdminViewHelpers.cross_ayah_segment_repeat_summary(resource).presence || 'None' }
+
+      returns = resource.cross_ayah_repeats
+      passes = resource.recitation_passes(returns)
+      words = resource.verse&.words&.order(:position)&.pluck(:position, :text_qpc_hafs).to_h || {}
+      pass_label = ->(pass) { pass[:pass].zero? ? 'first' : "repeat #{pass[:pass]}" }
+
+      if returns.any?
+        row('Recitation passes') do
+          table_for passes, class: 'index_table' do
+            column('Pass') { |p| pass_label[p] }
+            column('From') { |p| p[:time_from] }
+            column('To') { |p| p[:time_to] }
+            column('Duration') { |p| "#{p[:time_to].to_i - p[:time_from].to_i} ms" }
+            column('Words') { |p| p[:segments].map(&:first).join(' ') }
+            column('Text') { |p| span p[:segments].map { |w| words[w[0]] }.compact.join(' '), class: 'qpc-hafs' }
+          end
+        end
+      end
 
       if resource.letter_segments.present?
         row :letter_segments do
@@ -74,12 +105,25 @@ ActiveAdmin.register Audio::Segment do
         end
       end
 
+      # Word timings per recitation pass, so a return to this ayah after
+      # other ayahs gets its own list next to the first one.
       row :segments do
-        div do
-          resource.get_segments.each do |s|
-            div "#{s.join(', ')}  (#{s[2].to_i - s[1].to_i} ms)"
+        passes.each do |pass|
+          if passes.size > 1
+            h4 "#{pass[:pass].zero? ? 'First pass' : "Repeat #{pass[:pass]}"}: #{pass[:time_from]}–#{pass[:time_to]} " \
+               "(#{pass[:time_to].to_i - pass[:time_from].to_i} ms)", style: 'margin: 8px 0 4px'
+          end
+
+          table_for pass[:segments], class: 'index_table' do
+            column('Word#') { |w| w[0] }
+            column('Word') { |w| span words[w[0]], class: 'qpc-hafs' }
+            column('From') { |w| w[1] }
+            column('To') { |w| w[2] }
+            column('Duration') { |w| "#{w[2].to_i - w[1].to_i} ms" }
+            column('Waqaf') { |w| 'yes' if w[3].is_a?(Hash) && w[3]['waqaf'] }
           end
         end
+        nil # Arbre would print the passes array that `each` returns
       end
     end
   end

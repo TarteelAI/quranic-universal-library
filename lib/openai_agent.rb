@@ -1,12 +1,13 @@
 class OpenaiAgent
   OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'
-  DEFAULT_MODEL = 'gpt-5-mini' # 'gpt-4.1'
+  DEFAULT_MODEL = 'gpt-5.6-terra'
 
   def generate_response(system_message, prompt, model: DEFAULT_MODEL, temperature: 0.7)
     http, request = build_agent
 
     request.body = {
       model: model,
+      **(model == DEFAULT_MODEL ? { reasoning_effort: 'none' } : {}),
       messages: [
         { role: 'system',
           content: system_message

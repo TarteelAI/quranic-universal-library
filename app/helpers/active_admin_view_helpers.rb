@@ -1,5 +1,25 @@
 module ActiveAdminViewHelpers
   class << self
+     def cross_ayah_segment_repeat_summary(segment)
+      clock = ->(ms) { format('%d:%02d', ms / 60_000, (ms / 1000) % 60) }
+      segment.cross_ayah_repeats.map do |r|
+        "after ayah #{r[:ayahs].join(', ')}: back to word #{r[:back_to_word]} at #{clock[r[:gap_to]]}"
+      end.join('; ')
+    end
+
+    # One line for the index: "words 5–8; back after ayah 28".
+    def segment_repeat_summary(segment)
+      info = segment.stored_repetition
+      parts = [within_ayah_repeat_summary(segment).presence]
+      parts << "back after ayah #{info[:returns_after].join(', ')}" if info[:returns_after].any?
+      parts.compact.join('; ')
+    end
+
+    # "words 5–8, word 2" for the repeats inside the ayah.
+    def within_ayah_repeat_summary(segment)
+      segment.stored_repetition[:within].map { |from, to| from == to ? "word #{from}" : "words #{from}–#{to}" }.join(', ')
+    end
+
     def compare_panel(context, resource)
       context.panel 'Changes' do
         compare_with = resource.versions[context.params[:compare].to_i].reify

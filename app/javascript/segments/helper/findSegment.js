@@ -9,10 +9,37 @@ const findSegment = (timestamp, segments, currentVerse, chapter, currentWord, ve
       return {};
     }
 
-    return findSurahVerseSegment(timestamp, verseSegment, verse, currentWord);
+    const target = findSurahVerseSegment(timestamp, verseSegment, verse, currentWord);
+    if (target.word) return target;
+
+    // The ayah windows (timestamp_from/to) only cover the first pass. When the
+    // reciter goes back to an earlier ayah (27, 28, then 27 again), that repeat
+    // is stored in 27's word list but falls inside 28's window. Find the ayah
+    // whose words actually cover this moment.
+    const returned = findVerseByWord(timestamp, segments, chapter, versesCount);
+    return returned || target;
   }
 
-  return {};
+  return findVerseByWord(timestamp, segments, chapter, versesCount) || {};
+};
+
+// The ayah (and word) whose word timing contains the timestamp, or null.
+const findVerseByWord = (timestamp, segments, chapter, totalVerse) => {
+  const total = Number(totalVerse);
+  if (!Number.isFinite(total) || total < 1) return null;
+
+  for (let verse = 1; verse <= total; verse++) {
+    const words = segments[`${chapter}:${verse}`]?.segments;
+    if (!words) continue;
+
+    for (const word of words) {
+      if (word[2] > word[1] && timestamp >= word[1] && timestamp <= word[2]) {
+        return { verse, word: word[0] };
+      }
+    }
+  }
+
+  return null;
 };
 
 const findVerseSegment = (timestamp, verseSegments, currentWord) => {

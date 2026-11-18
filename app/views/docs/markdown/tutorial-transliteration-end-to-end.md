@@ -63,6 +63,8 @@ Practical meaning:
 Starter integration snippet (JavaScript):
 
 ```javascript
+// JSON exports are already keyed by ayah key ({ "1:1": "text" }) and can be used as the index.
+// SQLite rows (sura, ayah, ayah_key, text) are indexed like this:
 const buildTransliterationIndex = (rows) =>
   rows.reduce((index, row) => {
     index[row.ayah_key] = row.text;

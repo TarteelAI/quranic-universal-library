@@ -14,12 +14,18 @@
       Click the waveform to seek · drag the red line to move the cut · playing the local downloaded file
     </p>
 
-    <!-- ===== Head (basmala) ===== -->
-    <div v-if="item.expects_head_trim">
+    <!-- ===== Head (basmala, or isti'adha) ===== -->
+    <div>
       <div class="flex items-baseline justify-between">
-        <span class="text-xs font-semibold">Opening — where the basmala ends</span>
-        <span class="text-xs" :class="confidenceClass">{{ confidenceLabel }}</span>
+        <span v-if="item.expects_head_trim" class="text-xs font-semibold">Opening — where the basmala ends</span>
+        <span v-else class="text-xs font-semibold">Opening — anything before the surah starts (e.g. isti'adha)</span>
+        <span v-if="item.expects_head_trim || detail.source === 'qud_drafts'" class="text-xs" :class="confidenceClass">{{ confidenceLabel }}</span>
       </div>
+      <p v-if="!item.expects_head_trim && detail.source !== 'qud_drafts'" class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded p-1.5 mb-1">
+        This surah has no basmala before it to remove, so nothing is cut unless you set it. If the reciter
+        opens with the isti'adha, cut where it ends.<template v-if="item.chapter_id === 1"> In Al-Fatihah the
+        basmala is ayah 1: keep it.</template>
+      </p>
       <p v-if="headReason" class="text-[11px] text-gray-500 mb-1">{{ headReason }}</p>
 
       <canvas
@@ -55,9 +61,6 @@
         </button>
       </div>
     </div>
-    <p v-else class="text-xs text-gray-600">
-      This surah has no preceding basmala to remove, so nothing is cut from the opening.
-    </p>
 
     <!-- ===== Tail (du'a) ===== -->
     <div class="mt-4 pt-3 border-t">

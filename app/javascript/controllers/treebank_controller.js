@@ -203,8 +203,13 @@ export function collapseSentence(sentence, depth) {
 // a flat list of sentences (expandable=false) or as an accordion where each
 // card has its own collapse-depth controls (expandable=true). Zoom scales the
 // rendered SVGs via their stored data-base-width/height.
+const QURAN_SCALE_KEY = "treebank:quranScale";
+const QURAN_SCALE_STEP = 0.1;
+const QURAN_SCALE_MIN = 0.7;
+const QURAN_SCALE_MAX = 2.5;
+
 export default class extends Controller {
-  static targets = ["container", "canvas", "zoomIn", "zoomOut", "zoomReset", "download", "accordionList"];
+  static targets = ["container", "canvas", "zoomIn", "zoomOut", "zoomReset", "download", "accordionList", "fontScaleDisplay"];
   static values = {
     url: String,
     expandable: Boolean,
@@ -212,6 +217,8 @@ export default class extends Controller {
 
   connect() {
     this.zoomLevel = 1.0;
+    this.quranScale = this.storedQuranScale();
+    this.updateFontScaleDisplay();
     this.sentenceStates = [];
     this.payload = null;
     if (this.hasUrlValue) {
@@ -229,9 +236,64 @@ export default class extends Controller {
     this.applyZoom();
   }
 
-  zoomReset() {
+  // Back to defaults: SVG zoom and the Arabic text size.
+  async zoomReset() {
     this.zoomLevel = 1.0;
-    this.applyZoom();
+    if (this.quranScale !== 1) {
+      await this.setQuranScale(1); // re-renders, then applies the zoom
+    } else {
+      this.applyZoom();
+    }
+  }
+
+  // Arabic text size inside the SVG only. Unlike zoom this re-lays the tree
+  // out, so bigger words get wider slots instead of overlapping.
+  fontIncrease() {
+    this.setQuranScale(this.quranScale + QURAN_SCALE_STEP);
+  }
+
+  fontDecrease() {
+    this.setQuranScale(this.quranScale - QURAN_SCALE_STEP);
+  }
+
+  async setQuranScale(scale) {
+    const next = Math.min(QURAN_SCALE_MAX, Math.max(QURAN_SCALE_MIN, parseFloat(scale.toFixed(2))));
+    if (next === this.quranScale) return;
+    this.quranScale = next;
+    try { localStorage.setItem(QURAN_SCALE_KEY, String(next)); } catch (_) { /* storage blocked */ }
+    this.updateFontScaleDisplay();
+    await this.rerender();
+  }
+
+  storedQuranScale() {
+    try {
+      const v = parseFloat(localStorage.getItem(QURAN_SCALE_KEY));
+      if (v >= QURAN_SCALE_MIN && v <= QURAN_SCALE_MAX) return v;
+    } catch (_) { /* storage blocked */ }
+    return 1;
+  }
+
+  updateFontScaleDisplay() {
+    if (!this.hasFontScaleDisplayTarget) return;
+    this.fontScaleDisplayTargets.forEach(el => { el.textContent = `${Math.round(this.quranScale * 100)}%`; });
+  }
+
+  renderer(sentence) {
+    return new TreebankRenderer(sentence, { quranScale: this.quranScale });
+  }
+
+  async rerender() {
+    if (!this.payload) return;
+    if (this.expandableValue) {
+      for (let i = 0; i < this.sentenceStates.length; i++) {
+        if (this.sentenceStates[i].expanded) await this.renderCardSvg(i);
+      }
+    } else {
+      const scroller = this.hasCanvasTarget ? this.canvasTarget : null;
+      const top = scroller ? scroller.scrollTop : 0;
+      await this.renderAll(this.payload);
+      if (scroller) scroller.scrollTop = top;
+    }
   }
 
   applyZoom() {
@@ -287,7 +349,7 @@ export default class extends Controller {
 
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i];
-      const renderer = new TreebankRenderer(sentence);
+      const renderer = this.renderer(sentence);
       const svg = await renderer.render();
       const wrapper = document.createElement("div");
       wrapper.className = "treebank-sentence-wrap";
@@ -454,7 +516,7 @@ export default class extends Controller {
     if (!svgContainer) return;
 
     const transformed = collapseSentence(sentence, this.sentenceStates[idx].depth);
-    const renderer = new TreebankRenderer(transformed);
+    const renderer = this.renderer(transformed);
     const svg = await renderer.render();
     svgContainer.innerHTML = "";
     svgContainer.appendChild(svg);
@@ -555,8 +617,14 @@ export default class extends Controller {
 // for a few layout fields (phraseLevelHeight/phraseTopGap) that render() sets
 // up front from the sentence's phrase structure.
 class TreebankRenderer {
-  constructor(sentence) {
+  // options.quranScale multiplies every Quranic-script size (word row,
+  // banner, phrase text); grammar labels keep theirs.
+  constructor(sentence, options = {}) {
     this.sentence = sentence;
+    const scale = options.quranScale || 1;
+    // Lines, dots and arrowheads grow with the text so the tree keeps its
+    // proportions; s(n) scales one of those sizes.
+    this.scale = scale;
     this.locale = sentence.locale || "ar";
 
     // The Quranic script renders in Digital Khatt; grammar terms and the
@@ -572,28 +640,49 @@ class TreebankRenderer {
     this.quranWordSpacing = "0.5em";
     this.arabicFont = "qpc-hafs";
     this.labelFont = "Arial, sans-serif";
-    this.tokenFontSize = 32;
-    this.posLabelFontSize = 14;
+    this.tokenFontSize = Math.round(32 * scale);
+    this.posLabelFontSize = Math.round(14 * scale);
     this.locationFontSize = 11;
-    this.bannerFontSize = 22;
-    this.bannerRefFontSize = 14;
-    this.edgeLabelFontSize = 13;
+    this.bannerFontSize = Math.round(22 * scale);
+    // Phrase surface text over each phrase dot, and floating hidden tokens.
+    this.phraseTextFontSize = Math.round(13 * scale);
+    this.bannerRefFontSize = Math.round(14 * scale);
+    this.edgeLabelFontSize = Math.round(13 * scale);
+    // Grammar term under a phrase dot / floating token.
+    this.smallLabelFontSize = Math.round(12 * scale);
 
     // Vertical layout model (px). Bands stack top→bottom in render():
     // banner → phraseTopGap → phrase levels → arc band → token row.
     this.slotWidth = 90;            // min horizontal width per word slot
     this.slotGap = 20;              // gap between adjacent word slots
-    this.bannerHeight = 70;         // top strip holding the ayah text + reference
+    this.bannerHeight = this.s(70); // top strip holding the ayah text + reference
     this.phraseLevelHeight = 0;     // total height of the phrase-level rows (set in render)
-    this.PHRASE_LEVEL_STEP = 70;    // vertical distance between consecutive phrase levels
-    this.PHRASE_EDGE_ARC_HEIGHT = 50; // how high a phrase (constituency) edge arcs above its band
-    this.PHRASE_EDGE_FOOT_LIFT = 28;  // float phrase-edge arcs above the phrase nodes so they clear the phrase surface text drawn above each dot
+    // Each phrase row stacks text, dot and label, so its spacing scales as a whole.
+    this.PHRASE_LEVEL_STEP = this.s(70); // vertical distance between consecutive phrase levels
+    this.PHRASE_EDGE_ARC_HEIGHT = this.s(50); // how high a phrase (constituency) edge arcs above its band
+    this.PHRASE_EDGE_FOOT_LIFT = this.s(37);  // float phrase-edge arcs above the phrase nodes so they clear the phrase surface text drawn above each dot
     this.phraseTopGap = 0;          // extra headroom so phrase-edge arcs clear the banner (set in render)
-    this.tokenRowHeight = 90;       // bottom row: location + arabic + POS label
+    this.tokenRowHeight = 16 + this.s(74); // bottom row: location + arabic + POS label
     this.arcBandHeight = 0;
     this.padding = 20;
     this.SVG_NS = "http://www.w3.org/2000/svg";
     this.XLINK_NS = "http://www.w3.org/1999/xlink";
+  }
+
+  s(n) {
+    return Math.round(n * this.scale * 100) / 100;
+  }
+
+  // Baseline for Quranic text drawn above a dot. Marks below the baseline
+  // (kasra, kasratan, the low dots of ي) need their own room, or they sit on
+  // the dot: مِّنْهُ, لَكُم.
+  textAboveDotY(dotY, dotR) {
+    return dotY - dotR - this.s(6) - Math.round(this.phraseTextFontSize * 0.5);
+  }
+
+  withLocale(url) {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}locale=${encodeURIComponent(this.locale)}`;
   }
 
   grammarUrl(category, term) {
@@ -853,7 +942,7 @@ class TreebankRenderer {
     const bannerTextEl = document.createElementNS(this.SVG_NS, "text");
     bannerTextEl.textContent = bannerText;
     bannerTextEl.setAttribute("x", cx);
-    bannerTextEl.setAttribute("y", 32);
+    bannerTextEl.setAttribute("y", this.s(32));
     this.applyQuranFont(bannerTextEl);
     bannerTextEl.setAttribute("font-size", this.bannerFontSize);
     bannerTextEl.setAttribute("text-anchor", "middle");
@@ -864,7 +953,7 @@ class TreebankRenderer {
     const refEl = document.createElementNS(this.SVG_NS, "text");
     refEl.textContent = refText;
     refEl.setAttribute("x", cx);
-    refEl.setAttribute("y", 56);
+    refEl.setAttribute("y", this.s(56));
     refEl.setAttribute("font-family", this.arabicFont);
     refEl.setAttribute("font-size", this.bannerRefFontSize);
     refEl.setAttribute("text-anchor", "middle");
@@ -881,6 +970,7 @@ class TreebankRenderer {
     underline.setAttribute("x2", ulX2);
     underline.setAttribute("y2", this.bannerHeight - 4);
     underline.classList.add("treebank-banner-underline");
+    underline.style.strokeWidth = this.s(1.5);
     svg.appendChild(underline);
   }
 
@@ -889,8 +979,8 @@ class TreebankRenderer {
     path.setAttribute("d", `M ${x1},${y1} L ${x2},${y2}`);
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", "#4472C4");
-    path.setAttribute("stroke-width", "0.6");
-    path.setAttribute("stroke-dasharray", "2.6 2");
+    path.setAttribute("stroke-width", this.s(0.6));
+    path.setAttribute("stroke-dasharray", `${this.s(2.6)} ${this.s(2)}`);
     path.classList.add("treebank-phrase-link");
     svg.appendChild(path);
   }
@@ -901,7 +991,7 @@ class TreebankRenderer {
   // Returns node → {x, y} so phrase edges/connectors can anchor to the dots.
   drawPhraseLevel(svg, phraseNodes, positionToCenter, tokenRowY, maxLevel) {
     const phraseDotPositions = new Map();
-    const DOT_R = 5;
+    const DOT_R = this.s(5);
     const TOKEN_TOP_Y_OFFSET = 6;
 
     for (const pn of phraseNodes) {
@@ -947,14 +1037,15 @@ class TreebankRenderer {
       const textEl = document.createElementNS(this.SVG_NS, "text");
       textEl.textContent = pn.text || "";
       textEl.setAttribute("x", dotX);
-      textEl.setAttribute("y", dotY - DOT_R - 4);
+      const textY = this.textAboveDotY(dotY, DOT_R);
+      textEl.setAttribute("y", textY);
       this.applyQuranFont(textEl);
-      textEl.setAttribute("font-size", "13");
+      textEl.setAttribute("font-size", this.phraseTextFontSize);
       textEl.setAttribute("text-anchor", "middle");
       textEl.setAttribute("dominant-baseline", "auto");
       textEl.classList.add("treebank-phrase-text");
       svg.appendChild(textEl);
-      this.reserveLabel(dotX, dotY - DOT_R - 4, pn.text || "", this.quranFont, 13);
+      this.reserveLabel(dotX, textY, pn.text || "", this.quranFont, this.phraseTextFontSize);
 
       if (pn.label && pn.labelKey) {
         const labelUrl = this.grammarUrl("edge_relations", pn.labelKey);
@@ -967,9 +1058,9 @@ class TreebankRenderer {
         const labelEl = document.createElementNS(this.SVG_NS, "text");
         labelEl.textContent = pn.label;
         labelEl.setAttribute("x", dotX);
-        labelEl.setAttribute("y", dotY + DOT_R + 14);
+        labelEl.setAttribute("y", dotY + DOT_R + this.s(14));
         labelEl.setAttribute("font-family", this.arabicFont);
-        labelEl.setAttribute("font-size", "12");
+        labelEl.setAttribute("font-size", this.smallLabelFontSize);
         labelEl.setAttribute("text-anchor", "middle");
         labelEl.setAttribute("dominant-baseline", "hanging");
         labelEl.classList.add("treebank-phrase-label", "term-link");
@@ -994,7 +1085,7 @@ class TreebankRenderer {
     const bannerDot = document.createElementNS(this.SVG_NS, "circle");
     bannerDot.setAttribute("cx", bannerAnchorX);
     bannerDot.setAttribute("cy", bannerAnchorY);
-    bannerDot.setAttribute("r", 4);
+    bannerDot.setAttribute("r", this.s(4));
     bannerDot.classList.add("treebank-phrase-dot");
     svg.appendChild(bannerDot);
 
@@ -1072,8 +1163,8 @@ class TreebankRenderer {
     if (this.drawnDuplicateBlocks.has(key)) return;
     this.drawnDuplicateBlocks.add(key);
 
-    const DOT_R = 5;
-    const UNDERLINE_W = 28;
+    const DOT_R = this.s(5);
+    const UNDERLINE_W = this.s(28);
     const LABEL_OFFSET = 14;
 
     const circle = document.createElementNS(this.SVG_NS, "circle");
@@ -1086,35 +1177,37 @@ class TreebankRenderer {
     const textEl = document.createElementNS(this.SVG_NS, "text");
     textEl.textContent = tok.arabic || "";
     textEl.setAttribute("x", x);
-    textEl.setAttribute("y", y - DOT_R - 4);
+    const textY = this.textAboveDotY(y, DOT_R);
+    textEl.setAttribute("y", textY);
     this.applyQuranFont(textEl);
-    textEl.setAttribute("font-size", "13");
+    textEl.setAttribute("font-size", this.phraseTextFontSize);
     textEl.setAttribute("text-anchor", "middle");
     textEl.setAttribute("dominant-baseline", "auto");
     if (colorClass) textEl.classList.add(colorClass);
     svg.appendChild(textEl);
-    this.reserveLabel(x, y - DOT_R - 4, tok.arabic || "", this.quranFont, 13);
+    this.reserveLabel(x, textY, tok.arabic || "", this.quranFont, this.phraseTextFontSize);
 
     const ul = document.createElementNS(this.SVG_NS, "line");
     ul.setAttribute("x1", x - UNDERLINE_W / 2);
-    ul.setAttribute("y1", y - DOT_R - 5);
+    ul.setAttribute("y1", y - DOT_R - this.s(4));
     ul.setAttribute("x2", x + UNDERLINE_W / 2);
-    ul.setAttribute("y2", y - DOT_R - 5);
+    ul.setAttribute("y2", y - DOT_R - this.s(4));
     ul.setAttribute("stroke", colorClass ? null : "#333");
-    ul.setAttribute("stroke-width", "0.8");
+    ul.setAttribute("stroke-width", this.s(0.8));
     if (colorClass) ul.classList.add(colorClass);
     svg.appendChild(ul);
 
     if (tok.posLabel) {
       // dominant-baseline is "hanging", so the box hangs below this y.
-      const posY = this.placeLabel(x, y + DOT_R + LABEL_OFFSET + 12, tok.posLabel, this.arabicFont, 12) - 12;
+      const fs = this.smallLabelFontSize;
+      const posY = this.placeLabel(x, y + DOT_R + LABEL_OFFSET + fs, tok.posLabel, this.arabicFont, fs) - fs;
 
       const posEl = document.createElementNS(this.SVG_NS, "text");
       posEl.textContent = tok.posLabel;
       posEl.setAttribute("x", x);
       posEl.setAttribute("y", posY);
       posEl.setAttribute("font-family", this.arabicFont);
-      posEl.setAttribute("font-size", "12");
+      posEl.setAttribute("font-size", this.smallLabelFontSize);
       posEl.setAttribute("text-anchor", "middle");
       posEl.setAttribute("dominant-baseline", "hanging");
       if (colorClass) posEl.classList.add(colorClass);
@@ -1130,7 +1223,7 @@ class TreebankRenderer {
   // the higher endpoint, with an arrowhead and a clickable label at the apex.
   drawPhraseEdges(svg, phraseEdges, phraseNodes, phraseDotPositions, positionToCenter, tokenRowY, tokens) {
     const ARC_HEIGHT = this.PHRASE_EDGE_ARC_HEIGHT;
-    const DOT_R = 5;
+    const DOT_R = this.s(5);
 
     const allBandY = [...phraseDotPositions.values()].map(p => p.y);
     const defaultBandY = allBandY.length > 0 ? Math.min(...allBandY) : tokenRowY - ARC_HEIGHT * 2;
@@ -1162,8 +1255,8 @@ class TreebankRenderer {
           dotLine.setAttribute("d", `M ${baseX},${tokenRowY - 6} L ${baseX},${bandY + DOT_R}`);
           dotLine.setAttribute("fill", "none");
           dotLine.setAttribute("stroke", "#4472C4");
-          dotLine.setAttribute("stroke-width", "0.8");
-          dotLine.setAttribute("stroke-dasharray", "3 2");
+          dotLine.setAttribute("stroke-width", this.s(0.8));
+          dotLine.setAttribute("stroke-dasharray", `${this.s(3)} ${this.s(2)}`);
           svg.appendChild(dotLine);
         }
         fromX = baseX;
@@ -1188,8 +1281,8 @@ class TreebankRenderer {
           dotLine.setAttribute("d", `M ${baseX},${tokenRowY - 6} L ${baseX},${bandY + DOT_R}`);
           dotLine.setAttribute("fill", "none");
           dotLine.setAttribute("stroke", "#4472C4");
-          dotLine.setAttribute("stroke-width", "0.8");
-          dotLine.setAttribute("stroke-dasharray", "3 2");
+          dotLine.setAttribute("stroke-width", this.s(0.8));
+          dotLine.setAttribute("stroke-dasharray", `${this.s(3)} ${this.s(2)}`);
           svg.appendChild(dotLine);
         }
         toX = baseX;
@@ -1210,13 +1303,13 @@ class TreebankRenderer {
       const d = `M ${fromX},${fromFootY} C ${fromX},${apexAbsY} ${toX},${apexAbsY} ${toX},${toFootY}`;
       path.setAttribute("d", d);
       path.setAttribute("fill", "none");
-      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("stroke-width", this.s(1.5));
       if (edge.colorClass) path.classList.add(edge.colorClass);
       svg.appendChild(path);
 
       const midX = (fromX + toX) / 2;
       const curveApexY = apexAbsY + (bandY - apexAbsY) * 0.25;
-      const arrowSize = 6;
+      const arrowSize = this.s(6);
       const goesLeft = toX < fromX;
 
       const arrow = document.createElementNS(this.SVG_NS, "polygon");
@@ -1238,7 +1331,7 @@ class TreebankRenderer {
         linkEl.setAttribute("data-controller", "ajax-modal");
         linkEl.setAttribute("data-url", labelUrl);
 
-        const labelY = this.placeLabel(midX, curveApexY - 6, edge.label, this.arabicFont, this.edgeLabelFontSize);
+        const labelY = this.placeLabel(midX, curveApexY - this.s(6), edge.label, this.arabicFont, this.edgeLabelFontSize);
 
         const labelEl = document.createElementNS(this.SVG_NS, "text");
         labelEl.textContent = edge.label;
@@ -1260,8 +1353,11 @@ class TreebankRenderer {
   // arabic surface form, and POS label (clickable) top to bottom.
   drawTokens(svg, tokens, centers, baseY) {
     const locationY = baseY + 16;
-    const arabicY = baseY + 50;
-    const posY = baseY + 78;
+    // The location line stays put (its font does not scale); the word and
+    // its POS label below it move down in proportion, so tall vowel marks
+    // never reach up into the location.
+    const arabicY = locationY + this.s(34);
+    const posY = arabicY + this.s(28);
 
     tokens.forEach((tok, i) => {
       const cx = centers[i];
@@ -1269,8 +1365,9 @@ class TreebankRenderer {
       if (tok.location) {
         if (tok.wordUrl) {
           const linkEl = document.createElementNS(this.SVG_NS, "a");
-          linkEl.setAttribute("href", tok.wordUrl);
-          linkEl.setAttributeNS(this.XLINK_NS, "xlink:href", tok.wordUrl);
+          const wordUrl = this.withLocale(tok.wordUrl);
+          linkEl.setAttribute("href", wordUrl);
+          linkEl.setAttributeNS(this.XLINK_NS, "xlink:href", wordUrl);
           const locEl = document.createElementNS(this.SVG_NS, "text");
           locEl.textContent = tok.location;
           locEl.setAttribute("x", cx);
@@ -1303,6 +1400,10 @@ class TreebankRenderer {
       arabicEl.setAttribute("text-anchor", "middle");
       arabicEl.setAttribute("dominant-baseline", "middle");
       if (tok.colorClass) arabicEl.classList.add(tok.colorClass);
+      // The Quran font's tall line box overlaps the location link above it
+      // and, being drawn later, swallows its clicks. The word isn't
+      // interactive, so let pointer events fall through to the link.
+      arabicEl.setAttribute("pointer-events", "none");
       svg.appendChild(arabicEl);
 
       if (tok.posLabel && tok.posKey) {
@@ -1349,13 +1450,13 @@ class TreebankRenderer {
       const d = `M ${x1},${y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${x2},${y}`;
       path.setAttribute("d", d);
       path.setAttribute("fill", "none");
-      path.setAttribute("stroke-width", "1.5");
+      path.setAttribute("stroke-width", this.s(1.5));
       if (edge.colorClass) path.classList.add(edge.colorClass);
       svg.appendChild(path);
 
       const midX = (x1 + x2) / 2;
       const curveApexY = apexAbsY + (y - apexAbsY) * 0.25;
-      const arrowSize = 6;
+      const arrowSize = this.s(6);
       const goesLeft = toX < fromX;
 
       const arrow = document.createElementNS(this.SVG_NS, "polygon");
@@ -1377,7 +1478,7 @@ class TreebankRenderer {
         linkEl.setAttribute("data-controller", "ajax-modal");
         linkEl.setAttribute("data-url", labelUrl);
 
-        const labelY = this.placeLabel(midX, curveApexY - 6, edge.label, this.arabicFont, this.edgeLabelFontSize);
+        const labelY = this.placeLabel(midX, curveApexY - this.s(6), edge.label, this.arabicFont, this.edgeLabelFontSize);
 
         const labelEl = document.createElementNS(this.SVG_NS, "text");
         labelEl.textContent = edge.label;

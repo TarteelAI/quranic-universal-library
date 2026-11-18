@@ -78,8 +78,9 @@ Starter integration snippet (JavaScript):
 
 ```javascript
 // Build fast verse lookup by canonical ayah key.
+// JSON exports are objects keyed by ayah key ("1:1"); SQLite gives an array of rows.
 const buildVerseIndex = (rows) =>
-  rows.reduce((index, row) => {
+  Object.values(rows).reduce((index, row) => {
     index[row.verse_key] = {
       text: row.text,
       scriptType: row.script_type,

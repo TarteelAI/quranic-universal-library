@@ -149,3 +149,17 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Why:** content pages can go live before the write paths are agreed.
 - **Cost:** every group needs specs for both states, and links between groups must work with
   any combination.
+
+## Storage
+
+### Object storage is on Cloudflare R2, in a public and a private bucket
+
+- **Decision:** the three Active Storage services keep their names (`qul_exports`,
+  `database_backups`, `amazon_s3`), so no blob row changes; only where they point does. Public
+  files (`qul_exports`, and what `UploadToCdn` writes) are in a bucket served on a public host,
+  and their links start at `QUL_STORAGE_PUBLIC_HOST` (`R2Service`). Backups and the production
+  default service are in a private bucket and get signed links that last a day.
+- **Why:** one provider and one set of `QUL_STORAGE_*` settings, and R2 has no per-object
+  public setting and never serves anonymous reads from its S3 endpoint.
+- **Cost:** a file's bucket decides whether it is public, so a private file stored on
+  `qul_exports` is public. A service name no longer says where its files are.

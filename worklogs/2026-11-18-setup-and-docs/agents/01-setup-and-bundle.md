@@ -1,6 +1,6 @@
 ---
 agent: setup-and-bundle
-status: briefed
+status: in-progress
 ---
 
 ## Task
@@ -121,9 +121,34 @@ app again", a last-step summary). Do not add those.
 
 ## Commits
 
+- Item 1 decision recorded (no code): the script filter stays strict; the fix is an honest empty state, plus the backfill on staging/production.
+
 ## Done
 
 ## Decisions
+
+**Item 1, empty core needs: verdict.** The concern is valid; no silent fallback.
+
+- `Catalog::Backfill::ScriptFamilies` drafts `script_family` for exactly the three types these
+  needs filter on (`Inference::SCRIPT_TYPES` = quran-script, font, mushaf-layout), from the text
+  encoding, then the font names, then a Madani/IndoPak tag. It skips nothing a person set.
+- Development clone (backfill already applied: the stored value equals the inferred one for all
+  68 published resources of those types), section totals of `/resources?goal=…&script=…`:
+  reader madani layout 5, font 7, text 15; reader indopak layout 6, font 3, text 7. Every goal's
+  layout, font and Quran text need is non-empty for both scripts; research gets text 15 / 7.
+  So staging's zeros are the missing data step, not a code bug.
+- The one need that stays empty after the backfill: **Tajweed text for IndoPak** (print goal, or
+  the tajweed feature): 0, because no IndoPak tajweed script exists in the catalog (all three
+  tajweed scripts are Madani). 15 of 26 published fonts also have no family (nothing to infer
+  from), so they are left out of a script-narrowed font need; that is correct, not a gap.
+- A fallback to "all scripts" would show Madani tajweed text and Madani fonts to IndoPak users as
+  if they matched, and on staging would have hidden that the backfill never ran.
+
+**Chosen fix:** keep the filter strict. When a script-narrowed need is empty, say so honestly:
+"No IndoPak resources of this kind are tagged yet." with a link to the type's catalog page (every
+script) labelled as such. The section gets a `scripts` prop (the script labels it was narrowed
+to) so the page can word that; nothing else changes. Plus the human step: run
+`bin/rails catalog:backfill` on staging and production.
 
 ## Concerns
 

@@ -18,7 +18,8 @@ module AppDirectory
     def self.create(entry)
       app = App.new(
         import_key: entry['id'], published: true, featured: entry.fetch('featured', false),
-        **entry.slice('name', 'url', 'platforms', 'uses', 'kind', 'description', 'evidence').symbolize_keys,
+        **entry.slice('name', 'url', 'source_url', 'project_type', 'platforms', 'uses', 'kind', 'description',
+                      'evidence',).symbolize_keys,
       )
       # The bytes, because the upload runs when the transaction commits, after a file would be closed.
       app.icon_upload = StringIO.new(File.binread(ICONS_DIR.join(entry['icon']))) if entry['icon']

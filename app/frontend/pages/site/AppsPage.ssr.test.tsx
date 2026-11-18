@@ -9,7 +9,7 @@ import AppsPage from './AppsPage'
 describe('site/AppsPage on the server', () => {
   it('renders the directory and its filters without browser globals', async () => {
     const { body } = await renderPageOnServer(AppsPage, {
-      props: { ...appsPageProps, filters: { platform: 'android', type: null } },
+      props: { ...appsPageProps, filters: { projectType: null, platform: 'android', type: null } },
       url: '/apps?platform=android',
     })
 

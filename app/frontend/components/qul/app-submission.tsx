@@ -2,7 +2,7 @@ import { useForm } from '@inertiajs/react'
 import * as React from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Input, Label } from '@/components/ui/input'
+import { Input, Label, Textarea } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/misc'
 import {
   Dialog,
@@ -21,6 +21,7 @@ import { GatedForm } from './gated-form'
 export interface AppSubmissionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  projectTypes: CatalogOption[]
   platforms: CatalogOption[]
   types: CatalogOption[]
 }
@@ -28,7 +29,12 @@ export interface AppSubmissionDialogProps {
 type Submission = {
   name: string
   url: string
+  project_type: string
+  description: string
   platforms: string[]
+  app_store_url: string
+  play_store_url: string
+  source_url: string
   uses: string[]
   contact: string
   consent: boolean
@@ -40,22 +46,32 @@ const toggled = (values: string[], value: string) =>
 
 /**
  * "Submit your app" on /apps, from the v8 design (ds/src/app/pages/apps.tsx) with an icon field.
+ * Only an app has platforms, and only an app on iOS or Android is asked for its store link; the
+ * fields an answer hides are not sent.
  * Posts to POST /apps (Site::AppSubmissionsController) as an Inertia visit: the server answers
  * with the page it came from, and its validation errors show beside the fields. The fields keep
  * their values while the dialog is closed, until a submission succeeds.
  */
-function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmissionDialogProps) {
+function AppSubmissionDialog({ open, onOpenChange, projectTypes, platforms, types }: AppSubmissionDialogProps) {
   const [sent, setSent] = React.useState(false)
   const form = useForm<Submission>({
     name: '',
     url: '',
+    project_type: 'app',
+    description: '',
     platforms: [],
+    app_store_url: '',
+    play_store_url: '',
+    source_url: '',
     uses: [],
     contact: '',
     consent: false,
     icon: null,
   })
   const { data, errors } = form
+  const isApp = data.project_type === 'app'
+  const onIos = isApp && data.platforms.includes('ios')
+  const onAndroid = isApp && data.platforms.includes('android')
   // An error about the submission as a whole (the daily limit), which no field shows.
   const [refusal, setRefusal] = React.useState<string[]>()
 
@@ -66,7 +82,14 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
-    form.transform((fields) => ({ app: fields }))
+    form.transform((fields) => ({
+      app: {
+        ...fields,
+        platforms: isApp ? fields.platforms : [],
+        app_store_url: onIos ? fields.app_store_url : '',
+        play_store_url: onAndroid ? fields.play_store_url : '',
+      },
+    }))
     setRefusal(undefined)
     form.post(appSubmissions().url, {
       preserveScroll: true,
@@ -113,7 +136,7 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
               onSubmit={submit}
             >
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field name="name" label="App name" error={errors.name}>
+                <Field name="name" label="Name" error={errors.name}>
                   <Input
                     {...field('name')}
                     required
@@ -128,22 +151,66 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
                     {...field('url')}
                     type="url"
                     required
-                    placeholder="Store page, website or repo"
+                    placeholder="Website, else a store page or repo"
                     value={data.url}
                     onChange={(event) => form.setData('url', event.target.value)}
                   />
                 </Field>
               </div>
-              <Field name="platforms" label="Platforms" group error={errors.platforms}>
-                {platforms.map((platform) => (
+              <Field name="project_type" label="What is it?" group error={errors.project_type}>
+                {projectTypes.map((type) => (
                   <FilterChip
-                    key={platform.key}
-                    option={platform}
-                    selected={data.platforms.includes(platform.key)}
-                    onClick={() => form.setData('platforms', toggled(data.platforms, platform.key))}
+                    key={type.key}
+                    option={type}
+                    selected={data.project_type === type.key}
+                    onClick={() => form.setData('project_type', type.key)}
                   />
                 ))}
               </Field>
+              {isApp && (
+                <Field name="platforms" label="Platforms" group error={errors.platforms}>
+                  {platforms.map((platform) => (
+                    <FilterChip
+                      key={platform.key}
+                      option={platform}
+                      selected={data.platforms.includes(platform.key)}
+                      onClick={() => form.setData('platforms', toggled(data.platforms, platform.key))}
+                    />
+                  ))}
+                </Field>
+              )}
+              <Field
+                name="description"
+                label="Description"
+                error={errors.description}
+                hint="One or two sentences: what it does and who it is for."
+              >
+                <Textarea
+                  {...field('description')}
+                  required
+                  maxLength={300}
+                  rows={2}
+                  value={data.description}
+                  onChange={(event) => form.setData('description', event.target.value)}
+                />
+              </Field>
+              {(onIos || onAndroid) && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {onIos && (
+                    <LinkField name="app_store_url" label="App Store link (optional)" form={form} field={field} />
+                  )}
+                  {onAndroid && (
+                    <LinkField name="play_store_url" label="Google Play link (optional)" form={form} field={field} />
+                  )}
+                </div>
+              )}
+              <LinkField
+                name="source_url"
+                label="Source code (optional)"
+                placeholder="https://github.com/…"
+                form={form}
+                field={field}
+              />
               <Field name="uses" label="Which QUL resources does it use?" group error={errors.uses}>
                 {types.map((type) => (
                   <FilterChip
@@ -208,6 +275,35 @@ function AppSubmissionDialog({ open, onOpenChange, platforms, types }: AppSubmis
         )}
       </DialogContent>
     </Dialog>
+  )
+}
+
+type SubmissionForm = ReturnType<typeof useForm<Submission>>
+
+// An optional link beside the main one.
+function LinkField({
+  name,
+  label,
+  placeholder = 'https://',
+  form,
+  field,
+}: {
+  name: 'app_store_url' | 'play_store_url' | 'source_url'
+  label: string
+  placeholder?: string
+  form: SubmissionForm
+  field: (name: keyof Submission) => React.ComponentProps<'input'>
+}) {
+  return (
+    <Field name={name} label={label} error={form.errors[name]}>
+      <Input
+        {...field(name)}
+        type="url"
+        placeholder={placeholder}
+        value={form.data[name]}
+        onChange={(event) => form.setData(name, event.target.value)}
+      />
+    </Field>
   )
 }
 

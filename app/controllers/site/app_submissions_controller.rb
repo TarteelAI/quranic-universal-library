@@ -29,7 +29,8 @@ module Site
     end
 
     def submission_params
-      params.expect(app: [:name, :url, :contact, :consent, :icon, { platforms: [], uses: [] }])
+      params.expect(app: [:name, :url, :project_type, :app_store_url, :play_store_url, :source_url, :description,
+                          :contact, :consent, :icon, { platforms: [], uses: [] },])
     end
   end
 end

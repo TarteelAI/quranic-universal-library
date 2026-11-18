@@ -380,6 +380,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
       <AppSubmissionDialog
         open
         onOpenChange={() => {}}
+        projectTypes={appsPageProps.allProjectTypes}
         platforms={appsPageProps.platforms}
         types={appsPageProps.submissionTypes}
       />

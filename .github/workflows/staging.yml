@@ -18,10 +18,6 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
-    # Reads the review overlay variables; creates no deployment.
-    environment:
-      name: staging
-      deployment: false
     outputs:
       digest: ${{ steps.build.outputs.digest }}
     steps:

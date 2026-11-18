@@ -22,10 +22,11 @@ class App < ApplicationRecord
   normalizes :name, :contact, :kind, :description, :evidence, *LINKS, with: ->(value) { value.strip.presence }
   normalizes :platforms, :uses, with: ->(values) { values.compact_blank.uniq }
 
-  # The directory: published apps, featured first, then oldest first (the import keeps the order of
-  # config/apps.yml).
+  # Only an app has platforms.
   before_validation { self.platforms = [] unless project_type == 'app' }
 
+  # The directory: published apps, featured first, then oldest first (the import keeps the order of
+  # config/apps.yml).
   scope :directory, -> { where(published: true).order(featured: :desc, id: :asc) }
 
   validates :name, presence: true, length: { maximum: 100 }

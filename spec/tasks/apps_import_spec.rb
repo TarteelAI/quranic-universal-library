@@ -25,7 +25,8 @@ RSpec.describe 'apps:import' do
     entries.each do |entry|
       app = App.find_by!(import_key: entry['id'])
       expect(app).to have_attributes(
-        name: entry['name'], url: entry['url'], platforms: entry['platforms'], uses: entry['uses'],
+        name: entry['name'], url: entry['url'], source_url: entry['source_url'],
+        project_type: entry.fetch('project_type', 'app'), platforms: entry.fetch('platforms', []), uses: entry['uses'],
         kind: entry['kind'], description: entry['description'], evidence: entry['evidence'],
         featured: entry.fetch('featured', false), published: true, user: nil, contact: nil,
       )

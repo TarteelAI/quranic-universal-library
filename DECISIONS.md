@@ -150,6 +150,22 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Cost:** every group needs specs for both states, and links between groups must work with
   any combination.
 
+## After sprint 002
+
+### An app has a type, and store and source links
+
+- **Decision:** an app is an App, Library, Tool or Data or API (`project_type`). Only an app has
+  platforms (iOS, Android, Web, Desktop) and App Store and Google Play links; any type can have a
+  source code link beside its main link. A submission asks for a short description. Library,
+  tool and dataset are no longer platforms.
+- **Why:** the directory serves people looking for an app and developers looking for code or
+  data, and `platforms` mixed the two. Adapted from PR #1051, without its API, AI model and Other
+  types (no app has them; Data or API covers the first two), its owner name and type (the store
+  page or repo names the maker), its free-text resources field (`uses` is structured) and a
+  website link separate from `url`.
+- **Cost:** three more link columns and a type to keep right in the CMS; a new type needs a
+  constant and its label.
+
 ## Storage
 
 ### Object storage is on Cloudflare R2, in a public and a private bucket

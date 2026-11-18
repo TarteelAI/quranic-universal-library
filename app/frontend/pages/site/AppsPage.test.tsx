@@ -36,6 +36,7 @@ describe('site/AppsPage', () => {
     expect(links('Nimaz')).toEqual([
       ['nimaz.arshadshah.com', 'https://nimaz.arshadshah.com'],
       ['Google Play', 'https://play.google.com/store/apps/details?id=com.arshadshah.nimaz'],
+      ['Source', 'https://github.com/arshad-shah/Nimaz'],
     ])
     expect(screen.getByRole('link', { name: 'Quran Validator' }).closest('li')!.textContent).toContain('Library')
   })

@@ -195,6 +195,7 @@ test.describe('app submission form', () => {
     await expect(form(page).getByText('Consent must be given to list the app')).toBeVisible()
     await expect(form(page).getByText('Icon must be a PNG, JPEG or WebP image')).toBeVisible()
     await expect(form(page).getByLabel('Name', { exact: true })).toHaveValue(name)
+    await expect(form(page).getByLabel('Description', { exact: true })).toHaveValue('A browser spec app.')
     await expect(form(page).getByLabel('Link', { exact: true })).toHaveValue('https://example.test/browser-spec-app')
     await expect(form(page).getByLabel('Contact email', { exact: true })).toHaveValue('maker@example.test')
 

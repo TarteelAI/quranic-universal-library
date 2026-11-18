@@ -45,7 +45,7 @@ const nimaz: SiteApp = {
   projectType: 'App',
   appStoreUrl: null,
   playStoreUrl: 'https://play.google.com/store/apps/details?id=com.arshadshah.nimaz',
-  sourceUrl: null,
+  sourceUrl: 'https://github.com/arshad-shah/Nimaz',
   iconUrl: '/app-icons/nimaz.png',
   platforms: ['Android'],
   uses: [{ key: 'mushaf-layout', label: 'Mushaf layout', category: 'layout' }],

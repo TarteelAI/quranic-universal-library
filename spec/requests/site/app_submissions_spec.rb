@@ -141,11 +141,12 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
                                                 'icon' => ['Icon must be 1 MB or smaller'],)
     end
 
-    it 'takes a library without platforms, and drops any platforms sent with it' do
+    it 'takes a library without platforms, and drops any platforms or store links sent with it' do
       sign_in create_account
 
-      expect { submit(valid_app.merge(project_type: 'library')) }.to change(App, :count).by(1)
-      expect(App.last).to have_attributes(project_type: 'library', platforms: [])
+      library = valid_app.merge(project_type: 'library', app_store_url: 'https://apps.apple.com/app/id1')
+      expect { submit(library) }.to change(App, :count).by(1)
+      expect(App.last).to have_attributes(project_type: 'library', platforms: [], app_store_url: nil)
 
       expect { submit(valid_app.merge(project_type: 'tool', platforms: [])) }.to change(App, :count).by(1)
 

@@ -203,6 +203,7 @@ apps:
     description: Explore the Quran through a graph of words, roots and verses.
     uses: [morphology, quran-script]
     evidence: https://github.com/muhajirdev/quran-labs
+    source_url: https://github.com/muhajirdev/quran-labs
 
   - id: hafiz
     name: Hafiz

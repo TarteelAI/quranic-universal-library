@@ -22,8 +22,13 @@ class App < ApplicationRecord
   normalizes :name, :contact, :kind, :description, :evidence, *LINKS, with: ->(value) { value.strip.presence }
   normalizes :platforms, :uses, with: ->(values) { values.compact_blank.uniq }
 
-  # Only an app has platforms.
-  before_validation { self.platforms = [] unless project_type == 'app' }
+  # Only an app has platforms and store links.
+  before_validation do
+    next if project_type == 'app'
+
+    self.platforms = []
+    self.app_store_url = self.play_store_url = nil
+  end
 
   # The directory: published apps, featured first, then oldest first (the import keeps the order of
   # config/apps.yml).

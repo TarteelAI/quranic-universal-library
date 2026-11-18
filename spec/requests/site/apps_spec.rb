@@ -35,20 +35,24 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       expect(response.body).not_to include('Spec Unpublished Submission')
     end
 
-    it 'gives each app its icon, platforms and the resource types it uses, and never the contact' do
+    it 'gives each app its icon, type, platforms, links and the resource types it uses, and never the contact' do
       App.find_by!(import_key: 'quranwbw').update!(contact: 'maker@example.test')
       get '/apps'
 
       quranwbw = app_props('quranwbw')
       expect(quranwbw.keys.map(&:to_s)).to match_array(['id', 'name', 'url', 'kind', 'description', 'featured',
-                                                        'iconUrl', 'platforms', 'uses',])
+                                                        'projectType', 'iconUrl', 'platforms', 'appStoreUrl',
+                                                        'playStoreUrl', 'sourceUrl', 'uses',])
       expect(quranwbw).to include(name: 'QuranWBW', url: 'https://quranwbw.com', kind: 'Word by word',
-                                  platforms: ['Web'], featured: true,
+                                  projectType: 'App', platforms: ['Web'], featured: true,
+                                  sourceUrl: 'https://github.com/marwan/quranwbw', appStoreUrl: nil,
                                   uses: [{ key: 'translation', label: 'Translation', category: 'translation' }],)
       expect(quranwbw[:iconUrl]).to match(%r{\A/rails/active_storage/blobs/redirect/[^/]+/icon\.png\z})
-      expect(app_props('quran-validator')[:iconUrl]).to be_nil
+      expect(app_props('quran-validator')).to include(iconUrl: nil, projectType: 'Library', platforms: [])
       expect(response.body).not_to include('maker@example.test')
       expect(inertia.props[:platforms].pluck(:key)).to eq(AppDirectory::PLATFORMS.keys)
+      expect(inertia.props[:projectTypes].pluck(:key)).to eq(AppDirectory::PROJECT_TYPES.keys)
+      expect(inertia.props[:allProjectTypes].pluck(:key)).to eq(AppDirectory::PROJECT_TYPES.keys)
       used = AppDirectory.apps.flat_map(&:uses).uniq
       expect(inertia.props[:types].pluck(:key)).to match_array(used)
       expect(inertia.props[:submissionTypes].pluck(:key)).to eq(Catalog::Taxonomy.types.map(&:key))
@@ -67,6 +71,13 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       expect(inertia.props[:total]).to eq(AppDirectory.apps.size)
     end
 
+    it 'narrows the list by type' do
+      get '/apps', params: { project_type: 'tool' }
+
+      expect(inertia.props[:apps].pluck(:projectType).uniq).to eq(['Tool'])
+      expect(inertia.props[:filters]).to include(projectType: 'tool')
+    end
+
     it 'shows no unpublished submission in the search pop-up' do
       submission
 
@@ -77,9 +88,9 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
     end
 
     it 'drops a filter value no app can have' do
-      get '/apps', params: { platform: 'palm-os', type: 'hadith' }
+      get '/apps', params: { project_type: 'game', platform: 'palm-os', type: 'hadith' }
 
-      expect(inertia.props[:filters]).to include(platform: nil, type: nil)
+      expect(inertia.props[:filters]).to include(projectType: nil, platform: nil, type: nil)
       expect(inertia.props[:apps].size).to eq(AppDirectory.apps.size)
     end
 

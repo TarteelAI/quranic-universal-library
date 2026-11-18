@@ -147,7 +147,7 @@ test.describe('app submission form', () => {
     await hydrated(page)
     await page.getByRole('main').getByRole('button', { name: 'Submit your app' }).first().click()
 
-    for (const field of ['App name', 'Link', 'Icon (optional)', 'Contact email'])
+    for (const field of ['Name', 'Link', 'Description', 'Icon (optional)', 'Contact email'])
       await expect(form(page).getByLabel(field, { exact: true })).toBeDisabled()
     await expect(form(page).getByRole('button', { name: 'iOS' })).toBeDisabled()
     await expect(form(page).getByRole('button', { name: 'Submit app' })).toBeDisabled()
@@ -157,8 +157,9 @@ test.describe('app submission form', () => {
 
     await expect(form(page).getByRole('link', { name: 'Sign in' })).toHaveCount(0)
     const name = `${NAME} ${Date.now()}`
-    await form(page).getByLabel('App name', { exact: true }).fill(name)
+    await form(page).getByLabel('Name', { exact: true }).fill(name)
     await form(page).getByLabel('Link', { exact: true }).fill('https://example.test/browser-spec-app')
+    await form(page).getByLabel('Description', { exact: true }).fill('A browser spec app.')
     await chip(page, 'Platforms', 'iOS').click()
     await chip(page, 'Which QUL resources does it use?', 'Translation').click()
     await form(page).getByLabel('Icon (optional)', { exact: true }).setInputFiles(ICON)
@@ -180,8 +181,9 @@ test.describe('app submission form', () => {
     await signIn(page)
 
     const name = `${NAME} ${Date.now()}`
-    await form(page).getByLabel('App name', { exact: true }).fill(name)
+    await form(page).getByLabel('Name', { exact: true }).fill(name)
     await form(page).getByLabel('Link', { exact: true }).fill('https://example.test/browser-spec-app')
+    await form(page).getByLabel('Description', { exact: true }).fill('A browser spec app.')
     await form(page).getByLabel('Contact email', { exact: true }).fill('maker@example.test')
     await form(page)
       .getByLabel('Icon (optional)', { exact: true })
@@ -192,7 +194,7 @@ test.describe('app submission form', () => {
     await expect(form(page).getByText('Resources used must include at least one resource type')).toBeVisible()
     await expect(form(page).getByText('Consent must be given to list the app')).toBeVisible()
     await expect(form(page).getByText('Icon must be a PNG, JPEG or WebP image')).toBeVisible()
-    await expect(form(page).getByLabel('App name', { exact: true })).toHaveValue(name)
+    await expect(form(page).getByLabel('Name', { exact: true })).toHaveValue(name)
     await expect(form(page).getByLabel('Link', { exact: true })).toHaveValue('https://example.test/browser-spec-app')
     await expect(form(page).getByLabel('Contact email', { exact: true })).toHaveValue('maker@example.test')
 

@@ -4,11 +4,13 @@
 # spec/services/app_directory_spec.rb checks this file.
 #
 # - `id`: the row's `import_key`. Never change it: the import skips an entry whose id has a row.
-# - `platforms`: keys of AppDirectory::PLATFORMS.
+# - `project_type`: a key of AppDirectory::PROJECT_TYPES; `app` when absent.
+# - `platforms`: keys of AppDirectory::PLATFORMS, for an app only.
 # - `uses`: the QUL resource types the app credits, as Catalog::Taxonomy type keys. The first one
 #   tints the initials tile of an app without an icon.
 # - `icon`: a file in public/app-icons (from the app's store listing, repo or site), else none.
 # - `featured`: listed first. The four below are placeholders until the maintainers supply the list.
+# - `source_url`: the app's public repo when `url` is not it, taken from `evidence`.
 # - `kind`: a short noun for the home page's apps band, which shows the first eight apps.
 
 apps:
@@ -21,6 +23,7 @@ apps:
     description: Read, listen to and learn the Quran word by word, with translations in many languages.
     uses: [translation]
     evidence: https://github.com/marwan/quranwbw
+    source_url: https://github.com/marwan/quranwbw
     featured: true
 
   - id: qurancaption
@@ -32,27 +35,30 @@ apps:
     description: Turn recitations into captioned videos with synced Arabic text and translations.
     uses: [translation]
     evidence: https://github.com/zonetecde/QuranCaption/blob/main/scripts/convert-saheehinternational-v2.js
+    source_url: https://github.com/zonetecde/QuranCaption
     featured: true
 
   - id: quran-library
     name: quran_library
     url: https://pub.dev/packages/quran_library
     icon: quran-library.png
-    platforms: [library]
+    project_type: library
     kind: Flutter package
     description: Flutter package that renders the Madinah mushaf page for page, with tafsir and translations.
     uses: [font, tafsir, translation]
     evidence: https://github.com/alheekmahlib/quran_library
+    source_url: https://github.com/alheekmahlib/quran_library
     featured: true
 
   - id: quran-validator
     name: Quran Validator
     url: https://quranvalidator.com
-    platforms: [library, web]
+    project_type: library
     kind: Verse checker
     description: Checks Quran verses quoted in LLM output against the real text and flags misquotes.
     uses: [quran-script]
     evidence: https://github.com/yazinsai/quran-validator
+    source_url: https://github.com/yazinsai/quran-validator
     featured: true
 
   - id: mihrab
@@ -64,6 +70,7 @@ apps:
     description: Prayer times, the Quran with tajweed colours, duas and dhikr in one private app.
     uses: [font]
     evidence: https://github.com/MihrabHQ/Mihrab
+    source_url: https://github.com/MihrabHQ/Mihrab
 
   - id: bayaan
     name: Bayaan
@@ -84,30 +91,33 @@ apps:
     description: Beginner-friendly Quran app with Arabic learning tools, recitations and translations.
     uses: [transliteration, font]
     evidence: https://github.com/TheAbubakrAbu/Al-Quran-iOS/blob/main/CREDITS.md
+    source_url: https://github.com/TheAbubakrAbu/Al-Quran-iOS
 
   - id: quranic-universal-audio
     name: Quranic Universal Audio
     url: https://audio.qud.dev
     icon: quranic-universal-audio.png
-    platforms: [dataset]
+    project_type: data
     kind: Audio timing
     description: Unified recitation audio with word and letter timestamps for apps and researchers.
     uses: [quran-script, quran-metadata, font]
     evidence: https://github.com/QUD-Technologies/quranic-universal-audio
+    source_url: https://github.com/QUD-Technologies/quranic-universal-audio
 
   - id: quranic-phonemizer
     name: Quranic Phonemizer
     url: https://phonemizer.qud.dev
-    platforms: [library]
+    project_type: library
     kind: Python library
     description: Converts Quran text to phonemes and annotates tajweed, in Hafs and Warsh.
     uses: [quran-script]
     evidence: https://github.com/QUD-Technologies/quranic-phonemizer
+    source_url: https://github.com/QUD-Technologies/quranic-phonemizer
 
   - id: quran-ebook
     name: quran-ebook
     url: https://github.com/zeeyado/quran-ebook
-    platforms: [tool]
+    project_type: tool
     kind: Ebook generator
     description: Generates Quran ebooks with correct Arabic rendering, translations and tafsir.
     uses: [font, translation, tafsir]
@@ -121,11 +131,12 @@ apps:
     description: Semantic search across the Quran with tafsir, hadith with narrator chains, and more.
     uses: [font, quran-script]
     evidence: https://github.com/arriqaaq/ilm/blob/main/frontend/static/fonts/quran/README.md
+    source_url: https://github.com/arriqaaq/ilm
 
   - id: obsidian-quran
     name: Quran Helper for Obsidian
     url: https://github.com/AmmarCodes/obsidian-quran-helper-plugin
-    platforms: [desktop, tool]
+    project_type: tool
     kind: Obsidian plugin
     description: Find any ayah and insert it into your Obsidian notes.
     uses: [quran-script]
@@ -134,7 +145,7 @@ apps:
   - id: quran-sh
     name: quran.sh
     url: https://github.com/smashah/quran.sh
-    platforms: [tool]
+    project_type: tool
     kind: Terminal reader
     description: Read and listen to the Quran in the terminal, with word-following audio.
     uses: [translation, tafsir, morphology, recitation, mushaf-layout]
@@ -149,6 +160,7 @@ apps:
     description: Flutter Quran reader built on the King Fahd Complex Hafs text.
     uses: [quran-script]
     evidence: https://github.com/ya27hw/equran_app
+    source_url: https://github.com/ya27hw/equran_app
 
   - id: nedaa
     name: Nedaa
@@ -159,6 +171,7 @@ apps:
     description: Prayer times, athan, athkar and qibla, with a Quran reader. No ads or tracking.
     uses: [quran-metadata, recitation]
     evidence: https://github.com/NedaaDevs/nedaa/blob/main/src/constants/Acknowledgements.ts
+    source_url: https://github.com/NedaaDevs/nedaa
 
   - id: nimaz
     name: Nimaz
@@ -169,6 +182,7 @@ apps:
     description: Offline, ad-free Islamic companion app with a mushaf reader.
     uses: [mushaf-layout]
     evidence: https://github.com/arshad-shah/Nimaz
+    source_url: https://github.com/arshad-shah/Nimaz
 
   - id: tibyan
     name: Tibyan
@@ -179,6 +193,7 @@ apps:
     description: "Free, non-profit Quran app: mushaf, tafsir and recitation with word highlighting."
     uses: [recitation, mushaf-layout, tafsir]
     evidence: https://github.com/helalrules7/tibyan/blob/main/tools/fetch_qul_timing.py
+    source_url: https://github.com/helalrules7/tibyan
 
   - id: super-quran
     name: Super Quran
@@ -198,6 +213,7 @@ apps:
     description: Memorise the Quran through reflection, with classical tafsir, i'rab and qira'at.
     uses: [tafsir, morphology]
     evidence: https://github.com/71iq/Hafiz/blob/main/lib/public-pages/content.ts
+    source_url: https://github.com/71iq/Hafiz
 
   - id: waqfah
     name: Waqfah
@@ -208,11 +224,12 @@ apps:
     description: Shows an ayah before opening a chosen app, so you can read or skip and carry on.
     uses: [quran-script, translation]
     evidence: https://github.com/ShrekBytes/waqfah
+    source_url: https://github.com/ShrekBytes/waqfah
 
   - id: quran-video-maker
     name: Quran Video Maker
     url: https://github.com/ashaltu/quran-video-maker-ffmpeg
-    platforms: [tool]
+    project_type: tool
     kind: Video CLI
     description: Command-line tool that renders Quran verse videos with audio and translations.
     uses: [recitation, translation, quran-script]
@@ -227,6 +244,7 @@ apps:
     description: Ad-free Quran in IndoPak Arabic with Urdu and English, offline as a PWA.
     uses: [quran-script]
     evidence: https://github.com/awaism257/justquran/blob/main/src/pages/About.tsx
+    source_url: https://github.com/awaism257/justquran
 
   - id: quran-reader-gnome
     name: Quran Reader for GNOME
@@ -237,6 +255,7 @@ apps:
     description: Native GNOME app that renders the Qatar mushaf from QUL layout and SVG pages.
     uses: [mushaf-layout]
     evidence: https://github.com/hihebark/QuranReader
+    source_url: https://github.com/hihebark/QuranReader
 
   - id: quran-offline
     name: Qur'an Offline
@@ -247,3 +266,4 @@ apps:
     description: Surah, juz and mushaf reading with bookmarks and translations, fully offline.
     uses: [font, transliteration]
     evidence: https://github.com/hndrwn-dk/quran-offline-mobile/blob/main/DATA_SOURCES.md
+    source_url: https://github.com/hndrwn-dk/quran-offline-mobile

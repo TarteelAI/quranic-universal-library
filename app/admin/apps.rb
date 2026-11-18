@@ -35,7 +35,11 @@ ActiveAdmin.register App do
       row :id
       row(:icon) { |app| image_tag(app.icon, size: 96, alt: '') if app.icon.attached? }
       row :name
+      row(:project_type) { |app| AppDirectory::PROJECT_TYPES.fetch(app.project_type).label }
       row :url
+      row :app_store_url
+      row :play_store_url
+      row :source_url
       row :kind
       row :description
       row(:platforms) { |app| app.platforms.map { |key| AppDirectory::PLATFORMS.fetch(key).label }.join(', ') }
@@ -59,10 +63,15 @@ ActiveAdmin.register App do
       f.input :published, hint: 'Shown on /apps. Needs a kind and a description.'
       f.input :featured, hint: 'Listed first. The home page shows the first eight apps.'
       f.input :name
-      f.input :url, label: 'Link'
+      f.input :project_type, as: :select, include_blank: false,
+                             collection: AppDirectory::PROJECT_TYPES.values.map { |type| [type.label, type.key] }
+      f.input :url, label: 'Link', hint: 'The main link: the site, else a store page or the repo.'
+      f.input :app_store_url, label: 'App Store link'
+      f.input :play_store_url, label: 'Google Play link'
+      f.input :source_url, label: 'Source code link'
       f.input :kind, hint: 'A short noun for the home page, such as "Hifz app".'
       f.input :description, as: :text, input_html: { rows: 3 }
-      f.input :platforms, as: :check_boxes,
+      f.input :platforms, as: :check_boxes, hint: 'Apps only.',
                           collection: AppDirectory::PLATFORMS.values.map { |platform| [platform.label, platform.key] }
       f.input :uses, as: :check_boxes, label: 'Resources used',
                      collection: Catalog::Taxonomy.types.map { |type| [type.label, type.key] }
@@ -73,6 +82,6 @@ ActiveAdmin.register App do
     f.actions
   end
 
-  permit_params :published, :featured, :name, :url, :kind, :description, :icon_upload, :evidence, :contact,
-                platforms: [], uses: []
+  permit_params :published, :featured, :name, :project_type, :url, :app_store_url, :play_store_url, :source_url,
+                :kind, :description, :icon_upload, :evidence, :contact, platforms: [], uses: []
 end

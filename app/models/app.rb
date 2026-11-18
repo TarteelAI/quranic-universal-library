@@ -3,7 +3,9 @@
 # An app built with QUL, in the apps directory (/apps and the home page's apps band) once it is
 # published. Rows come from the submission form on /apps (Site::AppSubmissionsController),
 # unpublished until an editor approves them in the CMS, and from `apps:import`. `contact` is for
-# the QUL team only: no public serializer reads it.
+# the QUL team only: no public serializer reads it. `url` is the main link (the site, else a store
+# page or the repo); the store and source links are extra links beside it. Only an app (the
+# `app` type) has platforms.
 class App < ApplicationRecord
   # The submissions a user can send in a day (DECISIONS.md, Sprint 002).
   DAILY_LIMIT = 3
@@ -15,16 +17,22 @@ class App < ApplicationRecord
   belongs_to :user, optional: true
   has_one_attached :icon, service: Rails.env.production? ? :qul_exports : nil
 
-  normalizes :name, :url, :contact, :kind, :description, :evidence, with: ->(value) { value.strip }
+  LINKS = [:url, :app_store_url, :play_store_url, :source_url].freeze
+
+  normalizes :name, :contact, :kind, :description, :evidence, *LINKS, with: ->(value) { value.strip.presence }
   normalizes :platforms, :uses, with: ->(values) { values.compact_blank.uniq }
 
   # The directory: published apps, featured first, then oldest first (the import keeps the order of
   # config/apps.yml).
+  before_validation { self.platforms = [] unless project_type == 'app' }
+
   scope :directory, -> { where(published: true).order(featured: :desc, id: :asc) }
 
   validates :name, presence: true, length: { maximum: 100 }
-  validates :url, presence: true, length: { maximum: 500 }
-  validate :url_is_a_web_address
+  validates :url, presence: true
+  validates(*LINKS, length: { maximum: 500 })
+  validates :project_type, inclusion: { in: AppDirectory::PROJECT_TYPES.keys, message: 'must be chosen from the list' }
+  validate :links_are_web_addresses
   validate :platforms_from_the_list
   validate :uses_from_the_taxonomy
   validate :icon_is_a_small_image
@@ -33,6 +41,7 @@ class App < ApplicationRecord
   validates :description, presence: true, length: { maximum: 300 }, if: :published?
 
   with_options on: :submission do
+    validates :description, presence: true, length: { maximum: 300 }
     validates :contact, presence: true, length: { maximum: 254 }
     validates :contact, format: { with: URI::MailTo::EMAIL_REGEXP, message: 'must be an email address' },
                         allow_blank: true
@@ -62,10 +71,13 @@ class App < ApplicationRecord
     errors.add(:base, "You can send at most #{DAILY_LIMIT} apps a day. Try again tomorrow.")
   end
 
-  def url_is_a_web_address
-    return if url.blank? || web_address?(url)
+  def links_are_web_addresses
+    LINKS.each do |link|
+      value = public_send(link)
+      next if value.blank? || web_address?(value)
 
-    errors.add(:url, 'must be a web address starting with http:// or https://')
+      errors.add(link, 'must be a web address starting with http:// or https://')
+    end
   end
 
   def web_address?(value)
@@ -76,7 +88,7 @@ class App < ApplicationRecord
   end
 
   def platforms_from_the_list
-    if platforms.empty?
+    if platforms.empty? && project_type == 'app'
       errors.add(:platforms, 'must include at least one platform')
     elsif !platforms.all? { |key| AppDirectory::PLATFORMS.key?(key) }
       errors.add(:platforms, 'must be chosen from the list')

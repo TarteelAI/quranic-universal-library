@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_18_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -119,6 +119,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
     t.string "kind"
     t.text "description"
     t.string "evidence"
+    t.string "project_type", default: "app", null: false
+    t.string "app_store_url"
+    t.string "play_store_url"
+    t.string "source_url"
     t.index ["import_key"], name: "index_apps_on_import_key", unique: true
     t.index ["user_id"], name: "index_apps_on_user_id"
   end

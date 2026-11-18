@@ -11,7 +11,7 @@ import AppsPage from './AppsPage'
 describe('site/AppsPage', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('lists the apps with their links, platforms and resource type chips', () => {
+  it('lists the apps with their type or platforms, their links and resource type chips', () => {
     renderPage(AppsPage, { props: appsPageProps })
 
     expect(screen.getByRole('list', { name: 'Apps' }).children).toHaveLength(4)
@@ -22,6 +22,22 @@ describe('site/AppsPage', () => {
       ['Translation', '/resources/translation'],
     ])
     expect(screen.getByText('F-Droid')).toBeDefined()
+
+    const links = (name: string) =>
+      within(screen.getByRole('link', { name }).closest('li')!)
+        .getAllByRole('link')
+        .slice(1, -1)
+        .filter((link) => !link.getAttribute('href')!.startsWith('/'))
+        .map((link) => [link.textContent, link.getAttribute('href')])
+    expect(links('QuranWBW')).toEqual([
+      ['quranwbw.com', 'https://quranwbw.com'],
+      ['Source', 'https://github.com/marwan/quranwbw'],
+    ])
+    expect(links('Nimaz')).toEqual([
+      ['nimaz.arshadshah.com', 'https://nimaz.arshadshah.com'],
+      ['Google Play', 'https://play.google.com/store/apps/details?id=com.arshadshah.nimaz'],
+    ])
+    expect(screen.getByRole('link', { name: 'Quran Validator' }).closest('li')!.textContent).toContain('Library')
   })
 
   it('puts a filter in the URL, and a second click on the chip removes it', () => {
@@ -36,16 +52,28 @@ describe('site/AppsPage', () => {
     )
     unmount()
 
-    const filtered = { ...appsPageProps, filters: { platform: 'android' as const, type: 'translation' as const } }
+    const filtered = {
+      ...appsPageProps,
+      filters: { projectType: null, platform: 'android' as const, type: 'translation' as const },
+    }
     renderPage(AppsPage, { props: filtered })
     const chip = within(screen.getByRole('group', { name: 'Platform' })).getByRole('button', { name: 'Android' })
     expect(chip.getAttribute('aria-pressed')).toBe('true')
     fireEvent.click(chip)
     expect(get).toHaveBeenLastCalledWith('/apps?type=translation', {}, expect.anything())
+
+    fireEvent.click(within(screen.getByRole('group', { name: 'Type' })).getByRole('button', { name: 'Library' }))
+    expect(get).toHaveBeenLastCalledWith(
+      '/apps?project_type=library&platform=android&type=translation',
+      {},
+      expect.anything(),
+    )
   })
 
   it('says when no app matches', () => {
-    renderPage(AppsPage, { props: { ...appsPageProps, apps: [], filters: { platform: 'ios', type: null } } })
+    renderPage(AppsPage, {
+      props: { ...appsPageProps, apps: [], filters: { projectType: null, platform: 'ios', type: null } },
+    })
 
     expect(screen.getByText('No app matches these filters')).toBeDefined()
   })
@@ -55,7 +83,7 @@ describe('site/AppsPage', () => {
     fireEvent.click(screen.getAllByRole('button', { name: /Submit your app/ })[0])
 
     const dialog = screen.getByRole('dialog', { name: 'Submit your app' })
-    for (const field of ['App name', 'Link', 'Icon (optional)', 'Contact email']) {
+    for (const field of ['Name', 'Link', 'Description', 'Source code (optional)', 'Icon (optional)', 'Contact email']) {
       expect(within(dialog).getByLabelText(field).matches(':disabled')).toBe(true)
     }
     expect(within(dialog).getByRole('button', { name: 'Recitation' }).matches(':disabled')).toBe(true)
@@ -72,9 +100,15 @@ describe('site/AppsPage', () => {
 
     const dialog = within(screen.getByRole('dialog', { name: 'Submit your app' }))
     expect(dialog.queryByRole('link', { name: 'Sign in' })).toBeNull()
-    fireEvent.change(dialog.getByLabelText('App name'), { target: { value: 'Noor' } })
+    fireEvent.change(dialog.getByLabelText('Name'), { target: { value: 'Noor' } })
     fireEvent.change(dialog.getByLabelText('Link'), { target: { value: 'https://noor.example' } })
+    fireEvent.change(dialog.getByLabelText('Description'), { target: { value: 'Reads the Quran.' } })
+    expect(dialog.queryByLabelText('App Store link (optional)')).toBeNull()
     fireEvent.click(dialog.getByRole('button', { name: 'iOS' }))
+    fireEvent.change(dialog.getByLabelText('App Store link (optional)'), {
+      target: { value: 'https://apps.apple.com/app/id1' },
+    })
+    expect(dialog.queryByLabelText('Google Play link (optional)')).toBeNull()
     fireEvent.click(dialog.getByRole('button', { name: 'Translation' }))
     fireEvent.change(dialog.getByLabelText('Contact email'), { target: { value: 'maker@example.test' } })
     fireEvent.click(dialog.getByRole('checkbox'))
@@ -88,7 +122,12 @@ describe('site/AppsPage', () => {
         app: {
           name: 'Noor',
           url: 'https://noor.example',
+          project_type: 'app',
+          description: 'Reads the Quran.',
           platforms: ['ios'],
+          app_store_url: 'https://apps.apple.com/app/id1',
+          play_store_url: '',
+          source_url: '',
           uses: ['translation'],
           contact: 'maker@example.test',
           consent: true,
@@ -96,6 +135,41 @@ describe('site/AppsPage', () => {
         },
       },
       expect.objectContaining({ preserveScroll: true }),
+    )
+  })
+
+  it('asks a library for no platforms or store links, and sends none', () => {
+    const post = vi.spyOn(router, 'post').mockImplementation(() => {})
+    renderPage(AppsPage, { props: appsPageProps, shared: { auth: signedInAuth }, url: '/apps?submit=1' })
+
+    const dialog = within(screen.getByRole('dialog', { name: 'Submit your app' }))
+    fireEvent.change(dialog.getByLabelText('Name'), { target: { value: 'Noor' } })
+    fireEvent.change(dialog.getByLabelText('Link'), { target: { value: 'https://noor.example' } })
+    fireEvent.change(dialog.getByLabelText('Description'), { target: { value: 'A Quran package.' } })
+    fireEvent.change(dialog.getByLabelText('Contact email'), { target: { value: 'maker@example.test' } })
+    fireEvent.click(dialog.getByRole('button', { name: 'Android' }))
+    fireEvent.change(dialog.getByLabelText('Google Play link (optional)'), {
+      target: { value: 'https://play.google.com/store/apps/details?id=noor' },
+    })
+    fireEvent.click(within(dialog.getByRole('group', { name: 'What is it?' })).getByRole('button', { name: 'Library' }))
+    expect(dialog.queryByRole('group', { name: 'Platforms' })).toBeNull()
+    expect(dialog.queryByLabelText('Google Play link (optional)')).toBeNull()
+    fireEvent.change(dialog.getByLabelText('Source code (optional)'), {
+      target: { value: 'https://github.com/example/noor' },
+    })
+    fireEvent.click(dialog.getByRole('button', { name: 'Submit app' }))
+
+    expect(post).toHaveBeenCalledWith(
+      '/apps',
+      {
+        app: expect.objectContaining({
+          project_type: 'library',
+          platforms: [],
+          play_store_url: '',
+          source_url: 'https://github.com/example/noor',
+        }),
+      },
+      expect.anything(),
     )
   })
 
@@ -109,8 +183,9 @@ describe('site/AppsPage', () => {
     renderPage(AppsPage, { props: appsPageProps, shared: { auth: signedInAuth }, url: '/apps?submit=1' })
 
     const dialog = within(screen.getByRole('dialog', { name: 'Submit your app' }))
-    fireEvent.change(dialog.getByLabelText('App name'), { target: { value: 'Noor' } })
+    fireEvent.change(dialog.getByLabelText('Name'), { target: { value: 'Noor' } })
     fireEvent.change(dialog.getByLabelText('Link'), { target: { value: 'https://noor.example' } })
+    fireEvent.change(dialog.getByLabelText('Description'), { target: { value: 'Reads the Quran.' } })
     fireEvent.change(dialog.getByLabelText('Contact email'), { target: { value: 'maker@example.test' } })
     fireEvent.click(dialog.getByRole('button', { name: 'Submit app' }))
 
@@ -119,7 +194,7 @@ describe('site/AppsPage', () => {
       'app-platforms-error',
     )
     expect(dialog.getByText('Consent must be given')).toBeDefined()
-    expect(dialog.getByLabelText('App name')).toHaveProperty('value', 'Noor')
+    expect(dialog.getByLabelText('Name')).toHaveProperty('value', 'Noor')
   })
 
   it('shows the refusal of a submission over the daily limit', async () => {
@@ -129,15 +204,16 @@ describe('site/AppsPage', () => {
     renderPage(AppsPage, { props: appsPageProps, shared: { auth: signedInAuth }, url: '/apps?submit=1' })
 
     const dialog = within(screen.getByRole('dialog', { name: 'Submit your app' }))
-    fireEvent.change(dialog.getByLabelText('App name'), { target: { value: 'Noor' } })
+    fireEvent.change(dialog.getByLabelText('Name'), { target: { value: 'Noor' } })
     fireEvent.change(dialog.getByLabelText('Link'), { target: { value: 'https://noor.example' } })
+    fireEvent.change(dialog.getByLabelText('Description'), { target: { value: 'Reads the Quran.' } })
     fireEvent.change(dialog.getByLabelText('Contact email'), { target: { value: 'maker@example.test' } })
     fireEvent.click(dialog.getByRole('button', { name: 'Submit app' }))
 
     await waitFor(() =>
       expect(dialog.getByRole('alert').textContent).toBe('You can send at most 3 apps a day. Try again tomorrow.'),
     )
-    expect(dialog.getByLabelText('App name')).toHaveProperty('value', 'Noor')
+    expect(dialog.getByLabelText('Name')).toHaveProperty('value', 'Noor')
   })
 
   it('hydrates the server HTML without a mismatch', async () => {

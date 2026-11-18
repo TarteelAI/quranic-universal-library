@@ -35,5 +35,9 @@ en:
     attributes:
       app:
         url: "Link"
+        project_type: "Type"
+        app_store_url: "App Store link"
+        play_store_url: "Google Play link"
+        source_url: "Source code link"
         uses: "Resources used"
         contact: "Contact email"

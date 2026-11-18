@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 module Site
-  # A published app of the apps directory (App). Its platforms are labels. Never the contact.
+  # A published app of the apps directory (App). Its type and platforms are labels. Never the contact.
   class AppResource < ApplicationResource
     typelize id: :string, name: :string, url: :string, kind: :string, description: :string, featured: :boolean,
-             icon_url: [:string, { nullable: true }], platforms: [:string, { multi: true }]
-    attributes :name, :url, :kind, :description, :featured
+             project_type: :string, icon_url: [:string, { nullable: true }], platforms: [:string, { multi: true }],
+             app_store_url: [:string, { nullable: true }], play_store_url: [:string, { nullable: true }],
+             source_url: [:string, { nullable: true }]
+    attributes :name, :url, :kind, :description, :featured, :app_store_url, :play_store_url, :source_url
+
+    attribute(:project_type) { |app| AppDirectory::PROJECT_TYPES.fetch(app.project_type).label }
 
     attribute(:id) { |app| app.id.to_s }
 

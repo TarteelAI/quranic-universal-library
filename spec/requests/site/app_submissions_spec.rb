@@ -14,7 +14,8 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
   let(:icon) { Rack::Test::UploadedFile.new(Rails.public_path.join('app-icons/bayaan.png'), 'image/png') }
   let(:valid_app) do
     { name: 'Spec Reader', url: 'https://example.test/spec-reader', platforms: ['ios', 'web'],
-      uses: ['translation', 'recitation'], contact: 'maker@example.test', consent: '1', }
+      description: 'Reads the Quran with translations.', uses: ['translation', 'recitation'],
+      contact: 'maker@example.test', consent: '1', }
   end
 
   def submit(app, headers: inertia_headers)
@@ -39,13 +40,16 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       user = create_account
       sign_in user
 
-      expect { submit(valid_app.merge(icon: icon, published: '1', featured: '1')) }.to change(App, :count).by(1)
+      links = { app_store_url: 'https://apps.apple.com/app/id1', source_url: 'https://github.com/example/spec-reader' }
+      expect { submit(valid_app.merge(icon: icon, published: '1', featured: '1', **links)) }
+        .to change(App, :count).by(1)
 
       expect(response).to redirect_to('/apps')
       app = App.last
-      expect(app).to have_attributes(name: 'Spec Reader', url: 'https://example.test/spec-reader',
-                                     platforms: ['ios', 'web'], uses: ['translation', 'recitation'],
-                                     contact: 'maker@example.test', consent: true,
+      expect(app).to have_attributes(name: 'Spec Reader', url: 'https://example.test/spec-reader', **links,
+                                     project_type: 'app', description: 'Reads the Quran with translations.',
+                                     play_store_url: nil, platforms: ['ios', 'web'],
+                                     uses: ['translation', 'recitation'], contact: 'maker@example.test', consent: true,
                                      published: false, featured: false, user: user,)
       expect(app.icon).to be_attached
       expect(app.icon.blob).to have_attributes(content_type: 'image/png',
@@ -90,8 +94,9 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       sign_in create_account
       not_an_image = Rack::Test::UploadedFile.new(StringIO.new('<html>not an image</html>'), 'image/png',
                                                   original_filename: 'icon.png',)
-      invalid = { name: '', url: 'javascript:alert(1)', platforms: ['palm-os'], uses: ['hadith'],
-                  contact: 'not an address', consent: '0', icon: not_an_image, }
+      invalid = { name: '', url: 'javascript:alert(1)', source_url: 'ftp://example.test',
+                  platforms: ['palm-os'], uses: ['hadith'], contact: 'not an address', consent: '0',
+                  icon: not_an_image, }
 
       expect { submit(invalid, headers: inertia_headers.merge('Referer' => 'http://localhost/apps?platform=web')) }
         .not_to change(App, :count)
@@ -102,6 +107,8 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       expect(inertia.props[:errors]).to eq(
         'name' => ["Name can't be blank"],
         'url' => ['Link must be a web address starting with http:// or https://'],
+        'source_url' => ['Source code link must be a web address starting with http:// or https://'],
+        'description' => ["Description can't be blank"],
         'platforms' => ['Platforms must be chosen from the list'],
         'uses' => ['Resources used must be chosen from the list'],
         'contact' => ['Contact email must be an email address'],
@@ -132,6 +139,19 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       expect(inertia.props[:errors]).to include('platforms' => ['Platforms must include at least one platform'],
                                                 'uses' => ['Resources used must include at least one resource type'],
                                                 'icon' => ['Icon must be 1 MB or smaller'],)
+    end
+
+    it 'takes a library without platforms, and drops any platforms sent with it' do
+      sign_in create_account
+
+      expect { submit(valid_app.merge(project_type: 'library')) }.to change(App, :count).by(1)
+      expect(App.last).to have_attributes(project_type: 'library', platforms: [])
+
+      expect { submit(valid_app.merge(project_type: 'tool', platforms: [])) }.to change(App, :count).by(1)
+
+      expect { submit(valid_app.merge(project_type: 'game')) }.not_to change(App, :count)
+      follow_redirect!(headers: inertia_headers)
+      expect(inertia.props[:errors]).to eq('project_type' => ['Type must be chosen from the list'])
     end
 
     describe 'the daily limit' do

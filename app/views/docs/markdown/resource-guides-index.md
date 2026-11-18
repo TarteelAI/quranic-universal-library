@@ -44,4 +44,4 @@ If you are choosing a category for the first time, see [datasets.md](datasets.md
 
 ## Download Resources
 
-Browse all datasets in the website resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+Browse all datasets in the website resources directory: [/resources](/resources)

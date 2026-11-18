@@ -15,7 +15,7 @@ Typical fields include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/ayah-theme](https://qul.tarteel.ai/resources/ayah-theme)
+- [/resources/ayah-theme](/resources/ayah-theme)
 
 ## 2) When to Use It
 
@@ -27,7 +27,7 @@ Use ayah-theme data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/ayah-theme](https://qul.tarteel.ai/resources/ayah-theme).
+1. Open [/resources/ayah-theme](/resources/ayah-theme).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

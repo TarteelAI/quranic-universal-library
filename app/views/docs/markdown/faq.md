@@ -6,7 +6,7 @@ QUL primarily provides downloadable datasets. Integrators usually package data i
 
 ## Do I need to clone this repository to use QUL resources?
 
-No. Most users can work directly from downloadable resources at [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources).
+No. Most users can work directly from downloadable resources at [/resources](/resources).
 
 ## Should I choose JSON or SQLite?
 
@@ -15,11 +15,7 @@ No. Most users can work directly from downloadable resources at [https://qul.tar
 
 ## How do I join different resources together?
 
-Start with shared identifiers:
-
-- `surah_id`
-- `ayah_number`
-- `word_position` (for word-level resources)
+Join on the ayah key (`"2:255"`) for ayah-level data and the word location (`"1:1:2"`) for word-level data. Most JSON exports are keyed by them.
 
 See [data-model.md](data-model.md) for join guidance.
 
@@ -29,10 +25,10 @@ Open an issue with:
 
 - resource URL
 - format (JSON/SQLite)
-- exact identifiers involved
+- the ayah key or word location involved (for example `2:255` or `1:1:2`)
 - expected vs actual output
 - minimal reproducible snippet
 
 ## Can I use QUL data commercially?
 
-Check repository license terms and dataset-specific licensing details before production use.
+Each resource has its own licence, shown on its page. Check it before production use. Many resources still show "Licence not yet confirmed": treat those as not cleared until the licence is added.

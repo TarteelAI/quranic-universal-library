@@ -17,7 +17,7 @@ Typical fields include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/similar-ayah](https://qul.tarteel.ai/resources/similar-ayah)
+- [/resources/similar-ayah](/resources/similar-ayah)
 
 ## 2) When to Use It
 
@@ -29,7 +29,7 @@ Use similar-ayah data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/similar-ayah](https://qul.tarteel.ai/resources/similar-ayah).
+1. Open [/resources/similar-ayah](/resources/similar-ayah).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

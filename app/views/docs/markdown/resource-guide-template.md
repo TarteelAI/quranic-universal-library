@@ -58,6 +58,6 @@ Issue report should include:
 
 - Resource URL
 - Format
-- Exact identifiers (`surah_id`, `ayah_number`, `word_position` if relevant)
+- The the ayah key or word location involved (for example `2:255` or `1:1:2`)
 - Expected vs actual behavior
 - Minimal reproducible snippet

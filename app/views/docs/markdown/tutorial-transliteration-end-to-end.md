@@ -14,7 +14,7 @@ Typical entries include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration)
+- [/resources/transliteration](/resources/transliteration)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use transliteration data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration).
+1. Open [/resources/transliteration](/resources/transliteration).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

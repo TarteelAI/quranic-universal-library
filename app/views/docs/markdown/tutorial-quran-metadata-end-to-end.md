@@ -14,7 +14,7 @@ Typical metadata includes:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/quran-metadata](https://qul.tarteel.ai/resources/quran-metadata)
+- [/resources/quran-metadata](/resources/quran-metadata)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use metadata resources when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/quran-metadata](https://qul.tarteel.ai/resources/quran-metadata).
+1. Open [/resources/quran-metadata](/resources/quran-metadata).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab
@@ -64,7 +64,7 @@ Starter integration snippet (JavaScript):
 ```javascript
 // Build lookup maps for fast structure-based navigation.
 const buildMetadataIndexes = ({ surahs, juzRanges }) => {
-  const surahById = new Map(surahs.map((s) => [s.surah_id, s]));
+  const surahById = new Map(surahs.map((s) => [s.id, s]));
   const juzByNumber = new Map(juzRanges.map((j) => [j.juz_number, j]));
   return { surahById, juzByNumber };
 };
@@ -115,13 +115,13 @@ const juzRanges = [
 ];
 
 const surahs = [
-  { surah_id: 1, name: "Al-Fatihah", revelation_place: "makkah" },
-  { surah_id: 2, name: "Al-Baqarah", revelation_place: "madinah" },
-  { surah_id: 78, name: "An-Naba", revelation_place: "makkah" },
-  { surah_id: 114, name: "An-Nas", revelation_place: "makkah" }
+  { id: 1, name: "Al-Fatihah", revelation_place: "makkah" },
+  { id: 2, name: "Al-Baqarah", revelation_place: "madinah" },
+  { id: 78, name: "An-Naba", revelation_place: "makkah" },
+  { id: 114, name: "An-Nas", revelation_place: "makkah" }
 ];
 
-const surahById = new Map(surahs.map((s) => [s.surah_id, s]));
+const surahById = new Map(surahs.map((s) => [s.id, s]));
 const juzByNumber = new Map(juzRanges.map((j) => [j.juz_number, j]));
 
 const app = document.getElementById("app");

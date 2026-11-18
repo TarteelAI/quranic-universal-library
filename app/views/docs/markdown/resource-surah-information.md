@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/surah-info](https://qul.tarteel.ai/resources/surah-info)
+- [/resources/surah-info](/resources/surah-info)

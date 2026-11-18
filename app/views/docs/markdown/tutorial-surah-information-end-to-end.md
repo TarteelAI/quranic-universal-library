@@ -8,7 +8,7 @@ Surah Information resources provide chapter metadata and explanatory context.
 
 Typical fields include:
 
-- Surah identity (`surah_id` / number)
+- Surah number (`surah_number`)
 - Names/titles
 - Short summary text
 - Detailed long-form content (often with sections such as `Name`, `Period of Revelation`, `Theme`)
@@ -17,7 +17,7 @@ Typical fields include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/surah-info](https://qul.tarteel.ai/resources/surah-info)
+- [/resources/surah-info](/resources/surah-info)
 
 ## 2) When to Use It
 
@@ -29,7 +29,7 @@ Use surah-info data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/surah-info](https://qul.tarteel.ai/resources/surah-info).
+1. Open [/resources/surah-info](/resources/surah-info).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab
@@ -86,7 +86,7 @@ Starter integration snippet (JavaScript):
 ```javascript
 const buildSurahInfoIndex = (rows) =>
   rows.reduce((index, row) => {
-    index[row.surah_id] = row;
+    index[row.surah_number] = row;
     return index;
   }, {});
 
@@ -139,7 +139,7 @@ Inputs:
 Processing:
 
 1. User opens a surah.
-2. App fetches chapter info by `surah_id`.
+2. App fetches chapter info by `surah_number`.
 3. App renders intro card, then ayah list.
 
 Expected output:

@@ -14,7 +14,7 @@ Typical fields include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/morphology](https://qul.tarteel.ai/resources/morphology)
+- [/resources/morphology](/resources/morphology)
 
 ## 2) When to Use It
 
@@ -26,7 +26,7 @@ Use morphology data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/morphology](https://qul.tarteel.ai/resources/morphology).
+1. Open [/resources/morphology](/resources/morphology).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab

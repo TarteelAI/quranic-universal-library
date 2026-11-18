@@ -1,6 +1,6 @@
 ---
 agent: docs-fixes
-status: briefed
+status: in-progress
 ---
 
 ## Task
@@ -105,6 +105,11 @@ for the minimum necessary: no rewrites, no restructuring, no tutorial trimming.
 - Your final commit carries the terminal `status`; push it. Unpushed commits are not done.
 
 ## Commits
+
+- docs: fix join identifiers (JSON keyed by `"1:1"` / `"1:1:1"`, real SQLite column names per
+  export) in the getting-started, downloading-data, data-model, FAQ, best-practices, contributing,
+  download-resources and guide-template pages and two tutorials; FAQ licence answer; site links
+  relative (`/resources/...`). README.md and api.md untouched.
 
 ## Done
 

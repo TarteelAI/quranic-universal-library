@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/tafsir](https://qul.tarteel.ai/resources/tafsir)
+- [/resources/tafsir](/resources/tafsir)

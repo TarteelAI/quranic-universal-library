@@ -15,7 +15,7 @@ Depending on the selected package, you may get:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/translation](https://qul.tarteel.ai/resources/translation)
+- [/resources/translation](/resources/translation)
 
 ## 2) When to Use It
 
@@ -27,7 +27,7 @@ Use translation data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/translation](https://qul.tarteel.ai/resources/translation).
+1. Open [/resources/translation](/resources/translation).
 2. Keep the default listing order and open the first published card.
 3. Confirm the resource detail page includes:
    - `Preview` tab

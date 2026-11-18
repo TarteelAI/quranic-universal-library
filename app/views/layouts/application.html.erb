@@ -6,6 +6,9 @@
     <%= stylesheet_link_tag "tinymce_custom", "data-turbo-track": "reload", id: 'tinymce_custom_style' %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <% if ENV['REVIEW_OVERLAY_SCRIPT'].present? %>
+    <%= render 'shared/review_overlay' %>
+    <% end %>
   </head>
 
   <body class="font-inter" data-controller="event-tracker">

@@ -1,0 +1,2 @@
+<%# Review overlay on staging builds. The layouts render this only when REVIEW_OVERLAY_SCRIPT is set (see .env.sample). %>
+<%= tag.script(src: ENV['REVIEW_OVERLAY_SCRIPT'], data: { drop: ENV.fetch('REVIEW_OVERLAY_DROP', nil), build: ENV.fetch('GIT_SHA', nil) }, defer: true) %>

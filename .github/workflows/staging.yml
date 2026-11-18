@@ -35,6 +35,10 @@ jobs:
         with:
           push: true
           tags: tarteel/quranic-universal-library:qul-next-${{ github.sha }}
+          build-args: |
+            GIT_SHA=${{ github.sha }}
+            REVIEW_OVERLAY_SCRIPT=${{ vars.REVIEW_OVERLAY_SCRIPT }}
+            REVIEW_OVERLAY_DROP=${{ vars.REVIEW_OVERLAY_DROP }}
           cache-from: type=gha,scope=staging
           cache-to: type=gha,mode=max,scope=staging
 

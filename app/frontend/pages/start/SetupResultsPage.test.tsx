@@ -19,6 +19,7 @@ describe('start/SetupResultsPage', () => {
     expect(checklist.getAllByRole('link').map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
       ['Translation in English9', '#need-translation-en'],
       ['Tafsir in Urdu0', '#need-tafsir-ur'],
+      ['Tajweed text0', '#need-tajweed'],
     ])
 
     const translations = within(screen.getByRole('region', { name: /Translation in English/ }))
@@ -31,5 +32,13 @@ describe('start/SetupResultsPage', () => {
     const tafsir = within(screen.getByRole('region', { name: /Tafsir in Urdu/ }))
     expect(tafsir.getByText('Nothing in the library fits this yet.')).toBeDefined()
     expect(tafsir.queryByRole('link')).toBeNull()
+
+    // A need narrowed to a script with nothing tagged says so, and never lists other scripts as matches.
+    const tajweed = within(screen.getByRole('region', { name: /Tajweed text/ }))
+    expect(tajweed.getByText(/No IndoPak resources of this kind are tagged yet\./)).toBeDefined()
+    expect(tajweed.queryByRole('list')).toBeNull()
+    expect(tajweed.getByRole('link', { name: 'Browse all Quran script resources' }).getAttribute('href')).toBe(
+      '/resources/quran-script',
+    )
   })
 })

@@ -5,7 +5,7 @@ import { Container, SiteShell } from '@/components/layout'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
 import { ResultCard } from '@/components/qul/start'
-import { catalogResources } from '@/routes'
+import { catalogResources, catalogType } from '@/routes'
 import type { StartSetupResults } from '@/types/serializers'
 
 function joinAnd(items: string[]) {
@@ -25,8 +25,8 @@ export default function SetupResultsPage({
   total,
   vocabularies,
 }: StartSetupResults) {
-  const categoryOf = (type: string) =>
-    vocabularies.types.find((option) => option.key === type)?.category.key ?? 'metadata'
+  const typeOf = (type: string) => vocabularies.types.find((option) => option.key === type)
+  const categoryOf = (type: string) => typeOf(type)?.category.key ?? 'metadata'
 
   return (
     <SiteShell>
@@ -112,6 +112,18 @@ export default function SetupResultsPage({
                   </li>
                 ))}
               </ul>
+            ) : section.scripts.length > 0 ? (
+              // Never other scripts' resources in place of the chosen ones: say so, and link to
+              // every script, named as such (the type page).
+              <p className="text-sm text-muted-foreground">
+                No {joinAnd(section.scripts)} resources of this kind are tagged yet.{' '}
+                <Link
+                  href={catalogType(section.type).url}
+                  className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
+                >
+                  Browse all {typeOf(section.type)?.label ?? section.label} resources
+                </Link>
+              </p>
             ) : (
               <p className="text-sm text-muted-foreground">Nothing in the library fits this yet.</p>
             )}

@@ -102,6 +102,21 @@ RSpec.describe 'Guided setup (/start)', type: :request do
       expect(app.text).to include('Filtered for your Quran reader app', 'Your app needs', 'Translation in Urdu')
     end
 
+    it "never fills a script's need with another script's resources" do
+      scripted = DownloadableResource.published.where(resource_type: Catalog::Inference::SCRIPT_TYPES)
+      scripted.update_all(script_family: 'madani')
+      indopak = scripted.where(resource_type: 'mushaf-layout').order(:id).first
+      indopak.update_columns(script_family: 'indopak')
+
+      get '/resources?goal=reader&feature=mushaf,translation&script=indopak&lang=en'
+
+      sections = inertia.props[:sections].index_by { |section| section[:key] }
+      expect(sections.values_at('layout', 'font', 'text').pluck(:scripts)).to all(eq(['IndoPak']))
+      expect(sections['layout']).to include(total: 1, results: [include(id: indopak.id)])
+      expect(sections.values_at('font', 'text')).to all(include(total: 0, results: []))
+      expect(sections['translation-en'][:scripts]).to eq([])
+    end
+
     it 'loads the catalog once, however many languages are picked' do
       loaded = ['en', 'en,ur,bn,ru,tr,id,fr,es'].map do |languages|
         count = 0

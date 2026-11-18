@@ -1,8 +1,7 @@
 name: Staging (qul-next)
 
-# Builds qul-next, signs the image and asks TarteelAI/infra to deploy it to staging.
-# infra deploys only images this workflow signed on qul-next, so this repo holds no
-# deploy credentials. Never tags latest: deploy.yml owns that tag and production.
+# Builds and signs qul-next; TarteelAI/infra deploys only images this workflow signed on qul-next.
+# Never tags latest: deploy.yml owns that tag and production.
 on:
   push:
     branches: [qul-next]
@@ -57,7 +56,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # The run fields tell infra which run built the image.
       - name: Sign
         env:
           IMAGE: tarteel/quranic-universal-library
@@ -80,8 +78,6 @@ jobs:
           repositories: infra
           permission-actions: write
 
-      # The pod migrates before it serves: a failed migration fails the rollout and the old
-      # pod stays up.
       - name: Deploy
         env:
           GH_TOKEN: ${{ steps.app.outputs.token }}

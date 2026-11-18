@@ -1,0 +1,19 @@
+.github/workflows/staging.yml
+  s_d84dd69e9c1e95::t_fc6ed05fecca8b 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4ccd2ab0a5c11f6d3fdb4f2d0025d38dd2f361e3",
+  "prompts": {},
+  "sessions": {
+    "s_d84dd69e9c1e95": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f461177b-6faf-451e-9c4f-28b9eac70f75",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "Yunus Andreasson <yunus@edenmind.com>"
+    }
+  }
+}

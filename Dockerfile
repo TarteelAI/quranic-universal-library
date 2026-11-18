@@ -180,7 +180,6 @@ RUN yarn install --frozen-lockfile && yarn cache clean
 
 # precompile assets
 RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
 
 # pg_dump
 RUN apt-get update && apt-get install -y --no-install-recommends wget \

@@ -43,6 +43,8 @@ jobs:
     if: github.ref == 'refs/heads/qul-next'
     runs-on: ubuntu-24.04
     timeout-minutes: 50
+    # Holds the infra App key; only qul-next can use it.
+    environment: staging
     permissions:
       contents: read
       id-token: write

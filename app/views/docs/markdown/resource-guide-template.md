@@ -58,6 +58,6 @@ Issue report should include:
 
 - Resource URL
 - Format
-- The the ayah key or word location involved (for example `2:255` or `1:1:2`)
+- The ayah key or word location involved (for example `2:255` or `1:1:2`)
 - Expected vs actual behavior
 - Minimal reproducible snippet

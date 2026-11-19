@@ -1,5 +1,5 @@
 ---
-status: merged
+status: superseded (the R2 move is superseded by worklogs/2026-11-19-storage-stays-on-wasabi/)
 date: 2026-11-18
 branch: feat/r2-storage
 pr: 1072
@@ -7,6 +7,8 @@ sprint: null
 ---
 
 # Object storage on Cloudflare R2: the code half
+
+The R2 move is superseded by `worklogs/2026-11-19-storage-stays-on-wasabi/`: storage stays on its current provider.
 
 The app's three Active Storage services work on R2, and staging runs on its own R2 bucket.
 Production still runs on its old provider; it switches with the qul-next launch. The operations

@@ -1,11 +1,13 @@
 ---
-status: code merged; operations in progress (see handoff.md)
+status: superseded (the R2 move is superseded by worklogs/2026-11-19-storage-stays-on-wasabi/)
 date: 2026-11-18
 branch: feat/r2-storage
 base: qul-next
 ---
 
 # Object storage on Cloudflare R2
+
+The R2 move is superseded by `worklogs/2026-11-19-storage-stays-on-wasabi/`: storage stays on its current provider.
 
 The team approved moving all of this app's object storage to Cloudflare R2, with qul-next using
 R2 only. This worklog covers the code change (#1072 and its follow-up #1073, into `qul-next`). The bucket setup, the data

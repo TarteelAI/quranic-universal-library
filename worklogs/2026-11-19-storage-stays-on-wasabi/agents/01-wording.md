@@ -1,5 +1,5 @@
 ---
-status: briefed
+status: in-progress
 branch: docs/storage-stays-on-wasabi
 base: qul-next
 ---
@@ -67,3 +67,33 @@ behaviour.
 - **Blocked is a status, not a silence.** Write the blocker here and stop.
 - **An approach note is not a stop.** Keep building unless it ends in a question only the
   orchestrator can answer.
+
+## Handoff
+
+### Done
+
+- Commit "docs(storage): storage stays on the current provider": `DECISIONS.md` entry replaced
+  with a dated stay decision; `config/storage.yml` and `R2Service` comments give the reasons
+  without naming a provider (class comment says the name is historical); the 2026-11-18 R2
+  worklog's `plan.md` and `handoff.md` marked superseded; `handoff.md` written here with the
+  `amazon_s3` follow-up. No non-comment line of `config/storage.yml` or any `.rb` file changed.
+- `bundle exec rspec spec/lib/r2_service_spec.rb`: 6 examples, 0 failures. Run in a throwaway
+  `ruby:3.3.10-bookworm` container (worktree and the `qul-dev-bundle` volume mounted, Node
+  installed for ExecJS), because the host Ruby is outside the Gemfile range.
+
+### Decisions
+
+- `AGENTS.md`, `.env.sample` and `spec/lib/r2_service_spec.rb` left unchanged: none states that
+  storage is on R2 or will move there. The spec's R2-style fixture and its comment that R2
+  refuses two checksums are facts about R2, not claims about where storage is.
+- The decision's **Why** says only that the team chose to stay and that the code is
+  settings-driven; the brief gives no further reason, so none is invented.
+- `amazon_s3` and `storage:verify`/`storage:fix_sizes` stay described as in #1072/#1075.
+
+### Concerns
+
+- None.
+
+### Not done / open
+
+- The `amazon_s3` follow-up in `../handoff.md` is for the team (production row count).

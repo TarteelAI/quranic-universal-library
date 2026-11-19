@@ -33,9 +33,9 @@ local:
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
 
-# Public files. R2 serves a public bucket only on its own host, so links start at
-# QUL_STORAGE_PUBLIC_HOST (or CDN_HOST); with neither set they are the S3 endpoint's
-# (lib/active_storage/service/r2_service.rb).
+# Public files. A public file is linked on the public host, not on the storage endpoint, so
+# links start at QUL_STORAGE_PUBLIC_HOST (or CDN_HOST); with neither set they are the S3
+# endpoint's (lib/active_storage/service/r2_service.rb).
 qul_exports:
   service: R2
   access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"
@@ -44,8 +44,8 @@ qul_exports:
   bucket: "<%= ENV['QUL_STORAGE_BUCKET'].presence || 'missing' %>"
   public: <%= ENV['QUL_STORAGE_PUBLIC_EXPORT'].presence || true %>
   endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
-  # R2 refuses an upload that carries the SDK's default CRC32 beside the Content-MD5 Rails
-  # sends ("one non-default checksum at a time"), so the SDK adds one only where S3 needs it.
+  # The SDK adds its own checksum only where S3 requires one: some S3-compatible stores refuse
+  # an upload that carries the SDK's default CRC32 beside the Content-MD5 Rails sends.
   request_checksum_calculation: when_required
   public_host: "<%= ENV['QUL_STORAGE_PUBLIC_HOST'].presence || ENV['CDN_HOST'] %>"
   upload:
@@ -61,6 +61,7 @@ amazon_s3:
   bucket: "<%= ENV['QUL_BACKUPS_BUCKET'].presence || 'missing' %>"
   public: false
   endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
+  # SDK checksum only where S3 requires one (see qul_exports).
   request_checksum_calculation: when_required
   upload:
     cache_control: "public, max-age=<%= 1.year.to_i %>"
@@ -74,4 +75,5 @@ database_backups:
   bucket: "<%= ENV['QUL_BACKUPS_BUCKET'].presence || 'missing' %>"
   public: false
   endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
+  # SDK checksum only where S3 requires one (see qul_exports).
   request_checksum_calculation: when_required

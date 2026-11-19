@@ -19,7 +19,9 @@ repo). `plan.md` holds the decisions.
    (`QUL_STORAGE_PUBLIC_HOST`, else `CDN_HOST`, else the endpoint as before). `amazon_s3` is a
    private service on the `QUL_STORAGE_*` keys and `QUL_BACKUPS_BUCKET`; the `AWS_*`,
    `ALLOW_PUBLIC_EXPORT` and `DB_BACK_BUCKET` settings are gone. Signed links last 1 day.
-   `bin/rails storage:verify[service …]` compares every blob row with its stored object.
+   `bin/rails storage:verify[service …]` checks that each blob row on a configured service has
+   its object, at the row's byte size (not its content); rows on a service no longer configured
+   are listed, not failed.
 2. `96dadbf7` (#1073) `request_checksum_calculation: when_required` on the three S3 services.
    Without it R2 refuses every upload.
 

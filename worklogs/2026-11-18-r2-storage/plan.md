@@ -8,7 +8,7 @@ base: qul-next
 # Object storage on Cloudflare R2
 
 The team approved moving all of this app's object storage to Cloudflare R2, with qul-next using
-R2 only. This worklog covers the code change (one PR into `qul-next`). The bucket setup, the data
+R2 only. This worklog covers the code change (#1072 and its follow-up #1073, into `qul-next`). The bucket setup, the data
 copy, the staging switch and the production cutover are operations: their runbook, with resource
 names, measured sizes and open decisions, is the team drop `qul-r2-runbook` on drop.tarteel.app
 (read it with the drop tools; it is not for this public repo).

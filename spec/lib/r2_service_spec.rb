@@ -89,4 +89,13 @@ RSpec.describe ActiveStorage::Service::R2Service do
       .and eq('https://missing.fix.me/qul-exports/a/b.zip')
     expect(URI(blob_url(configs, 'amazon_s3', 'k')).host).to eq('missing.fix.me')
   end
+
+  # R2 refuses an upload that carries the SDK's default checksum beside Rails' Content-MD5.
+  it 'adds an SDK checksum only where S3 requires one' do
+    registry = ActiveStorage::Service::Registry.new(configs_with(r2_style))
+
+    ['qul_exports', 'amazon_s3', 'database_backups'].each do |name|
+      expect(registry.fetch(name).bucket.client.config.request_checksum_calculation).to eq('when_required')
+    end
+  end
 end

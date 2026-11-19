@@ -38,10 +38,13 @@ repo). `plan.md` holds the decisions.
 
 ## Follow-ups / open
 
-- **Before production runs this code:** the `amazon_s3` files must be in the backups bucket (9
-  rows; their files were not found in either bucket checked, so they may already be unreachable),
-  and the host in `QUL_STORAGE_PUBLIC_HOST` or `CDN_HOST` must serve the exports bucket at its
-  root.
+- **The 9 `amazon_s3` files are treated as no longer relevant** (owner's call, 2026-11-18), so
+  nothing is copied for that service. Their files were not found in either bucket checked, with
+  either key, so the rows (7 `ResourceContent` source files from 2023, 2 `Segments::Database`
+  files from 2025) very likely 404 already. Come back to it: find where the old `AWS_*` key
+  pointed, or remove the rows. `storage:verify[amazon_s3]` lists them as missing until then.
+- **Before production runs this code:** the host in `QUL_STORAGE_PUBLIC_HOST` or `CDN_HOST` must
+  serve the exports bucket at its root.
 - **Three `qul_exports` rows differ in size from their stored file** (one mushaf-layout zip, two
   tafsir zips: the file is larger than `byte_size`). `storage:verify` exits 1 on staging because
   of them. The files are what the old provider holds; the rows are stale.
@@ -49,6 +52,8 @@ repo). `plan.md` holds the decisions.
   word images, that were already empty. They become 404 instead of an empty 200.
 - **Signed backup links now last 1 day**, up from an effective 5 minutes. Shorten
   `service_urls_expire_in` if that is too long.
+- **The daily database backup looks stopped** (newest file is from 2026-11-02). Out of scope
+  here; to be fixed separately.
 - Carried from the plan, still not done: backup pruning (retention undecided), blob rows on
   services that no longer exist, the unused upload job, the admin view typo.
 - Not checked on staging: a download through the site while signed in. The link it redirects to

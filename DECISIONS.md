@@ -165,3 +165,17 @@ them is in [`AGENTS.md`](AGENTS.md).
   website link separate from `url`.
 - **Cost:** three more link columns and a type to keep right in the CMS; a new type needs a
   constant and its label.
+
+## Storage
+
+### Object storage is on Cloudflare R2, in a public and a private bucket
+
+- **Decision:** the three Active Storage services keep their names (`qul_exports`,
+  `database_backups`, `amazon_s3`), so no blob row changes; only where they point does. Public
+  files (`qul_exports`, and what `UploadToCdn` writes) are in a bucket served on a public host,
+  and their links start at `QUL_STORAGE_PUBLIC_HOST` (`R2Service`). Backups and the production
+  default service are in a private bucket and get signed links that last a day.
+- **Why:** one provider and one set of `QUL_STORAGE_*` settings, and R2 has no per-object
+  public setting and never serves anonymous reads from its S3 endpoint.
+- **Cost:** a file's bucket decides whether it is public, so a private file stored on
+  `qul_exports` is public. A service name no longer says where its files are.

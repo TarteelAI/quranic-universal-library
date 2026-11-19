@@ -33,28 +33,35 @@ local:
 #   primary: local
 #   mirrors: [ amazon, google, microsoft ]
 
+# Public files. R2 serves a public bucket only on its own host, so links start at
+# QUL_STORAGE_PUBLIC_HOST (or CDN_HOST); with neither set they are the S3 endpoint's
+# (lib/active_storage/service/r2_service.rb).
 qul_exports:
-   service: S3
-   access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"
-   secret_access_key: "<%= ENV['QUL_STORAGE_ACCESS_KEY_SECRET'].presence || 'missing' %>"
-   region: "<%= ENV['QUL_STORAGE_REGION'].presence || 'us-east-1' %>"
-   bucket: "<%= ENV['QUL_STORAGE_BUCKET'].presence || 'missing' %>"
-   public: <%= ENV['QUL_STORAGE_PUBLIC_EXPORT'].presence || true %>
-   endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
-   upload:
-     cache_control: "public, max-age=<%= 1.year.to_i %>"
-
-amazon_s3:
-  service: S3
-  access_key_id: "<%= ENV['AWS_ACCESS_KEY'].presence || 'missing' %>"
-  secret_access_key: "<%= ENV['AWS_ACCESS_KEY_SECRET'].presence || 'missing' %>"
-  region: us-east-2
-  bucket: "<%= ENV['AWS_BUCKET'].presence || 'missing' %>"
-  public: <%= ENV['ALLOW_PUBLIC_EXPORT'].presence || false %>
+  service: R2
+  access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"
+  secret_access_key: "<%= ENV['QUL_STORAGE_ACCESS_KEY_SECRET'].presence || 'missing' %>"
+  region: "<%= ENV['QUL_STORAGE_REGION'].presence || 'us-east-1' %>"
+  bucket: "<%= ENV['QUL_STORAGE_BUCKET'].presence || 'missing' %>"
+  public: <%= ENV['QUL_STORAGE_PUBLIC_EXPORT'].presence || true %>
+  endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
+  public_host: "<%= ENV['QUL_STORAGE_PUBLIC_HOST'].presence || ENV['CDN_HOST'] %>"
   upload:
     cache_control: "public, max-age=<%= 1.year.to_i %>"
 
-# Database backups storage (S3-compatible)
+# The production default service (config/environments/production.rb): private, in the
+# same bucket as database_backups.
+amazon_s3:
+  service: S3
+  access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"
+  secret_access_key: "<%= ENV['QUL_STORAGE_ACCESS_KEY_SECRET'].presence || 'missing' %>"
+  region: "<%= ENV['QUL_STORAGE_REGION'].presence || 'us-east-1' %>"
+  bucket: "<%= ENV['QUL_BACKUPS_BUCKET'].presence || 'missing' %>"
+  public: false
+  endpoint: "<%= ENV['QUL_STORAGE_ENDPOINT'].presence || 'https://fix.me' %>"
+  upload:
+    cache_control: "public, max-age=<%= 1.year.to_i %>"
+
+# Database backups (private).
 database_backups:
   service: S3
   access_key_id: "<%= ENV['QUL_STORAGE_ACCESS_KEY'].presence || 'missing' %>"

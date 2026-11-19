@@ -444,7 +444,13 @@ this file and local Vite builds out of the image.
 - **Cache.** Test and development use `null_store`; build nothing that needs the cache to be
   correct.
 - **File URLs.** Without the storage variables a blob URL points at a placeholder host locally.
-  Specs assert the redirect, never fetch the file.
+  Specs assert the redirect, never fetch the file. While `qul_exports` is public (the default;
+  `QUL_STORAGE_PUBLIC_EXPORT`), its links start at `QUL_STORAGE_PUBLIC_HOST` (else `CDN_HOST`,
+  else the endpoint; `R2Service` in `lib/active_storage/service`); `database_backups` and
+  `amazon_s3` are private, with signed links that last a day.
+  `bin/rails storage:verify[service …]` checks the object and size of every blob row on a
+  configured service (HEAD requests for S3 services) and fails on any missing or differing
+  one; rows on a service that is no longer configured are listed, not failed.
 - **`Word` order.** `Word` has a default scope ordered by `position`, so `order(...)` still sorts
   by position first. Use `reorder` whenever the order matters.
 - **Font palettes.** `@font-palette-values` rules with the same name do not merge per family: the

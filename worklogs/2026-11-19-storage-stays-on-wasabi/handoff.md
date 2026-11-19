@@ -3,6 +3,7 @@ status: done
 date: 2026-11-19
 branch: docs/storage-stays-on-wasabi
 base: qul-next
+pr: 1077
 ---
 
 # Storage stays on the current provider

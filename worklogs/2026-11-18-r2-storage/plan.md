@@ -1,5 +1,5 @@
 ---
-status: planned
+status: code merged; operations in progress (see handoff.md)
 date: 2026-11-18
 branch: feat/r2-storage
 base: qul-next
@@ -34,10 +34,10 @@ names, measured sizes and open decisions, is the team drop `qul-r2-runbook` on d
 
 ## Order of work
 
-1. `agents/01-r2-storage-code.md`: the code PR. Builder at medium effort; one fresh review.
-2. Operations, from the runbook, by the orchestrator with the owner approving each step that
-   creates a credential, writes a secret, starts a copy or changes DNS.
-3. Staging runs on R2 first. Production switches with the qul-next launch.
+1. The code PR: done (#1072, #1073).
+2. Operations, from the runbook, with the owner approving each step that creates a credential,
+   writes a secret, starts a copy or changes DNS.
+3. Staging runs on R2 (done). Production switches with the qul-next launch.
 
 The PR is not a no-op on today's settings, so two things come before a deployment runs it:
 

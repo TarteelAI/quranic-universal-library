@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 branch: docs/storage-stays-on-wasabi
 base: qul-next
 ---
@@ -80,6 +80,9 @@ behaviour.
 - `bundle exec rspec spec/lib/r2_service_spec.rb`: 6 examples, 0 failures. Run in a throwaway
   `ruby:3.3.10-bookworm` container (worktree and the `qul-dev-bundle` volume mounted, Node
   installed for ExecJS), because the host Ruby is outside the Gemfile range.
+
+- Draft PR: https://github.com/TarteelAI/quranic-universal-library/pull/1077
+- Commit "docs(worklog): 01-wording done": status set to `done`, PR link recorded.
 
 ### Decisions
 

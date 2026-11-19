@@ -35,10 +35,10 @@ stays. This PR changes wording only; no behaviour changes.
 
 ## Follow-up
 
-- **App icons on staging.** `App#icon` uploads only in production, under a random key. Staging's
-  icon rows need their files in the production bucket. A staging database copied from
-  production again gets new icon rows from `apps:import` with no files, and that boot fails
-  once. A lasting fix is a code change (fixed keys, or icons served from `public/app-icons`).
-
+- **App icons need a deployment that can write.** In the production environment `App#icon` is
+  stored on `qul_exports` under a random key, and `apps:import` attaches icons from
+  `public/app-icons`. A deployment with no storage key gets the rows without the files, so its
+  icon links break, and `apps:import` skips rows that exist, so it does not repair them. A
+  lasting fix is a code change: fixed keys, or icons served from `public/app-icons`.
 - `amazon_s3` rows now resolve in the private bucket on the storage endpoint, not on AWS. Count
   those rows in production, and decide what to do with them, before production runs qul-next.

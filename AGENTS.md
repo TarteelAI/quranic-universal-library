@@ -451,6 +451,8 @@ this file and local Vite builds out of the image.
   `bin/rails storage:verify[service …]` checks the object and size of every blob row on a
   configured service (HEAD requests for S3 services) and fails on any missing or differing
   one; rows on a service that is no longer configured are listed, not failed.
+  `bin/rails storage:fix_sizes[service …]` sets `byte_size` and `checksum` from the object on a
+  row whose size differs.
 - **`Word` order.** `Word` has a default scope ordered by `position`, so `order(...)` still sorts
   by position first. Use `reorder` whenever the order matters.
 - **Font palettes.** `@font-palette-values` rules with the same name do not merge per family: the

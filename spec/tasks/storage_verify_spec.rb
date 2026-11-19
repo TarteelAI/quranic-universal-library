@@ -4,6 +4,7 @@ require 'clone_helper'
 require 'rake'
 
 # `storage:verify`: every blob row has its object, at its byte size, in its service.
+# `storage:fix_sizes`: a row whose size differs takes its object's size and checksum.
 RSpec.describe 'storage:verify' do
   before(:all) { Rails.application.load_tasks unless Rake::Task.task_defined?('storage:verify') }
 
@@ -20,8 +21,8 @@ RSpec.describe 'storage:verify' do
     disk.upload(key, StringIO.new(content))
   end
 
-  def verify(*services)
-    task = Rake::Task['storage:verify']
+  def verify(*services, task: 'storage:verify')
+    task = Rake::Task[task]
     task.reenable
     output = StringIO.new
     $stdout = output
@@ -80,5 +81,22 @@ RSpec.describe 'storage:verify' do
     expect(status).to eq(1)
     expect(output.scan('cannot read the storage').size).to eq(1)
     expect(output).to include('qul_exports: cannot read the storage (Seahorse::Client::NetworkingError: no host)')
+  end
+
+  it 'fix_sizes sets a differing row to its object, and leaves missing and matching rows' do
+    store('verify-ok', 'four')
+    store('verify-differs', 'four')
+    blob('verify-ok', 4)
+    blob('verify-differs', 5)
+    blob('verify-missing', 4)
+
+    status, output = verify('test', task: 'storage:fix_sizes')
+
+    expect(status).to eq(0)
+    expect(output).to include('fixed test verify-differs: 5 -> 4 bytes', 'test: 1 rows fixed')
+    expect(ActiveStorage::Blob.find_by!(key: 'verify-differs'))
+      .to have_attributes(byte_size: 4, checksum: Digest::MD5.base64digest('four'))
+    expect(ActiveStorage::Blob.find_by!(key: 'verify-ok').checksum).to eq('x')
+    expect(ActiveStorage::Blob.find_by!(key: 'verify-missing').byte_size).to eq(4)
   end
 end

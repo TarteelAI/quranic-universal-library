@@ -168,14 +168,16 @@ them is in [`AGENTS.md`](AGENTS.md).
 
 ## Storage
 
-### Object storage is on Cloudflare R2, in a public and a private bucket
+### Object storage stays on its current provider (2026-11-19)
 
-- **Decision:** the three Active Storage services keep their names (`qul_exports`,
-  `database_backups`, `amazon_s3`), so no blob row changes; only where they point does. Public
-  files (`qul_exports`, and what `UploadToCdn` writes) are in a bucket served on a public host,
-  and their links start at `QUL_STORAGE_PUBLIC_HOST` (`R2Service`). Backups and the production
-  default service are in a private bucket and get signed links that last a day.
-- **Why:** one provider and one set of `QUL_STORAGE_*` settings, and R2 has no per-object
-  public setting and never serves anonymous reads from its S3 endpoint.
-- **Cost:** a file's bucket decides whether it is public, so a private file stored on
-  `qul_exports` is public. A service name no longer says where its files are.
+- **Decision:** object storage stays on the current S3-compatible provider; a move to
+  Cloudflare R2 was prepared and set aside. The storage code from #1072, #1073 and #1075 stays,
+  because settings drive it and it works there unchanged: the three Active Storage services
+  keep their names (`qul_exports`, `database_backups`, `amazon_s3`) and read the
+  `QUL_STORAGE_*` settings, public links (`qul_exports`) start at `QUL_STORAGE_PUBLIC_HOST`
+  (`R2Service`), private files get signed links that last a day, and
+  `bin/rails storage:verify` and `bin/rails storage:fix_sizes` check and correct blob rows.
+- **Why:** the team chose on 2026-11-19 not to move storage. The kept code reads its
+  provider from settings, so it works on the current one as it is.
+- **Cost:** `R2Service` and `service: R2` keep a name that no longer says where files are, and
+  neither does `amazon_s3`, which points at the storage endpoint, not AWS.

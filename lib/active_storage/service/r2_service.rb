@@ -4,9 +4,10 @@ require 'active_storage/service/s3_service'
 
 module ActiveStorage
   # An S3 service whose public links start at a public host (`public_host:` in
-  # config/storage.yml) instead of the storage endpoint. Cloudflare R2's S3 endpoint never
-  # serves anonymous reads, so a public bucket is read through its own host. Without a
-  # public host it is S3Service unchanged. Signed links still use the endpoint.
+  # config/storage.yml): a public file is linked on the public host, not on the storage
+  # endpoint. Without a public host it is S3Service unchanged. Signed links still use the
+  # endpoint. The name is historical, from a move to Cloudflare R2 that was set aside; the
+  # service works on any S3-compatible store.
   class Service::R2Service < Service::S3Service
     def initialize(public_host: nil, **options)
       super(**options)

@@ -11,7 +11,7 @@ module Catalog
              rendering: [:string, { nullable: true, enum: Derived::RENDERINGS }],
              summary: [:string, { nullable: true }]
     attributes :id, :to_param, :status, :recommended, :script_family, :rendering
-    attribute(:name, &:display_name)
+    attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
     attribute(:summary, &:summary)
 

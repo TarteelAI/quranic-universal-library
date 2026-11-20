@@ -85,7 +85,7 @@ module Catalog
     def shared_contents
       groups = @resources.group_by(&:resource_content_id).select { |id, group| id && group.size > 1 }
       rows = groups.map do |id, group|
-        [id, group.map { |resource| "#{resource.display_name} (#{resource.id})" }.join(', ')]
+        [id, group.map { |resource| "#{resource.catalog_name} (#{resource.id})" }.join(', ')]
       end
       Section.new('Each content row should back one resource.', ['Content row', 'Resources'], rows)
     end
@@ -145,7 +145,7 @@ module Catalog
     end
 
     def named(resource)
-      [resource.id, resource.resource_type, resource.display_name]
+      [resource.id, resource.resource_type, resource.catalog_name]
     end
 
     def table(columns, rows)

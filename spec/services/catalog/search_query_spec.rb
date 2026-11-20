@@ -232,7 +232,7 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'orders by name' do
-      names = search(sort: 'name').matches.map { |row| Catalog::TextKey.call(row.resource.display_name) }
+      names = search(sort: 'name').matches.map { |row| Catalog::TextKey.call(row.resource.catalog_name) }
       expect(names).to eq(names.sort)
     end
 

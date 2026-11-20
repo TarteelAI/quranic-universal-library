@@ -99,6 +99,11 @@ Leeway on how; keep it the smallest design that works.
   report keeps its data-error sections. `Catalog::SearchQuery` reads its resources from the request's
   catalog instead of loading them again. Decisions encoded: see Decisions.
 - Handoff: status, the sections below, and the plan's link rule worded as the code does it.
+- Review fix: the computed name is `DownloadableResource#catalog_name`, not `display_name`. ActiveAdmin
+  labels a record with `display_name` first, so every CMS page naming a resource loaded the whole
+  catalog; the CMS label is the plain `name` again, as on main. `display_name` stays the key inside
+  `Catalog::Derived` and the `display-name` override. New CMS request spec: the model does not answer
+  `display_name` and a CMS show page does not load the catalog.
 
 ## Done
 

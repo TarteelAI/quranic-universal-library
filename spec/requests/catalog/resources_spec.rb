@@ -127,7 +127,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       ).call
       expect(app.at('h1 span').text).to eq(expected.total.to_s)
       expect(app.css('ul[aria-label="Resources"] article h3').map(&:text))
-        .to eq(expected.results.map { |row| row.resource.display_name })
+        .to eq(expected.results.map { |row| row.resource.catalog_name })
     end
 
     it 'points the canonical of every filtered view at the unfiltered catalog' do

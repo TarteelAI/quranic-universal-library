@@ -35,7 +35,7 @@ module Catalog
     def rank(resource, timed, downloads)
       [resource.recommended ? 0 : 1, STATUSES.index(resource.status),
        timed.include?(resource.resource_content_id) ? 0 : 1, -downloads.fetch(resource.id, 0),
-       TextKey.call(resource.display_name), resource.id,]
+       TextKey.call(resource.catalog_name), resource.id,]
     end
 
     # The content ids of the surah-by-surah recitations with segment data for Al-Fatihah, the

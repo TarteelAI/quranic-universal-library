@@ -94,7 +94,7 @@ module Catalog
 
     def search_text(resource, language)
       type = Taxonomy.type(resource.resource_type)
-      parts = [resource.display_name, resource.name, type&.label, type&.title, language&.name, language&.native_name,
+      parts = [resource.catalog_name, resource.name, type&.label, type&.title, language&.name, language&.native_name,
                *resource.downloadable_resource_tags.map(&:name),]
       parts.filter_map { |part| TextKey.call(part).presence }.uniq.join(' | ')
     end
@@ -162,7 +162,7 @@ module Catalog
     end
 
     def name_key(row)
-      [TextKey.call(row.resource.display_name), row.resource.id]
+      [TextKey.call(row.resource.catalog_name), row.resource.id]
     end
   end
 end

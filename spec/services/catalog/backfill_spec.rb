@@ -31,7 +31,7 @@ RSpec.describe Catalog::Backfill do
 
     described_class.run
 
-    expect(scripts.reload.map(&:display_name)).to eq(['Uthmani (Word by word)', 'Uthmani (Ayah by Ayah)'])
+    expect(scripts.reload.map(&:catalog_name)).to eq(['Uthmani (Word by word)', 'Uthmani (Ayah by Ayah)'])
     expect(scripts.pluck(:slug)).to eq(['uthmani-word-by-word', 'uthmani-ayah-by-ayah'])
   end
 

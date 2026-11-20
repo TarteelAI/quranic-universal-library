@@ -26,7 +26,7 @@ RSpec.describe 'Starter kits (/kits)', type: :request do
       names = DownloadableResource.where(slug: kit.items.map(&:resource)).index_by(&:slug)
       expect(card[:resources]).to eq(kit.items.map do |item|
         resource = names.fetch(item.resource)
-        { name: resource.display_name, category: Catalog::Taxonomy.type(resource.resource_type).category.key }
+        { name: resource.catalog_name, category: Catalog::Taxonomy.type(resource.resource_type).category.key }
       end)
 
       html = Nokogiri::HTML(response.body)

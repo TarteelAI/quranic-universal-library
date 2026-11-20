@@ -48,7 +48,7 @@ module Catalog
       @preview_query = request.query_parameters.slice(*Previews::QUERY_KEYS).select { |_, value| value.is_a?(String) }
 
       render_inertia 'catalog/ResourcePage', meta: page_meta(
-        title: "#{resource.display_name} - #{@page.type.label} - QUL",
+        title: "#{resource.catalog_name} - #{@page.type.label} - QUL",
         description: @page.summary,
         json_ld: json_ld,
       )

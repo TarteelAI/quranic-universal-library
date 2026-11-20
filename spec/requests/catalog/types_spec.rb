@@ -208,11 +208,11 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
 
     it 'gives each card its detail path, language, granularity, summary and formats' do
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
-      get '/resources/translation', params: { q: resource.display_name }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card).to include(
-        name: resource.display_name,
+        name: resource.catalog_name,
         type: 'translation',
         toParam: resource.to_param,
         language: resource.language.name,
@@ -227,7 +227,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         .find { |r| r.resource_content&.language }
       skip 'every published translation has a language on its resource row' unless resource
 
-      get '/resources/translation', params: { q: resource.display_name }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card[:language]).to eq(resource.resource_content.language.name)
@@ -344,8 +344,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
 
     it 'narrows the list by a resource name' do
-      resource = translations.max_by { |r| r.display_name.length }
-      get '/resources/translation', params: { q: resource.display_name }
+      resource = translations.max_by { |r| r.catalog_name.length }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       expect(inertia.props[:resources].pluck(:id)).to include(resource.id)
       expect(inertia.props[:search][:matches]).to be < translations.size

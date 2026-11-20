@@ -8,7 +8,7 @@ module Catalog
              category: [:string, { enum: Taxonomy::CATEGORIES.keys }],
              language: [:string, { nullable: true }], formats: [:string, { multi: true }]
     attribute(:id) { |row| row.resource.id }
-    attribute(:name) { |row| row.resource.display_name }
+    attribute(:name) { |row| row.resource.catalog_name }
     attribute(:type) { |row| row.resource.resource_type }
     attribute(:type_label) { |row| Taxonomy.type(row.resource.resource_type).label }
     attribute(:category) { |row| Taxonomy.type(row.resource.resource_type).category.key }

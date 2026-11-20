@@ -22,10 +22,16 @@ module CatalogFields
     after_commit { Catalog::Derived.reset }
   end
 
-  delegate :display_name, :script_family, :rendering, :status, :superseded_by, :recommended, to: :catalog_fields
+  delegate :script_family, :rendering, :status, :superseded_by, :recommended, to: :catalog_fields
 
   Catalog::Derived::STATUSES.each do |status|
     define_method(:"#{status}?") { self.status == status }
+  end
+
+  # The display name. Not called `display_name`: ActiveAdmin labels a record with that first, and the
+  # CMS label is the plain `name`, which needs no catalog.
+  def catalog_name
+    catalog_fields.display_name
   end
 
   # The editor's summary, else one plain sentence from the resource's facts.

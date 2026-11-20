@@ -10,7 +10,7 @@ module Catalog
              formats: [:string, { multi: true, enum: Taxonomy.formats.map(&:key) }],
              status: [:string, { enum: Taxonomy.statuses.map(&:key) }], recommended: :boolean
     attribute(:id) { |row| row.resource.id }
-    attribute(:name) { |row| row.resource.display_name }
+    attribute(:name) { |row| row.resource.catalog_name }
     attribute(:type) { |row| row.resource.resource_type }
     attribute(:to_param) { |row| row.resource.to_param }
     attribute(:summary) { |row| row.resource.summary }

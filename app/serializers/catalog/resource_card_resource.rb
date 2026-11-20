@@ -6,7 +6,7 @@ module Catalog
     typelize id: :number, name: :string, type: :string, to_param: :string,
              status: [:string, { enum: Taxonomy.statuses.map(&:key) }]
     attributes :id, :to_param, :status
-    attribute(:name, &:display_name)
+    attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
 
     typelize summary: [:string, { nullable: true }]

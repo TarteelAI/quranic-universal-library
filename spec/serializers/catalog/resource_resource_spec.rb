@@ -11,7 +11,7 @@ RSpec.describe Catalog::ResourceResource do
   end
 
   def ref(resource)
-    { id: resource.id, name: resource.display_name, type: resource.resource_type, toParam: resource.to_param }
+    { id: resource.id, name: resource.catalog_name, type: resource.resource_type, toParam: resource.to_param }
   end
 
   let(:layout) { resource_named('KFGQPC V2 layout (1421H print)') }

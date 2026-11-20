@@ -167,7 +167,7 @@ module Catalog
     # The content issue form with the resource named, or the form chooser for a type the form's
     # dropdown lacks. `url` is the page's public URL.
     def issue_url(url)
-      fields = { resource_name: resource.display_name, resource_link: url }
+      fields = { resource_name: resource.catalog_name, resource_link: url }
       option = Taxonomy::ISSUE_TYPES[resource.resource_type]
       return "#{ISSUE_FORM}/choose?#{fields.to_query}" unless option
 

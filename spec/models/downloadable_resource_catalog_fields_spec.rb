@@ -44,6 +44,6 @@ RSpec.describe DownloadableResource do
     resource = create_resource('Catalog Spec Defaults', free_contents.first)
 
     expect(resource).to have_attributes(status: 'stable', recommended: false, script_family: nil, rendering: nil,
-                                        display_name: 'Catalog Spec Defaults', superseded_by: nil,)
+                                        catalog_name: 'Catalog Spec Defaults', superseded_by: nil,)
   end
 end

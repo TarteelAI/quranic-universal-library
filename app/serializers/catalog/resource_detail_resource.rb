@@ -10,7 +10,7 @@ module Catalog
              granularity: [:string, { nullable: true }], summary: [:string, { nullable: true }],
              info: [:string, { nullable: true }], recommended: :boolean
     attributes :id, :to_param, :status, :recommended
-    attribute(:name, &:display_name)
+    attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
     attribute(:script_family) { |resource| Taxonomy.label(Taxonomy.script_families, resource.script_family) }
     attribute(:language) { |resource| (resource.language || resource.resource_content&.language)&.name }

@@ -166,8 +166,8 @@ module Content
       end
 
       def related_group(rows)
-        items = rows.sort_by(&:display_name).map do |row|
-          tag.li(link_to(row.display_name, catalog_resource_path(row.resource_type, row.to_param)))
+        items = rows.sort_by(&:catalog_name).map do |row|
+          tag.li(link_to(row.catalog_name, catalog_resource_path(row.resource_type, row.to_param)))
         end
         safe_join([tag.h3(rows.first.group_name), tag.ul(safe_join(items))])
       end

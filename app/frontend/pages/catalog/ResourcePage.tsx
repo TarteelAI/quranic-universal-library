@@ -59,10 +59,6 @@ function ContentNotice({ type, issueUrl }: { type: string; issueUrl: string }) {
   )
 }
 
-function NotYetReviewed() {
-  return <span className="text-xs text-muted-foreground">(not yet reviewed)</span>
-}
-
 // The preview's keys in the query string (Previews::QUERY_KEYS).
 const PREVIEW_KEYS = ['page', 'surah', 'from', 'to', 'view'] as const
 
@@ -180,27 +176,16 @@ export default function ResourcePage(props: CatalogResourcesShow) {
                     }
                   }
                 />
-                {!resource.reviewed.status && <NotYetReviewed />}
               </span>
-              {resource.recommendation && <RecommendedBadge reviewed={resource.recommendation === 'reviewed'} />}
-              {resource.scriptFamily && (
-                <span>
-                  {resource.scriptFamily} {!resource.reviewed.scriptFamily && <NotYetReviewed />}
-                </span>
-              )}
+              {resource.recommended && <RecommendedBadge />}
+              {resource.scriptFamily && <span>{resource.scriptFamily}</span>}
               {resource.language && <span>{resource.language}</span>}
               <span>{licence ? licence.name : 'Licence not yet confirmed'}</span>
               {!props.canDownload && <span className="text-warning">View only</span>}
             </>
           }
           title={resource.name}
-          description={
-            resource.summary && (
-              <>
-                {resource.summary} {!resource.reviewed.summary && <NotYetReviewed />}
-              </>
-            )
-          }
+          description={resource.summary}
         />
       </Container>
 

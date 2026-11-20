@@ -11,7 +11,7 @@ module Catalog
   class ResourcePage
     Download = Data.define(:id, :name, :format, :format_label, :byte_size, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name
     Fact = Data.define(:label, :value)
-    Link = Data.define(:resource, :reviewed)
+    Link = Data.define(:resource)
     Group = Data.define(:key, :label, :links)
     Licence = Data.define(:name, :url, :summary)
     Change = Data.define(:id, :title, :excerpt, :date)
@@ -19,13 +19,12 @@ module Catalog
     TABS = ['preview', 'data', 'docs', 'licence', 'changelog'].freeze
 
     # Relation groups of "Works with", in this order. A link is listed from the resource that
-    # holds it (`from`) or, for links that read the same both ways, from either end.
+    # holds it (`from`) or, for links that read the same both ways, from either end. The links
+    # and their types come from Catalog::Derived.
     GROUPS = [
       { key: 'requires', label: 'Requires', relation: 'requires', from: :self },
       { key: 'required_by', label: 'Needed by', relation: 'requires', from: :other },
       { key: 'pairs_with', label: 'Pairs with', relation: 'pairs_with', from: :either },
-      { key: 'alternative', label: 'Alternatives', relation: 'alternative', from: :either },
-      { key: 'supersedes', label: 'Replaces', relation: 'supersedes', from: :self },
     ].freeze
 
     ISSUE_FORM = "#{SiteNav::REPO_URL}/issues/new".freeze
@@ -59,10 +58,8 @@ module Catalog
     end
 
     def self.find(param)
-      DownloadableResource.published # rubocop:disable Rails/DynamicFindBy -- find_by_slug_or_id! is our own finder
-        .preload(:language, :superseded_by, :downloadable_resource_tags,
-                 resource_content: :language,
-                 downloadable_related_resources: :related_resource,)
+      DownloadableResource.published
+        .preload(:language, :downloadable_resource_tags, resource_content: :language)
         .find_by_slug_or_id!(param)
     end
 
@@ -93,7 +90,7 @@ module Catalog
     end
 
     def summary
-      resource.short_summary.presence || type.summary
+      resource.summary || type.summary
     end
 
     # The content row's export version (a unix time, which the asset manifest and the CDN file
@@ -118,8 +115,9 @@ module Catalog
     end
 
     def works_with
-      outgoing = published_outgoing_links
-      incoming = published_incoming_links
+      catalog = Derived.current
+      outgoing = catalog.links_from(resource).select { |link| link.target.published }
+      incoming = catalog.links_to(resource).select { |link| link.source.published }
 
       GROUPS.filter_map do |group|
         links = group_links(group, outgoing, incoming)
@@ -169,7 +167,7 @@ module Catalog
     # The content issue form with the resource named, or the form chooser for a type the form's
     # dropdown lacks. `url` is the page's public URL.
     def issue_url(url)
-      fields = { resource_name: resource.display_name, resource_link: url }
+      fields = { resource_name: resource.catalog_name, resource_link: url }
       option = Taxonomy::ISSUE_TYPES[resource.resource_type]
       return "#{ISSUE_FORM}/choose?#{fields.to_query}" unless option
 
@@ -183,29 +181,15 @@ module Catalog
         .order(:position, :id).select { |file| file.file.attached? }
     end
 
-    def published_outgoing_links
-      resource.downloadable_related_resources.select { |link| link.related_resource&.published }.sort_by(&:id)
-    end
-
-    def published_incoming_links
-      DownloadableRelatedResource.where(related_resource_id: resource.id)
-        .preload(:downloadable_resource).to_a
-        .select { |link| link.downloadable_resource&.published }
-    end
-
     def group_links(group, outgoing, incoming)
-      mine = linked(outgoing, group[:relation], &:related_resource)
-      theirs = linked(incoming, group[:relation], &:downloadable_resource)
+      mine = linked(outgoing, group[:relation], &:target)
+      theirs = linked(incoming, group[:relation], &:source)
       { self: mine, other: theirs, either: mine + theirs }.fetch(group[:from]).uniq { |link| link.resource.id }
     end
 
     def linked(links, relation)
       links.select { |link| link.relation_type == relation }
-        .map { |link| Link.new(resource: yield(link), reviewed: reviewed?(link)) }
-    end
-
-    def reviewed?(link)
-      link.downloadable_resource.reviewed?("link:#{link.related_resource_id}")
+        .map { |link| Link.new(resource: yield(link)) }
     end
 
     def language

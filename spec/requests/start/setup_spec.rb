@@ -30,7 +30,7 @@ RSpec.describe 'Guided setup (/start)', type: :request do
 
     it 'gives each script the most downloaded Quran script of its family as a sample' do
       script = DownloadableResource.published.where(resource_type: 'quran-script').order(:id).first
-      script.update_columns(script_family: 'indopak')
+      override_catalog(script, 'script-family' => 'indopak')
       get '/start'
 
       sample = inertia.props[:scripts].find { |option| option[:key] == 'indopak' }[:sample]
@@ -104,9 +104,10 @@ RSpec.describe 'Guided setup (/start)', type: :request do
 
     it "never fills a script's need with another script's resources" do
       scripted = DownloadableResource.published.where(resource_type: Catalog::Inference::SCRIPT_TYPES)
-      scripted.update_all(script_family: 'madani')
       indopak = scripted.where(resource_type: 'mushaf-layout').order(:id).first
-      indopak.update_columns(script_family: 'indopak')
+      scripted.each do |resource|
+        override_catalog(resource, 'script-family' => resource == indopak ? 'indopak' : 'madani')
+      end
 
       get '/resources?goal=reader&feature=mushaf,translation&script=indopak&lang=en'
 

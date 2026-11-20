@@ -67,9 +67,7 @@ function Cards({
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label={label}>
       {resources.map((resource) => {
         const badges = [
-          resource.recommendation && (
-            <RecommendedBadge key="recommended" reviewed={resource.recommendation === 'reviewed'} />
-          ),
+          resource.recommended && <RecommendedBadge key="recommended" />,
           resource.status !== 'stable' && (
             <StatusBadge
               key="status"
@@ -315,8 +313,8 @@ export default function TypePage({
   comparison,
 }: CatalogTypesShow) {
   const { nav } = usePage().props
-  const recommended = pick ? resources.filter((resource) => resource.recommendation) : []
-  const older = pick ? resources.filter((resource) => !resource.recommendation && isOlder(resource)) : []
+  const recommended = pick ? resources.filter((resource) => resource.recommended) : []
+  const older = pick ? resources.filter((resource) => !resource.recommended && isOlder(resource)) : []
   const current = resources.filter((resource) => !recommended.includes(resource) && !older.includes(resource))
 
   return (

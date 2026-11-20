@@ -12,7 +12,8 @@ RSpec.describe Catalog::ResourceCardResource do
 
   it 'carries the summary, the status and the formats of the published files, in vocabulary order' do
     resource = resource_named('KFGQPC V2 layout (1421H print)')
-    resource.update_columns(short_summary: 'Pages of the 1421H print.', status: 'beta')
+    resource.update_columns(short_summary: 'Pages of the 1421H print.')
+    override_catalog(resource, 'status' => 'beta')
     published = resource.downloadable_files.where(published: true).pluck(:file_type)
     expect(published).to be_present
 
@@ -24,12 +25,13 @@ RSpec.describe Catalog::ResourceCardResource do
     expect(props.keys).not_to include(:filesCount)
   end
 
-  it 'leaves out the formats of unpublished files and sends no summary when there is none' do
+  it 'leaves out the formats of unpublished files, and describes a resource that has no summary' do
     resource = resource_named('KFGQPC V2 layout (1421H print)')
-    resource.update_columns(short_summary: nil)
+    expect(resource.short_summary).to be_nil
     resource.downloadable_files.update_all(published: false)
 
-    expect(card(resource.reload)).to include(summary: nil, formats: [])
+    expect(card(resource.reload))
+      .to include(summary: 'Mushaf layout with 604 pages and 15 lines on each page.', formats: [])
   end
 
   it 'names the card preview of each type, and none for the record types' do

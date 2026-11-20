@@ -82,7 +82,7 @@ RSpec.describe 'Home page (/)', type: :request do
         samples.each do |sample|
           resource = Catalog::ResourcePage.find(sample[:toParam])
           expect(resource).to have_attributes(published: true, resource_type: sample[:type])
-          expect(sample[:name]).to eq(resource.display_name)
+          expect(sample[:name]).to eq(resource.catalog_name)
           expect(sample[:count]).to eq(DownloadableResource.published.where(resource_type: sample[:type]).count)
         end
         expect(Catalog::ResourcePage.find(samples.first[:toParam]).cardinality_type).to eq('1_chapter')

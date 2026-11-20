@@ -20,9 +20,8 @@ module Catalog
 
     # Type => DownloadableResource.
     def call
-      candidates = TYPES.map do |type, conditions|
-        DownloadableResource.published.where(resource_type: type, status: STATUSES, **conditions)
-      end.reduce(:or).to_a
+      scopes = TYPES.map { |type, conditions| DownloadableResource.published.where(resource_type: type, **conditions) }
+      candidates = scopes.reduce(:or).select { |resource| STATUSES.include?(resource.status) }
       downloads = downloads(candidates)
       timed = timed(candidates)
 
@@ -36,7 +35,7 @@ module Catalog
     def rank(resource, timed, downloads)
       [resource.recommended ? 0 : 1, STATUSES.index(resource.status),
        timed.include?(resource.resource_content_id) ? 0 : 1, -downloads.fetch(resource.id, 0),
-       TextKey.call(resource.display_name), resource.id,]
+       TextKey.call(resource.catalog_name), resource.id,]
     end
 
     # The content ids of the surah-by-surah recitations with segment data for Al-Fatihah, the

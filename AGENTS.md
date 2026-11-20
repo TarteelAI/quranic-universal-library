@@ -3,7 +3,7 @@
 General setup, build commands and file locations are in
 [`.github/copilot-instructions.md`](.github/copilot-instructions.md). This file covers running
 the app on a local copy of the production snapshot, the test harness, and the quality gate.
-Terms (page group, download mode, drafted value, …) are defined in [`GLOSSARY.md`](GLOSSARY.md);
+Terms (page group, download mode, computed field, …) are defined in [`GLOSSARY.md`](GLOSSARY.md);
 the decisions that are hard to reverse, with why and what they cost, are in
 [`DECISIONS.md`](DECISIONS.md). Settings the app reads are listed in `.env.sample`.
 
@@ -439,8 +439,16 @@ this file and local Vite builds out of the image.
   (`QulQuranRecord`) are separate Postgres databases: SQL cannot join across them, so preload in
   two steps. New migrations use the CMS connection only; the content database is never changed.
 - **Slugs** are never all digits: `find_by_slug_or_id!` falls back to `find`.
+- **Catalog fields.** Only the slug and an editor's `short_summary` are stored (existing
+  columns). The display name, script family, rendering, status, replacement, recommended flag,
+  requires-links and missing summaries are computed per request (`Catalog::Derived`), and a
+  `meta_data` key overrides one (DECISIONS.md). Read them from the resource (`resource.status`,
+  `resource.summary`); never add a column for a value the data already implies. In a spec, call
+  `Catalog::Derived.reset` after changing rows without the model (`update_columns`), or use
+  `override_catalog`.
 - **Backfills** are idempotent and keyed on stable fields, because editors keep changing
-  production while development runs on the snapshot.
+  production while development runs on the snapshot. `bin/rails catalog:backfill` only gives a
+  slug to resources that have none.
 - **Cache.** Test and development use `null_store`; build nothing that needs the cache to be
   correct.
 - **File URLs.** Without the storage variables a blob URL points at a placeholder host locally.

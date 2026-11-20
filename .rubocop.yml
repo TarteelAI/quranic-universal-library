@@ -337,6 +337,7 @@ Rails/Present:
 Rails/DynamicFindBy:
   AllowedMethods:
     - find_by_sql
+    - find_by_slug_or_id!
 
 Rails/FindBy:
   Enabled: true

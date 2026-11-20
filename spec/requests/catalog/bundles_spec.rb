@@ -30,7 +30,7 @@ RSpec.describe 'The bundle lookup (/bundle)', type: :request do
       expect(body[:items].size).to eq(1)
       item = body[:items].first
       expect(item).to include(id: resource.id, restricted: false, category: 'tafsir')
-      expect(item[:resource]).to eq(id: resource.id, name: resource.display_name, type: 'tafsir',
+      expect(item[:resource]).to eq(id: resource.id, name: resource.catalog_name, type: 'tafsir',
                                     toParam: resource.to_param,)
       expect(item[:files].pluck(:id)).to eq([first_file.id, second_file.id])
       expect(item[:files].first.keys).to contain_exactly(:id, :name, :format, :formatLabel, :byteSize, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name

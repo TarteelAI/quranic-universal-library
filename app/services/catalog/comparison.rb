@@ -6,12 +6,12 @@ module Catalog
   #
   # Layout facts come from the layout's mushaf in the content database. The page count is the
   # mushaf's own count, never its number of page rows: one mushaf has more page rows than pages.
-  # The font is the published font that the resource requires.
+  # The font is the published font that the resource requires (Catalog::Derived).
   class Comparison
     Table = Data.define(:columns, :rows)
     Row = Data.define(:resource, :pages, :lines_per_page, :font)
 
-    # `resources` preload `resource_content` and `downloadable_related_resources: :related_resource`.
+    # `resources` preload `resource_content`.
     def initialize(type, resources)
       @type = type
       @resources = resources
@@ -32,10 +32,8 @@ module Catalog
     private
 
     def font_of(resource)
-      resource.downloadable_related_resources
-              .select(&:requires?)
-              .map(&:related_resource)
-              .find { |related| related&.published && related.resource_type == 'font' }
+      Derived.current.links_from(resource).select(&:requires?).map(&:target)
+        .find { |related| related.published && related.resource_type == 'font' }
     end
   end
 end

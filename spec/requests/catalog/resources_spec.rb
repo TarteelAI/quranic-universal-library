@@ -47,8 +47,8 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       # Only what the filters and cards show: the type pages carry each type's copy.
       expect(vocabularies[:types].first.keys).to contain_exactly('key', 'label', 'category')
       expect(vocabularies[:formats].pluck(:key)).to eq(Catalog::Taxonomy.formats.map(&:key))
-      expect(vocabularies[:scriptFamilies].pluck(:key)).to eq(DownloadableResource.script_families.keys)
-      expect(vocabularies[:statuses].pluck(:key)).to eq(DownloadableResource.statuses.keys)
+      expect(vocabularies[:scriptFamilies].pluck(:key)).to eq(Catalog::Derived::SCRIPT_FAMILIES)
+      expect(vocabularies[:statuses].pluck(:key)).to eq(Catalog::Derived::STATUSES)
       expect(vocabularies[:sorts].pluck(:key)).to eq(['popular', 'name', 'updated'])
       expect(vocabularies[:granularities].pluck(:key)).to include('1_ayah', '1_word', '1_chapter')
       expect(vocabularies[:languages]).to include({ key: 'ar', name: 'Arabic', nativeName: 'العربية' })
@@ -95,7 +95,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       expect(response).to have_http_status(:ok)
       expect(inertia.props[:filters]).to include(category: nil, type: nil, script: ['madani'], format: nil,
                                                  language: nil, status: nil, sort: nil, page: 1, granularity: nil,)
-      expect(inertia.props[:total]).to eq(published.where(script_family: 'madani').count)
+      expect(inertia.props[:total]).to eq(published.count { |resource| resource.script_family == 'madani' })
     end
 
     it 'has the head tags of the catalog, with the canonical on the unfiltered page' do
@@ -127,7 +127,7 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
       ).call
       expect(app.at('h1 span').text).to eq(expected.total.to_s)
       expect(app.css('ul[aria-label="Resources"] article h3').map(&:text))
-        .to eq(expected.results.map { |row| row.resource.display_name })
+        .to eq(expected.results.map { |row| row.resource.catalog_name })
     end
 
     it 'points the canonical of every filtered view at the unfiltered catalog' do
@@ -153,7 +153,8 @@ RSpec.describe 'Catalog search (/resources and /spotlight)', type: :request do
 
       expect(inertia.props[:total]).to eq(0)
       expect([filtered, empty]).to all(eq(unfiltered))
-      expect(unfiltered).to be <= 8
+      # The catalog and its facts (Catalog::Derived), then the files.
+      expect(unfiltered).to be <= 15
     end
   end
 

@@ -9,7 +9,7 @@ module Site
              name: :string, to_param: :string
     attributes :type, :count
     attribute(:category) { |sample| Catalog::Taxonomy.type(sample[:type]).category.key }
-    attribute(:name) { |sample| sample[:resource].display_name }
+    attribute(:name) { |sample| sample[:resource].catalog_name }
     attribute(:to_param) { |sample| sample[:resource].to_param }
   end
 end

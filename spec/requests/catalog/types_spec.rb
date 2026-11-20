@@ -2,8 +2,20 @@
 
 require 'clone_helper'
 
+require_relative '../../support/catalog_resources'
+
 RSpec.describe 'Type pages (/resources/:type)', type: :request do
   let(:types) { DownloadableResource::RESOURCE_TYPES }
+
+  # SQL statements a block sends to either database, without schema and transaction queries.
+  def count_queries(&)
+    count = 0
+    counter = lambda do |*, payload|
+      count += 1 unless payload[:cached] || ['SCHEMA', 'TRANSACTION'].include?(payload[:name])
+    end
+    ActiveSupport::Notifications.subscribed(counter, 'sql.active_record', &)
+    count
+  end
 
   describe 'with the catalog page group on', page_groups: ['catalog'] do
     it 'renders the Inertia page for each of the 14 types, with one card per published resource' do
@@ -51,7 +63,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
 
     it 'shows no "Which one should I pick?" block for a type with no status data beyond the default' do
       resources = DownloadableResource.published.where(resource_type: 'translation')
-      expect(resources.where.not(status: 'stable').or(resources.where(recommended: true))).to be_empty
+      expect(resources.reject { |resource| resource.stable? && !resource.recommended }).to be_empty
 
       get '/resources/translation'
 
@@ -59,9 +71,9 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(inertia.props[:comparison]).to be_nil
     end
 
-    it 'shows the block on a type where one resource is legacy, and a superseded card links to its replacement' do
-      old, replacement = DownloadableResource.published.where(resource_type: 'transliteration').order(:id).first(2)
-      old.update_columns(status: 'superseded', superseded_by_id: replacement.id)
+    it 'shows the block on a type where one resource is older, and a superseded card links to its replacement' do
+      old = resource_named('Syllables Transliteration(Old)')
+      replacement = resource_named('Syllables Transliteration')
 
       get '/resources/transliteration'
 
@@ -72,21 +84,32 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(inertia.props[:statuses].pluck(:key)).to eq(['stable', 'beta', 'legacy', 'superseded'])
     end
 
-    it 'marks a drafted recommendation as not yet reviewed, and not once a person has reviewed it' do
+    it 'recommends no layout on this data, and the one an editor marks recommended' do
+      get '/resources/mushaf-layout'
+      expect(inertia.props[:resources].pluck(:recommended)).to all(be(false))
+
       layout = DownloadableResource.published.where(resource_type: 'mushaf-layout').order(:id).first
-      drafted = { 'recommended' => { 'value' => true, 'by' => 'recommended', 'at' => Time.current.utc.iso8601 } }
-      layout.update_columns(recommended: true, review: Catalog::Review.with_drafted(layout.review, drafted))
-
+      override_catalog(layout, 'recommended' => true)
       get '/resources/mushaf-layout'
 
-      expect(inertia.props[:resources].find { |c| c[:id] == layout.id }).to include(recommendation: 'drafted')
+      expect(inertia.props[:resources].select { |c| c[:recommended] }.pluck(:id)).to eq([layout.id])
       expect(inertia.props[:pick]).to eq(Catalog::Taxonomy::PICKS.fetch('mushaf-layout'))
+    end
 
-      layout.reload.mark_reviewed!('recommended')
-      get '/resources/mushaf-layout'
+    it 'runs the same number of queries whatever the number of resources on the page' do
+      get '/resources/font' # loads the code and the schema
+      fonts = DownloadableResource.published.where(resource_type: 'font')
+      all = count_queries { get '/resources/font' }
+      expect(inertia.props[:resources].size).to be > 20
+      expect(inertia.props[:comparison][:rows].size).to eq(inertia.props[:resources].size)
 
-      expect(inertia.props[:resources].find { |c| c[:id] == layout.id }).to include(recommendation: 'reviewed')
-      expect(inertia.props[:resources].pluck(:recommendation).compact).to eq(['reviewed'])
+      fonts.where.not(id: fonts.order(:id).limit(2)).update_all(published: false)
+      few = count_queries { get '/resources/font' }
+
+      # A query per resource would add more than 20 here; a preload with nothing to load is skipped.
+      expect(inertia.props[:resources].size).to eq(2)
+      expect(all).to be_between(few, few + 2)
+      expect(all).to be <= 20
     end
 
     it "compares every published layout with its mushaf's page count and lines per page" do
@@ -130,16 +153,19 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
 
     it 'names the font a layout requires, when that font is published' do
-      layout = DownloadableResource.published.where(resource_type: 'mushaf-layout').order(:id).first
-      font = DownloadableResource.published.where(resource_type: 'font').order(:id).first
-      DownloadableRelatedResource.where(downloadable_resource: layout).delete_all
-      link = DownloadableRelatedResource.create!(downloadable_resource: layout, related_resource: font,
-                                                 relation_type: 'requires',)
+      layout = resource_named('KFGQPC V2 layout (1421H print)')
+      font = resource_named('QPC V2 Font')
 
       get '/resources/mushaf-layout'
 
-      row = inertia.props[:comparison][:rows].find { |r| r[:id] == link.downloadable_resource_id }
-      expect(row[:font]).to include(id: link.related_resource_id)
+      row = inertia.props[:comparison][:rows].find { |r| r[:id] == layout.id }
+      expect(row).to include(font: include(id: font.id, name: 'QPC V2 Font'), scriptFamily: 'Madani',
+                             rendering: 'Glyph font for each page', status: 'stable',)
+
+      font.update_columns(published: false)
+      get '/resources/mushaf-layout'
+
+      expect(inertia.props[:comparison][:rows].find { |r| r[:id] == layout.id }[:font]).to be_nil
     end
 
     it 'has a comparison table for scripts and fonts too, without layout facts' do
@@ -182,16 +208,16 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
 
     it 'gives each card its detail path, language, granularity, summary and formats' do
       resource = DownloadableResource.published.where(resource_type: 'translation').where.not(language_id: nil).first
-      get '/resources/translation', params: { q: resource.display_name }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card).to include(
-        name: resource.display_name,
+        name: resource.catalog_name,
         type: 'translation',
         toParam: resource.to_param,
         language: resource.language.name,
         granularity: resource.humanize_cardinality_type,
-        summary: resource.short_summary.presence,
+        summary: resource.summary,
         formats: Catalog::Taxonomy.formats_of(resource.downloadable_files.where(published: true).pluck(:file_type)),
       )
     end
@@ -201,7 +227,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
         .find { |r| r.resource_content&.language }
       skip 'every published translation has a language on its resource row' unless resource
 
-      get '/resources/translation', params: { q: resource.display_name }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       card = inertia.props[:resources].find { |c| c[:id] == resource.id }
       expect(card[:language]).to eq(resource.resource_content.language.name)
@@ -318,8 +344,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     end
 
     it 'narrows the list by a resource name' do
-      resource = translations.max_by { |r| r.display_name.length }
-      get '/resources/translation', params: { q: resource.display_name }
+      resource = translations.max_by { |r| r.catalog_name.length }
+      get '/resources/translation', params: { q: resource.catalog_name }
 
       expect(inertia.props[:resources].pluck(:id)).to include(resource.id)
       expect(inertia.props[:search][:matches]).to be < translations.size

@@ -6,11 +6,11 @@ module Catalog
     typelize id: :number, name: :string, type: :string, to_param: :string,
              status: [:string, { enum: Taxonomy.statuses.map(&:key) }]
     attributes :id, :to_param, :status
-    attribute(:name, &:display_name)
+    attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
 
     typelize summary: [:string, { nullable: true }]
-    attribute(:summary) { |resource| resource.short_summary.presence }
+    attribute(:summary, &:summary)
 
     # The formats of the published files (the query preloads every file).
     typelize formats: [:string, { multi: true, enum: Taxonomy.formats.map(&:key) }]
@@ -30,11 +30,8 @@ module Catalog
     typelize script_family: [:string, { nullable: true }]
     attribute(:script_family) { |resource| Taxonomy.label(Taxonomy.script_families, resource.script_family) }
 
-    # `drafted` while the flag is a backfill's suggestion no person has reviewed yet.
-    typelize recommendation: [:string, { nullable: true, enum: ['reviewed', 'drafted'] }]
-    attribute :recommendation do |resource|
-      (resource.reviewed?('recommended') ? 'reviewed' : 'drafted') if resource.recommended
-    end
+    typelize recommended: :boolean
+    attributes :recommended
 
     # The kind of preview the card fetches once on screen (Previews::Card), or null for none.
     typelize preview_kind: [:string, { nullable: true, enum: Previews::Card::KINDS.values.uniq }]

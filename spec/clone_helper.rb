@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Boots Rails for specs that run against clones of the local snapshot (bin/snapshot-clones).
 # Unlike the generated rails_helper it never loads, checks or migrates the schema: the
 # clones are the schema. It refuses to run against a database that is not a clone.
@@ -10,6 +12,7 @@ require_relative '../config/environment'
 require 'rspec/rails'
 require 'inertia_rails/rspec'
 require_relative 'support/ssr_server'
+require_relative 'support/catalog_resources'
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -22,6 +25,9 @@ RSpec.configure do |config|
   end
 
   config.use_transactional_fixtures = true
+
+  # The catalog fields are computed once per request (Catalog::Derived); an example starts with none.
+  config.before { Catalog::Derived.reset }
   config.filter_rails_from_backtrace!
 
   # config/initializers/hosts.rb limits the allowed hosts in every environment.

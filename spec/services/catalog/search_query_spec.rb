@@ -26,14 +26,8 @@ RSpec.describe Catalog::SearchQuery do
                                  resource_content: free_contents.shift, **attributes,)
   end
 
-  # Script families on a few scripts, fonts and layouts, whether or not the clone has drafted
-  # them yet.
-  def assign_script_families
-    { 'quran-script' => ['madani', 'madani', 'indopak'], 'font' => ['madani', 'indopak'], 'mushaf-layout' => ['other'] }
-      .each do |type, families|
-        published.where(resource_type: type).order(:id).first(families.size).zip(families)
-          .each { |resource, family| resource.update_columns(script_family: family) }
-      end
+  def published_ids(&)
+    published.select(&).map(&:id)
   end
 
   # Published resources whose language (the CMS row's, else the content row's) is `language`.
@@ -117,12 +111,12 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'filters by one script family, and by two together' do
-      assign_script_families
-      expect(published.where(script_family: 'indopak').count).to be >= 2
+      indopak = published_ids { |resource| resource.script_family == 'indopak' }
+      madani = published_ids { |resource| resource.script_family == 'madani' }
+      expect([indopak.size, madani.size]).to all(be >= 2)
 
-      expect(ids(search(script: ['indopak']))).to match_array(published.where(script_family: 'indopak').ids)
-      expect(ids(search(script: ['madani', 'indopak'])))
-        .to match_array(published.where(script_family: ['madani', 'indopak']).ids)
+      expect(ids(search(script: ['indopak']))).to match_array(indopak)
+      expect(ids(search(script: ['madani', 'indopak']))).to match_array(indopak + madani)
     end
 
     it 'filters by format, through the published files' do
@@ -140,13 +134,15 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'filters by status, and stable keeps the recommended resources' do
-      recommended = published.find_by!(resource_type: 'translation', status: 'stable')
-      recommended.update_columns(recommended: true)
+      recommended = published.where(resource_type: 'translation').order(:id).find(&:stable?)
+      override_catalog(recommended, 'recommended' => true)
+      legacy = published_ids(&:legacy?)
+      expect(legacy).not_to be_empty
 
       stable = ids(search(status: 'stable'))
-      expect(stable).to match_array(published.where(status: 'stable').ids)
+      expect(stable).to match_array(published_ids(&:stable?))
       expect(stable).to include(recommended.id)
-      expect(ids(search(status: 'legacy'))).to match_array(published.where(status: 'legacy').ids)
+      expect(ids(search(status: 'legacy'))).to match_array(legacy)
     end
 
     it 'combines filters with the text query' do
@@ -155,19 +151,16 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'ignores values outside the vocabularies, and a language no published resource has' do
-      assign_script_families
       result = search(type: 'nope', language: 'xx', script: ['madani', 'nope'], format: 'exe', granularity: '2_ayah',
                       status: 'gone', sort: 'random', page: 'two',)
 
       expect(result.filters.to_h).to include(type: nil, language: nil, script: ['madani'], format: nil,
                                              granularity: nil, status: nil, sort: nil, page: 1,)
-      expect(ids(result)).to match_array(published.where(script_family: 'madani').ids)
+      expect(ids(result)).to match_array(published_ids { |resource| resource.script_family == 'madani' })
     end
   end
 
   describe 'facets' do
-    before { assign_script_families }
-
     # For a sample of each facet's values, the count shown equals the total after selecting it.
     [{}, { type: 'translation' }, { q: 'quran' }, { granularity: '1_ayah', status: 'stable' }].each do |base|
       it "counts each facet value as the total that selecting it gives (#{base.inspect})" do
@@ -192,11 +185,11 @@ RSpec.describe Catalog::SearchQuery do
     it "keeps each facet's own selection out of its counts" do
       result = search(type: 'font', script: ['madani'])
 
-      expect(result.facets[:type].keys).to contain_exactly(
-        *published.where(script_family: 'madani').distinct.pluck(:resource_type),
-      )
-      expect(result.facets[:type]['font']).to eq(published.where(resource_type: 'font', script_family: 'madani').count)
-      indopak_fonts = published.where(resource_type: 'font', script_family: 'indopak').count
+      madani = published.select { |resource| resource.script_family == 'madani' }
+      expect(result.facets[:type].keys).to match_array(madani.map(&:resource_type).uniq)
+      expect(result.facets[:type]['font']).to eq(madani.count(&:font?))
+      indopak_fonts = published.where(resource_type: 'font').count { |font| font.script_family == 'indopak' }
+      expect(indopak_fonts).to be_positive
       expect(result.facets[:script]['indopak']).to eq(indopak_fonts)
     end
   end
@@ -239,7 +232,7 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'orders by name' do
-      names = search(sort: 'name').matches.map { |row| Catalog::TextKey.call(row.resource.display_name) }
+      names = search(sort: 'name').matches.map { |row| Catalog::TextKey.call(row.resource.catalog_name) }
       expect(names).to eq(names.sort)
     end
 

@@ -32,7 +32,7 @@ RSpec.describe Catalog::ResourcesQuery do
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
       'id', 'name', 'type', 'toParam', 'summary', 'formats', 'language', 'granularity', 'status', 'scriptFamily',
-      'recommendation', 'previewKind', 'supersededBy',
+      'recommended', 'previewKind', 'supersededBy',
     )
     expect(props['resources']).to all(include('language' => be_present))
   end
@@ -43,10 +43,10 @@ RSpec.describe Catalog::Taxonomy do
     expect(described_class.types.map(&:key)).to match_array(DownloadableResource::RESOURCE_TYPES)
   end
 
-  it 'has the statuses and script families of the model, and every granularity of the catalog' do
-    expect(described_class.statuses.map(&:key)).to eq(DownloadableResource.statuses.keys)
-    expect(described_class.script_families.map(&:key)).to eq(DownloadableResource.script_families.keys)
-    expect(described_class.renderings.map(&:key)).to eq(DownloadableResource.renderings.keys)
+  it 'has the statuses, script families and renderings of the catalog, and every granularity of it' do
+    expect(described_class.statuses.map(&:key)).to eq(Catalog::Derived::STATUSES)
+    expect(described_class.script_families.map(&:key)).to eq(Catalog::Derived::SCRIPT_FAMILIES)
+    expect(described_class.renderings.map(&:key)).to eq(Catalog::Derived::RENDERINGS)
     expect(described_class.granularities.map(&:key)).to include(*DownloadableResource.distinct.pluck(:cardinality_type))
   end
 

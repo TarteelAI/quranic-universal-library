@@ -77,14 +77,36 @@ them is in [`AGENTS.md`](AGENTS.md).
   legacy, superseded).
 - **Why:** endorsement is not a lifecycle stage, and a status filter of stable must keep the
   recommended resources.
-- **Cost:** one more column and one more drafted field.
+- **Cost:** one more computed field.
 
-### No CMS form changes for the new catalog fields
+### The catalog fields are computed when read, not stored
 
-- **Decision:** corrections and review marks go through a task; changing a drafted field outside
-  a backfill counts as reviewing it.
-- **Why:** keeps the CMS untouched for now.
-- **Cost:** only a developer can apply corrections.
+- **Decision:** the display name, script family, rendering, lifecycle status and replacement, the
+  recommended flag, the requires-link from a layout or glyph script to its font, and the summary
+  of a resource without one are computed from the catalog on each request (`Catalog::Derived`,
+  rules in `Catalog::Inference` and `Catalog::DisplayNames`). No column holds them, and the new
+  pages add no column to `downloadable_resources` or `downloadable_related_resources`. The stored
+  values are the slug, because a URL must not change, and an editor's `short_summary`, both in
+  columns that already existed.
+- **Why:** the values are copies of facts the data already has (content meta keys, the mushaf,
+  the resource name). A stored copy needs a migration and a backfill at cutover, and it goes stale
+  for every resource added later. Computed values need neither, and a new resource is right at
+  once. This replaces the stored columns, the review column and the drafting backfills.
+- **Cost:** every catalog request loads the whole catalog (a few hundred rows, a fixed number of
+  queries). A display name can change when an editor adds a resource with the same name; slugs do
+  not. There is no record of who checked a computed value.
+
+### An editor corrects a catalog field with a meta data key
+
+- **Decision:** a key in the resource's `meta_data` (the JSON editor of the CMS form) overrides
+  the computed value: `display-name`, `script-family` (`madani`, `indopak`, `other`), `rendering`
+  (`unicode_font`, `glyph_page`, `image`, `svg`), `status` (`stable`, `beta`, `legacy`,
+  `superseded`), `superseded-by` (the slug or id of the replacement) and `recommended` (`true` or
+  `false`). An invalid value is ignored and the computed value shows.
+- **Why:** editors already edit `meta_data`, so corrections need no developer, no new column and
+  no CMS form change.
+- **Cost:** the keys are free text: a typing error is ignored without a message. The review
+  report lists the keys.
 
 ### Anonymous downloads are a plain counter
 

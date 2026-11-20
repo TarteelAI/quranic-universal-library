@@ -5,7 +5,7 @@ module Catalog
   class ResourceRefResource < ApplicationResource
     typelize id: :number, name: :string, type: :string, to_param: :string
     attributes :id, :to_param
-    attribute(:name, &:display_name)
+    attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
   end
 end

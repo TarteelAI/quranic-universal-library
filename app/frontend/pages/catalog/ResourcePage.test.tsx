@@ -22,8 +22,8 @@ describe('catalog/ResourcePage', () => {
     expect(screen.getByText('Stable')).toBeDefined()
     expect(screen.getAllByText('Licence not yet confirmed').length).toBeGreaterThan(0)
     expect(screen.getByText('English', { selector: 'span' })).toBeDefined()
-    // The summary is a backfill's draft.
-    expect(screen.getByText(/English tafsir, ayah by ayah/).textContent).toContain('(not yet reviewed)')
+    expect(screen.getByText('English tafsir, ayah by ayah. JSON and SQLite files.')).toBeDefined()
+    expect(screen.queryByText(/not yet reviewed/)).toBeNull()
   })
 
   it('lists the files of the picked format with size, MD5 and a nofollow download link', () => {
@@ -78,7 +78,7 @@ describe('catalog/ResourcePage', () => {
     expect(screen.getByText('This resource has no files to download yet.')).toBeDefined()
   })
 
-  it('lists what it works with, requires first, and marks a drafted link as not yet reviewed', () => {
+  it('lists what it works with, requires first', () => {
     renderPage(ResourcePage, { props, url })
 
     const section = screen.getByRole('region', { name: 'Works with' })
@@ -89,7 +89,7 @@ describe('catalog/ResourcePage', () => {
     ).toEqual(['Requires', 'Pairs with'])
     const requires = within(section).getByRole('list', { name: 'Requires' })
     expect(within(requires).getByRole('link').getAttribute('href')).toBe('/resources/font/digital-khatt')
-    expect(within(requires).getByText('Font · not yet reviewed')).toBeDefined()
+    expect(within(requires).getByText('Font')).toBeDefined()
     expect(within(within(section).getByRole('list', { name: 'Pairs with' })).getByText('Quran script')).toBeDefined()
   })
 

@@ -5,15 +5,15 @@ module Catalog
   module Slugs
     module_function
 
-    # The first free slug among: the display name, the display name plus the type, then that
-    # with a counter. A slug is never all digits. The block answers whether a slug is taken.
-    def generate(resource, &taken)
-      base = resource.display_name.to_s.parameterize.presence || resource.resource_type.to_s
-      typed = [base, resource.resource_type].compact.uniq.join('-')
-      candidates = [base, typed].reject { |slug| slug.match?(/\A\d+\z/) }.uniq
+    # The first free slug among: the name, the name plus the type, then that with a counter. A
+    # slug is never all digits. The block answers whether a slug is taken.
+    def generate(name, type)
+      base = name.to_s.parameterize.presence || type.to_s
+      typed = [base, type].compact.uniq.join('-')
+      candidates = [base, typed].grep_v(/\A\d+\z/).uniq
 
-      candidates.find { |slug| !taken.call(slug) } ||
-        (2..).lazy.map { |n| "#{typed}-#{n}" }.find { |slug| !taken.call(slug) }
+      candidates.find { |slug| !yield(slug) } ||
+        (2..).lazy.map { |n| "#{typed}-#{n}" }.find { |slug| !yield(slug) }
     end
   end
 end

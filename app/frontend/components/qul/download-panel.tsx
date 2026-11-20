@@ -178,7 +178,7 @@ export interface WorksWithProps {
 }
 
 // The resources a resource is linked with, by relation: what it requires first, then what it
-// pairs with. A link a backfill drafted is marked as not yet reviewed.
+// pairs with.
 export function WorksWith({ groups, className }: WorksWithProps) {
   if (groups.length === 0) return null
 
@@ -201,10 +201,7 @@ export function WorksWith({ groups, className }: WorksWithProps) {
                   className="flex flex-col rounded-lg bg-surface p-2.5 text-sm hover:bg-secondary"
                 >
                   <span className="font-medium">{link.resource.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {link.typeLabel}
-                    {!link.reviewed && ' · not yet reviewed'}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{link.typeLabel}</span>
                 </Link>
               </li>
             ))}

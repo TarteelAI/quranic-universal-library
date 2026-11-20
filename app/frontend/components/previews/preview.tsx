@@ -47,7 +47,7 @@ export function Preview({
       return (
         <NoPreview
           title="No preview for this resource yet"
-          reason="Download a file, or read the Docs tab to see what it holds."
+          reason="Download a file, or read the overview above to see what it holds."
         />
       )
   }

@@ -37,12 +37,15 @@ module Catalog
       end.slice(*TYPES.keys)
     end
 
-    # [label, resource] for each of SCRIPTS that has a published ayah-by-ayah script.
+    # [label, resource] for each of SCRIPTS that has a published ayah-by-ayah script: the first
+    # of its text type as `call` ranks them, downloads aside.
     def scripts
       resources = DownloadableResource.published.where(resource_type: 'quran-script', **TYPES['quran-script'])
         .order(:id).preload(:resource_content).select { |resource| STATUSES.include?(resource.status) }
       by_text_type = resources.group_by { |resource| resource.resource_content&.meta_value('text-type') }
-      SCRIPTS.filter_map { |text_type, label| by_text_type[text_type]&.first&.then { [label, _1] } }
+      SCRIPTS.filter_map do |text_type, label|
+        by_text_type[text_type]&.min_by { rank(_1, Set.new, {}) }&.then { [label, _1] }
+      end
     end
 
     # The first translation of each language as `call` ranks them, the languages in the order of

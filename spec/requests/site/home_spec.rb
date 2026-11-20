@@ -89,13 +89,15 @@ RSpec.describe 'Home page (/)', type: :request do
     end
 
     describe 'the library cards' do
-      let(:preview_props) { [:recitationPreview, :mushafLayoutPreview, :translationPreview, :morphologyPreview] }
+      let(:preview_props) do
+        [:recitationPreview, :mushafLayoutPreview, :translationPreview, :morphologyPreview, :ayahTopicsPreview]
+      end
 
       it 'holds one sample per sampled type, each a published resource of its type, with no preview at first' do
         get '/'
 
         samples = inertia.props[:samples]
-        expect(samples.pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation', 'morphology'])
+        expect(samples.pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation', 'morphology', 'ayah-topics'])
         samples.each do |sample|
           resource = Catalog::ResourcePage.find(sample[:toParam])
           expect(resource).to have_attributes(published: true, resource_type: sample[:type])
@@ -112,7 +114,8 @@ RSpec.describe 'Home page (/)', type: :request do
         samples = inertia.props[:samples].index_by { |sample| sample[:type] }
 
         { recitationPreview: ['recitation', 'recitation'], mushafLayoutPreview: ['mushaf-layout', 'layout'],
-          translationPreview: ['translation', 'text'], morphologyPreview: ['morphology', 'records'], }
+          translationPreview: ['translation', 'text'], morphologyPreview: ['morphology', 'records'],
+          ayahTopicsPreview: ['ayah-topics', 'records'], }
           .each do |prop, (type, kind)|
           inertia_reload_only(prop)
           expect(inertia.props.keys.map(&:to_sym) - [:errors, :head]).to eq([prop])
@@ -132,7 +135,8 @@ RSpec.describe 'Home page (/)', type: :request do
         SsrServer.with_ssr { get '/' }
 
         expect(response).to have_http_status(:ok)
-        expect(inertia.props[:samples].pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation'])
+        expect(inertia.props[:samples].pluck(:type))
+          .to eq(['recitation', 'mushaf-layout', 'translation', 'ayah-topics'])
         inertia_reload_only(:morphologyPreview)
         expect(inertia.props[:morphologyPreview]).to be_nil
       end

@@ -10,6 +10,7 @@ module Site
     PREVIEWS = {
       'recitation' => 'Previews::RecitationResource', 'mushaf-layout' => 'Previews::MushafLayoutResource',
       'translation' => 'Previews::TextResource', 'morphology' => 'Previews::RecordsResource',
+      'ayah-topics' => 'Previews::RecordsResource',
     }.freeze
 
     typelize resources: :number, languages: :number, contributors: :number, apps_count: :number,

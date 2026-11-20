@@ -78,10 +78,12 @@ export const homePageProps: SiteHomeShow = {
   categories: [
     { key: 'audio', label: 'Audio', hint: 'Recitations with word timing', count: 133 },
     { key: 'translation', label: 'Translation', hint: 'Many languages, word by word too', count: 214 },
+    { key: 'topics', label: 'Topics and themes', hint: 'Topics, themes and similar ayahs', count: 4 },
   ],
   samples: [
     { type: 'recitation', category: 'audio', name: 'Mishari Rashid al-Afasy', toParam: 'afasy' },
     { type: 'translation', category: 'translation', name: 'Saheeh International', toParam: 'saheeh' },
+    { type: 'ayah-topics', category: 'topics', name: 'Topics', toParam: 'topics' },
   ],
   showcase: [quranwbw, nimaz, waqfah, quranValidator],
   appsCount: 23,

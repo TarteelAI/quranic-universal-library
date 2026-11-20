@@ -17,6 +17,7 @@ const PREVIEW_PROPS: Record<string, string> = {
   'mushaf-layout': 'mushafLayoutPreview',
   translation: 'translationPreview',
   morphology: 'morphologyPreview',
+  'ayah-topics': 'ayahTopicsPreview',
 }
 
 async function home(page: Page) {
@@ -49,6 +50,8 @@ test('each sampled card loads its preview once near the screen, and links its sa
     const sampled = card(page, sample.category)
     await sampled.scrollIntoViewIfNeeded()
     await expect(sampled.getByTestId('sample-preview')).toHaveAttribute('data-type', sample.type, { timeout: 30_000 })
+    // The one-column topics card names no sample.
+    if (sample.type === 'ayah-topics') continue
     await expect(sampled.getByRole('link', { name: sample.name, exact: true })).toHaveAttribute(
       'href',
       `/resources/${sample.type}/${sample.toParam}`,

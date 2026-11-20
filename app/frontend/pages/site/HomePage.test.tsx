@@ -35,7 +35,7 @@ describe('site/HomePage', () => {
     renderPage(HomePage, { props: homePageProps })
 
     const cards = screen.getAllByTestId('library-card')
-    expect(cards.map((card) => card.dataset.category)).toEqual(['audio', 'translation'])
+    expect(cards.map((card) => card.dataset.category)).toEqual(['audio', 'translation', 'topics'])
     const card = within(cards[1])
     expect(card.getByRole('link', { name: 'Translation' }).getAttribute('href')).toBe('/resources?category=translation')
     expect(cards[1].textContent).toContain('Many languages, word by word too')
@@ -43,6 +43,9 @@ describe('site/HomePage', () => {
     expect(card.getByRole('link', { name: 'Saheeh International' }).getAttribute('href')).toBe(
       '/resources/translation/saheeh',
     )
+    // The narrow card names no sample; no card shows a preview before it loads.
+    expect(within(cards[2]).queryByRole('link', { name: 'Topics' })).toBeNull()
+    expect(screen.queryByTestId('sample-preview')).toBeNull()
     expect(screen.queryByRole('tab')).toBeNull()
   })
 
@@ -61,10 +64,14 @@ describe('site/HomePage', () => {
     )
     renderPage(HomePage, { props: homePageProps })
 
-    expect(reload.mock.calls.map(([options]) => options?.only)).toEqual([['recitationPreview'], ['translationPreview']])
+    expect(reload.mock.calls.map(([options]) => options?.only)).toEqual([
+      ['recitationPreview'],
+      ['translationPreview'],
+      ['ayahTopicsPreview'],
+    ])
   })
 
-  it('plays the recitation an ayah at a time and steps through the translation', () => {
+  it('plays the recitation an ayah at a time, steps through the translation and shows a topic with its ayahs', () => {
     const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
     renderPage(HomePage, {
       props: {
@@ -94,6 +101,24 @@ describe('site/HomePage', () => {
             { key: '1:2', text: 'All praise', truncated: false, ayahs: [], footnotes: [], words: [] },
           ],
         },
+        ayahTopicsPreview: {
+          kind: 'records',
+          limit: 10,
+          surah: null,
+          surahs: [],
+          locale: { code: 'en', direction: 'ltr' },
+          records: [
+            {
+              key: '1',
+              label: 'Patience',
+              arabic: null,
+              text: null,
+              html: null,
+              truncated: false,
+              tags: ['2:45', '2:153', '3:200', '8:46', '11:115', '40 more ayahs'],
+            },
+          ],
+        },
       },
     })
 
@@ -107,6 +132,10 @@ describe('site/HomePage', () => {
     expect(translation.getByText('All praise')).toBeDefined()
     fireEvent.click(translation.getByRole('button', { name: 'Next ayah' }))
     expect(translation.getByText('In the name')).toBeDefined()
+
+    const topics = within(screen.getAllByTestId('library-card')[2])
+    const ayahs = within(topics.getByRole('list', { name: 'Ayahs about Patience' })).getAllByRole('listitem')
+    expect(ayahs.map((ayah) => ayah.textContent)).toEqual(['2:45', '2:153', '3:200', '8:46'])
   })
 
   it('shows the contribution tools and links the tools overview', () => {

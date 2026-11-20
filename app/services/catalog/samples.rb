@@ -15,6 +15,7 @@ module Catalog
       'mushaf-layout' => {},
       'translation' => { cardinality_type: '1_ayah' },
       'morphology' => {},
+      'ayah-topics' => {},
     }.freeze
     STATUSES = ['stable', 'beta'].freeze
 

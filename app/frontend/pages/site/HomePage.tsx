@@ -248,7 +248,22 @@ const PREVIEW_PROPS = {
   'mushaf-layout': 'mushafLayoutPreview',
   translation: 'translationPreview',
   morphology: 'morphologyPreview',
+  'ayah-topics': 'ayahTopicsPreview',
 } as const satisfies Record<SampleType, keyof SiteHomeShow>
+
+// The height of each sample's well once its preview is in (the layout's page is under its text
+// below sm, beside it from sm up). The well has it from the start, so the section does not grow
+// as the previews load. The narrow card's well is as high as a drawn one (Sketch).
+const WELL_HEIGHT: Record<SampleType, string> = {
+  recitation: 'min-h-42',
+  'mushaf-layout': 'min-h-71 sm:min-h-53',
+  translation: 'min-h-47 sm:min-h-41',
+  morphology: 'min-h-53',
+  'ayah-topics': 'min-h-32 md:min-h-40',
+}
+
+// A sampled type whose card is one column wide, like the drawn ones, and names no sample.
+const NARROW: SampleType = 'ayah-topics'
 
 function Library(props: SiteHomeShow) {
   const { categories, resources, samples, catalogPages } = props
@@ -266,13 +281,21 @@ function Library(props: SiteHomeShow) {
             </NavAnchor>
           </Button>
         </div>
-        {/* A bento grid in taxonomy order: the sampled categories take two columns, so each row
-            of four columns is full; `dense` lets a one-column card fill a gap at two columns. */}
+        {/* A bento grid in taxonomy order: the interactive cards take two columns, so each row
+            of four columns is full; `dense` lets a one-column card fill a gap at two columns.
+            A card is two rows of the grid (its heading, its well), so the wells of a row start
+            on one line whatever the length of the headings. */}
         <ul className="mt-10 grid gap-3 md:grid-flow-dense md:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
             const sample = samples.find((candidate) => candidate.category === category.key)
             return (
-              <li key={category.key} className={cn('min-w-0', sample && 'md:col-span-2')}>
+              <li
+                key={category.key}
+                className={cn(
+                  'row-span-2 grid grid-cols-1 grid-rows-subgrid',
+                  sample && sample.type !== NARROW && 'md:col-span-2',
+                )}
+              >
                 <CategoryCard category={category} catalogPages={catalogPages}>
                   {sample ? (
                     <SampleWell
@@ -306,11 +329,11 @@ function CategoryCard({
 }) {
   return (
     <article
-      className="group relative flex h-full flex-col gap-5 rounded-2xl bg-card p-4 shadow-xs transition-shadow hover:shadow-md sm:p-5"
+      className="group relative row-span-2 grid grid-cols-1 grid-rows-subgrid gap-y-5 rounded-2xl bg-card p-4 shadow-xs transition-shadow hover:shadow-md sm:p-5"
       data-testid="library-card"
       data-category={category.key}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex min-w-0 items-start gap-3">
         <ResourceIcon category={category.key} size="md" />
         <div className="flex min-w-0 flex-1 flex-col">
           <h3 className="font-medium">
@@ -333,10 +356,10 @@ function CategoryCard({
   )
 }
 
-const WELL = 'flex min-h-32 flex-1 flex-col rounded-xl bg-surface p-4 md:min-h-40'
+const WELL = 'flex flex-1 flex-col rounded-xl bg-surface p-4'
 
 // A sampled type's well: a part of its sample's preview, loaded once the card is near the screen,
-// and a link to the sample's own page, where the whole preview is.
+// and (on a wide card) a link to the sample's own page, where the whole preview is.
 function SampleWell({
   sample,
   preview,
@@ -347,30 +370,48 @@ function SampleWell({
   catalogPages: boolean
 }) {
   return (
-    <div className="flex flex-1 flex-col gap-3">
-      <WhenVisible
-        data={PREVIEW_PROPS[sample.type]}
-        buffer={400}
-        fallback={<Skeleton className={cn(WELL, 'min-h-48')} />}
-      >
-        <div className={cn(WELL, 'min-h-48 gap-4')} data-testid="sample-preview" data-type={sample.type}>
-          <SamplePreview preview={preview} />
-        </div>
-      </WhenVisible>
-      <p className="truncate text-sm text-muted-foreground">
-        From{' '}
-        <NavAnchor
-          link={{ href: detailResources({ type: sample.type, id: sample.toParam }).url, inertia: catalogPages }}
-          className="relative z-10 text-foreground underline-offset-4 hover:underline"
-        >
-          {sample.name}
-        </NavAnchor>
-      </p>
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className={cn(WELL, WELL_HEIGHT[sample.type])}>
+        <WhenVisible data={PREVIEW_PROPS[sample.type]} buffer={400} fallback={<WellSkeleton />}>
+          <div className="flex flex-1 flex-col" data-testid="sample-preview" data-type={sample.type}>
+            <SamplePreview type={sample.type} preview={preview} />
+          </div>
+        </WhenVisible>
+      </div>
+      {sample.type !== NARROW && (
+        <p className="truncate text-sm text-muted-foreground">
+          From{' '}
+          <NavAnchor
+            link={{ href: detailResources({ type: sample.type, id: sample.toParam }).url, inertia: catalogPages }}
+            className="relative z-10 text-foreground underline-offset-4 hover:underline"
+          >
+            {sample.name}
+          </NavAnchor>
+        </p>
+      )}
     </div>
   )
 }
 
-function SamplePreview({ preview }: { preview: SiteHomeShow[(typeof PREVIEW_PROPS)[SampleType]] }) {
+// The lines of a preview that is still loading. The well is the surface colour, which `muted`
+// does not show on, so the lines take the border colour.
+function WellSkeleton() {
+  return (
+    <div className="flex flex-col gap-3" aria-hidden="true">
+      {['w-2/5', 'w-4/5', 'w-3/5'].map((width) => (
+        <Skeleton key={width} className={cn('h-4 rounded-md bg-border', width)} />
+      ))}
+    </div>
+  )
+}
+
+function SamplePreview({
+  type,
+  preview,
+}: {
+  type: SampleType
+  preview: SiteHomeShow[(typeof PREVIEW_PROPS)[SampleType]]
+}) {
   switch (preview?.kind) {
     case 'recitation':
       return <AyahPlayer preview={preview} />
@@ -379,7 +420,7 @@ function SamplePreview({ preview }: { preview: SiteHomeShow[(typeof PREVIEW_PROP
     case 'text':
       return <AyahTranslation preview={preview} />
     case 'records':
-      return <WordParts preview={preview} />
+      return type === 'ayah-topics' ? <TopicAyahs preview={preview} /> : <WordParts preview={preview} />
     default:
       return <p className="m-auto text-sm text-muted-foreground">No preview of this resource.</p>
   }
@@ -465,7 +506,7 @@ function PageThumbnail({ page }: { page: PreviewsMushafPage }) {
 function AyahTranslation({ preview }: { preview: PreviewsText }) {
   const { entries, locale } = preview
   // Ayah 1:2, as the catalog's cards show, where the preview has it.
-  const [index, setIndex] = React.useState(() => Math.max(entries.length > 1 ? 1 : 0, 0))
+  const [index, setIndex] = React.useState(entries.length > 1 ? 1 : 0)
   const entry = entries[index]
   if (!entry) return null
   const step = (by: number) => setIndex((index + by + entries.length) % entries.length)
@@ -557,16 +598,40 @@ function WordParts({ preview }: { preview: PreviewsRecords }) {
   )
 }
 
-// What a category's data is like, for the categories without a sample: drawn, not loaded.
-function Sketch({ category }: { category: SiteCategoryCount['key'] }) {
+const chip = 'rounded-md border bg-card px-2 py-0.5 text-xs text-muted-foreground'
+
+// The first topic of the sample over the first ayahs it is about.
+function TopicAyahs({ preview }: { preview: PreviewsRecords }) {
+  const topic = preview.records[0]
+  if (!topic) return null
+  // The tags are ayah keys, then a count of the rest ("148 more ayahs").
+  const ayahs = topic.tags.filter((tag) => /^\d+:\d+$/.test(tag)).slice(0, 4)
+
   return (
-    <div className={cn(WELL, 'justify-center gap-3')} aria-hidden="true">
-      {SKETCHES[category]}
+    <div className="my-auto flex flex-col items-center gap-2">
+      <span className="rounded-full bg-card px-3 py-1 text-sm font-medium text-cat-topics shadow-xs">
+        {topic.label}
+      </span>
+      <span className="h-3 w-px bg-border" />
+      <ul aria-label={`Ayahs about ${topic.label}`} className="flex flex-wrap justify-center gap-1.5 font-mono">
+        {ayahs.map((key) => (
+          <li key={key} className={chip}>
+            {key}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
 
-const chip = 'rounded-md border bg-card px-2 py-0.5 text-xs text-muted-foreground'
+// What a category's data is like, for the categories without a sample: drawn, not loaded.
+function Sketch({ category }: { category: SiteCategoryCount['key'] }) {
+  return (
+    <div className={cn(WELL, 'min-h-32 justify-center gap-3 md:min-h-40')} aria-hidden="true">
+      {SKETCHES[category]}
+    </div>
+  )
+}
 
 const SKETCHES: Partial<Record<SiteCategoryCount['key'], React.ReactNode>> = {
   script: (
@@ -603,19 +668,6 @@ const SKETCHES: Partial<Record<SiteCategoryCount['key'], React.ReactNode>> = {
         <span className="col-span-3 col-start-2 h-2 rounded-b-md border-x border-b border-cat-tafsir" />
       </div>
       <p className="text-center text-xs text-muted-foreground">One entry for ayahs 2 to 4</p>
-    </div>
-  ),
-  topics: (
-    <div className="flex flex-col items-center gap-2">
-      <span className="rounded-full bg-card px-3 py-1 text-sm font-medium text-cat-topics shadow-xs">Mercy</span>
-      <span className="h-3 w-px bg-border" />
-      <div className="flex flex-wrap justify-center gap-1.5 font-mono">
-        {['1:1', '1:3', '7:156', '21:107'].map((key) => (
-          <span key={key} className={chip}>
-            {key}
-          </span>
-        ))}
-      </div>
     </div>
   ),
   // The 30 juz, with the counts of the units the metadata marks.

@@ -55,7 +55,9 @@ function bundleButton(page: Page) {
   return page.getByRole('banner').getByRole('button', { name: /^Bundle, / })
 }
 
+// The button is hidden while the bundle is empty.
 async function expectCount(page: Page, count: number) {
+  if (count === 0) return await expect(bundleButton(page)).toHaveCount(0)
   await expect(bundleButton(page)).toHaveAttribute(
     'aria-label',
     `Bundle, ${count} ${count === 1 ? 'resource' : 'resources'}`,

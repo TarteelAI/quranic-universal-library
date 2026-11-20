@@ -3,7 +3,7 @@ import { Fragment, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 export interface PageHeaderProps {
-  /** Breadcrumb trail; the last item is the current page */
+  /** Breadcrumb trail; an item without `href` is the current page */
   breadcrumb?: { label: string; href?: string }[]
   eyebrow?: ReactNode
   /** A leading visual, e.g. the type icon (<ResourceIcon size="xl" />) */

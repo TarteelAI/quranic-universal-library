@@ -49,6 +49,8 @@ function answer(items: CatalogBundleItem[], downloadMode: CatalogBundle['downloa
 
 const stored = () => JSON.parse(window.localStorage.getItem(BUNDLE_KEY) ?? 'null')
 const count = () => screen.getByRole('button', { name: /^Bundle, / }).getAttribute('aria-label')
+// The header button is hidden while the bundle is empty.
+const noButton = () => expect(screen.queryByRole('button', { name: /^Bundle, / })).toBeNull()
 
 beforeEach(() => {
   window.localStorage.clear()
@@ -83,7 +85,7 @@ describe('the bundle', () => {
       { props: {} },
     )
 
-    expect(count()).toBe('Bundle, 0 resources')
+    noButton()
     fireEvent.click(screen.getByRole('button', { name: 'Add Sahih International to bundle' }))
     expect(count()).toBe('Bundle, 1 resource')
     fireEvent.click(screen.getByRole('button', { name: 'Add kit to bundle' }))
@@ -97,7 +99,7 @@ describe('the bundle', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Kit is in your bundle' }))
     fireEvent.click(screen.getByRole('button', { name: 'In your bundle' }))
     fireEvent.click(screen.getByRole('button', { name: 'Remove Sahih International from bundle' }))
-    expect(count()).toBe('Bundle, 0 resources')
+    noButton()
     expect(stored()).toEqual([])
   })
 
@@ -254,12 +256,26 @@ describe('the bundle tray', () => {
     expect(signedIn.queryByText(/need a free account/)).toBeNull()
   })
 
-  it('says so when the bundle is empty, and asks the server nothing', () => {
-    answer([])
-    renderPage(() => <BundleTray />, { props: {} })
+  it('keeps the open tray when its last resource is removed, says so, and on close hides the button and focuses the page', async () => {
+    window.localStorage.setItem(BUNDLE_KEY, JSON.stringify([1]))
+    answer([ibnKathir])
+    renderPage(
+      () => (
+        <>
+          <BundleTray />
+          <main tabIndex={-1} />
+        </>
+      ),
+      { props: {} },
+    )
 
-    expect(within(openTray()).getByText(/Nothing here yet/)).toBeTruthy()
-    expect(fetchMock).not.toHaveBeenCalled()
+    const tray = within(openTray())
+    fireEvent.click(await tray.findByRole('button', { name: 'Remove Tafsir Ibn Kathir from bundle' }))
+    expect(within(screen.getByRole('dialog', { name: 'Bundle' })).getByText(/Nothing here yet/)).toBeTruthy()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' })
+    await waitFor(noButton)
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('main')))
   })
 
   it('says so when the lookup fails', async () => {

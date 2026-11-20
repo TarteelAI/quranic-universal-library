@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module Catalog
-  # Counts of the published catalog, for the home page: resources, the languages they are in,
-  # recitations, and resources per category and type.
+  # Counts of the published catalog, for the home page: resources, the languages they are in, and
+  # resources per category and type.
   #
   # A resource's language is the CMS row's, else its content row's (as in SearchQuery). Content
   # rows are in the Quran content database, so they are read in a second query.
   class Stats
     CategoryCount = Data.define(:key, :label, :hint, :count)
-    Result = Data.define(:resources, :languages, :recitations, :per_type) do
+    Result = Data.define(:resources, :languages, :per_type) do
       # Every category in taxonomy order, including those with no resources.
       def categories
         Taxonomy.types.group_by(&:category).map do |category, types|
@@ -27,7 +27,6 @@ module Catalog
       Result.new(
         resources: rows.size,
         languages: Language.where(id: language_ids.uniq).count,
-        recitations: per_type.fetch('recitation', 0),
         per_type: per_type,
       )
     end

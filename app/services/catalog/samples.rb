@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Catalog
-  # One published resource of each type the home page's data showcase has a tab for, chosen from
-  # the resource's own fields rather than by id: a recommended resource first, then a stable one
-  # before a beta one, then (recitations) one whose Al-Fatihah has segment data, so the preview
-  # highlights each ayah, then the most downloaded (as the catalog's popular sort counts it), then
-  # by name. Legacy and superseded resources are never shown. A type with no such resource is
-  # left out. Types are in tab order.
+  # One published resource of each type whose card on the home page shows a part of its preview,
+  # chosen from the resource's own fields rather than by id: a recommended resource first, then a
+  # stable one before a beta one, then (recitations) one whose Al-Fatihah has segment data, so the
+  # card highlights each ayah, then the most downloaded (as the catalog's popular sort counts it),
+  # then by name. Legacy and superseded resources are never shown. A type with no such resource is
+  # left out.
   class Samples
     # Type => what a sample of that type must be. A recitation is surah by surah, so the preview
     # plays one file with each ayah timed; a translation is ayah by ayah.
@@ -15,6 +15,7 @@ module Catalog
       'mushaf-layout' => {},
       'translation' => { cardinality_type: '1_ayah' },
       'morphology' => {},
+      'ayah-topics' => {},
     }.freeze
     STATUSES = ['stable', 'beta'].freeze
 

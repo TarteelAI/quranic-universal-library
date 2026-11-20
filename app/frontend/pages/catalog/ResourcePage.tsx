@@ -155,9 +155,8 @@ export default function ResourcePage(props: CatalogResourcesShow) {
           breadcrumb={[
             { label: 'Resources', href: catalog.index().url },
             { label: type.title, href: catalogType(type.key).url },
-            { label: resource.name },
           ]}
-          icon={<ResourceIcon category={type.category.key} size="xl" />}
+          // No leading icon: the eyebrow shows the type's icon, and the title takes the full width.
           eyebrow={
             <>
               <span className="inline-flex items-center gap-1.5 font-medium text-foreground">

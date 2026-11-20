@@ -13,7 +13,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-col">
         <SiteHeader />
         <FlashMessages />
-        <main className="flex-1">{children}</main>
+        {/* Focusable from code only: the bundle tray hands the focus here when its button is gone. */}
+        <main tabIndex={-1} className="flex-1 outline-none">
+          {children}
+        </main>
         <SiteFooter />
       </div>
     </RequestDialogProvider>

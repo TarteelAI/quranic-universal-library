@@ -285,7 +285,11 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
   )
 }
 
-/** The header's Bundle button with the count, and the tray it opens. */
+/**
+ * The header's Bundle button with the count, and the tray it opens. The button is hidden while
+ * the bundle is empty (on the server and while hydrating too, so the HTML matches) and stays
+ * while the tray is open. When the tray closes on an empty bundle, the focus moves to <main>.
+ */
 export function BundleTray({ className }: { className?: string }) {
   const ids = useBundle()
   const [open, setOpen] = React.useState(false)
@@ -300,6 +304,7 @@ export function BundleTray({ className }: { className?: string }) {
           variant="ghost"
           size="sm"
           className={cn('relative', className)}
+          hidden={ids.length === 0 && !open}
           aria-label={`Bundle, ${ids.length} ${ids.length === 1 ? 'resource' : 'resources'}`}
         >
           <QulIcon name="bundle" size={18} />
@@ -307,14 +312,23 @@ export function BundleTray({ className }: { className?: string }) {
           {ids.length > 0 && (
             <span
               data-testid="bundle-count"
-              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-semibold text-foreground"
+              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-semibold text-brand-foreground"
             >
               {ids.length}
             </span>
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent side="right" className="bg-background">
+      <DialogContent
+        side="right"
+        className="bg-background"
+        onCloseAutoFocus={(event) => {
+          // The button is hidden once the bundle is empty, so the page content takes the focus.
+          if (ids.length > 0) return
+          event.preventDefault()
+          document.querySelector('main')?.focus({ preventScroll: true })
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Bundle</DialogTitle>
           <DialogDescription>

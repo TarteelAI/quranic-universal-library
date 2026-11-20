@@ -382,7 +382,7 @@ function Tile({
         <span
           className={cn(
             'flex size-5 shrink-0 items-center justify-center rounded-full border border-foreground/25',
-            selected && 'border-brand bg-brand text-foreground',
+            selected && 'border-brand bg-brand text-brand-foreground',
           )}
         >
           {selected && <CheckIcon className="size-3" strokeWidth={3} />}

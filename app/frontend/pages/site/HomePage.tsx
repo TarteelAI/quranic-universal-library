@@ -1,10 +1,20 @@
-import { Link, router, WhenVisible } from '@inertiajs/react'
-import { ArrowRightIcon, GitForkIcon, PlusIcon, StarIcon } from 'lucide-react'
+import { Link, WhenVisible } from '@inertiajs/react'
+import {
+  ArrowRightIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  GitForkIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  StarIcon,
+} from 'lucide-react'
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
-import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navigation'
-import { Preview } from '@/components/previews/preview'
+import { LayoutThumbnail } from '@/components/previews/card-preview'
+import { activeAyah, usePlayer } from '@/components/previews/recitation-player'
+import { Html } from '@/components/previews/text-preview'
 import { AppIcon } from '@/components/qul/app-icon'
 import { GitHubMark, ResourceIcon } from '@/components/qul/icons'
 import { GoalCard, KitCard } from '@/components/qul/start'
@@ -13,11 +23,18 @@ import { ShardRing } from '@/components/qul/shard-ring'
 import { ToolCard } from '@/components/qul/tool-card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/misc'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatStars, REPO, REPO_URL, useGitHubStars } from '@/lib/github'
 import { cn } from '@/lib/utils'
-import { appsDirectory, catalogResources, catalogType, detailResources, startSetup } from '@/routes'
-import type { SiteCategoryCount, SiteHomeShow, SiteSample } from '@/types/serializers'
+import { appsDirectory, catalogResources, detailResources, startSetup } from '@/routes'
+import type {
+  PreviewsMushafPage,
+  PreviewsRecitation,
+  PreviewsRecords,
+  PreviewsText,
+  SiteCategoryCount,
+  SiteHomeShow,
+  SiteSample,
+} from '@/types/serializers'
 
 // The shard ring draws on this colour (renderer.js BACKGROUND, as displayed), so the panel and
 // the canvas meet without a seam.
@@ -25,9 +42,9 @@ const RING_BG = '#030304'
 
 const number = (count: number) => count.toLocaleString('en')
 
-// The home page (/): the hero with the shard ring and the catalog counts, the apps built with
-// QUL, the guided setup's goals, the library (a tab per sample of the data, then the
-// categories), the starter kits and the open source band with three contribution tools. From
+// The home page (/): the hero with the shard ring, the catalog counts and the contributors, the apps built with
+// QUL, the guided setup's goals, the library (a card per category, with a look at its data), the
+// starter kits and the open source band with three contribution tools. From
 // the v8 design (ds/src/app/pages/home.tsx); the MCP server section is left out. With the
 // `start` group off there are no goals or kits, and the hero and closing buttons lead to the
 // catalog and the docs.
@@ -76,7 +93,7 @@ function CallsToAction({ catalogPages, startPages }: { catalogPages: boolean; st
 
 /* ---------------- hero ---------------- */
 
-function Hero({ resources, languages, recitations, catalogPages, startPages }: SiteHomeShow) {
+function Hero({ resources, languages, contributors, catalogPages, startPages }: SiteHomeShow) {
   return (
     <section className="pt-4 sm:pt-6">
       <Container>
@@ -113,7 +130,7 @@ function Hero({ resources, languages, recitations, catalogPages, startPages }: S
             <dl className="mt-2 grid grid-cols-3 gap-4 border-t border-white/10 pt-5 sm:flex sm:gap-x-14">
               <Stat value={resources} label="resources" />
               <Stat value={languages} label="languages" />
-              <Stat value={recitations} label="recitations" />
+              <Stat value={contributors} label="contributors" />
             </dl>
           </div>
         </div>
@@ -220,43 +237,33 @@ function Goals({ goals }: { goals: SiteHomeShow['goals'] }) {
   )
 }
 
-/* ---------------- the library: a tabbed look at the data, then the categories ---------------- */
+/* ---------------- the library: a card per category, with a look at its data ---------------- */
 
 type SampleType = SiteSample['type']
 
-// The prop that holds each tab's preview (Site::HomeShowResource::PREVIEWS). The first response
-// carries none of them: each loads once its tab is open and near the screen.
+// The prop that holds the preview of each sampled type (Site::HomeShowResource::PREVIEWS). The
+// first response carries none of them: each loads once its card comes near the screen.
 const PREVIEW_PROPS = {
   recitation: 'recitationPreview',
   'mushaf-layout': 'mushafLayoutPreview',
   translation: 'translationPreview',
   morphology: 'morphologyPreview',
+  'ayah-topics': 'ayahTopicsPreview',
 } as const satisfies Record<SampleType, keyof SiteHomeShow>
 
-const TABS: Record<SampleType, { tab: string; title: string; text: (count: string) => string }> = {
-  recitation: {
-    tab: 'Recitations',
-    title: 'Recitations, timed to the text',
-    text: (count) =>
-      `${count} recitations, surah by surah and ayah by ayah. Many have the time of each ayah and word, so your app can highlight the text as it plays.`,
-  },
-  'mushaf-layout': {
-    tab: 'Mushaf layouts',
-    title: 'Mushaf pages, line for line',
-    text: (count) =>
-      `Page, line and word positions for ${count} printed mushafs, so the page on screen matches the one in people's hands.`,
-  },
-  translation: {
-    tab: 'Translations',
-    title: 'Translations in many languages',
-    text: (count) => `${count} translations, ayah by ayah and word by word, each with its source and licence.`,
-  },
-  morphology: {
-    tab: 'Morphology',
-    title: 'Every word, parsed',
-    text: () => 'Roots, lemmas, stems and grammar for each word of the Quran, for word-by-word study tools and search.',
-  },
+// The height of each sample's well once its preview is in (the layout's page is under its text
+// below sm, beside it from sm up). The well has it from the start, so the section does not grow
+// as the previews load. The narrow card's well is as high as a drawn one (Sketch).
+const WELL_HEIGHT: Record<SampleType, string> = {
+  recitation: 'min-h-42',
+  'mushaf-layout': 'min-h-71 sm:min-h-53',
+  translation: 'min-h-47 sm:min-h-41',
+  morphology: 'min-h-53',
+  'ayah-topics': 'min-h-32 md:min-h-40',
 }
+
+// A sampled type whose card is one column wide, like the drawn ones, and names no sample.
+const NARROW: SampleType = 'ayah-topics'
 
 function Library(props: SiteHomeShow) {
   const { categories, resources, samples, catalogPages } = props
@@ -274,114 +281,417 @@ function Library(props: SiteHomeShow) {
             </NavAnchor>
           </Button>
         </div>
-        {samples.length > 0 && <Showcase {...props} />}
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
-          {categories.map((category) => (
-            <CategoryRow key={category.key} category={category} catalogPages={catalogPages} />
-          ))}
-        </div>
+        {/* A bento grid in taxonomy order: the interactive cards take two columns, so each row
+            of four columns is full; `dense` lets a one-column card fill a gap at two columns.
+            A card is two rows of the grid (its heading, its well), so the wells of a row start
+            on one line whatever the length of the headings. */}
+        <ul className="mt-10 grid gap-3 md:grid-flow-dense md:grid-cols-2 lg:grid-cols-4">
+          {categories.map((category) => {
+            const sample = samples.find((candidate) => candidate.category === category.key)
+            return (
+              <li
+                key={category.key}
+                className={cn(
+                  'row-span-2 grid grid-cols-1 grid-rows-subgrid',
+                  sample && sample.type !== NARROW && 'md:col-span-2',
+                )}
+              >
+                <CategoryCard category={category} catalogPages={catalogPages}>
+                  {sample ? (
+                    <SampleWell
+                      sample={sample}
+                      preview={props[PREVIEW_PROPS[sample.type]]}
+                      catalogPages={catalogPages}
+                    />
+                  ) : (
+                    <Sketch category={category.key} />
+                  )}
+                </CategoryCard>
+              </li>
+            )
+          })}
+        </ul>
       </Container>
     </Section>
   )
 }
 
-// One tab per sample. A tab's content is mounted only while it is open, so switching tabs stops
-// the recitation that was playing.
-function Showcase(props: SiteHomeShow) {
-  const { samples } = props
-  const [open, setOpen] = React.useState(samples[0].type)
-
+// A category: its icon, label, hint and count over a look at its data. The label's link covers
+// the card; the controls and links in the well sit above it.
+function CategoryCard({
+  category,
+  catalogPages,
+  children,
+}: {
+  category: SiteCategoryCount
+  catalogPages: boolean
+  children: React.ReactNode
+}) {
   return (
-    <Tabs value={open} onValueChange={(value) => setOpen(value as SampleType)} className="mt-10 gap-6">
-      <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <TabsList>
-          {samples.map((sample) => (
-            <TabsTrigger key={sample.type} value={sample.type}>
-              {TABS[sample.type].tab}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+    <article
+      className="group relative row-span-2 grid grid-cols-1 grid-rows-subgrid gap-y-5 rounded-2xl bg-card p-4 shadow-xs transition-shadow hover:shadow-md sm:p-5"
+      data-testid="library-card"
+      data-category={category.key}
+    >
+      <div className="flex min-w-0 items-start gap-3">
+        <ResourceIcon category={category.key} size="md" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <h3 className="font-medium">
+            <NavAnchor
+              link={{ href: catalogResources.index({ query: { category: category.key } }).url, inertia: catalogPages }}
+              className="outline-none after:absolute after:inset-0 after:rounded-2xl focus-visible:after:ring-[3px] focus-visible:after:ring-ring/50"
+            >
+              {category.label}
+            </NavAnchor>
+          </h3>
+          <p className="text-sm text-pretty text-muted-foreground">{category.hint}</p>
+        </div>
+        <span className="flex items-center gap-1.5 pt-0.5 font-mono text-xs text-muted-foreground tabular-nums">
+          {number(category.count)}
+          <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+        </span>
       </div>
-      {samples.map((sample) => (
-        <TabsContent key={sample.type} value={sample.type}>
-          <SampleTab
-            sample={sample}
-            prop={PREVIEW_PROPS[sample.type]}
-            preview={props[PREVIEW_PROPS[sample.type]]}
-            catalogPages={props.catalogPages}
-          />
-        </TabsContent>
-      ))}
-    </Tabs>
+      {children}
+    </article>
   )
 }
 
-function SampleTab({
+const WELL = 'flex flex-1 flex-col rounded-xl bg-surface p-4'
+
+// A sampled type's well: a part of its sample's preview, loaded once the card is near the screen,
+// and (on a wide card) a link to the sample's own page, where the whole preview is.
+function SampleWell({
   sample,
-  prop,
   preview,
   catalogPages,
 }: {
   sample: SiteSample
-  prop: (typeof PREVIEW_PROPS)[SampleType]
   preview: SiteHomeShow[(typeof PREVIEW_PROPS)[SampleType]]
   catalogPages: boolean
 }) {
-  const copy = TABS[sample.type]
-  const page = (query: PreviewQuery = {}) => detailResources({ type: sample.type, id: sample.toParam }, { query }).url
-  // Paging the preview opens the resource's own page there.
-  const go = (query: PreviewQuery) => (catalogPages ? router.visit(page(query)) : window.location.assign(page(query)))
-  const navigation: PreviewNavigation = {
-    navigate: go,
-    showView: (view, query) => go({ ...query, view }),
-    loading: false,
-  }
-
   return (
-    <div className="grid items-center gap-10 rounded-2xl bg-surface p-6 sm:p-10 lg:grid-cols-[0.8fr_1fr] lg:gap-16 lg:p-14">
-      <div className="flex flex-col items-start gap-4">
-        <ResourceIcon category={sample.category} size="md" />
-        <h3 className="headline text-2xl sm:text-3xl">{copy.title}</h3>
-        <p className="max-w-md text-pretty text-muted-foreground">{copy.text(number(sample.count))}</p>
-        <Button variant="outline" className="mt-2" asChild>
-          <NavAnchor link={{ href: catalogType({ type: sample.type }).url, inertia: catalogPages }}>
-            Browse {copy.tab.toLowerCase()} <ArrowRightIcon />
-          </NavAnchor>
-        </Button>
-      </div>
-      <div className="flex min-w-0 flex-col gap-3">
-        <WhenVisible data={prop} buffer={400} fallback={<Skeleton className="h-64 rounded-xl" />}>
-          <Preview preview={preview} navigation={navigation} />
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className={cn(WELL, WELL_HEIGHT[sample.type])}>
+        <WhenVisible data={PREVIEW_PROPS[sample.type]} buffer={400} fallback={<WellSkeleton />}>
+          <div className="flex flex-1 flex-col" data-testid="sample-preview" data-type={sample.type}>
+            <SamplePreview type={sample.type} preview={preview} />
+          </div>
         </WhenVisible>
-        <p className="text-sm text-muted-foreground">
+      </div>
+      {sample.type !== NARROW && (
+        <p className="truncate text-sm text-muted-foreground">
           From{' '}
           <NavAnchor
-            link={{ href: page(), inertia: catalogPages }}
-            className="text-foreground underline-offset-4 hover:underline"
+            link={{ href: detailResources({ type: sample.type, id: sample.toParam }).url, inertia: catalogPages }}
+            className="relative z-10 text-foreground underline-offset-4 hover:underline"
           >
             {sample.name}
           </NavAnchor>
         </p>
+      )}
+    </div>
+  )
+}
+
+// The lines of a preview that is still loading. The well is the surface colour, which `muted`
+// does not show on, so the lines take the border colour.
+function WellSkeleton() {
+  return (
+    <div className="flex flex-col gap-3" aria-hidden="true">
+      {['w-2/5', 'w-4/5', 'w-3/5'].map((width) => (
+        <Skeleton key={width} className={cn('h-4 rounded-md bg-border', width)} />
+      ))}
+    </div>
+  )
+}
+
+function SamplePreview({
+  type,
+  preview,
+}: {
+  type: SampleType
+  preview: SiteHomeShow[(typeof PREVIEW_PROPS)[SampleType]]
+}) {
+  switch (preview?.kind) {
+    case 'recitation':
+      return <AyahPlayer preview={preview} />
+    case 'layout':
+      return <PageThumbnail page={preview.page} />
+    case 'text':
+      return <AyahTranslation preview={preview} />
+    case 'records':
+      return type === 'ayah-topics' ? <TopicAyahs preview={preview} /> : <WordParts preview={preview} />
+    default:
+      return <p className="m-auto text-sm text-muted-foreground">No preview of this resource.</p>
+  }
+}
+
+// The surah's audio, one ayah on screen at a time: the one being recited, where the ayahs have
+// times. Each ayah is a step of the bar, as long as its recitation, and plays from its start.
+function AyahPlayer({ preview }: { preview: PreviewsRecitation }) {
+  const { surah, ayahs, tracks, highlights } = preview
+  const { audio, events, track, playing, started, ms, duration, play, pause } = usePlayer(tracks)
+  const timed = highlights ? ayahs.filter((ayah) => ayah.track !== null && ayah.from !== null) : []
+  const active = (started && activeAyah(ayahs, track, ms)) || null
+  const shown = active ?? ayahs[0]
+
+  return (
+    <div className="flex flex-1 flex-col gap-4" data-active-ayah={active?.key ?? ''}>
+      <audio ref={audio} preload="none" {...events} />
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => (playing ? pause() : play())}
+          aria-label={playing ? 'Pause' : `Play Surah ${surah.name}`}
+          className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full bg-foreground text-background transition-transform outline-none hover:scale-105 focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:size-4 [&_svg]:fill-current"
+        >
+          {playing ? <PauseIcon /> : <PlayIcon className="ms-0.5" />}
+        </button>
+        <p className="min-w-0 flex-1 truncate text-sm font-medium">Surah {surah.name}</p>
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">{shown?.key}</span>
+      </div>
+      {shown && (
+        <p dir="rtl" lang="ar" className="my-auto text-center font-arabic text-2xl leading-loose text-balance">
+          {shown.text}
+        </p>
+      )}
+      {timed.length > 0 ? (
+        <div dir="rtl" className="flex gap-1">
+          {timed.map((ayah) => {
+            const end = ayah.to ?? duration
+            const done = ayah.track! < track || (ayah.track === track && end > 0 && ms >= end)
+            const progress = ayah.key === active?.key ? ((ms - ayah.from!) / Math.max(end - ayah.from!, 1)) * 100 : 0
+            return (
+              <button
+                key={ayah.key}
+                type="button"
+                aria-label={`Play from ayah ${ayah.key}`}
+                onClick={() => play(ayah.track!, ayah.from!)}
+                className="group/ayah relative z-10 h-4 min-w-2 rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                style={{ flexGrow: Math.max(end - ayah.from!, 1) }}
+              >
+                <span className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 overflow-hidden rounded-full bg-border group-hover/ayah:bg-muted-foreground/40">
+                  <span
+                    className="absolute inset-y-0 start-0 bg-cat-audio"
+                    style={{ width: `${done ? 100 : Math.min(progress, 100)}%` }}
+                  />
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          {preview.granularity === 'ayah' ? 'One file per ayah' : 'One file for the surah'}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// A layout's first page, as the catalog's layout cards show it, beside its page count.
+function PageThumbnail({ page }: { page: PreviewsMushafPage }) {
+  return (
+    <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:gap-6">
+      <div className="flex flex-col gap-1 self-start sm:flex-1 sm:self-center">
+        <p className="headline text-3xl tabular-nums">{number(page.pagesCount)}</p>
+        <p className="text-sm text-pretty text-muted-foreground">pages, line for line as printed</p>
+      </div>
+      <LayoutThumbnail preview={{ kind: 'layout', page }} className="text-[11px]" />
+    </div>
+  )
+}
+
+// One ayah and its translation at a time, stepped through the surah.
+function AyahTranslation({ preview }: { preview: PreviewsText }) {
+  const { entries, locale } = preview
+  // Ayah 1:2, as the catalog's cards show, where the preview has it.
+  const [index, setIndex] = React.useState(entries.length > 1 ? 1 : 0)
+  const entry = entries[index]
+  if (!entry) return null
+  const step = (by: number) => setIndex((index + by + entries.length) % entries.length)
+
+  return (
+    <div className="flex flex-1 flex-col gap-3">
+      <p dir="rtl" lang="ar" className="font-arabic text-2xl leading-loose text-balance">
+        {entry.ayahs.map((ayah) => ayah.text).join(' ')}
+      </p>
+      {entry.text !== null && (
+        <Html html={entry.text} locale={locale} className="line-clamp-4 text-pretty [&_sup]:hidden" />
+      )}
+      <div className="mt-auto flex items-center gap-2 pt-1">
+        <StepButton label="Previous ayah" onClick={() => step(-1)}>
+          <ChevronLeftIcon />
+        </StepButton>
+        <span className="w-10 text-center font-mono text-xs text-muted-foreground tabular-nums">{entry.key}</span>
+        <StepButton label="Next ayah" onClick={() => step(1)}>
+          <ChevronRightIcon />
+        </StepButton>
+        <span className="ms-auto text-xs text-muted-foreground uppercase">{locale.code}</span>
       </div>
     </div>
   )
 }
 
-function CategoryRow({ category, catalogPages }: { category: SiteCategoryCount; catalogPages: boolean }) {
+function StepButton({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <NavAnchor
-      link={{ href: catalogResources.index({ query: { category: category.key } }).url, inertia: catalogPages }}
-      className="group flex min-w-0 items-center gap-4 rounded-xl bg-card p-4 shadow-xs transition-shadow hover:shadow-md focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="relative z-10 flex size-8 items-center justify-center rounded-full border bg-card text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 [&_svg]:size-4"
     >
-      <ResourceIcon category={category.key} size="md" />
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate font-medium">{category.label}</span>
-        <span className="truncate text-sm text-muted-foreground">{category.hint}</span>
-      </span>
-      <span className="font-mono text-xs text-muted-foreground tabular-nums">{number(category.count)}</span>
-      <ArrowRightIcon className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-    </NavAnchor>
+      {children}
+    </button>
   )
+}
+
+// The words of the start of the Quran; the chosen one is shown beside its data (a root, a lemma
+// or a grammar term, as the sample has it).
+function WordParts({ preview }: { preview: PreviewsRecords }) {
+  const words = preview.records.filter((record) => record.arabic)
+  const [index, setIndex] = React.useState(0)
+  const word = words[index]
+  if (!word) return null
+  const data = word.tags.length > 0 ? word.tags : [word.text ?? '']
+
+  return (
+    <div className="flex flex-1 flex-col gap-4">
+      <div dir="rtl" lang="ar" className="flex flex-wrap gap-1">
+        {words.map((record, at) => (
+          <button
+            key={record.key}
+            type="button"
+            aria-pressed={at === index}
+            aria-label={`Word ${record.label}`}
+            onClick={() => setIndex(at)}
+            className={cn(
+              'relative z-10 rounded-md px-2 font-arabic text-lg leading-loose transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
+              at === index ? 'bg-card text-cat-linguistics shadow-xs' : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {record.arabic}
+          </button>
+        ))}
+      </div>
+      <div className="mt-auto flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+        <div className="flex min-w-0 flex-col">
+          <span className="font-mono text-xs text-muted-foreground">{word.label}</span>
+          <span dir="rtl" lang="ar" className="font-arabic text-3xl leading-normal">
+            {word.arabic}
+          </span>
+        </div>
+        <div dir="rtl" lang="ar" className="flex flex-wrap justify-end gap-1.5">
+          {data
+            .flatMap((value) => value.split(' '))
+            .map((part, at) => (
+              <span
+                key={at}
+                className="flex h-11 min-w-11 items-center justify-center rounded-lg bg-surface px-2 font-arabic text-2xl text-cat-linguistics"
+              >
+                {part}
+              </span>
+            ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const chip = 'rounded-md border bg-card px-2 py-0.5 text-xs text-muted-foreground'
+
+// The first topic of the sample over the first ayahs it is about.
+function TopicAyahs({ preview }: { preview: PreviewsRecords }) {
+  const topic = preview.records[0]
+  if (!topic) return null
+  // The tags are ayah keys, then a count of the rest ("148 more ayahs").
+  const ayahs = topic.tags.filter((tag) => /^\d+:\d+$/.test(tag)).slice(0, 4)
+
+  return (
+    <div className="my-auto flex flex-col items-center gap-2">
+      <span className="rounded-full bg-card px-3 py-1 text-sm font-medium text-cat-topics shadow-xs">
+        {topic.label}
+      </span>
+      <span className="h-3 w-px bg-border" />
+      <ul aria-label={`Ayahs about ${topic.label}`} className="flex flex-wrap justify-center gap-1.5 font-mono">
+        {ayahs.map((key) => (
+          <li key={key} className={chip}>
+            {key}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// What a category's data is like, for the categories without a sample: drawn, not loaded.
+function Sketch({ category }: { category: SiteCategoryCount['key'] }) {
+  return (
+    <div className={cn(WELL, 'min-h-32 justify-center gap-3 md:min-h-40')} aria-hidden="true">
+      {SKETCHES[category]}
+    </div>
+  )
+}
+
+const SKETCHES: Partial<Record<SiteCategoryCount['key'], React.ReactNode>> = {
+  script: (
+    <>
+      <p dir="rtl" lang="ar" className="text-center font-arabic text-3xl leading-loose">
+        بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ
+      </p>
+      <div className="flex flex-wrap justify-center gap-1.5">
+        {['Madani', 'IndoPak', 'Tajweed', 'Page fonts'].map((label) => (
+          <span key={label} className={chip}>
+            {label}
+          </span>
+        ))}
+      </div>
+    </>
+  ),
+  // Seven ayahs and one commentary entry that covers three of them.
+  tafsir: (
+    <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-7 gap-1">
+        {[1, 2, 3, 4, 5, 6, 7].map((ayah) => (
+          <span
+            key={ayah}
+            className={cn(
+              'flex h-8 items-center justify-center rounded-md border bg-card font-mono text-xs',
+              ayah >= 2 && ayah <= 4 ? 'border-cat-tafsir text-cat-tafsir' : 'text-muted-foreground',
+            )}
+          >
+            {ayah}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        <span className="col-span-3 col-start-2 h-2 rounded-b-md border-x border-b border-cat-tafsir" />
+      </div>
+      <p className="text-center text-xs text-muted-foreground">One entry for ayahs 2 to 4</p>
+    </div>
+  ),
+  // The 30 juz, with the counts of the units the metadata marks.
+  metadata: (
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-30 gap-0.5">
+        {Array.from({ length: 30 }, (_, juz) => (
+          <span key={juz} className={cn('h-7 rounded-[2px]', juz % 2 ? 'bg-cat-metadata/35' : 'bg-cat-metadata/60')} />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          ['114', 'surahs'],
+          ['6,236', 'ayahs'],
+          ['30', 'juz'],
+        ].map(([value, label]) => (
+          <span key={label} className="flex flex-col">
+            <span className="font-mono text-sm tabular-nums">{value}</span>
+            <span className="text-xs text-muted-foreground">{label}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  ),
 }
 
 /* ---------------- starter kits ---------------- */
@@ -440,7 +750,7 @@ function OpenSource({ tools, contentPages }: SiteHomeShow) {
                 <span className="tabular-nums">{number(stars)}</span> stars on GitHub
               </span>
             </span>
-            <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-sm font-medium text-foreground transition-colors group-hover:bg-brand/85">
+            <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-sm font-medium text-brand-foreground transition-colors group-hover:bg-brand/85">
               <StarIcon className="size-4" /> Star
             </span>
           </a>

@@ -1,6 +1,7 @@
 import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react'
 import { RadioGroup as RadioGroupPrimitive } from 'radix-ui'
 
+import { Button } from '@/components/ui/button'
 import { chooseTheme, type ThemePreference, useThemePreference } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
@@ -38,4 +39,28 @@ function ThemeSwitch({ className }: { className?: string }) {
   )
 }
 
-export { ThemeSwitch }
+// One button that shows the current choice and moves to the next one (light, dark, system) on
+// each press. On the server and while the page hydrates it shows the system icon, the choice of
+// a visitor who has made none.
+function ThemeCycle({ className }: { className?: string }) {
+  const preference = useThemePreference()
+  const index = OPTIONS.findIndex((option) => option.value === preference)
+  const current = OPTIONS[index]
+  const next = OPTIONS[(index + 1) % OPTIONS.length]
+  const label = current ? `${current.label}. Switch to ${next.label.toLowerCase()}` : 'Theme'
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon-sm"
+      aria-label={label}
+      title={label}
+      onClick={() => chooseTheme(next.value)}
+      className={className}
+    >
+      {current ? <current.Icon /> : <MonitorIcon />}
+    </Button>
+  )
+}
+
+export { ThemeCycle, ThemeSwitch }

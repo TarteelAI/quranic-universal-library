@@ -11,7 +11,7 @@ const buttonVariants = cva(
         /** Ink — the main action in a view */
         default: 'bg-primary text-primary-foreground hover:bg-primary/85',
         /** QUL green with ink text. At most one per page, for the action you want noticed. */
-        brand: 'bg-brand text-foreground hover:bg-brand/85',
+        brand: 'bg-brand text-brand-foreground hover:bg-brand/85',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-foreground/10',
         /** Hairline border on card white */
         outline: 'border bg-card shadow-xs hover:border-foreground/25 hover:bg-accent',

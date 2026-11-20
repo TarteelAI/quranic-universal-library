@@ -24,7 +24,7 @@ function clock(ms: number) {
 // Plays the recitation's tracks one after the other. The <audio> element gets its source only
 // when the listener presses play, so nothing is downloaded before that. While it plays, the
 // position is read every animation frame, so the highlight moves at the segment boundaries.
-function usePlayer(tracks: string[]) {
+export function usePlayer(tracks: string[]) {
   const audio = React.useRef<HTMLAudioElement>(null)
   const [track, setTrack] = React.useState(0)
   const [playing, setPlaying] = React.useState(false)

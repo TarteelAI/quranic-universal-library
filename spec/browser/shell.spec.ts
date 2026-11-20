@@ -219,8 +219,7 @@ test.describe('site header and footer', () => {
       await target.click()
       const status = (await response).status()
       await page.waitForURL(url, { timeout: 60_000 })
-      // A locator, not a role: the request link's page opens with a modal dialog over it.
-      if (link.inertia) await expect(page.locator('h1')).toBeVisible()
+      if (link.inertia) await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
       const kept = await sameDocument(page)
       const oldPage = (await page.locator('script[data-page="app"]').count()) === 0
       if (oldPage) oldPages.add(link.href)

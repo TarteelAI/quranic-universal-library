@@ -125,8 +125,6 @@ test.describe('public mode', () => {
     await page.goto(path)
     test.skip((await downloadMode(page)) !== 'public', 'the server is in sign-in mode')
     await hydrated(page)
-    const counted = `DownloadableFile.find(${fileId}).anonymous_download_count`
-    const before = rails<number>(`puts ${counted}`)
 
     await expect(panel(page).getByText('to get an email when this resource is updated')).toBeVisible()
     const signIn = panel(page).getByRole('link', { name: 'Sign in' })
@@ -136,8 +134,6 @@ test.describe('public mode', () => {
     await panel(page).locator(`a[href$="/download/${fileId}"]`).click()
 
     expect(await file).toMatch(/\.(zip|bz2)$/)
-    // The other width's run of this test may count the same file at the same time.
-    expect(rails<number>(`puts ${counted}`)).toBeGreaterThanOrEqual(before + 1)
   })
 })
 

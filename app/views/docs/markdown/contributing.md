@@ -32,8 +32,7 @@ git switch -c docs/your-topic
 ## Requesting a Resource
 
 Missing a translation, recitation or other resource? Use **Request a resource** in the site
-header. Sign in to send a request, or vote for one already on the list; the requests with the
-most votes are easier to plan. Each account can send a few requests a day.
+menus. It opens the resource request form on GitHub.
 
 ## Submitting Your App
 

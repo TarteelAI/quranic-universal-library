@@ -1,6 +1,6 @@
 ---
 agent: remove-extras
-status: briefed
+status: done
 ---
 
 ## Task
@@ -71,10 +71,42 @@ shrinks. See `../plan.md` for the whole picture. Leeway on how.
 
 ## Commits
 
+- Remove resource requests, the anonymous download counter and two apps migrations. Requests: the
+  table migration, models, CMS screen, controller, routes, serializers, `/requests` page, request
+  dialog, generated types and routes, specs and docs; the `requests` page group is gone and every
+  request link is the GitHub issue form again (RequestCard back in `components/qul/catalog.tsx`, as
+  before 002-19). Counter: column, migration, `count_download`, `total_download_count`; totals read
+  `download_count`; an anonymous download in public mode counts nothing. Apps: one `create_apps`
+  (20261112120000) creates the final table, data-moving SQL dropped. `db/schema.rb` hand-edited to
+  match a dump from fresh clones with only this branch's migrations. RuboCop fixes in the touched
+  files (pre-existing offenses the gate sees once a file changes), and `find_by_slug_or_id!` added
+  to `Rails/DynamicFindBy` AllowedMethods (a custom finder the autocorrect would break).
+
 ## Done
+
+- All three removals; `git diff origin/main -- db/schema.rb` has no `resource_requests`,
+  `resource_request_votes` or `anonymous_download_count`, and the `apps` table is unchanged.
+- `PageGroups.enabled` already drops unknown names, so `QUL_PAGE_GROUPS=...,requests` does not
+  raise; `spec/requests/site_shell_spec.rb` covers it.
+- Gate steps run split as AGENTS.md says for Docker (host Ruby is 2.6): standalone tests, RuboCop
+  on changed files, typelizer:check, typecheck, lint, format, SSR build, RSpec, Vitest: all pass.
 
 ## Decisions
 
+- DECISIONS.md: "Anonymous downloads are a plain counter" rewritten as "Anonymous downloads are not
+  counted"; the sign-in/daily-limit entry keeps app submissions only; "Three more page groups" is
+  now two. GLOSSARY drops Request. The contributing doc points at the GitHub form.
+- Specs and DB work ran on clones under branch-specific names (`*_mdm`), so the shared dev and
+  test clones were not touched.
+
 ## Concerns
 
+- None on the change itself.
+
 ## Not done / open
+
+- Browser specs: ran catalog-search, shell and resource-page against the worktree's server on
+  :3001. The changed tests passed (public-mode test skipped: server is in sign-in mode). 8 others
+  failed because that server has no SSR (no Vite forward in the container) plus spotlight timing;
+  not caused by this change, but a clean full run on a server with SSR is owed.
+- Fresh-context review owed (orchestrator).

@@ -2,21 +2,17 @@ import type { ReactNode } from 'react'
 
 import { SiteFooter, SiteHeader } from '@/components/qul/chrome'
 import { FlashMessages } from '@/components/qul/flash'
-import { RequestDialogProvider } from '@/components/qul/request-dialog'
 import { cn } from '@/lib/utils'
 
-// The frame of every new page: the v7 header, the flash messages, the page and the footer, and
-// the request dialog the page can open.
+// The frame of every new page: the v7 header, the flash messages, the page and the footer.
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <RequestDialogProvider>
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <FlashMessages />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-      </div>
-    </RequestDialogProvider>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <FlashMessages />
+      <main className="flex-1">{children}</main>
+      <SiteFooter />
+    </div>
   )
 }
 

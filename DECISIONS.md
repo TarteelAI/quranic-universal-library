@@ -86,14 +86,12 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Why:** keeps the CMS untouched for now.
 - **Cost:** only a developer can apply corrections.
 
-### Anonymous downloads are a plain counter
+### Anonymous downloads are not counted
 
-- **Decision:** an anonymous download adds 1 to a separate counter column on the file with an
-  atomic update. No cookie, no visitor id, and the request's address is never used.
-- **Why:** nothing about a visitor is stored, there is no table to purge, and it matches
-  signed-in counting, which is not deduplicated either. The column is separate so the
-  signed-in recount cannot erase it.
-- **Cost:** repeated requests and scripts count every time.
+- **Decision:** in public download mode an anonymous download is sent and counted nowhere.
+  Download totals are `download_count`, the signed-in count production already keeps.
+- **Why:** no schema change for a count nobody reads yet, and nothing about a visitor is stored.
+- **Cost:** popular sorting and totals leave out anonymous downloads.
 
 ### The apps directory is a file in this repo
 
@@ -125,9 +123,8 @@ them is in [`AGENTS.md`](AGENTS.md).
 
 ### Public writes need sign-in and have a daily limit counted in the database
 
-- **Decision:** app submissions, requests and votes need a signed-in user. A user can send at
-  most 5 requests and 3 app submissions a day, counted from the user's own rows. A vote is one
-  row per user and request.
+- **Decision:** app submissions need a signed-in user. A user can send at most 3 app submissions
+  a day, counted from the user's own rows. Resource requests stay on the GitHub issue form.
 - **Why:** development and test use a cache that stores nothing, so a cache-based limit could
   not be proven locally; a row count is a model rule with request specs.
 - **Cost:** no limit by address, and one count query per submission.
@@ -142,11 +139,11 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Cost:** a kit change needs a commit and a deploy, a bundle does not follow the visitor to
   another device, and a bundle of many files is many downloads.
 
-### Three more page groups
+### Two more page groups
 
-- **Decision:** `content` (docs, FAQ, credits, the tools overview, the changelog), `start` (the
-  guided setup and kits) and `requests` join `home`, `catalog` and `apps`.
-- **Why:** content pages can go live before the write paths are agreed.
+- **Decision:** `content` (docs, FAQ, credits, the tools overview, the changelog) and `start` (the
+  guided setup and kits) join `home`, `catalog` and `apps`.
+- **Why:** content pages can go live on their own.
 - **Cost:** every group needs specs for both states, and links between groups must work with
   any combination.
 

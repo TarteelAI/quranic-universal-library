@@ -3,8 +3,7 @@ import { ChevronLeftIcon, ChevronRightIcon, LayoutGridIcon, ListIcon, SlidersHor
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
-import { EmptyState, FacetGroup, type FacetOption } from '@/components/qul/catalog'
-import { RequestCard } from '@/components/qul/request-dialog'
+import { EmptyState, FacetGroup, RequestCard, type FacetOption } from '@/components/qul/catalog'
 import { SearchInput } from '@/components/qul/chrome'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'

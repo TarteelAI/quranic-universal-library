@@ -99,8 +99,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
 
         get "/resources/tafsir/#{resource.id}/download/#{json_file.id}"
 
-        expect(response).to have_http_status(:found)
-        expect(json_file.reload.anonymous_download_count).to eq(1)
+        expect(response).to redirect_to(json_file.file.url)
       end
 
       it 'gives the 404 page for an unknown slug and for an unpublished resource' do
@@ -259,7 +258,6 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
 
         expect(response).to have_http_status(:found)
         expect(URI(response.location).path).to eq('/users/sign_in')
-        expect(json_file.reload.anonymous_download_count.to_i).to eq(0)
       end
 
       it 'is the download route, which sends the file in public mode', download_mode: 'public' do
@@ -269,7 +267,6 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
         get path
 
         expect(response).to redirect_to(json_file.file.url)
-        expect(json_file.reload.anonymous_download_count).to eq(1)
       end
     end
 

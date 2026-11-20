@@ -54,7 +54,7 @@ module Catalog
     def downloads(resources)
       DownloadableFile.where(published: true, downloadable_resource_id: resources.map(&:id))
         .group(:downloadable_resource_id)
-        .sum(Arel.sql('COALESCE(download_count, 0) + anonymous_download_count'))
+        .sum(:download_count)
     end
   end
 end

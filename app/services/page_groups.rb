@@ -8,7 +8,8 @@
 # above the old routes for the same paths. The setting is read on every request, so turning a
 # group off restores the old page with no code change (a restart picks up the new value).
 module PageGroups
-  GROUPS = ['home', 'catalog', 'apps', 'content', 'start', 'requests'].freeze
+  # Any other name in the setting is ignored.
+  GROUPS = ['home', 'catalog', 'apps', 'content', 'start'].freeze
 
   def self.enabled
     ENV.fetch('QUL_PAGE_GROUPS', '').split(',').map(&:strip) & GROUPS

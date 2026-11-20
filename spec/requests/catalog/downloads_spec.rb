@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'clone_helper'
 require_relative '../../support/download_files'
 
@@ -14,7 +12,7 @@ RSpec.describe 'File downloads', type: :request do
       resource = file.downloadable_resource
       "/resources/#{resource.resource_type}/#{resource.slug}/download/#{file.id}"
     },
-    'the old token URL' => ->(file) { "/resources/#{file.downloadable_resource.resource_type}/#{file.token}/download" },
+    'the old token URL' => ->(file) { "/resources/#{file.downloadable_resource.resource_type}/#{file.token}/download" }
   }
 
   let(:resource) { create_download_resource }
@@ -34,18 +32,16 @@ RSpec.describe 'File downloads', type: :request do
   end
 
   # The INSERT, UPDATE and DELETE statements the block runs.
-  def writes_during(&)
+  def writes_during(&block)
     statements = []
     collect = ->(*, payload) { statements << payload[:sql] if payload[:sql].match?(/\A\s*(INSERT|UPDATE|DELETE)\b/i) }
-    ActiveSupport::Notifications.subscribed(collect, 'sql.active_record', &)
+    ActiveSupport::Notifications.subscribed(collect, 'sql.active_record', &block)
     statements
   end
 
-  modes = ['sign_in', 'public']
-
   routes.each do |route, path_for|
     describe route do
-      modes.each do |mode|
+      %w[sign_in public].each do |mode|
         describe "in #{mode} mode", download_mode: mode do
           it 'gives 404 for an unpublished file, for everyone' do
             file.update!(published: false)
@@ -56,7 +52,7 @@ RSpec.describe 'File downloads', type: :request do
             sign_in create_account(role: :admin)
             get path_for.call(file)
             expect(response).to have_http_status(:not_found)
-            expect(file.reload.download_count).to eq(0)
+            expect(file.reload.total_download_count).to eq(0)
           end
 
           it 'gives 404 for a file of an unpublished resource, for everyone' do
@@ -69,7 +65,7 @@ RSpec.describe 'File downloads', type: :request do
             sign_in create_account(role: :admin)
             get path_for.call(file)
             expect(response).to have_http_status(:not_found)
-            expect(file.reload.download_count).to eq(0)
+            expect(file.reload.total_download_count).to eq(0)
           end
 
           it 'blocks a restricted resource for an anonymous and a normal user, and sends an admin to the file' do
@@ -81,7 +77,7 @@ RSpec.describe 'File downloads', type: :request do
             sign_in create_account
             get path_for.call(restricted)
             expect(response).to have_http_status(:forbidden)
-            expect(restricted.reload.download_count).to eq(0)
+            expect(restricted.reload.total_download_count).to eq(0)
 
             sign_in create_account(role: :admin)
             get path_for.call(restricted)
@@ -105,7 +101,8 @@ RSpec.describe 'File downloads', type: :request do
             expect(response).to have_http_status(:not_found)
           end
 
-          it 'sends a signed-in user to the file and counts the per-user row' do
+          it 'sends a signed-in user to the file and counts the per-user row, leaving the anonymous count' do
+            file.update_columns(anonymous_download_count: 5)
             user = create_account
             sign_in user
 
@@ -116,6 +113,8 @@ RSpec.describe 'File downloads', type: :request do
 
             expect(file.user_downloads.where(user: user).sole.download_count).to eq(2)
             expect(file.reload.download_count).to eq(2)
+            expect(file.anonymous_download_count).to eq(5)
+            expect(file.total_download_count).to eq(7)
           end
 
           it 'counts nothing for a HEAD request' do
@@ -123,7 +122,7 @@ RSpec.describe 'File downloads', type: :request do
             head path_for.call(file)
 
             expect(response).to have_http_status(:found)
-            expect(file.reload.download_count).to eq(0)
+            expect(file.reload.total_download_count).to eq(0)
             expect(file.user_downloads).to be_empty
           end
         end
@@ -148,12 +147,12 @@ RSpec.describe 'File downloads', type: :request do
         end
 
         it 'with the catalog group on, sends an anonymous request to sign-in, then to the resource page, ' \
-           'where the download starts', page_groups: ['catalog'] do
+           'where the download starts', page_groups: %w[catalog] do
           user = create_account
 
           get path_for.call(file)
           expect(response).to redirect_to("/users/sign_in?#{{ user_return_to: resource_page(file) }.to_query}")
-          expect(file.reload.download_count).to eq(0)
+          expect(file.reload.total_download_count).to eq(0)
 
           follow_redirect!
           expect(response).to have_http_status(:ok)
@@ -169,22 +168,31 @@ RSpec.describe 'File downloads', type: :request do
           head path_for.call(file)
 
           expect(response).to have_http_status(:found)
-          expect(file.reload.download_count).to eq(0)
+          expect(file.reload.total_download_count).to eq(0)
         end
       end
 
       describe 'in public mode', download_mode: 'public' do
-        it 'sends an anonymous GET to the file and counts nothing' do
+        it 'sends an anonymous GET to the file and adds exactly 1 to the anonymous count every time' do
           file.update_columns(download_count: 4)
 
-          3.times do
+          3.times do |i|
             get path_for.call(file)
             expect(response).to redirect_to(file.file.url)
+            expect(file.reload.anonymous_download_count).to eq(i + 1)
           end
-          expect(file.reload.download_count).to eq(4)
+          expect(file.download_count).to eq(4)
+          expect(file.total_download_count).to eq(7)
         end
 
-        it 'sets no cookie and writes nothing for an anonymous download' do
+        it 'adds 0 for an anonymous HEAD request' do
+          head path_for.call(file)
+
+          expect(response).to have_http_status(:found)
+          expect(file.reload.anonymous_download_count).to eq(0)
+        end
+
+        it 'sets no cookie and writes nothing but the counter for an anonymous download' do
           path = path_for.call(file)
           user_downloads = UserDownload.count
 
@@ -194,7 +202,8 @@ RSpec.describe 'File downloads', type: :request do
 
           expect(response).to redirect_to(file.file.url)
           expect(response.headers['Set-Cookie']).to be_blank
-          expect(writes).to be_empty
+          expect(writes.size).to eq(1)
+          expect(writes.first).to match(/\AUPDATE "downloadable_files" SET "anonymous_download_count" = /)
           expect(UserDownload.count).to eq(user_downloads)
         end
 
@@ -208,6 +217,7 @@ RSpec.describe 'File downloads', type: :request do
 
           expect(response).to redirect_to(file.file.url)
           expect(response.headers['Set-Cookie']).to be_blank
+          expect(file.reload.anonymous_download_count).to eq(1)
         end
       end
     end
@@ -237,8 +247,7 @@ RSpec.describe 'File downloads', type: :request do
     it 'disallows both download URLs for every user agent, and leaves the resource pages open' do
       get '/robots.txt'
       lines = response.body.lines.map(&:strip).reject { |line| line.empty? || line.start_with?('#') }
-      after = lines.drop_while { |line| line != 'User-agent: *' }.drop(1)
-      group = after.take_while { |line| !line.start_with?('User-agent') }
+      group = lines.drop_while { |line| line != 'User-agent: *' }.drop(1).take_while { |l| !l.start_with?('User-agent') }
       rules = group.filter_map { |line| line.delete_prefix('Disallow:').strip if line.start_with?('Disallow:') }
 
       expect(disallowed?(rules, "/resources/tafsir/#{file.token}/download")).to be(true)

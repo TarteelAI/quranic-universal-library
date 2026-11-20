@@ -158,7 +158,7 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below), `apps`, `content` and `start` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+below), `apps`, `content`, `start` and `requests` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
 URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
@@ -200,8 +200,18 @@ sets of resources in `config/kits.yml`, read through `Kits`, which name each res
 of its kit). With `start` on, the home page shows the goal cards (each opens `/start?goal=…`) and the
 first three kits, its hero and closing buttons open `/start`, and the header has the Start building
 menu; with it off, none of them appear.
-The request links of the new pages (`nav.request`) open the GitHub issue form
-(`SiteNav::REQUEST_URL`). A setting that still lists `requests` is ignored.
+`requests` serves resource requests, which have no old page (off, they are 404s and the request links
+of the new pages open the GitHub issue form). The public list `/requests` (`Requests::RequestsController#index`)
+sorts by votes or, with `?sort=date`, newest first, 20 to a page (an out-of-range `?page=` is a 404).
+With the group on, `nav.request` is `/requests?request=new`: `?request=new` opens the request dialog
+(`components/qul/request-dialog.tsx`, in `SiteShell`) on any new page, which is where sign-in returns,
+and the request cards open it in place. `POST /requests` creates one, `POST /requests/:id/vote`
+votes and `DELETE /requests/:id/vote` takes the vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
+from and enqueues nothing; a user sends at most `ResourceRequest::DAILY_LIMIT` requests a day. A vote
+is one row per user and request (unique index `index_resource_request_votes_unique`, inserted with
+ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
+and whether the current user voted, by votes or by date, one query a page, and no author or voter.
+Editors set the status and hide requests in the CMS (`/cms/resource_requests`, admins only).
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
@@ -262,10 +272,11 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 - In both modes an unpublished file or resource is a 404, and a restricted resource is blocked
   for everyone but admins.
 - Counting: a signed-in download increments the user's row (`user_downloads`) and
-  `download_count`, which popular sorting reads. An anonymous download (public mode) counts
-  nothing: nothing about the visitor is read or stored, and its response sets no cookie. HEAD
-  requests count nothing, and `robots.txt` and `X-Robots-Tag: noindex` keep well-behaved crawlers
-  out.
+  `download_count`; an anonymous one adds 1 to `anonymous_download_count`. Nothing about an
+  anonymous visitor is read or stored, and its response sets no cookie, so the counts are counts
+  of requests: a repeated request or a script counts every time. HEAD requests count nothing, and
+  `robots.txt` and `X-Robots-Tag: noindex` keep well-behaved crawlers out.
+  `DownloadableFile#total_download_count` is the combined total popular sorting reads.
 
 ### Conventions for a new page (example: `/resources/:type`)
 
@@ -392,9 +403,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps,content,start`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).

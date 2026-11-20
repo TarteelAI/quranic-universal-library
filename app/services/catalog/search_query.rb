@@ -87,7 +87,7 @@ module Catalog
       Row.new(
         resource: resource, language: language,
         formats: Taxonomy.formats_of(files.map(&:file_type)),
-        downloads: files.sum { |file| file.download_count.to_i },
+        downloads: files.sum(&:total_download_count),
         updated_at: files.map(&:updated_at).max || resource.updated_at,
         text: search_text(resource, language),
       )

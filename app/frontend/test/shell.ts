@@ -91,8 +91,20 @@ export const nav: SiteNav = {
     'https://github.com/TarteelAI/quranic-universal-library/issues/new?template=resource_request.yml',
     { external: true },
   ),
+  requestTypes: [],
   docsSearch: false,
   bundle: true,
+}
+
+// The navigation while the `requests` group is on: the request form is the in-app dialog.
+export const requestsNav: SiteNav = {
+  ...nav,
+  request: link('Request a resource', '/requests?request=new', { inertia: true }),
+  requestTypes: [
+    { key: 'translation', label: 'Translation' },
+    { key: 'tafsir', label: 'Tafsir' },
+    { key: 'other', label: 'Other' },
+  ],
 }
 
 export const signedInAuth: Auth = { user: { initials: 'FR', name: 'Fake' } }

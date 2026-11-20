@@ -3,7 +3,8 @@ import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
-import { EmptyState, RequestCard } from '@/components/qul/catalog'
+import { EmptyState } from '@/components/qul/catalog'
+import { RequestCard } from '@/components/qul/request-dialog'
 import { SearchInput } from '@/components/qul/chrome'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'

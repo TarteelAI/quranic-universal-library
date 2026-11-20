@@ -4,8 +4,9 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
 
 - **Page group**: a set of URLs that switch together between the old ERB pages and the new
   Inertia pages. The groups are `home`, `catalog` (`/resources` and below), `apps`,
-  `content` (docs, FAQ, credits, the tools overview, the changelog) and `start` (the guided setup
-  and kits) (`PageGroups` in `app/services/page_groups.rb`).
+  `content` (docs, FAQ, credits, the tools overview, the changelog), `start` (the guided setup
+  and kits) and `requests` (resource requests) (`PageGroups` in
+  `app/services/page_groups.rb`).
 - **Page group setting**: one deploy-time setting, `QUL_PAGE_GROUPS`, that lists the page groups
   served by the new pages. A group that is not listed is served by the old views, which stay in
   the code.
@@ -30,6 +31,9 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
   through `Kits` (`/kits`, `/kits/:key`).
 - **Bundle**: the visitor's list of resources to download, kept in the browser
   (`localStorage` key `qul-bundle`) and downloaded file by file. The server never stores it.
+- **Request**: a signed-in user's request for a resource QUL does not have yet
+  (`ResourceRequest`), listed on `/requests` and voted on, one vote per user. Editors set its
+  status and can hide it.
 - **App submission**: an `App` row a signed-in user sends from the form on `/apps`. It stays
   unpublished until an editor publishes it.
 - **Gated form**: a form only a signed-in user can send (`GatedForm`). A visitor who is not

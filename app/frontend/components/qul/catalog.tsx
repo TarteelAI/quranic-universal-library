@@ -1,10 +1,9 @@
-import { ArrowUpRightIcon, CheckIcon } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
-import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import type { CatalogCategory, CatalogOption, SiteNavLink } from '@/types/serializers'
+import type { CatalogCategory, CatalogOption } from '@/types/serializers'
 
 import { QulIcon, ResourceIcon, type IconName } from './icons'
 
@@ -63,7 +62,7 @@ function FacetGroup({ title, options, onToggle, limit, className }: FacetGroupPr
   )
 }
 
-/* ---------------- EmptyState / RequestCard ---------------- */
+/* ---------------- EmptyState ---------------- */
 
 export interface EmptyStateProps {
   icon?: IconName
@@ -89,37 +88,6 @@ function EmptyState({ icon = 'research', title, description, action, className }
         {description && <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
-    </div>
-  )
-}
-
-export interface RequestCardProps {
-  /** The resource request form (the `nav.request` shared prop) */
-  link: Pick<SiteNavLink, 'href' | 'label'>
-  className?: string
-}
-
-/** "Can't find it? Request it." at the end of a list and in empty states: links to the issue form. */
-function RequestCard({ link, className }: RequestCardProps) {
-  return (
-    <div
-      className={cn(
-        'flex flex-col items-start gap-4 rounded-xl bg-card p-5 shadow-xs sm:flex-row sm:items-center sm:p-6',
-        className,
-      )}
-    >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
-        <QulIcon name="request" size={20} />
-      </span>
-      <div className="flex-1">
-        <p className="font-medium">Can't find what you need?</p>
-        <p className="text-sm text-muted-foreground">Tell us what's missing on GitHub.</p>
-      </div>
-      <Button variant="outline" asChild>
-        <a href={link.href} target="_blank" rel="noreferrer">
-          {link.label} <ArrowUpRightIcon />
-        </a>
-      </Button>
     </div>
   )
 }
@@ -152,4 +120,4 @@ function FilterChip({ option, selected, onClick, className, ...props }: FilterCh
   )
 }
 
-export { FacetGroup, EmptyState, RequestCard, FilterChip }
+export { FacetGroup, EmptyState, FilterChip }

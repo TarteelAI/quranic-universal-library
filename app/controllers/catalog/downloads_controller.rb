@@ -9,8 +9,8 @@ module Catalog
   # - in download mode `sign_in` an anonymous request goes to sign-in, which returns to the
   #   resource page with `?download=<file id>` (to the download itself while the catalog page
   #   group is off); in `public` mode the file is sent to anyone.
-  # The file is a redirect to its storage URL. A signed-in GET counts the download
-  # (DownloadableFile#track_download); a HEAD or an anonymous request does not.
+  # The file is a redirect to its storage URL. A GET counts the download
+  # (DownloadableFile#count_download); a HEAD does not.
   #
   # An anonymous request leaves nothing in the browser: its session is not written back (reading
   # it for Devise would otherwise reissue an existing session cookie) and no XSRF cookie is set.
@@ -36,7 +36,7 @@ module Catalog
 
     def send_download(file)
       resource = file.downloadable_resource
-      raise ActiveRecord::RecordNotFound unless published?(file, resource)
+      raise ActiveRecord::RecordNotFound unless file.published? && resource.published? && file.file.attached?
       unless ResourcePage.download_allowed?(resource, current_user)
         return render(plain: 'This resource is not available for download.', status: :forbidden)
       end
@@ -45,17 +45,8 @@ module Catalog
         return redirect_to new_user_session_path(user_return_to: sign_in_return_path(resource, file))
       end
 
-      count_download(file)
+      file.count_download(current_user) unless request.head?
       redirect_to file.file.url, allow_other_host: true
-    end
-
-    # A signed-in GET counts the download; an anonymous request and a HEAD do not.
-    def count_download(file)
-      file.track_download(current_user) if current_user && !request.head?
-    end
-
-    def published?(file, resource)
-      file.published? && resource.published? && file.file.attached?
     end
 
     # The new resource page starts the download from `?download=`. The old page does not, so with

@@ -1,6 +1,6 @@
 ---
 agent: derive-catalog
-status: briefed
+status: in-progress
 ---
 
 ## Task
@@ -79,9 +79,22 @@ Leeway on how; keep it the smallest design that works.
 
 ## Commits
 
+- Restore resource requests and the anonymous download counter as they are on `origin/qul-next` (scope
+  change from the user, see Decisions). Every path `01-remove-extras` changed is back at its qul-next
+  content except the apps migrations (still one `create_apps`), `.rubocop.yml` (the `find_by_slug_or_id!`
+  allowance stays) and `db/schema.rb` (qul-next's, with the version of the last migration left,
+  20261113200000). `01`'s RuboCop fixes in the restored files went with the restore: those files no longer
+  differ from qul-next, so the gate does not check them. `plan.md` updated.
+
 ## Done
 
 ## Decisions
+
+- Scope change (user, through the orchestrator, 2026-11-19): resource requests and
+  `downloadable_files.anonymous_download_count` stay. A whole new table is fine; what goes is the change to
+  existing catalog tables for values that can be derived. The brief's "do not bring back anything
+  01-remove-extras removed" no longer covers these two. Schema acceptance is now: `apps`,
+  `resource_requests`, `resource_request_votes`, their foreign keys, the counter column and the version.
 
 ## Concerns
 

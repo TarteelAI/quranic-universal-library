@@ -1,8 +1,9 @@
 # Minimal data model for qul-next
 
 The maintainer's review: most of the schema additions on qul-next are not needed. An audit of the code
-agreed. This branch cuts the schema change to one new table (`apps`) and gets everything else from data
-that production already has.
+agreed for the catalog fields. The rule: a whole new table is fine; what goes is every change to an existing
+catalog table for a value that can be derived. This branch adds no column to `downloadable_resources` or
+`downloadable_related_resources` and gets those values from data that production already has.
 
 | Addition | Now |
 |---|---|
@@ -11,10 +12,12 @@ that production already has.
 | `downloadable_resources.display_name` | Computed when read (the rule the backfill used) |
 | `downloadable_resources.review` + Drafter, review marks | Removed |
 | `downloadable_related_resources.relation_type` | Computed: a link from a layout or glyph-page script to a font is "requires"; every other link pairs |
-| `downloadable_files.anonymous_download_count` | Removed |
-| `resource_requests`, `resource_request_votes` | Feature removed; requests go to the GitHub issue form |
+| `downloadable_files.anonymous_download_count` | Kept (scope change, 2026-11-19) |
+| `resource_requests`, `resource_request_votes` | Kept (scope change, 2026-11-19) |
 | `apps` (3 migrations) | Kept, as one migration |
 
-Data writes left at the cutover: fill empty `slug`s (an existing column) and import the apps. No deletes.
+Cutover: `db:migrate` (the `apps`, `resource_requests` and `resource_request_votes` tables and the counter
+column), then fill empty `slug`s (an existing column) and import the apps. No deletes.
 
-Order: `01-remove-extras`, then `02-derive-catalog`, on one branch and one PR into `qul-next`.
+Order: `01-remove-extras`, then `02-derive-catalog`, on one branch and one PR into `qul-next`. `01` removed
+requests and the counter; `02` restored both after the scope change and kept `01`'s single apps migration.

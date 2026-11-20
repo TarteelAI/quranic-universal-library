@@ -185,13 +185,17 @@ RSpec.describe 'Audio, text and record previews', type: :request, page_groups: %
       expect(previews.values.first[:records].first[:label]).to eq('2:1–2:5').or start_with('2:1')
     end
 
-    it 'ayah topics: the first topics, with the ayahs each covers' do
+    it 'ayah topics: the featured topic, then the first topics, with ayahs of different surahs first' do
       previews = records('ayah-topics')
       expect_bounded(previews)
       preview = previews.values.first
       expect(preview[:surah]).to be_nil
       expect(preview[:records].size).to eq(Previews::Records::LIMIT)
-      expect(preview[:records].first).to include(label: Topic.order(:id).first.name)
+      featured = Topic.find_by(name: Previews::Records::FEATURED_TOPIC) || Topic.order(:id).first
+      expect(preview[:records].first).to include(label: featured.name)
+      surahs = preview[:records].first[:tags].grep(/\A\d+:\d+\z/).map { |key| key.split(':').first }
+      covered = VerseTopic.joins(:verse).where(topic: featured).distinct.count('verses.chapter_id')
+      expect(surahs.uniq.size).to eq([surahs.size, covered].min)
     end
 
     it 'similar ayahs and mutashabihat: matches of the chosen surah' do

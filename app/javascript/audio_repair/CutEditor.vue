@@ -47,7 +47,7 @@
       </div>
 
       <!-- Whole surah overview: click to move the window -->
-      <div class="relative h-5 rounded bg-gray-100 border mb-1 cursor-pointer select-none" ref="overview" @click="overviewClick">
+      <div class="relative h-5 rounded bg-gray-100 border mb-1 cursor-pointer select-none" ref="overview" @click="overviewClick" @wheel.prevent="wheel">
         <div v-for="(ep, i) in repeats.episodes" :key="'e' + i"
              class="absolute top-0 bottom-0 bg-amber-300/70"
              :style="spanStyle(ep.start_ms, ep.end_ms, 0, durationMs, 2)"></div>
@@ -66,12 +66,37 @@
         <button class="btn btn-xs btn-outline-secondary" @click="zoom(2)">－ zoom</button>
         <button v-if="sel" class="btn btn-xs btn-outline-secondary" @click="showRange(sel.start, sel.end)">fit selection</button>
         <span class="text-gray-500 ml-2">{{ fmt(winStart) }} – {{ fmt(winEnd) }} ({{ secs(winEnd - winStart) }}s)</span>
-        <span class="ml-auto text-gray-400">drag to select · drag the edges to adjust · click to play from there</span>
+        <span class="ml-auto text-gray-400">drag to select · drag the edges to adjust · click to play · scroll to move · ⌘/Ctrl+scroll or pinch to zoom</span>
       </div>
+      <!-- Ayah text for what the window shows, in time order (left to right
+           like the waveform). Click a take to select it, a word to play it. -->
+      <div v-if="visiblePasses.length" class="flex gap-2 overflow-x-auto mb-1 pb-1">
+        <div v-for="p in visiblePasses" :key="p.verse_number + '-' + p.take"
+             class="shrink-0 border rounded px-2 py-1 cursor-pointer max-w-md hover:shadow-sm"
+             :class="passClass(p)" :title="'Select ' + chapter.id + ':' + p.verse_number + (p.takes > 1 ? ' take ' + p.take : '')"
+             @click="selectPass(p)">
+          <div class="text-[10px] text-gray-500 flex gap-2">
+            <b class="text-gray-700">{{ chapter.id }}:{{ p.verse_number }}</b>
+            <span v-if="p.takes > 1" class="text-amber-700">take {{ p.take }} of {{ p.takes }}</span>
+            <span>{{ fmt(p.start_ms) }}</span>
+            <span v-if="passCut(p)" class="text-red-600">cut</span>
+          </div>
+          <div class="digitalkhatt-v2 text-xl leading-relaxed text-right" dir="rtl">
+            <!-- A real space between words: the spans alone would run together. -->
+            <template v-for="w in p.words" :key="w[0] + '-' + w[1]">
+              <span class="rounded" :class="wordClass(w)" @click.stop="playFrom(w[1])">{{ wordText(p.verse_number, w[0]) }}</span>{{ " " }}
+            </template>
+            <span v-if="endMarker(p)" class="text-gray-400">{{ endMarker(p) }}</span>
+          </div>
+        </div>
+        <span v-if="hiddenPasses" class="self-center text-[11px] text-gray-400 shrink-0">+{{ hiddenPasses }} more — zoom in</span>
+      </div>
+
       <div ref="wrap" class="relative">
         <canvas ref="canvas" class="w-full block rounded border bg-gray-50"
                 :style="{ height: canvasHeight + 'px', cursor: hoverCursor }"
-                @pointerdown="down" @pointermove="move" @pointerup="up" @pointerleave="leave"></canvas>
+                @pointerdown="down" @pointermove="move" @pointerup="up" @pointerleave="leave"
+                @wheel.prevent="wheel"></canvas>
         <div v-if="peaksLoading" class="absolute right-2 top-1 text-[10px] text-gray-400">loading waveform…</div>
       </div>
 
@@ -188,7 +213,7 @@ export default {
       sourceLabel: "",
       audioUrl: null,
       durationMs: 0,
-      repeats: { timeline: "", offset_ms: 0, episodes: [], passes: [] },
+      repeats: { timeline: "", offset_ms: 0, episodes: [], passes: [], verse_words: {} },
       repeatsError: null,
       operations: [],
       canUndo: false,
@@ -220,6 +245,11 @@ export default {
   },
 
   computed: {
+    passesInWindow() {
+      return this.repeats.passes.filter((p) => p.end_ms > this.winStart && p.start_ms < this.winEnd);
+    },
+    visiblePasses() { return this.passesInWindow.slice(0, 12); },
+    hiddenPasses() { return Math.max(0, this.passesInWindow.length - 12); },
     base() { return `/audio_repair/sessions/${this.sessionId}`; },
     cuts() { return this.operations.filter((o) => o.kind === "cut").sort((a, b) => a.target.start_ms - b.target.start_ms); },
     otherOps() { return this.operations.length - this.cuts.length; },
@@ -327,6 +357,41 @@ export default {
       return { left: `${left}%`, width: `max(${width}%, ${minPx || 1}px)` };
     },
 
+    // ---- ayah text ----------------------------------------------------------
+
+    wordText(vn, pos) {
+      const words = (this.repeats.verse_words || {})[vn] || {};
+      return words[pos] || "";
+    },
+    // The ayah-end sign, when this take reaches the ayah's last word.
+    endMarker(p) {
+      const words = (this.repeats.verse_words || {})[p.verse_number] || {};
+      const positions = Object.keys(words).map(Number).sort((a, b) => a - b);
+      const last = positions[positions.length - 1];
+      const lastWord = p.words[p.words.length - 1];
+      if (!last || !lastWord || !String(words[last]).startsWith("۝")) return null;
+      return lastWord[0] === last - 1 ? words[last] : null;
+    },
+    passCut(p) {
+      return this.cuts.some((c) => c.target.start_ms <= p.start_ms && c.target.end_ms >= p.end_ms);
+    },
+    passClass(p) {
+      if (this.passCut(p)) return "border-red-200 bg-red-50 opacity-60 line-through";
+      if (this.sel && p.start_ms < this.sel.end && p.end_ms > this.sel.start) return "border-indigo-500 bg-indigo-50";
+      if (p.takes > 1) return "border-amber-300 bg-amber-50/50";
+      return "border-gray-200";
+    },
+    wordClass(w) {
+      const ph = this.playhead;
+      if (ph != null && ph >= w[1] && ph < w[2]) return "bg-yellow-200";
+      if (this.sel && w[1] >= this.sel.start && w[2] <= this.sel.end) return "text-indigo-700";
+      return "hover:bg-gray-100";
+    },
+    selectPass(p) {
+      this.sel = { start: p.start_ms, end: p.end_ms };
+      this.draw();
+    },
+
     // ---- window -------------------------------------------------------------
 
     setWindow(a, b) {
@@ -359,6 +424,29 @@ export default {
       const span = (this.winEnd - this.winStart) * factor;
       this.setWindow(mid - span / 2, mid + span / 2);
     },
+    // Scroll moves along the surah (vertical or horizontal, trackpad or wheel);
+    // with Ctrl/⌘ — which is also what a trackpad pinch sends — it zooms
+    // around the point under the cursor.
+    wheel(e) {
+      const span = this.winEnd - this.winStart;
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
+      if (e.ctrlKey || e.metaKey) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const frac = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+        const onOverview = e.currentTarget === this.$refs.overview;
+        const at = onOverview ? frac * this.durationMs : this.winStart + frac * span;
+        const factor = Math.exp((e.deltaY * unit) / 300);
+        const next = Math.min(Math.max(span * factor, 1000), this.durationMs || span * factor);
+        const left = onOverview ? at - next / 2 : at - frac * next;
+        this.setWindow(left, left + next);
+        return;
+      }
+      const delta = (Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit;
+      const width = e.currentTarget.clientWidth || 800;
+      const ms = (delta / width) * span;
+      this.setWindow(this.winStart + ms, this.winEnd + ms);
+    },
+
     overviewClick(e) {
       const rect = this.$refs.overview.getBoundingClientRect();
       const t = ((e.clientX - rect.left) / rect.width) * this.durationMs;

@@ -273,6 +273,7 @@ Rails.application.routes.draw do
         post 'drafts/review', to: 'runs#review_drafts', as: :review_drafts
         post 'drafts/:id/review', to: 'runs#review_draft', as: :review_draft
         post 'ayah_boundary', to: 'runs#update_ayah_boundary', as: :ayah_boundary
+        post 'trim_timings', to: 'runs#trim_timings', as: :trim_timings
         get 'artifact', to: 'runs#artifact', as: :artifact
         get 'audio', to: 'runs#audio', as: :audio
         get 'surah_timeline', to: 'runs#surah_timeline', as: :surah_timeline
@@ -284,6 +285,9 @@ Rails.application.routes.draw do
       resources :sessions, only: %i[index create edit] do
         member do
           get :data
+          get :repeats
+          post :remove_operation
+          post :apply_cuts_to_drafts
           get :candidates
           get :audition
           get :peaks
@@ -313,6 +317,7 @@ Rails.application.routes.draw do
           get :data
           post :download
           post :retry_item
+          post :cancel_download
           post :update_settings
           post :update_source
           post :upload

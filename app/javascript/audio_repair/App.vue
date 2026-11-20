@@ -307,6 +307,11 @@
                 ({{ op.metrics.before.f2_balance }} → {{ op.metrics.after.f2_balance }} dB)
               </span>
             </template>
+            <template v-else-if="op.kind === 'cut'">
+              <span class="inline-block px-1 rounded text-[10px] bg-red-100 text-red-700">cut</span>
+              removed {{ formatMs(op.target.start_ms) }}–{{ formatMs(op.target.end_ms) }} {{ op.note }}
+              <a :href="`${base}/edit?tool=cut`" class="text-indigo-700 underline">edit cuts</a>
+            </template>
             <template v-else>
               <span class="inline-block px-1 rounded text-[10px] bg-gray-100 text-gray-600">word</span>
               {{ op.verse_key }} w{{ op.from_position || op.word_position }} ← {{ op.source && op.source.verse_key }} w{{ op.source && (op.source.from_position || op.source.word_position) }}

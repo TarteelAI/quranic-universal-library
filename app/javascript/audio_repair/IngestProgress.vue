@@ -15,15 +15,44 @@
         <div class="flex items-center gap-2">
           <span class="text-xs px-2 py-1 rounded" :class="statusClass">{{ state.status }}</span>
           <button
-            v-if="downloading || missingCount > 0"
-            class="btn btn-sm btn-dark"
-            :disabled="busy || downloading"
-            @click="startDownload"
+            v-if="downloadableSelected.length"
+            class="btn btn-sm btn-primary"
+            :disabled="busy"
+            @click="startDownload(downloadableSelected)"
           >
-            {{ downloading ? 'Downloading…' : (anyDownloaded ? `Download missing (${missingCount})` : 'Start download') }}
+            Download {{ downloadableSelected.length }} selected
           </button>
-          <span v-else class="text-xs text-gray-500">all downloaded</span>
+          <button
+            v-if="cancellableSelected.length"
+            class="btn btn-sm btn-outline-danger"
+            :disabled="busy"
+            @click="cancelDownload(cancellableSelected)"
+          >
+            Cancel {{ cancellableSelected.length }} selected
+          </button>
+          <button
+            v-if="activeCount > 0"
+            class="btn btn-sm btn-outline-danger"
+            :disabled="busy"
+            @click="cancelDownload(null)"
+          >
+            Cancel all ({{ activeCount }})
+          </button>
+          <button
+            v-if="missingCount > 0"
+            class="btn btn-sm btn-dark"
+            :disabled="busy"
+            @click="startDownload(null)"
+          >
+            {{ anyDownloaded || activeCount ? `Download all missing (${missingCount})` : 'Download all' }}
+          </button>
+          <span v-else-if="!activeCount" class="text-xs text-gray-500">all downloaded</span>
         </div>
+      </div>
+
+      <div v-if="state.worker_running === false" class="text-xs text-amber-900 bg-amber-50 border border-amber-300 rounded p-2 mb-3">
+        No background worker is running. Downloads and encodes wait in the queue until Sidekiq starts
+        (<span class="font-mono">bundle exec sidekiq</span>).
       </div>
 
       <!-- Source URL / range -->
@@ -278,22 +307,47 @@
                     :class="open === item.id ? 'btn-secondary' : 'btn-primary'"
                     @click="toggle(item)"
                   >
-                    {{ open === item.id ? 'Close' : 'Process' }}
+                    {{ open === item.id ? 'Close' : 'Trim' }}
+                  </button>
+                  <button
+                    v-if="item.status === 'trim_approved'"
+                    class="btn btn-sm btn-dark ml-1"
+                    :disabled="busy"
+                    title="Encode with the saved trim"
+                    @click="encodeOne(item)"
+                  >
+                    Encode
+                  </button>
+                  <button
+                    v-else-if="item.status === 'pending'"
+                    class="btn btn-sm btn-primary"
+                    :disabled="busy"
+                    @click="startDownload([item])"
+                  >
+                    Download
                   </button>
                   <button
                     v-else-if="item.status === 'failed'"
                     class="btn btn-sm btn-outline-secondary"
                     :disabled="busy"
-                    @click="retry(item)"
+                    @click="startDownload([item])"
                   >
-                    retry
+                    Retry
+                  </button>
+                  <button
+                    v-else-if="isActive(item)"
+                    class="btn btn-sm btn-outline-danger"
+                    :disabled="busy"
+                    @click="cancelDownload([item])"
+                  >
+                    Cancel
                   </button>
                   <a
                     v-if="canProcess(item)"
                     :href="urlFor(surahUrl, item.id)"
                     class="btn btn-sm btn-outline-secondary ml-1"
-                    title="Files, metadata, re-encode and polarity"
-                  >Files</a>
+                    title="Every step for this surah: download, trim, encode, validate, upload"
+                  >Open</a>
                 </td>
               </tr>
               <tr v-if="open === item.id" :key="'panel' + item.id">
@@ -334,6 +388,7 @@ export default {
     dataUrl: { type: String, required: true },
     downloadUrl: { type: String, required: true },
     retryUrl: { type: String, required: true },
+    cancelUrl: { type: String, required: true },
     itemUrl: { type: String, required: true },
     detectUrl: { type: String, required: true },
     approveUrl: { type: String, required: true },
@@ -387,6 +442,15 @@ export default {
     encodableSelected() {
       return this.items.filter((i) => this.selected.includes(i.id) && this.canEncode(i));
     },
+    downloadableSelected() {
+      return this.items.filter((i) => this.selected.includes(i.id) && this.canDownload(i));
+    },
+    cancellableSelected() {
+      return this.items.filter((i) => this.selected.includes(i.id) && this.isActive(i));
+    },
+    activeCount() {
+      return this.items.filter((i) => this.isActive(i)).length;
+    },
     uploadableSelected() {
       return this.items.filter((i) => this.selected.includes(i.id) && this.canUpload(i));
     },
@@ -401,7 +465,7 @@ export default {
       return this.items.filter((i) => i.display_status === this.filter);
     },
     doneCount() {
-      return this.items.filter((i) => !["pending", "downloading", "failed"].includes(i.status)).length;
+      return this.items.filter((i) => !["pending", "queued", "downloading", "failed"].includes(i.status)).length;
     },
     failedCount() {
       return this.items.filter((i) => i.status === "failed").length;
@@ -438,8 +502,19 @@ export default {
     this.stopPolling();
   },
   methods: {
-    canSelect(item) {
-      return !["pending", "downloading"].includes(item.status);
+    // Every surah is selectable: what a selection can do (download, cancel,
+    // encode, upload) depends on its status, and each button counts only the
+    // rows it applies to.
+    canSelect() {
+      return true;
+    },
+
+    canDownload(item) {
+      return ["pending", "failed"].includes(item.status);
+    },
+
+    isActive(item) {
+      return ["queued", "downloading"].includes(item.status);
     },
 
     canEncode(item) {
@@ -460,6 +535,21 @@ export default {
         if (skip) body.append("skip_trim", "true");
         this.apply(await this.api(this.encodeSelectedUrl, { method: "POST", body }));
         ids.forEach((id) => this.pollItem(id));
+      } catch (e) {
+        this.error = e.message;
+      } finally {
+        this.busy = false;
+      }
+    },
+
+    async encodeOne(item) {
+      this.busy = true;
+      this.error = null;
+      try {
+        const body = new FormData();
+        body.append("item_ids[]", item.id);
+        this.apply(await this.api(this.encodeSelectedUrl, { method: "POST", body }));
+        this.pollItem(item.id);
       } catch (e) {
         this.error = e.message;
       } finally {
@@ -497,12 +587,13 @@ export default {
     },
 
     async uploadSelected() {
-      if (!confirm(`Upload ${this.selected.length} surah(s) to ${this.uploadPath}? This writes to the live CDN.`)) return;
+      const ids = this.uploadableSelected.map((i) => i.id);
+      if (!confirm(`Upload ${ids.length} surah(s) to ${this.uploadPath}? This writes to the live CDN.`)) return;
       this.busy = true;
       this.error = null;
       try {
         const body = new FormData();
-        this.selected.forEach((id) => body.append("item_ids[]", id));
+        ids.forEach((id) => body.append("item_ids[]", id));
         this.apply(await this.api(this.uploadUrl, { method: "POST", body }));
         this.poll();
       } catch (e) {
@@ -515,6 +606,7 @@ export default {
     statusBadge(item) {
       const map = {
         pending: "bg-gray-100 text-gray-600",
+        queued: "bg-indigo-50 text-indigo-700",
         downloading: "bg-blue-100 text-blue-800",
         downloaded: "bg-sky-100 text-sky-800",
         trimming: "bg-amber-100 text-amber-800",
@@ -534,7 +626,7 @@ export default {
     },
 
     canProcess(item) {
-      return !["pending", "downloading", "failed"].includes(item.status);
+      return !["pending", "queued", "downloading", "failed"].includes(item.status);
     },
 
     hasChecks(item) {
@@ -710,11 +802,14 @@ export default {
       }, 2000);
     },
 
-    async startDownload() {
+    // items null = every surah not yet fetched.
+    async startDownload(items) {
       this.busy = true;
       this.error = null;
       try {
-        this.apply(await this.api(this.downloadUrl, { method: "POST" }));
+        const body = new FormData();
+        if (items) items.forEach((i) => body.append("item_ids[]", i.id));
+        this.apply(await this.api(this.downloadUrl, { method: "POST", body }));
         this.poll();
       } catch (e) {
         this.error = e.message;
@@ -723,13 +818,16 @@ export default {
       }
     },
 
-    async retry(item) {
+    // items null = every queued or downloading surah.
+    async cancelDownload(items) {
+      const what = items ? `${items.length} surah(s)` : "every queued and running download";
+      if (!confirm(`Cancel ${what}? Partial files are deleted.`)) return;
       this.busy = true;
+      this.error = null;
       try {
         const body = new FormData();
-        body.append("item_id", item.id);
-        this.apply(await this.api(this.retryUrl, { method: "POST", body }));
-        this.poll();
+        if (items) items.forEach((i) => body.append("item_ids[]", i.id));
+        this.apply(await this.api(this.cancelUrl, { method: "POST", body }));
       } catch (e) {
         this.error = e.message;
       } finally {

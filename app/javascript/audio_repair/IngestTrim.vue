@@ -99,30 +99,43 @@
       </div>
     </div>
 
-    <!-- ===== Approve ===== -->
+    <!-- ===== Save the trim ===== -->
     <div class="mt-4 pt-3 border-t">
       <div class="flex items-center gap-2 flex-wrap">
-        <button class="btn btn-sm btn-dark" :disabled="working" @click="approve">
-          {{ working ? 'Working…' : 'Approve & encode' }}
+        <button class="btn btn-sm btn-dark" :disabled="busy" @click="approve(false)">
+          {{ busy ? 'Saving…' : 'Save trim' }}
         </button>
-        <button class="btn btn-sm btn-outline-secondary" :disabled="working" @click="redetect">Re-detect</button>
         <button
           class="btn btn-sm btn-outline-secondary"
-          :disabled="working"
-          title="Encode the file as it is, with no cut"
+          :disabled="busy || encoding"
+          title="Save the trim and start encoding straight away"
+          @click="approve(true)"
+        >
+          Save &amp; encode
+        </button>
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          :disabled="busy"
+          title="Keep the whole file: no cut at either end"
           @click="approveWithoutTrim"
         >
-          Encode without trimming
+          No trim (whole file)
         </button>
+        <button class="btn btn-sm btn-outline-secondary" :disabled="busy" @click="redetect">Re-detect</button>
         <span class="text-xs text-gray-600">
           Keeps {{ fmt(endMs - startMs) }} of {{ fmt(item.source_duration_ms) }}
           <span v-if="removedMs > 0" class="text-gray-400">· removes {{ fmt(removedMs) }}</span>
         </span>
       </div>
+      <p class="text-[11px] mt-1" :class="trimSaved ? 'text-green-700' : 'text-amber-700'">
+        <template v-if="trimSaved">✓ Trim saved — next step is encoding.</template>
+        <template v-else-if="item.trim_approved_at">Unsaved change: the saved cut is {{ fmt(item.trim_start_ms) }} – {{ fmt(item.trim_end_ms) }}.</template>
+        <template v-else>Not saved yet.</template>
+      </p>
 
       <!-- Encoding runs in the background, so the panel reports which step it
            is on rather than leaving the button looking stuck. -->
-      <div v-if="working" class="mt-2">
+      <div v-if="encoding" class="mt-2">
         <div class="flex justify-between text-xs text-gray-600 mb-1">
           <span>
             {{ stageLabel }}
@@ -232,10 +245,20 @@ export default {
     stage() {
       return this.item.progress_stage || null;
     },
-    // Busy covers the request itself; item.working covers the background job
-    // that outlives it, which is the part that used to give no feedback.
+    // The background job only. Trim controls never wait on it: saving a cut
+    // is a quick request, and encoding is a separate step.
+    encoding() {
+      return !!this.item.working;
+    },
     working() {
-      return this.busy || !!this.item.working;
+      return this.busy || this.encoding;
+    },
+    trimSaved() {
+      return (
+        !!this.item.trim_approved_at &&
+        Math.round(this.item.trim_start_ms || 0) === Math.round(this.startMs) &&
+        Math.round(this.item.trim_end_ms || this.item.source_duration_ms) === Math.round(this.endMs)
+      );
     },
     stageLabel() {
       if (this.stage) return this.stage.label;
@@ -590,17 +613,18 @@ export default {
       this.startMs = 0;
       this.endMs = this.item.source_duration_ms;
       this.redraw();
-      await this.approve();
+      await this.approve(false);
     },
 
-    async approve() {
+    async approve(encode) {
       this.busy = true;
       this.error = null;
       this.startedAt = Date.now();
       try {
         const body = new FormData();
-        body.append("trim_start_ms", this.startMs);
-        body.append("trim_end_ms", this.endMs);
+        body.append("trim_start_ms", Math.round(this.startMs));
+        body.append("trim_end_ms", Math.round(this.endMs));
+        if (encode) body.append("encode", "true");
         this.$emit("updated", await this.api(this.approveUrl, { method: "POST", body }));
       } catch (e) {
         this.error = e.message;

@@ -4,6 +4,7 @@ import PolarityCheck from "./PolarityCheck.vue";
 import IngestNew from "./IngestNew.vue";
 import IngestProgress from "./IngestProgress.vue";
 import IngestSurah from "./IngestSurah.vue";
+import CutEditor from "./CutEditor.vue";
 
 const el = document.getElementById("audio-repair-app");
 
@@ -13,6 +14,12 @@ if (el) {
     verseKey: el.dataset.verseKey
   });
   app.mount("#audio-repair-app");
+}
+
+const cuts = document.getElementById("audio-repair-cuts");
+
+if (cuts) {
+  createApp(CutEditor, { sessionId: cuts.dataset.sessionId }).mount("#audio-repair-cuts");
 }
 
 const polarity = document.getElementById("audio-repair-polarity");
@@ -59,6 +66,7 @@ if (ingest) {
     dataUrl: ingest.dataset.dataUrl,
     downloadUrl: ingest.dataset.downloadUrl,
     retryUrl: ingest.dataset.retryUrl,
+    cancelUrl: ingest.dataset.cancelUrl,
     itemUrl: ingest.dataset.itemUrl,
     detectUrl: ingest.dataset.detectUrl,
     approveUrl: ingest.dataset.approveUrl,
@@ -80,10 +88,14 @@ if (surah) {
     dataUrl: surah.dataset.dataUrl,
     reencodeUrl: surah.dataset.reencodeUrl,
     retryUrl: surah.dataset.retryUrl,
+    cancelUrl: surah.dataset.cancelUrl,
+    uploadUrl: surah.dataset.uploadUrl,
     itemUrl: surah.dataset.itemUrl,
     detectUrl: surah.dataset.detectUrl,
     approveUrl: surah.dataset.approveUrl,
     polarityUrlEndpoint: surah.dataset.polarityUrl,
-    backUrl: surah.dataset.backUrl
+    backUrl: surah.dataset.backUrl,
+    repairUrl: surah.dataset.repairUrl,
+    itemId: surah.dataset.itemId
   }).mount("#audio-repair-surah");
 }

@@ -83,7 +83,7 @@ test.describe('catalog search', () => {
     await expect.poll(() => resultCount(page)).toBeLessThan(before)
     // No sort and no query: the results come under their category's heading.
     const facts = await page
-      .getByRole('list', { name: 'Tafsir and commentary' })
+      .getByRole('list', { name: 'Tafsir', exact: true })
       .locator('article h3 + p')
       .allTextContents()
     expect(facts.every((fact) => fact.startsWith('Tafsir'))).toBe(true)

@@ -28,7 +28,7 @@ RSpec.describe Catalog::ResourcesQuery do
     ).serializable_hash
 
     expect(props['type']).to include('key' => 'surah-info', 'title' => 'Surah info',
-                                     'category' => { 'key' => 'tafsir', 'label' => 'Tafsir and commentary' },)
+                                     'category' => { 'key' => 'tafsir', 'label' => 'Tafsir' },)
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
       'id', 'name', 'type', 'toParam', 'summary', 'formats', 'language', 'granularity', 'status', 'scriptFamily',

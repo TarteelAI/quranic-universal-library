@@ -21,7 +21,7 @@ const tafsir = {
   title: 'Tafsirs',
   summary: 'Short and detailed commentaries.',
   description: 'Commentaries on the Quran in many languages.',
-  category: { key: 'tafsir', label: 'Tafsir and commentary' },
+  category: { key: 'tafsir', label: 'Tafsir' },
 } satisfies CatalogType
 
 // Props of catalog/TypePage, shaped like Catalog::TypesShowResource.

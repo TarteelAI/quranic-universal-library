@@ -133,7 +133,7 @@ describe('catalog/CatalogPage', () => {
         filters: { ...catalogPageProps.filters, sort: null },
         groups: [
           { category: { key: 'translation', label: 'Translation' }, total: 210, count: 1 },
-          { category: { key: 'tafsir', label: 'Tafsir and commentary' }, total: 114, count: 1 },
+          { category: { key: 'tafsir', label: 'Tafsir' }, total: 114, count: 1 },
         ],
       },
     })
@@ -141,14 +141,14 @@ describe('catalog/CatalogPage', () => {
     expect(screen.getByRole<HTMLSelectElement>('combobox', { name: 'Sort' }).value).toBe('')
     expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual([
       'Translation',
-      'Tafsir and commentary',
+      'Tafsir',
     ])
     expect(within(screen.getByRole('list', { name: 'Translation' })).getByRole('article').textContent).toContain(
       'Sahih International',
     )
-    expect(
-      within(screen.getByRole('list', { name: 'Tafsir and commentary' })).getByRole('article').textContent,
-    ).toContain('Tafsir Ibn Kathir')
+    expect(within(screen.getByRole('list', { name: 'Tafsir' })).getByRole('article').textContent).toContain(
+      'Tafsir Ibn Kathir',
+    )
     expect(screen.queryByRole('list', { name: 'Resources' })).toBeNull()
   })
 

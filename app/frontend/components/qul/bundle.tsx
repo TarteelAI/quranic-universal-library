@@ -285,7 +285,11 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
   )
 }
 
-/** The header's Bundle button with the count, and the tray it opens. */
+/**
+ * The header's Bundle button with the count, and the tray it opens. The button is hidden while
+ * the bundle is empty (on the server and while hydrating too, so the HTML matches) and stays
+ * while the tray is open.
+ */
 export function BundleTray({ className }: { className?: string }) {
   const ids = useBundle()
   const [open, setOpen] = React.useState(false)
@@ -300,6 +304,7 @@ export function BundleTray({ className }: { className?: string }) {
           variant="ghost"
           size="sm"
           className={cn('relative', className)}
+          hidden={ids.length === 0 && !open}
           aria-label={`Bundle, ${ids.length} ${ids.length === 1 ? 'resource' : 'resources'}`}
         >
           <QulIcon name="bundle" size={18} />

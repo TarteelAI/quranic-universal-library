@@ -11,6 +11,12 @@ const Header = () => <SiteHeader />
 const Footer = () => <SiteFooter />
 
 describe('SiteHeader', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+  })
+
   it('shows the icon-only logo, the menus, the search button and sign-in, and no theme switch or search field', () => {
     renderPage(Header, { props: {}, url: '/resources/tafsir?q=ibn' })
 
@@ -26,6 +32,32 @@ describe('SiteHeader', () => {
     )
     expect(screen.queryByRole('searchbox')).toBeNull()
     expect(screen.queryByRole('radiogroup', { name: 'Theme' })).toBeNull()
+  })
+
+  it('moves to the next theme with the theme button, and names the current and next one', () => {
+    localStorage.setItem('qul-theme', 'light')
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: false })),
+    )
+    renderPage(Header, { props: {} })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Light theme. Switch to dark theme' }))
+    expect(localStorage.getItem('qul-theme')).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: 'Dark theme. Switch to system theme' }))
+    expect(localStorage.getItem('qul-theme')).toBe('system')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    fireEvent.click(screen.getByRole('button', { name: 'System theme. Switch to light theme' }))
+    expect(localStorage.getItem('qul-theme')).toBe('light')
+  })
+
+  it('has the theme switch at the bottom of the menu sheet', () => {
+    renderPage(Header, { props: {} })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }))
+    const sheet = within(screen.getByRole('dialog', { name: 'Menu' }))
+    expect(sheet.getByRole('radiogroup', { name: 'Theme' })).toBeDefined()
   })
 
   it('shows the signed-in user and signs out with a DELETE form post', () => {

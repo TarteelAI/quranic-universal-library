@@ -478,14 +478,8 @@ function Spotlight({ open, onOpenChange }: SpotlightProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Search resources"
-          className={cn(shortcut && 'lg:w-auto lg:gap-2 lg:px-2')}
-        >
+        <Button variant="ghost" size="icon-sm" aria-label="Search resources">
           <SearchIcon />
-          {shortcut && <Kbd className="hidden lg:inline-flex">{shortcut}</Kbd>}
         </Button>
       </DialogTrigger>
       <DialogContent

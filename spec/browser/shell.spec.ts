@@ -44,6 +44,14 @@ function header(page: Page) {
   return page.getByRole('banner')
 }
 
+// The theme switch: in the footer from lg up, at the bottom of the menu sheet below it (opened here).
+async function themeSwitch(page: Page) {
+  if ((page.viewportSize()?.width ?? 0) >= 1024)
+    return page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+  await header(page).getByRole('button', { name: 'Menu' }).click()
+  return page.getByRole('dialog', { name: 'Menu' }).getByRole('radiogroup', { name: 'Theme' })
+}
+
 test.describe('site header and footer', () => {
   test('desktop header: icon-only logo, menus with the contributor tools, search button and account control', async ({
     page,
@@ -63,6 +71,19 @@ test.describe('site header and footer', () => {
     await expect(header(page).getByRole('searchbox')).toHaveCount(0)
     await expect(header(page).getByRole('radiogroup', { name: 'Theme' })).toHaveCount(0)
     await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toBeVisible()
+    await expect(header(page).locator('kbd')).toHaveCount(0)
+
+    // The header's theme button moves to the next theme and names it
+    await page.evaluate(() => localStorage.setItem('qul-theme', 'light'))
+    await page.reload()
+    await hydrated(page)
+    await header(page).getByRole('button', { name: 'Light theme. Switch to dark theme' }).click()
+    await expect(page.locator('html')).toHaveClass(/dark/)
+    await header(page).getByRole('button', { name: 'Dark theme. Switch to system theme' }).click()
+    await expect(header(page).getByRole('button', { name: 'System theme. Switch to light theme' })).toBeVisible()
+    await page.reload()
+    await expect(header(page).getByRole('button', { name: 'System theme. Switch to light theme' })).toBeVisible()
+    await page.evaluate(() => localStorage.removeItem('qul-theme'))
 
     await main.getByRole('button', { name: 'Contribute' }).focus()
     await page.keyboard.press('Enter')
@@ -116,6 +137,8 @@ test.describe('site header and footer', () => {
     await header(page).getByRole('button', { name: 'Menu' }).click()
     const sheet = page.getByRole('dialog', { name: 'Menu' })
     await expect(sheet).toBeVisible()
+    await expect(sheet.getByRole('radiogroup', { name: 'Theme' })).toBeVisible()
+    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toBeHidden()
     const listed: string[] = []
     for (const menu of nav.menus) {
       await sheet.getByRole('button', { name: startsWith(menu.label) }).click()
@@ -324,7 +347,7 @@ test.describe('theme', () => {
     )
 
     await hydrated(page)
-    const theme = page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+    let theme = await themeSwitch(page)
     await theme.getByRole('radio', { name: 'Light theme' }).click()
     await expect(page.locator('html')).not.toHaveClass(/dark/)
     await page.reload()
@@ -332,6 +355,8 @@ test.describe('theme', () => {
       false,
     )
     await expect(page.locator('html')).not.toHaveClass(/dark/)
+    await hydrated(page)
+    theme = await themeSwitch(page)
     await expect(theme.getByRole('radio', { name: 'Light theme' })).toHaveAttribute('aria-checked', 'true')
 
     await page.emulateMedia({ colorScheme: 'light' })
@@ -345,7 +370,7 @@ test.describe('theme', () => {
     await page.emulateMedia({ colorScheme: 'light' })
     await page.goto(PAGE)
     await hydrated(page)
-    const theme = page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+    let theme = await themeSwitch(page)
     await theme.getByRole('radio', { name: 'Dark theme' }).click()
     await expect(page.locator('html')).toHaveClass(/dark/)
 
@@ -358,6 +383,8 @@ test.describe('theme', () => {
     expect(await page.evaluate(() => (window as unknown as { darkBeforeHydration: boolean }).darkBeforeHydration)).toBe(
       true,
     )
+    await hydrated(page)
+    theme = await themeSwitch(page)
     await expect(theme.getByRole('radio', { name: 'System theme' })).toHaveAttribute('aria-checked', 'true')
     await page.emulateMedia({ colorScheme: 'light' })
     await expect(page.locator('html')).not.toHaveClass(/dark/)

@@ -17,7 +17,7 @@ import { GitHubMark } from './icons'
 import { MARK_SVG, WORDMARK_SVG } from './logo-paths'
 import { MegaMenu, MobileNav, NavAnchor } from './nav'
 import { Spotlight } from './spotlight'
-import { ThemeSwitch } from './theme'
+import { ThemeCycle, ThemeSwitch } from './theme'
 
 /* ---------------- Logo ---------------- */
 
@@ -166,9 +166,10 @@ export interface SiteHeaderProps {
 }
 
 /**
- * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu.
- * Below lg: a Menu button opens a sheet with the same sections and the account control. The
- * search button (and ⌘K / Ctrl K) opens the spotlight; the theme switch is in the footer.
+ * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu
+ * and a theme button that moves to the next theme. Below lg: a Menu button opens a sheet with
+ * the same sections, the theme switch and the account control. The search button (and ⌘K /
+ * Ctrl K) opens the spotlight.
  */
 function SiteHeader({ className }: SiteHeaderProps) {
   const { url, props } = usePage()
@@ -191,6 +192,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
         <div className="ms-auto flex items-center gap-1.5">
           <Spotlight open={searchOpen} onOpenChange={setSearchOpen} />
           <BundleTray />
+          <ThemeCycle className="hidden lg:inline-flex" />
           <Button variant="ghost" size="icon-sm" asChild className="hidden sm:inline-flex">
             <a href={REPO_URL} target="_blank" rel="noreferrer" aria-label="QUL on GitHub">
               <GitHubMark />
@@ -241,6 +243,10 @@ function SiteHeader({ className }: SiteHeaderProps) {
                   Search resources
                 </button>
                 <MobileNav menus={nav.menus} url={url} onNavigate={closeMenu} />
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-muted-foreground">Theme</span>
+                  <ThemeSwitch />
+                </div>
               </div>
               <div className="flex shrink-0 items-center gap-3 border-t bg-popover px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                 {auth.user ? (
@@ -287,7 +293,10 @@ function FooterColumn({ group }: { group: SiteNavGroup }) {
   )
 }
 
-/** Global footer: the logo lockup and tagline, link columns and a bottom bar with the theme switch. */
+/**
+ * Global footer: the logo lockup and tagline, link columns and a bottom bar with the theme switch
+ * (from lg up; below lg the switch is in the menu sheet).
+ */
 function SiteFooter({ className }: { className?: string }) {
   const { nav } = usePage().props
   return (
@@ -306,7 +315,7 @@ function SiteFooter({ className }: { className?: string }) {
       <div className="border-t">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
           <span>Quranic Universal Library, by Tarteel and contributors.</span>
-          <ThemeSwitch />
+          <ThemeSwitch className="hidden lg:inline-flex" />
         </div>
       </div>
     </footer>

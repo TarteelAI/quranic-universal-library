@@ -104,7 +104,7 @@ const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
 const { RecommendedBadge, StatusBadge } = statusBadge
 const { ToolCard } = toolCard
-const { ThemeSwitch } = theme
+const { ThemeCycle, ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
 const { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } = card
@@ -347,6 +347,8 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   RecommendedBadge: { element: <RecommendedBadge />, text: 'Recommended' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
+  // Labelled "Theme" on the server and with the current theme after hydration
+  ThemeCycle: { element: <ThemeCycle />, text: 'title="' },
   Spotlight: { element: <Spotlight open={false} onOpenChange={() => {}} />, text: 'Search resources' },
   FacetGroup: {
     element: (

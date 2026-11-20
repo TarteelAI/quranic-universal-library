@@ -5,7 +5,6 @@ import * as React from 'react'
 import { Container, SiteShell } from '@/components/layout'
 import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navigation'
 import { Preview } from '@/components/previews/preview'
-import { SchemaTable } from '@/components/qul/data'
 import { CodeBlock, DocBody } from '@/components/qul/docs'
 import { DownloadPanel, WorksWith } from '@/components/qul/download-panel'
 import { ResourceIcon } from '@/components/qul/icons'
@@ -19,7 +18,6 @@ import type { CatalogResourcesShow } from '@/types/serializers'
 type Tab = CatalogResourcesShow['tab']
 
 const TAB_LABELS: Record<Tab, string> = {
-  preview: 'Preview',
   data: 'Data',
   docs: 'Docs',
   licence: 'Licence',
@@ -67,23 +65,93 @@ function previewQuery(url: string): PreviewQuery {
   return Object.fromEntries(PREVIEW_KEYS.flatMap((key) => (params.has(key) ? [[key, params.get(key) ?? '']] : [])))
 }
 
-// The URL of the page with a tab open (Preview has no `?tab=`) and the preview's own keys.
+// The URL of the page with a tab open (Data, the default, has no `?tab=`) and the preview's own keys.
 function pageUrl(resource: CatalogResourcesShow['resource'], tab: Tab, query: PreviewQuery) {
   return catalogResource(
     { type: resource.type, slug: resource.toParam },
-    { query: tab === 'preview' ? query : { tab, ...query } },
+    { query: tab === 'data' ? query : { tab, ...query } },
   ).url
 }
 
+// The top of the Data tab: the facts, then the fields the format doc lists (names only; the Docs
+// tab describes them), or its first example when it lists none.
+function DataOverview({
+  props,
+  openDocs,
+}: {
+  props: Pick<CatalogResourcesShow, 'facts' | 'schemas' | 'codeSample' | 'formatGuide' | 'guidePath' | 'type'>
+  openDocs: () => void
+}) {
+  const { facts, schemas, codeSample, formatGuide, guidePath, type } = props
+
+  return (
+    <section aria-label="Overview" className="flex flex-col gap-4 rounded-xl bg-card p-5 text-sm shadow-xs">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
+        {facts.map((fact) => (
+          <div key={fact.label} className="flex min-w-0 flex-col gap-0.5">
+            <dt className="text-muted-foreground">{fact.label}</dt>
+            <dd className="break-words">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {schemas.length > 0 ? (
+        <dl aria-label="Fields" className="flex flex-col gap-2 border-t pt-4">
+          {schemas.map((schema, index) => (
+            <div key={index} className="flex flex-col gap-1">
+              <dt className="text-muted-foreground">{schema.name ?? 'Fields'}</dt>
+              <dd className="flex flex-wrap gap-1.5">
+                {schema.columns.map((column, at) => (
+                  <code key={at} className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[13px]">
+                    {column.name}
+                  </code>
+                ))}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : (
+        codeSample && (
+          <section aria-label="Example" className="flex flex-col gap-2 border-t pt-4 [&_pre]:max-h-72">
+            <h2 className="text-muted-foreground">Example</h2>
+            <CodeBlock label={codeSample.label} code={codeSample.code ?? ''} />
+          </section>
+        )
+      )}
+      <p className="border-t pt-4">
+        {formatGuide ? (
+          <>
+            The{' '}
+            <button type="button" onClick={openDocs} className="underline underline-offset-2">
+              Docs tab
+            </button>{' '}
+            describes every field, with examples.
+          </>
+        ) : (
+          <span className="text-muted-foreground">There is no format guide for this resource yet.</span>
+        )}
+        {guidePath && (
+          <>
+            {' '}
+            How the files are laid out and how to use them:{' '}
+            <a href={guidePath} className="underline underline-offset-2">
+              the {type.label.toLowerCase()} guide
+            </a>
+            .
+          </>
+        )}
+      </p>
+    </section>
+  )
+}
+
 // /resources/:type/:slug: one resource with its files and download control, what it works with,
-// and the Preview, Data, Docs, Licence and Changelog tabs. The open tab is `?tab=` (none for
-// Preview). Data and Docs come from the type's format doc; without one there is no Docs tab.
+// and the Data, Docs, Licence and Changelog tabs. The open tab is `?tab=` (none for Data, the
+// overview and preview). Docs is the type's format doc; without one there is no Docs tab.
 export default function ResourcePage(props: CatalogResourcesShow) {
-  const { resource, type, statuses, files, facts, worksWith, changelog, licence, release, formatGuide, tab } = props
+  const { resource, type, statuses, files, worksWith, changelog, licence, release, formatGuide, tab } = props
   const { url, props: shared } = usePage()
 
   const tabs: Tab[] = [
-    'preview',
     'data',
     ...(formatGuide ? (['docs'] as const) : []),
     'licence',
@@ -123,7 +191,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
   const navigation: PreviewNavigation = {
     navigate(query) {
       router.get(
-        pageUrl(resource, 'preview', query),
+        pageUrl(resource, 'data', query),
         {},
         {
           only: ['preview'],
@@ -136,7 +204,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
     },
     showView(view, query) {
       router.push({
-        url: pageUrl(resource, 'preview', query),
+        url: pageUrl(resource, 'data', query),
         props: (current) => ({
           ...current,
           preview: props.preview?.kind === 'font' ? { ...props.preview, view } : props.preview,
@@ -178,8 +246,6 @@ export default function ResourcePage(props: CatalogResourcesShow) {
               </span>
               {resource.recommended && <RecommendedBadge />}
               {resource.scriptFamily && <span>{resource.scriptFamily}</span>}
-              {resource.language && <span>{resource.language}</span>}
-              <span>{licence ? licence.name : 'Licence not yet confirmed'}</span>
               {!props.canDownload && <span className="text-warning">View only</span>}
             </>
           }
@@ -190,7 +256,9 @@ export default function ResourcePage(props: CatalogResourcesShow) {
 
       <Container className="grid gap-10 py-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <Tabs value={tab} onValueChange={selectTab} className="min-w-0">
-          <TabsList variant="line" className="overflow-x-auto">
+          {/* No overflow on the list: the triggers' underline overlaps its bottom border by a pixel,
+              which a scroll container shows as a scroll bar. Four short tabs fit at 320px. */}
+          <TabsList variant="line">
             {tabs.map((key) => (
               <TabsTrigger key={key} value={key}>
                 {TAB_LABELS[key]}
@@ -198,63 +266,18 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             ))}
           </TabsList>
 
-          <TabsContent value="preview" className="flex flex-col gap-6 pt-6">
+          <TabsContent value="data" className="flex flex-col gap-6 pt-6">
             {resource.info && (
               <div
                 className="max-w-prose text-pretty [&_a]:underline [&_li]:ms-5 [&_ol]:list-decimal [&_p]:mb-3 [&_ul]:list-disc"
                 dangerouslySetInnerHTML={{ __html: resource.info }}
               />
             )}
+            <DataOverview props={props} openDocs={() => selectTab('docs')} />
             <Deferred data="preview" fallback={<Skeleton className="h-64 rounded-xl" />}>
               <Preview preview={props.preview} navigation={navigation} />
             </Deferred>
             <ContentNotice type={resource.type} issueUrl={props.issueUrl} />
-          </TabsContent>
-
-          <TabsContent value="data" className="flex flex-col gap-6 pt-6">
-            <dl className="grid max-w-xl grid-cols-[auto_1fr] gap-x-6 gap-y-2 rounded-xl bg-card p-5 text-sm shadow-xs">
-              {facts.map((fact) => (
-                <React.Fragment key={fact.label}>
-                  <dt className="text-muted-foreground">{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </React.Fragment>
-              ))}
-            </dl>
-            {formatGuide ? (
-              <>
-                {props.schemas.length > 0 ? (
-                  props.schemas.map((schema, index) => <SchemaTable key={index} schema={schema} />)
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    The format guide does not list the fields of these files.
-                  </p>
-                )}
-                {props.codeSample && (
-                  <section aria-label="Example" className="flex flex-col gap-2 [&_pre]:max-h-96">
-                    <h2 className="text-sm text-muted-foreground">Example</h2>
-                    <CodeBlock label={props.codeSample.label} code={props.codeSample.code ?? ''} />
-                  </section>
-                )}
-                <p className="text-sm">
-                  The{' '}
-                  <button type="button" onClick={() => selectTab('docs')} className="underline underline-offset-2">
-                    Docs tab
-                  </button>{' '}
-                  has the whole format guide.
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">There is no format guide for this resource yet.</p>
-            )}
-            {props.guidePath && (
-              <p className="text-sm">
-                How the files are laid out and how to use them:{' '}
-                <a href={props.guidePath} className="underline underline-offset-2">
-                  the {type.label.toLowerCase()} guide
-                </a>
-                .
-              </p>
-            )}
           </TabsContent>
 
           {formatGuide && (

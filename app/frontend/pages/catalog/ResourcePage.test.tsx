@@ -13,7 +13,7 @@ const url = '/resources/tafsir/tafsir-ibn-kathir'
 describe('catalog/ResourcePage', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('shows the type, name, status, language and licence status in the header', () => {
+  it('shows the type, name and status in the header, and the language and licence further down', () => {
     renderPage(ResourcePage, { props, url })
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Tafsir Ibn Kathir')
@@ -23,8 +23,13 @@ describe('catalog/ResourcePage', () => {
     // No icon box beside the title column: the eyebrow shows the type's icon.
     expect(screen.getByRole('heading', { level: 1 }).parentElement!.previousElementSibling).toBeNull()
     expect(screen.getByText('Stable')).toBeDefined()
-    expect(screen.getAllByText('Licence not yet confirmed').length).toBeGreaterThan(0)
-    expect(screen.getByText('English', { selector: 'span' })).toBeDefined()
+    const header = screen.getByRole('heading', { level: 1 }).parentElement!
+    expect(within(header).queryByText(/Licence/)).toBeNull()
+    expect(within(header).queryByText('English')).toBeNull()
+    // The overview has the language, the download panel the licence.
+    expect(within(screen.getByRole('region', { name: 'Overview' })).getByText('English')).toBeDefined()
+    const panel = screen.getByRole('complementary', { name: 'Download' })
+    expect(within(panel).getByText('Licence').nextElementSibling?.textContent).toBe('Not yet confirmed')
     expect(screen.getByText('English tafsir, ayah by ayah. JSON and SQLite files.')).toBeDefined()
     expect(screen.queryByText(/not yet reviewed/)).toBeNull()
   })
@@ -98,11 +103,10 @@ describe('catalog/ResourcePage', () => {
 
   it('opens the tab from the props and puts a picked tab in the URL', () => {
     const push = vi.spyOn(router, 'push').mockImplementation(() => {})
-    renderPage(ResourcePage, { props: { ...props, tab: 'data' }, url: `${url}?tab=data` })
+    renderPage(ResourcePage, { props: { ...props, tab: 'docs' }, url: `${url}?tab=docs` })
 
-    expect(screen.getByRole('tab', { name: 'Data' }).getAttribute('aria-selected')).toBe('true')
-    expect(screen.getByText('SQLite, JSON')).toBeDefined()
-    expect(screen.getByRole('link', { name: 'the tafsir guide' }).getAttribute('href')).toBe('/docs/resource-tafsirs')
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Data', 'Docs', 'Licence', 'Changelog'])
+    expect(screen.getByRole('tab', { name: 'Docs' }).getAttribute('aria-selected')).toBe('true')
 
     // Radix tabs switch on mouse down.
     fireEvent.mouseDown(screen.getByRole('tab', { name: 'Licence' }))
@@ -110,49 +114,48 @@ describe('catalog/ResourcePage', () => {
       expect.objectContaining({ url: `${url}?tab=licence`, preserveState: true, preserveScroll: true }),
     )
     const [{ props: update }] = push.mock.calls[0]
-    expect(typeof update === 'function' && update({ ...props, tab: 'data' }, {})).toMatchObject({ tab: 'licence' })
+    expect(typeof update === 'function' && update({ ...props, tab: 'docs' }, {})).toMatchObject({ tab: 'licence' })
 
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Preview' }))
+    // Data is the default tab: no `?tab=`.
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Data' }))
     expect(push).toHaveBeenLastCalledWith(expect.objectContaining({ url }))
   })
 
-  it('shows the schemas and a code sample of the format doc on the Data tab, and the whole doc on the Docs tab', () => {
+  it('opens on Data: the facts and field names of the format doc, then the preview; the whole doc is on Docs', () => {
     const push = vi.spyOn(router, 'push').mockImplementation(() => {})
-    const { unmount } = renderPage(ResourcePage, { props: { ...props, tab: 'data' }, url: `${url}?tab=data` })
+    const { unmount } = renderPage(ResourcePage, { props, url })
 
-    const schema = screen.getByRole('figure', { name: 'SQLite columns' })
-    expect(
-      within(schema)
-        .getAllByRole('row')
-        .map((row) => row.textContent),
-    ).toEqual(['ColumnDescription', 'ayah_keythe ayah this row is for.', 'textthe tafsir.'])
-    const example = screen.getByRole('region', { name: 'Example' })
-    expect(within(example).getByText('{ "2:4": "2:3" }')).toBeDefined()
-    fireEvent.click(screen.getByRole('button', { name: 'Docs tab' }))
+    expect(screen.getByRole('tab', { name: 'Data' }).getAttribute('aria-selected')).toBe('true')
+    const overview = screen.getByRole('region', { name: 'Overview' })
+    expect(within(overview).getByText('SQLite, JSON')).toBeDefined()
+    const fields = overview.querySelector<HTMLElement>('dl[aria-label="Fields"]')!
+    expect(within(fields).getByText('SQLite columns')).toBeDefined()
+    expect([...fields.querySelectorAll('code')].map((code) => code.textContent)).toEqual(['ayah_key', 'text'])
+    expect(within(overview).queryByText('the ayah this row is for.')).toBeNull()
+    // The fields stand in for the example, which is on the Docs tab.
+    expect(screen.queryByRole('region', { name: 'Example' })).toBeNull()
+    expect(within(overview).getByRole('link', { name: 'the tafsir guide' }).getAttribute('href')).toBe(
+      '/docs/resource-tafsirs',
+    )
+    fireEvent.click(within(overview).getByRole('button', { name: 'Docs tab' }))
     expect(push).toHaveBeenCalledWith(expect.objectContaining({ url: `${url}?tab=docs` }))
     unmount()
 
     renderPage(ResourcePage, { props: { ...props, tab: 'docs' }, url: `${url}?tab=docs` })
-    expect(screen.getByRole('tab', { name: 'Docs' }).getAttribute('aria-selected')).toBe('true')
     const panel = screen.getByRole('tabpanel')
     expect(within(panel).getByRole('heading', { name: 'About tafsir data' })).toBeDefined()
     expect(within(panel).getByText('{ "2:4": "2:3" }')).toBeDefined()
   })
 
-  it('says so on the Data tab when the format doc lists no fields, and when there is no format doc', () => {
-    const { unmount } = renderPage(ResourcePage, {
-      props: { ...props, tab: 'data', schemas: [], codeSample: null },
-      url: `${url}?tab=data`,
-    })
-    expect(screen.getByText('The format guide does not list the fields of these files.')).toBeDefined()
-    expect(screen.queryByRole('region', { name: 'Example' })).toBeNull()
+  it('shows the example on Data when the format doc lists no fields, and says so when there is no format doc', () => {
+    const { unmount } = renderPage(ResourcePage, { props: { ...props, schemas: [] }, url })
+    const example = screen.getByRole('region', { name: 'Example' })
+    expect(within(example).getByText('{ "2:4": "2:3" }')).toBeDefined()
     unmount()
 
-    renderPage(ResourcePage, {
-      props: { ...props, tab: 'data', formatGuide: null, schemas: [], codeSample: null },
-      url: `${url}?tab=data`,
-    })
+    renderPage(ResourcePage, { props: { ...props, formatGuide: null, schemas: [], codeSample: null }, url })
     expect(screen.getByText('There is no format guide for this resource yet.')).toBeDefined()
+    expect(screen.queryByRole('region', { name: 'Example' })).toBeNull()
     expect(screen.queryByRole('tab', { name: 'Docs' })).toBeNull()
   })
 
@@ -271,8 +274,8 @@ describe('catalog/ResourcePage', () => {
       const push = vi.spyOn(router, 'push').mockImplementation(() => {})
       renderPage(ResourcePage, { props: layout, url: `${layoutUrl}?page=7&download=x` })
 
-      fireEvent.mouseDown(screen.getByRole('tab', { name: 'Data' }))
-      expect(push).toHaveBeenCalledWith(expect.objectContaining({ url: `${layoutUrl}?tab=data&page=7` }))
+      fireEvent.mouseDown(screen.getByRole('tab', { name: 'Docs' }))
+      expect(push).toHaveBeenCalledWith(expect.objectContaining({ url: `${layoutUrl}?tab=docs&page=7` }))
     })
   })
 })

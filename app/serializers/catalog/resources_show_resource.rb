@@ -17,7 +17,7 @@ module Catalog
     one :release, source: proc { self[:page] }, resource: ResourceReleaseResource
 
     # The format doc (Catalog::FormatDoc): the Docs tab's segments (null: no Docs tab), and the
-    # Data tab's schemas and code sample.
+    # schemas and code sample the Data tab's overview sums it up with.
     typelize format_guide: { nullable: true }
     many :format_guide, source: proc { self[:page].format_doc&.guide }, resource: Content::DocSegmentResource
     many :schemas, source: proc { self[:page].format_doc&.schemas.to_a }, resource: FormatSchemaResource

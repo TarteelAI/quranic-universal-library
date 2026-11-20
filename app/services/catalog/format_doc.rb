@@ -8,8 +8,8 @@ module Catalog
   # - `guide`: the whole doc as docs segments (Content::DocPage), for the Docs tab.
   # - `schemas`: the doc's column tables (a header row naming the column or field) and column
   #   lists (three or more items, each `<code>name</code>: description`), named by the heading
-  #   above them, for the Data tab.
-  # - `sample`: the doc's first code block, for the Data tab.
+  #   above them, for the overview on the Data tab.
+  # - `sample`: the doc's first code block, for the same overview.
   #
   # A resource whose partial is missing or renders nothing has no format doc (nil).
   class FormatDoc

@@ -164,7 +164,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       it 'has no changelog for a resource without changelog rows, and says the licence is not yet confirmed' do
         get page_path(resource, 'tab=changelog')
 
-        expect(props).to include(changelog: [], licence: nil, tab: 'preview')
+        expect(props).to include(changelog: [], licence: nil, tab: 'data')
       end
 
       it 'lists the published changelog entries, newest first, without their author' do
@@ -191,21 +191,23 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
         )
       end
 
-      it 'opens the tab the query names' do
-        ['data', 'docs', 'licence', 'preview'].each do |tab|
+      it 'opens the tab the query names, and Data for the old Preview tab and an unknown tab' do
+        ['data', 'docs', 'licence'].each do |tab|
           get page_path(resource, "tab=#{tab}")
           expect(props[:tab]).to eq(tab)
         end
-        get page_path(resource, 'tab=nonsense')
-        expect(props[:tab]).to eq('preview')
+        ['preview', 'nonsense'].each do |tab|
+          get page_path(resource, "tab=#{tab}")
+          expect(props[:tab]).to eq('data')
+        end
       end
     end
 
-    describe 'Data and Docs tabs (the format doc of the type, app/views/resources/docs)' do
+    describe 'Data overview and Docs tab (the format doc of the type, app/views/resources/docs)' do
       # The format docs of these types (the first published resource of each) hold no code block.
       doc_without_sample = ['ayah-topics', 'ayah-theme']
 
-      it 'gives every type its format guide for the Docs tab, and its schemas and a code sample for the Data tab' do
+      it 'gives every type its format guide for the Docs tab, and its schemas and a code sample for the overview' do
         DownloadableResource::RESOURCE_TYPES.each do |type|
           published = DownloadableResource.published.where(resource_type: type).order(:id).first
           expect(published).to be_present, "no published #{type} on the clone"
@@ -242,7 +244,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
 
         get page_path(resource, 'tab=docs')
 
-        expect(props).to include(formatGuide: nil, schemas: [], codeSample: nil, tab: 'preview')
+        expect(props).to include(formatGuide: nil, schemas: [], codeSample: nil, tab: 'data')
       end
     end
 
@@ -304,6 +306,8 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
                                           summary: start_with('Mushaf layout with 604 pages'),)
       expect(props[:facts]).to include({ label: 'Script family', value: 'Madani' },
                                        { label: 'Rendering', value: 'Glyph font for each page' },)
+      # The header has the type and the download panel the updated date.
+      expect(props[:facts].pluck(:label)).not_to include('Type', 'Updated')
 
       override_catalog(layout, 'script-family' => 'indopak', 'rendering' => 'svg', 'status' => 'beta',
                                'recommended' => true, 'display-name' => 'Madinah layout',)

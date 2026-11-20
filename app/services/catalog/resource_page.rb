@@ -16,7 +16,9 @@ module Catalog
     Licence = Data.define(:name, :url, :summary)
     Change = Data.define(:id, :title, :excerpt, :date)
 
-    TABS = ['preview', 'data', 'docs', 'licence', 'changelog'].freeze
+    # Data (the default: an overview of the format, then the preview), Docs (the whole format doc),
+    # Licence and Changelog.
+    TABS = ['data', 'docs', 'licence', 'changelog'].freeze
 
     # Relation groups of "Works with", in this order. A link is listed from the resource that
     # holds it (`from`) or, for links that read the same both ways, from either end. The links
@@ -107,7 +109,7 @@ module Catalog
       time&.to_date
     end
 
-    # The format doc of the old Docs tab (Catalog::FormatDoc), or nil.
+    # The format doc of the Docs tab (Catalog::FormatDoc), or nil.
     def format_doc
       return @format_doc if defined?(@format_doc)
 
@@ -125,9 +127,10 @@ module Catalog
       end
     end
 
+    # The overview on the Data tab. The type is in the page header, and the updated date in the
+    # download panel.
     def facts # rubocop:disable Metrics/AbcSize -- one list of facts, in display order
       [
-        Fact.new(label: 'Type', value: type.label),
         Fact.new(label: 'Granularity', value: resource.humanize_cardinality_type),
         Fact.new(label: 'Language', value: language),
         Fact.new(label: 'Script family', value: Taxonomy.label(Taxonomy.script_families, resource.script_family)),
@@ -135,7 +138,6 @@ module Catalog
         *layout_facts,
         Fact.new(label: 'Formats', value: files.map(&:format_label).uniq.join(', ')),
         Fact.new(label: 'Files', value: files.size.to_s),
-        Fact.new(label: 'Updated', value: updated_on&.strftime(DATE_FORMAT)),
         Fact.new(label: 'Tags', value: resource.tag_names.sort_by(&:downcase).join(', ')),
       ].select { |fact| fact.value.present? }
     end
@@ -158,10 +160,10 @@ module Catalog
       end
     end
 
-    # The tab to show: a known tab the page has, else the preview.
+    # The tab to show: a known tab the page has, else Data (which also answers the old `preview`).
     def tab(key)
       tabs = TABS - (changelog.empty? ? ['changelog'] : []) - (format_doc ? [] : ['docs'])
-      tabs.include?(key) ? key : 'preview'
+      tabs.include?(key) ? key : 'data'
     end
 
     # The content issue form with the resource named, or the form chooser for a type the form's

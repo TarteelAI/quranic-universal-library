@@ -20,7 +20,7 @@ function NoPreview({ title, reason }: { title: string; reason: string }) {
   )
 }
 
-// The Preview tab's content for whatever kind of preview the server sent (Previews.for).
+// The Data tab's preview for whatever kind of preview the server sent (Previews.for).
 export function Preview({
   preview,
   navigation,
@@ -47,7 +47,7 @@ export function Preview({
       return (
         <NoPreview
           title="No preview for this resource yet"
-          reason="Download a file, or read the Data tab to see what it holds."
+          reason="Download a file, or read the Docs tab to see what it holds."
         />
       )
   }

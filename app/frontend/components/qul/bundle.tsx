@@ -312,7 +312,7 @@ export function BundleTray({ className }: { className?: string }) {
           {ids.length > 0 && (
             <span
               data-testid="bundle-count"
-              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-semibold text-on-brand"
+              className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-semibold text-brand-foreground"
             >
               {ids.length}
             </span>

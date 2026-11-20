@@ -698,7 +698,7 @@ function OpenSource({ tools, contentPages }: SiteHomeShow) {
                 <span className="tabular-nums">{number(stars)}</span> stars on GitHub
               </span>
             </span>
-            <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-sm font-medium text-on-brand transition-colors group-hover:bg-brand/85">
+            <span className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-3 text-sm font-medium text-brand-foreground transition-colors group-hover:bg-brand/85">
               <StarIcon className="size-4" /> Star
             </span>
           </a>

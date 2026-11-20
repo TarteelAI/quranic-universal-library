@@ -29,10 +29,8 @@
   --primary-foreground: oklch(0.99 0 0);
   --brand: oklch(0.74 0.17 150);
   --brand-subtle: oklch(0.955 0.045 155);
-  /* Readable green for small text and icons on white */
-  --brand-foreground: oklch(0.48 0.12 152);
   /* Text and icons on a --brand fill: dark ink in both themes, since white on this green is too faint */
-  --on-brand: oklch(0.2 0.012 160);
+  --brand-foreground: oklch(0.2 0.012 160);
 
   --secondary: oklch(0.955 0.002 155);
   --secondary-foreground: var(--foreground);
@@ -91,8 +89,7 @@
   --primary-foreground: oklch(0.18 0.008 160);
   --brand: oklch(0.74 0.16 150);
   --brand-subtle: oklch(0.27 0.045 155);
-  --brand-foreground: oklch(0.82 0.13 152);
-  --on-brand: oklch(0.2 0.012 160);
+  --brand-foreground: oklch(0.2 0.012 160);
 
   --secondary: oklch(0.25 0.007 160);
   --secondary-foreground: var(--foreground);
@@ -150,7 +147,6 @@
   --color-brand: var(--brand);
   --color-brand-subtle: var(--brand-subtle);
   --color-brand-foreground: var(--brand-foreground);
-  --color-on-brand: var(--on-brand);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

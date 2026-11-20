@@ -271,7 +271,7 @@ describe('the bundle tray', () => {
 
     const tray = within(openTray())
     fireEvent.click(await tray.findByRole('button', { name: 'Remove Tafsir Ibn Kathir from bundle' }))
-    expect(tray.getByText(/Nothing here yet/)).toBeTruthy()
+    expect(within(screen.getByRole('dialog', { name: 'Bundle' })).getByText(/Nothing here yet/)).toBeTruthy()
     expect(fetchMock).toHaveBeenCalledTimes(1)
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' })
     await waitFor(noButton)

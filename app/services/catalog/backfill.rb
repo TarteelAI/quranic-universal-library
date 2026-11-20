@@ -1,25 +1,32 @@
 # frozen_string_literal: true
 
 module Catalog
-  # The catalog backfills, run in order in one transaction by `bin/rails catalog:backfill`.
-  # Each step is idempotent, keyed on stable fields (ids, existing slugs), never overwrites a
-  # value that is already set, and returns the number of rows it changed, so a second run
-  # reports 0 for every step.
-  #
-  # The first steps are mechanical. The later ones draft values the data implies but no field
-  # held (Catalog::Inference, written through Backfill::Drafter): each drafted value is recorded
-  # in the resource's review column, and a value a person set or reviewed is never changed.
-  # They run in this order because each reads what the steps before it drafted.
+  # The one catalog value that is stored: the slug, a public URL and API id that must not change
+  # once it is set. `bin/rails catalog:backfill` gives a slug to every resource that has none,
+  # from its display name (Catalog::Slugs), in id order and in one transaction. A blank slug
+  # counts as none. A slug that is set is never changed and no row is deleted, so a second run
+  # reports 0. Every other catalog field is computed when a page is read (Catalog::Derived).
   module Backfill
-    STEPS = [
-      BlankSlugs, DisplayNames, Slugs, RelatedLinks, Taggings,
-      ScriptFamilies, Renderings, Statuses, RequiresLinks, Recommended, Summaries
-    ].freeze
-
+    # Step => the number of rows it changed.
     def self.run
-      ApplicationRecord.transaction do
-        STEPS.to_h { |step| [step.name.demodulize.underscore, step.call] }
-      end
+      ApplicationRecord.transaction { { 'blank_slugs' => blank_slugs, 'slugs' => slugs } }
     end
+
+    def self.blank_slugs
+      DownloadableResource.where("btrim(slug) = ''").update_all(slug: nil)
+    end
+
+    def self.slugs
+      taken = DownloadableResource.where.not(slug: nil).pluck(:slug).to_set
+      catalog = Derived.new
+
+      catalog.resources.select { |resource| resource.slug.nil? }.each do |resource|
+        slug = Slugs.generate(catalog.of(resource).display_name, resource.resource_type) { |name| taken.include?(name) }
+        resource.update_columns(slug: slug)
+        taken << slug
+      end.size
+    end
+
+    private_class_method :blank_slugs, :slugs
   end
 end

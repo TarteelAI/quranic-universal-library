@@ -20,9 +20,8 @@ module Catalog
 
     # Type => DownloadableResource.
     def call
-      candidates = TYPES.map do |type, conditions|
-        DownloadableResource.published.where(resource_type: type, status: STATUSES, **conditions)
-      end.reduce(:or).to_a
+      scopes = TYPES.map { |type, conditions| DownloadableResource.published.where(resource_type: type, **conditions) }
+      candidates = scopes.reduce(:or).select { |resource| STATUSES.include?(resource.status) }
       downloads = downloads(candidates)
       timed = timed(candidates)
 

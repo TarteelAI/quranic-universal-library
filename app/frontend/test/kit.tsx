@@ -255,7 +255,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   CopyButton: { element: <CopyButton text={() => 'copied'} label="Copy link" />, text: 'aria-label="Copy link"' },
   SchemaTable: { element: <SchemaTable schema={resourcePageProps.schemas[0]} />, text: 'the ayah this row is for.' },
-  WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'not yet reviewed' },
+  WorksWith: { element: <WorksWith groups={resourcePageProps.worksWith} />, text: 'Digital Khatt' },
   AppIcon: { element: <AppIcon app={homePageProps.showcase[3]} />, text: 'QV' },
   ShardRing: { element: <ShardRing className="h-64" />, text: 'data-motion' },
   GitHubMark: { element: <GitHubMark />, text: '<svg' },
@@ -345,7 +345,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'Word timestamps, ayah by ayah.',
   },
-  RecommendedBadge: { element: <RecommendedBadge reviewed={false} />, text: 'not yet reviewed' },
+  RecommendedBadge: { element: <RecommendedBadge />, text: 'Recommended' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
   Spotlight: { element: <Spotlight open={false} onOpenChange={() => {}} />, text: 'Search resources' },
   FacetGroup: {

@@ -42,26 +42,14 @@ export function StatusBadge({ status, label, supersededBy, className }: StatusBa
 }
 
 export interface RecommendedBadgeProps {
-  /** False while the recommendation is a backfill's suggestion that no person has reviewed */
-  reviewed: boolean
   className?: string
 }
 
-// A reviewed recommendation reads as one; a drafted one reads as a suggestion only.
-export function RecommendedBadge({ reviewed, className }: RecommendedBadgeProps) {
+export function RecommendedBadge({ className }: RecommendedBadgeProps) {
   return (
-    <span
-      className={cn(
-        'inline-flex w-fit items-center gap-1.5 text-xs',
-        reviewed ? 'font-medium text-foreground' : 'text-muted-foreground',
-        className,
-      )}
-    >
-      <span
-        className={cn('size-2 shrink-0 rounded-full', reviewed ? 'bg-brand' : 'border border-brand')}
-        aria-hidden="true"
-      />
-      {reviewed ? 'Recommended' : 'Suggested, not yet reviewed'}
+    <span className={cn('inline-flex w-fit items-center gap-1.5 text-xs font-medium text-foreground', className)}>
+      <span className="size-2 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+      Recommended
     </span>
   )
 }

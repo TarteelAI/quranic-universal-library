@@ -6,9 +6,9 @@ module Catalog
   # public API can reuse it.
   #
   # The published catalog is a few hundred rows, and the text to match spans two databases, so
-  # it is loaded once per call in a fixed number of queries (resources, files and tags from the
-  # CMS database; content rows and languages from the content database, keyed by id) and then
-  # searched, filtered, counted, sorted and paged in Ruby. Nothing is kept between calls. If the
+  # it is loaded once per request in a fixed number of queries (Catalog::Derived: resources and
+  # tags from the CMS database, content rows and languages from the content database; files
+  # here) and then searched, filtered, counted, sorted and paged in Ruby. If the
   # catalog grows into the thousands, filtering moves into SQL behind this interface.
   class SearchQuery
     PER_PAGE = 24
@@ -69,16 +69,15 @@ module Catalog
 
     private
 
-    def load_rows # rubocop:disable Metrics/AbcSize -- the fixed set of queries named above
-      resources = DownloadableResource.published.preload(:downloadable_resource_tags).to_a
+    # The resources come from the request's catalog (Catalog::Derived), which has their tags,
+    # content rows and languages loaded; the files are the one query added here.
+    def load_rows
+      resources = Derived.current.resources.select(&:published)
       files = DownloadableFile.where(published: true, downloadable_resource_id: resources.map(&:id))
         .group_by(&:downloadable_resource_id)
-      content_languages = ResourceContent.where(id: resources.filter_map(&:resource_content_id))
-        .pluck(:id, :language_id).to_h
-      languages = Language.where(id: (resources.map(&:language_id) + content_languages.values).compact).index_by(&:id)
 
       resources.map do |resource|
-        language = languages[resource.language_id || content_languages[resource.resource_content_id]]
+        language = resource.language || resource.resource_content&.language
         build_row(resource, language, files.fetch(resource.id, []))
       end
     end

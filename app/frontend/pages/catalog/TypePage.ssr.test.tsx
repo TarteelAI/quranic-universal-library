@@ -19,7 +19,8 @@ describe('catalog/TypePage on the server', () => {
     const { body } = await renderPageOnServer(TypePage, { props: layoutPageProps })
 
     expect(body).toContain('Which one should I pick?')
-    expect(body).toContain('Suggested, not yet reviewed')
+    expect(body).toContain('Recommended')
+    expect(body).not.toContain('not yet reviewed')
     expect(body).toContain('<table')
     expect(body).toContain('KFGQPC V2 layout (Old)')
   })

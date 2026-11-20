@@ -89,20 +89,7 @@ RSpec.describe GuidedSetup do
       end
     end
 
-    # The test clones may lack the drafted script families: give a few scripts, fonts and
-    # layouts one, and the tajweed scripts Madani.
-    def assign_script_families
-      published = DownloadableResource.published
-      ['quran-script', 'font', 'mushaf-layout'].each do |type|
-        published.where(resource_type: type).order(:id).first(2).zip(['madani', 'indopak'])
-          .each { |resource, family| resource.update_columns(script_family: family) }
-      end
-      published.where(resource_type: 'quran-script').where('name ILIKE ?', '%tajweed%')
-        .update_all(script_family: 'madani')
-    end
-
     it 'finds at least one resource for every item of each goal' do
-      assign_script_families
       languages = described_class.languages.map(&:key)
       described_class::GOALS.each_key do |goal|
         input = { 'goal' => goal, 'script' => 'madani,indopak', 'lang' => 'en' }

@@ -88,7 +88,7 @@ describe('catalog/TypePage', () => {
     expect(screen.queryByRole('table')).toBeNull()
   })
 
-  it('puts recommended resources first, marks a drafted one as not yet reviewed, and collapses older ones', () => {
+  it('puts recommended resources first and collapses older ones', () => {
     renderPage(TypePage, { props: layoutPageProps })
 
     expect(screen.getByRole('heading', { level: 2, name: 'Which one should I pick?' })).toBeDefined()
@@ -99,9 +99,7 @@ describe('catalog/TypePage', () => {
       'KFGQPC V2 layout',
       'Indopak 15 lines',
     ])
-    expect(within(recommended[0]).getByText('Recommended')).toBeDefined()
-    expect(within(recommended[0]).queryByText(/not yet reviewed/)).toBeNull()
-    expect(within(recommended[1]).getByText('Suggested, not yet reviewed')).toBeDefined()
+    recommended.forEach((card) => expect(within(card).getByText('Recommended')).toBeDefined())
 
     const current = within(screen.getByRole('list', { name: 'Mushaf layouts' })).getAllByRole('article')
     expect(current.map((card) => within(card).getByRole('heading').textContent)).toEqual(['Mushaf Qatar'])

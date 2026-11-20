@@ -85,6 +85,19 @@ Leeway on how; keep it the smallest design that works.
   allowance stays) and `db/schema.rb` (qul-next's, with the version of the last migration left,
   20261113200000). `01`'s RuboCop fixes in the restored files went with the restore: those files no longer
   differ from qul-next, so the gate does not check them. `plan.md` updated.
+- Compute the catalog fields when read. The two migrations on `downloadable_resources` and
+  `downloadable_related_resources` are gone, with every read and write of their columns. New
+  `Catalog::Derived` loads the whole catalog once per request (14 queries, whatever the page shows) and
+  applies `Catalog::Inference` and `Catalog::DisplayNames` (the old backfill step, now a pure function) in
+  the order the backfill steps ran. `DownloadableResource` reads `display_name`, `script_family`,
+  `rendering`, `status`, `superseded_by`, `recommended` and `summary` from it (`CatalogFields`), so the
+  serializers and services keep calling the resource. Links and their type come from
+  `Derived#links_from` / `#links_to`. Overrides are `meta_data` keys, validated when read. Review
+  machinery removed (`review` column, `Catalog::Review`, `Drafter`, drafting steps, `mark_reviewed`,
+  `ResourceReviewResource`, the frontend markers; `recommendation` prop is now `recommended: boolean`).
+  `Catalog::Backfill` is one file: blank slugs to NULL, then a slug per resource without one. The review
+  report keeps its data-error sections. `Catalog::SearchQuery` reads its resources from the request's
+  catalog instead of loading them again. Decisions encoded: see Decisions.
 
 ## Done
 

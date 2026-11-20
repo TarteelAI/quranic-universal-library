@@ -40,7 +40,7 @@ export const typePageProps: CatalogTypesShow = {
       granularity: 'Ayah by Ayah',
       status: 'stable',
       scriptFamily: null,
-      recommendation: null,
+      recommended: false,
       previewKind: 'text',
       supersededBy: null,
     },
@@ -55,7 +55,7 @@ export const typePageProps: CatalogTypesShow = {
       granularity: 'Word by word',
       status: 'stable',
       scriptFamily: null,
-      recommendation: null,
+      recommended: false,
       previewKind: 'text',
       supersededBy: null,
     },
@@ -98,7 +98,7 @@ function layout(id: number, name: string, fields: Partial<CatalogResourceCard> =
     granularity: null,
     status: 'stable',
     scriptFamily: 'Madani',
-    recommendation: null,
+    recommended: false,
     previewKind: 'layout',
     supersededBy: null,
     ...fields,
@@ -107,15 +107,15 @@ function layout(id: number, name: string, fields: Partial<CatalogResourceCard> =
 
 const qpcV2 = { id: 3, name: 'QPC V2 Font', type: 'font', toParam: 'qpc-v2-font' }
 
-// Props of a type page with status data: a reviewed and a drafted recommendation, a current
+// Props of a type page with status data: two recommended layouts, a current
 // layout, a legacy one and a superseded one, and the comparison table.
 export const layoutPageProps: CatalogTypesShow = {
   ...typePageProps,
   type: layoutType,
   types: [layoutType, translation],
   resources: [
-    layout(10, 'KFGQPC V2 layout', { recommendation: 'reviewed' }),
-    layout(11, 'Indopak 15 lines', { recommendation: 'drafted', scriptFamily: 'IndoPak' }),
+    layout(10, 'KFGQPC V2 layout', { recommended: true }),
+    layout(11, 'Indopak 15 lines', { recommended: true, scriptFamily: 'IndoPak' }),
     layout(12, 'Mushaf Qatar'),
     layout(13, 'Old Indopak layout', { status: 'legacy', scriptFamily: 'IndoPak' }),
     layout(14, 'KFGQPC V2 layout (Old)', {
@@ -260,7 +260,7 @@ export const catalogPageProps: CatalogResourcesIndex = {
 }
 
 // Props of catalog/ResourcePage, shaped like Catalog::ResourcesShowResource: a tafsir with two
-// SQLite files and one JSON file, two relation groups (one link drafted) and a changelog.
+// SQLite files and one JSON file, two relation groups and a changelog.
 export const resourcePageProps: CatalogResourcesShow = {
   resource: {
     id: 7,
@@ -273,15 +273,7 @@ export const resourcePageProps: CatalogResourcesShow = {
     granularity: 'Ayah by Ayah',
     summary: 'English tafsir, ayah by ayah. JSON and SQLite files.',
     info: '<p>An abridged <strong>English</strong> edition.</p>',
-    recommendation: null,
-    reviewed: {
-      status: true,
-      supersededBy: true,
-      recommended: true,
-      scriptFamily: true,
-      rendering: true,
-      summary: false,
-    },
+    recommended: false,
     supersededBy: null,
   },
   type: tafsir,
@@ -328,7 +320,6 @@ export const resourcePageProps: CatalogResourcesShow = {
       label: 'Requires',
       links: [
         {
-          reviewed: false,
           typeLabel: 'Font',
           resource: { id: 21, name: 'Digital Khatt', type: 'font', toParam: 'digital-khatt' },
         },
@@ -339,7 +330,6 @@ export const resourcePageProps: CatalogResourcesShow = {
       label: 'Pairs with',
       links: [
         {
-          reviewed: true,
           typeLabel: 'Quran script',
           resource: { id: 22, name: 'QPC Hafs', type: 'quran-script', toParam: 'qpc-hafs' },
         },

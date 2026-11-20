@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 module Catalog
-  # The rules that infer the catalog fields no column held before: script family, rendering,
+  # The rules that infer the catalog fields no column holds: script family, rendering,
   # lifecycle status, the recommended flag, the font a layout or glyph script requires, and a
   # one-line summary. Each rule reads plain facts (Facts) and returns a value, or nil when the
-  # facts do not show one. The rules draft conservatively: when signals disagree or a choice is
-  # ambiguous, they return nil and leave the field to the data team. They know nothing about the
-  # database; Catalog::Backfill loads the facts.
+  # facts do not show one. The rules are conservative: when signals disagree or a choice is
+  # ambiguous, they return nil and leave the field to an editor's override. They know nothing
+  # about the database; Catalog::Derived loads the facts when a page is read.
   module Inference
     # The facts of one resource. Script, font and layout facts come from the content row's meta
     # keys and its mushaf; `status`, `script_family`, `rendering` and `requires` are the values
-    # the resource holds when the rule runs (a person's, or an earlier step's draft).
+    # the resource has when the rule runs (an editor's override, or an earlier rule's result).
     #
     # text_types:    the Quran text encodings it holds or draws (`text-type`, a font's `script`)
     # font_codes:    the font names it uses (a script's `font`, a mushaf's font) or, for a font,
@@ -18,15 +18,15 @@ module Catalog
     # per_page:      a font with one file per mushaf page
     # svg:           a font resource that holds SVG images
     # formats:       the file types of its published files
-    # recommended_by_person: true or false when a person decided the recommended flag, else nil
+    # recommended_by_person: true or false when an editor's override sets the flag, else nil
     # requires:      ids of the resources it has a requires-link to
-    # linked_fonts:  ids of the fonts it links to that no backfill drafted
+    # linked_fonts:  ids of the fonts it links to
     Facts = Struct.new(:id, :type, :type_label, :name, :cardinality, :published, :status, :recommended_by_person,
                        :script_family, :rendering, :language, :text_types, :font_codes, :per_page, :svg, :tags,
-                       :mushaf, :formats, :requires, :linked_fonts, keyword_init: true)
+                       :mushaf, :formats, :requires, :linked_fonts, keyword_init: true,)
     Mushaf = Struct.new(:font, :default, :pages, :lines, keyword_init: true)
 
-    SCRIPT_TYPES = %w[quran-script font mushaf-layout].freeze
+    SCRIPT_TYPES = ['quran-script', 'font', 'mushaf-layout'].freeze
     SUMMARY_LIMIT = 160
 
     module_function
@@ -34,7 +34,7 @@ module Catalog
     # Madani, IndoPak or other, for scripts, fonts and layouts. The text encoding decides; a
     # resource with none is decided by the fonts it names, then by its Madani or Indopak tag.
     # Signals of one kind that disagree, or a tag that contradicts the answer, give no value.
-    def script_family(facts)
+    def script_family(facts) # rubocop:disable Metrics/AbcSize -- three signals in order of weight
       return unless SCRIPT_TYPES.include?(facts.type)
 
       tags = agreed(facts.tags.map { |tag| tag.to_s.strip.downcase }.grep(/\A(madani|indopak)\z/))
@@ -102,7 +102,7 @@ module Catalog
     # [status, superseded_by_id]. A name marked "(Old)" is legacy; it is superseded when exactly
     # one other published resource of the same type and granularity has the same name without
     # the marker (or marked "(New)"), and that resource is not itself old.
-    def status(facts, catalog)
+    def status(facts, catalog) # rubocop:disable Metrics/AbcSize -- one condition, clause by clause
       return unless facts.name.to_s.match?(OLD)
 
       base = base_name(facts.name)
@@ -117,15 +117,15 @@ module Catalog
       name.to_s.gsub(OLD, ' ').gsub(NEW, ' ').squeeze(' ').strip.downcase
     end
 
-    # Ids of the resources to draft as recommended. A layout is recommended when it is the only
+    # Ids of the resources the data shows as recommended. A layout is recommended when it is the only
     # published, current layout of its script family whose mushaf the content database flags as
     # the default; the font it requires is recommended with it when it requires exactly one, of
     # the same family, published and current. Which layout or font is the default is a scholarly
     # and product call, so no other evidence counts (popularity is not authority). A layout a
     # person rejected takes its font with it, and a family where a person has recommended
-    # another resource gets no drafted one.
-    def recommended(catalog)
-      by_id = catalog.to_h { |facts| [facts.id, facts] }
+    # another resource gets no inferred one.
+    def recommended(catalog) # rubocop:disable Metrics -- the rule as its comment states it, clause by clause
+      by_id = catalog.index_by(&:id)
       candidates = catalog.select do |facts|
         facts.type == 'mushaf-layout' && current?(facts) && facts.script_family && facts.mushaf&.default
       end
@@ -135,7 +135,7 @@ module Catalog
 
         pair = [layouts.first.id, required_font_of(layouts.first, by_id)&.id].compact
         decided = catalog.any? do |facts|
-          facts.recommended_by_person && facts.script_family == family && !pair.include?(facts.id)
+          facts.recommended_by_person && facts.script_family == family && pair.exclude?(facts.id)
         end
         decided ? [] : pair
       end
@@ -148,13 +148,13 @@ module Catalog
     end
 
     def current?(facts)
-      facts.published && !%w[legacy superseded].include?(facts.status)
+      facts.published && ['legacy', 'superseded'].exclude?(facts.status)
     end
 
     # The id of the font a layout or a glyph script requires: the one published font whose own
     # names include the font the layout's mushaf or the script names. None when no font, or more
     # than one, has the name, or when the resource already links to another font.
-    def required_font(facts, fonts)
+    def required_font(facts, fonts) # rubocop:disable Metrics/AbcSize -- one condition, clause by clause
       return unless facts.type == 'mushaf-layout' || (facts.type == 'quran-script' && facts.rendering == 'glyph_page')
 
       codes = facts.font_codes.flat_map { |name| choices(name) }
@@ -181,22 +181,22 @@ module Catalog
       '1_ayah' => 'ayah by ayah', '1_word' => 'word by word', 'n_ayah' => 'for one ayah or a group of ayahs',
       '1_chapter' => 'surah by surah', '1_page' => 'page by page', '1_juz' => 'juz by juz',
       '1_hizb' => 'hizb by hizb', '1_rub' => 'rub by rub', '1_manzil' => 'manzil by manzil',
-      '1_ruku' => 'ruku by ruku', '1_phrase' => 'phrase by phrase'
+      '1_ruku' => 'ruku by ruku', '1_phrase' => 'phrase by phrase',
     }.freeze
 
     TEXT = {
       'unicode_font' => 'Quran text in Unicode', 'glyph_page' => 'Quran text as glyph codes for page fonts',
-      'image' => 'Quran text as word images'
+      'image' => 'Quran text as word images',
     }.freeze
 
     FONT = {
-      'glyph_page' => 'Glyph font with one file for each mushaf page', 'unicode_font' => 'Font for Quran text'
+      'glyph_page' => 'Glyph font with one file for each mushaf page', 'unicode_font' => 'Font for Quran text',
     }.freeze
 
     # File type strings end in their format (`simple.json`, `translation-text-chunk.sqlite`).
     FORMATS = {
       'json' => 'JSON', 'sqlite' => 'SQLite', 'csv' => 'CSV', 'docx' => 'DOCX', 'ttf' => 'TTF', 'otf' => 'OTF',
-      'woff' => 'WOFF', 'woff2' => 'WOFF2', 'svg' => 'SVG', 'zip' => 'ZIP'
+      'woff' => 'WOFF', 'woff2' => 'WOFF2', 'svg' => 'SVG', 'zip' => 'ZIP',
     }.freeze
 
     # One plain sentence from the type, language, granularity and formats, and for layouts the
@@ -209,7 +209,7 @@ module Catalog
       [[text, formats].compact.join(' '), text].find { |line| line.length <= SUMMARY_LIMIT }
     end
 
-    def describe(facts, granularity)
+    def describe(facts, granularity) # rubocop:disable Metrics/AbcSize -- one sentence per type
       language = facts.language.to_s.strip.presence
       sentence = case facts.type
                  when 'translation', 'transliteration', 'tafsir'
@@ -225,7 +225,7 @@ module Catalog
     end
 
     def layout_sentence(mushaf, granularity)
-      return ['Mushaf layout', granularity] unless mushaf&.pages && mushaf.lines
+      return ['Mushaf layout', granularity] unless mushaf&.pages && mushaf&.lines
 
       ["Mushaf layout with #{mushaf.pages} pages and #{mushaf.lines} lines on each page"]
     end
@@ -239,7 +239,7 @@ module Catalog
     end
 
     def capitalize(text)
-      text[0].upcase + text[1..]
+      text.sub(/\A./, &:upcase)
     end
 
     def agreed(values)

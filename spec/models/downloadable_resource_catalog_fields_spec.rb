@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'clone_helper'
 
 RSpec.describe DownloadableResource do
@@ -5,7 +7,7 @@ RSpec.describe DownloadableResource do
 
   def create_resource(name, content, **attributes)
     described_class.create!(name: name, resource_type: 'font', cardinality_type: 'quran',
-                            resource_content: content, **attributes)
+                            resource_content: content, **attributes,)
   end
 
   it 'gets a slug from its name when created without one' do
@@ -26,7 +28,8 @@ RSpec.describe DownloadableResource do
     typed = create_resource('Catalog Spec Taken', second)
     counted = create_resource('Catalog Spec Taken', third)
 
-    expect([taken, typed.slug, counted.slug]).to eq(%w[catalog-spec-taken catalog-spec-taken-font catalog-spec-taken-font-2])
+    expect([taken, typed.slug,
+            counted.slug,]).to eq(['catalog-spec-taken', 'catalog-spec-taken-font', 'catalog-spec-taken-font-2'])
   end
 
   it 'treats a blank slug as none and refuses an all-digit slug' do
@@ -41,6 +44,6 @@ RSpec.describe DownloadableResource do
     resource = create_resource('Catalog Spec Defaults', free_contents.first)
 
     expect(resource).to have_attributes(status: 'stable', recommended: false, script_family: nil, rendering: nil,
-                                        display_name: 'Catalog Spec Defaults', review: {})
+                                        display_name: 'Catalog Spec Defaults', superseded_by: nil,)
   end
 end

@@ -10,15 +10,16 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
 - **Page group setting**: one deploy-time setting, `QUL_PAGE_GROUPS`, that lists the page groups
   served by the new pages. A group that is not listed is served by the old views, which stay in
   the code.
-- **Drafted value**: a field value written by a backfill through inference, not by a person.
-- **Review column**: one column on the resource row that records which fields hold drafted
-  values, when they were written and by which backfill.
-- **Review report**: a generated file that lists every drafted value and the known data errors,
-  for the data team. It is generated on demand (`bin/rails catalog:review_report`) and is not
-  committed.
+- **Computed field**: a catalog field that no column holds: the display name, script family,
+  rendering, status, replacement, recommended flag, the requires-link and the summary of a
+  resource without one. It is computed from the catalog when a page is read (`Catalog::Derived`).
+- **Override**: a key in a resource's `meta_data` that an editor sets to replace a computed field
+  (`display-name`, `script-family`, `rendering`, `status`, `superseded-by`, `recommended`).
+- **Review report**: a generated file that lists the known data errors, for the data team. It is
+  generated on demand (`bin/rails catalog:review_report`) and is not committed.
 - **Download mode**: one setting, `QUL_DOWNLOAD_MODE`, with two values. `sign_in`: Rails asks
   for sign-in, then sends the file. `public`: no account is needed.
-- **Display name**: a name that is unique inside a resource type, built from existing fields.
+- **Display name**: a name that is unique inside a resource type, computed from existing fields.
   The editor's `name` is never overwritten.
 - **Script family**: `madani`, `indopak` or `other`. Named `script_family` because the unmerged
   qiraat work uses "script" for one riwayah in one encoding.

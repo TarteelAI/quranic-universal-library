@@ -273,26 +273,46 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       end
     end
 
-    it 'lists requires-links before pairs-with links, and marks a drafted link as not yet reviewed' do
-      font = create_download_resource.tap { |r| r.update_columns(resource_type: 'font') }
-      script = create_download_resource.tap { |r| r.update_columns(resource_type: 'quran-script') }
-      layout = create_download_resource.tap { |r| r.update_columns(resource_type: 'mushaf-layout') }
-      resource.downloadable_related_resources.create!(related_resource: script, relation_type: 'pairs_with')
-      resource.downloadable_related_resources.create!(related_resource: font, relation_type: 'requires')
-      layout.downloadable_related_resources.create!(related_resource: resource, relation_type: 'pairs_with')
-      drafted = { "link:#{font.id}" => { 'value' => 'requires', 'by' => 'requires_links',
-                                         'at' => Time.current.iso8601, } }
-      resource.update_columns(review: Catalog::Review.with_drafted(resource.review, drafted))
+    it 'lists the font a layout requires before what it pairs with, and the layout under the font' do
+      layout = resource_named('KFGQPC V2 layout (1421H print)')
+      font = resource_named('QPC V2 Font')
+      script = resource_named('QPC V2 Glyph - Word by Word')
+      other = create_download_resource
+      other.downloadable_related_resources.create!(related_resource: layout)
 
-      get page_path(resource)
+      get page_path(layout)
 
       groups = props[:worksWith]
       expect(groups.pluck(:key)).to eq(['requires', 'pairs_with'])
-      expect(groups.first[:links]).to eq([{ reviewed: false, typeLabel: 'Font',
-                                            resource: { id: font.id, toParam: font.to_param, name: font.name,
-                                                        type: 'font', }, }])
-      expect(groups.second[:links].map { |link| [link[:resource][:id], link[:reviewed]] })
-        .to eq([[script.id, true], [layout.id, true]])
+      expect(groups.first[:links]).to eq([{ typeLabel: 'Font',
+                                            resource: { id: font.id, toParam: font.to_param,
+                                                        name: 'QPC V2 Font', type: 'font', }, }])
+      expect(groups.second[:links].map { |link| link[:resource][:id] }).to eq([script.id, other.id])
+
+      get page_path(font)
+
+      needed_by = props[:worksWith].find { |group| group[:key] == 'required_by' }
+      expect(needed_by[:links].map { |link| link[:resource][:id] }).to include(layout.id, script.id)
+    end
+
+    it 'shows the computed fields of a resource, and an override in its meta data in their place' do
+      layout = resource_named('KFGQPC V2 layout (1421H print)')
+
+      get page_path(layout)
+
+      expect(props[:resource]).to include(status: 'stable', scriptFamily: 'Madani', recommended: false,
+                                          summary: start_with('Mushaf layout with 604 pages'),)
+      expect(props[:facts]).to include({ label: 'Script family', value: 'Madani' },
+                                       { label: 'Rendering', value: 'Glyph font for each page' },)
+
+      override_catalog(layout, 'script-family' => 'indopak', 'rendering' => 'svg', 'status' => 'beta',
+                               'recommended' => true, 'display-name' => 'Madinah layout',)
+      get page_path(layout)
+
+      expect(props[:resource]).to include(name: 'Madinah layout', status: 'beta', scriptFamily: 'IndoPak',
+                                          recommended: true,)
+      expect(props[:facts]).to include({ label: 'Script family', value: 'IndoPak' },
+                                       { label: 'Rendering', value: 'SVG' },)
     end
 
     describe 'the download sign-in returned for (?download=)' do
@@ -348,7 +368,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       :resource, :type, :statuses, :files, :facts, :worksWith, :changelog, :licence, :tab, :downloadMode,
       :download, :issueUrl, :canDownload, :restriction, :release, :version, :updatedOn, :guidePath, :formatGuide,
       :schemas, :codeSample, :kind, :html, :language, :code, :columns, :id, :name, :toParam, :status, :scriptFamily,
-      :language, :granularity, :summary, :info, :recommendation, :reviewed, :supersededBy, :recommended, :rendering,
+      :language, :granularity, :summary, :info, :supersededBy, :recommended, :rendering,
       :key, :label, :title, :description, :category, :format, :formatLabel, :byteSize,
       :md5, # rubocop:disable Naming/VariableNumber -- the serialized prop name
       :value, :links, :typeLabel, :url, :excerpt, :date, :path,

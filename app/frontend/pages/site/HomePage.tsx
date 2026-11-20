@@ -605,7 +605,8 @@ function TopicAyahs({ preview }: { preview: PreviewsRecords }) {
   const topic = preview.records[0]
   if (!topic) return null
   // The tags are ayah keys, then a count of the rest ("148 more ayahs").
-  const ayahs = topic.tags.filter((tag) => /^\d+:\d+$/.test(tag)).slice(0, 4)
+  // Three fit on one line in the narrow card.
+  const ayahs = topic.tags.filter((tag) => /^\d+:\d+$/.test(tag)).slice(0, 3)
 
   return (
     <div className="my-auto flex flex-col items-center gap-2">

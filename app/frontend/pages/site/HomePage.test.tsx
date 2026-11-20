@@ -135,7 +135,7 @@ describe('site/HomePage', () => {
 
     const topics = within(screen.getAllByTestId('library-card')[2])
     const ayahs = within(topics.getByRole('list', { name: 'Ayahs about Patience' })).getAllByRole('listitem')
-    expect(ayahs.map((ayah) => ayah.textContent)).toEqual(['2:45', '2:153', '3:200', '8:46'])
+    expect(ayahs.map((ayah) => ayah.textContent)).toEqual(['2:45', '2:153', '3:200'])
   })
 
   it('shows the contribution tools and links the tools overview', () => {

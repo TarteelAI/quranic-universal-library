@@ -3,11 +3,11 @@ import type { Page } from '@playwright/test'
 import { expect, test } from './support/test'
 
 // The home page's library section and contribution tools (story 002-12) on the development
-// clone: a tab per sample of the data, each preview loaded when its tab opens, the category rows
-// and the tool cards.
+// clone: a card per category, the sampled ones each loading a part of their sample's preview once
+// near the screen, and the tool cards.
 
 type Props = {
-  samples: { type: string; toParam: string; name: string }[]
+  samples: { type: string; category: string; toParam: string; name: string }[]
   categories: { key: string; label: string; count: number }[]
   tools: { label: string; href: string }[]
 }
@@ -17,12 +17,6 @@ const PREVIEW_PROPS: Record<string, string> = {
   'mushaf-layout': 'mushafLayoutPreview',
   translation: 'translationPreview',
   morphology: 'morphologyPreview',
-}
-const PREVIEW_TEST_IDS: Record<string, string> = {
-  recitation: 'recitation-preview',
-  'mushaf-layout': 'mushaf-preview',
-  translation: 'text-preview',
-  morphology: 'records-preview',
 }
 
 async function home(page: Page) {
@@ -35,13 +29,9 @@ async function home(page: Page) {
   return { html, props }
 }
 
-// Previews load once the open tab comes near the screen.
-const showcase = (page: Page) => page.getByRole('tablist').scrollIntoViewIfNeeded()
+const card = (page: Page, category: string) => page.locator(`[data-testid="library-card"][data-category="${category}"]`)
 
-const panel = (page: Page) => page.getByRole('tabpanel')
-const audio = (page: Page) => panel(page).getByTestId('player').locator('audio')
-
-test('each tab loads and shows the preview of its sample, and only that one', async ({ page }) => {
+test('each sampled card loads its preview once near the screen, and links its sample', async ({ page }) => {
   const partials: string[] = []
   page.on('request', (request) => {
     const only = request.headers()['x-inertia-partial-data']
@@ -49,71 +39,78 @@ test('each tab loads and shows the preview of its sample, and only that one', as
   })
   const { html, props } = await home(page)
   expect(props.samples.map((sample) => sample.type)).toEqual(Object.keys(PREVIEW_PROPS))
-  // The first response holds no preview, not even the open tab's.
+  // The first response holds no preview.
   for (const prop of Object.values(PREVIEW_PROPS)) expect(html).not.toContain(`"${prop}"`)
-  // Nor does the page ask for one while the showcase is off screen.
+  // Nor does the page ask for one while the library is off screen.
   await page.waitForLoadState('networkidle')
   expect(partials).toEqual([])
 
-  for (const [index, sample] of props.samples.entries()) {
-    const tab = page.getByRole('tab').nth(index)
-    await tab.click()
-    await expect(tab).toHaveAttribute('aria-selected', 'true')
-    await expect(panel(page).getByTestId(PREVIEW_TEST_IDS[sample.type])).toBeVisible({ timeout: 30_000 })
-    await expect(panel(page).getByRole('link', { name: sample.name, exact: true })).toHaveAttribute(
+  for (const sample of props.samples) {
+    const sampled = card(page, sample.category)
+    await sampled.scrollIntoViewIfNeeded()
+    await expect(sampled.getByTestId('sample-preview')).toHaveAttribute('data-type', sample.type, { timeout: 30_000 })
+    await expect(sampled.getByRole('link', { name: sample.name, exact: true })).toHaveAttribute(
       'href',
       `/resources/${sample.type}/${sample.toParam}`,
     )
   }
-  expect(partials).toEqual(Object.values(PREVIEW_PROPS))
-
-  // An opened tab keeps its preview: going back asks for nothing.
-  await page.getByRole('tab').first().click()
-  await expect(panel(page).getByTestId('recitation-preview')).toBeVisible()
-  expect(partials).toHaveLength(4)
+  expect([...partials].sort()).toEqual(Object.values(PREVIEW_PROPS).sort())
 })
 
-test('the recitation tab plays and pauses, and switching tabs stops it', async ({ page }) => {
+test('the audio card plays an ayah at a time, plays from an ayah, and pauses', async ({ page }) => {
   await home(page)
-  await showcase(page)
-  const player = panel(page).getByTestId('player')
-  await expect(player).toBeVisible({ timeout: 30_000 })
+  const audioCard = card(page, 'audio')
+  await audioCard.scrollIntoViewIfNeeded()
+  const play = audioCard.getByRole('button', { name: /^Play Surah/ })
+  await expect(play).toBeVisible({ timeout: 30_000 })
+  const audio = audioCard.locator('audio')
 
-  await player.getByRole('button', { name: 'Play', exact: true }).click()
+  await play.click()
   await expect
-    .poll(() => audio(page).evaluate((element: HTMLAudioElement) => element.currentTime), { timeout: 30_000 })
+    .poll(() => audio.evaluate((element: HTMLAudioElement) => element.currentTime), { timeout: 30_000 })
     .toBeGreaterThan(0)
-  await player.getByRole('button', { name: 'Pause' }).click()
-  expect(await audio(page).evaluate((element: HTMLAudioElement) => element.paused)).toBe(true)
+  await expect(audioCard.locator('[data-active-ayah]')).toHaveAttribute('data-active-ayah', /^1:\d$/)
 
-  await player.getByRole('button', { name: 'Play', exact: true }).click()
-  await expect(player.getByRole('button', { name: 'Pause' })).toBeVisible()
-  const element = await audio(page).elementHandle()
-  expect(await element!.evaluate((node: HTMLAudioElement) => node.paused)).toBe(false)
-
-  await page.getByRole('tab', { name: 'Mushaf layouts' }).click()
-  await expect(panel(page).getByTestId('player')).toHaveCount(0)
-  // The element left the page with its tab, and stopped.
-  expect(await element!.evaluate((node: HTMLAudioElement) => [node.isConnected, node.paused])).toEqual([false, true])
-  await page.waitForTimeout(1000)
-  const at = await element!.evaluate((node: HTMLAudioElement) => node.currentTime)
-  await page.waitForTimeout(1000)
-  expect(await element!.evaluate((node: HTMLAudioElement) => node.currentTime)).toBe(at)
+  await audioCard.getByRole('button', { name: 'Play from ayah 1:5' }).click()
+  await expect(audioCard.locator('[data-active-ayah]')).toHaveAttribute('data-active-ayah', '1:5', { timeout: 30_000 })
+  await audioCard.getByRole('button', { name: 'Pause' }).click()
+  expect(await audio.evaluate((element: HTMLAudioElement) => element.paused)).toBe(true)
 })
 
-test('each category row links to the catalog filtered to it, with the count the catalog finds', async ({ page }) => {
+test('the translation card steps through the ayahs, and the linguistics card through the words', async ({ page }) => {
+  await home(page)
+  const translation = card(page, 'translation')
+  await translation.scrollIntoViewIfNeeded()
+  const well = translation.getByTestId('sample-preview')
+  await expect(well).toContainText('1:2', { timeout: 30_000 })
+  await translation.getByRole('button', { name: 'Next ayah' }).click()
+  await expect(well).toContainText('1:3')
+
+  const linguistics = card(page, 'linguistics')
+  await linguistics.scrollIntoViewIfNeeded()
+  const words = linguistics.getByRole('button', { name: /^Word / })
+  await expect(words.first()).toHaveAttribute('aria-pressed', 'true', { timeout: 30_000 })
+  await words.nth(1).click()
+  await expect(words.nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await expect(words.first()).toHaveAttribute('aria-pressed', 'false')
+})
+
+test('each category card links to the catalog filtered to it, with the count the catalog finds', async ({ page }) => {
   const { props } = await home(page)
-  const rows = page.locator('a[href^="/resources?category="]')
+  const rows = page.getByTestId('library-card')
   await expect(rows).toHaveCount(props.categories.length)
   for (const [index, category] of props.categories.entries()) {
-    await expect(rows.nth(index)).toHaveAttribute('href', `/resources?category=${category.key}`)
+    await expect(rows.nth(index).getByRole('link', { name: category.label, exact: true })).toHaveAttribute(
+      'href',
+      `/resources?category=${category.key}`,
+    )
     await expect(rows.nth(index)).toContainText(category.label)
     await expect(rows.nth(index)).toContainText(category.count.toLocaleString('en'))
   }
 
   const script = props.categories.find((category) => category.key === 'script')!
-  await page.locator('a[href="/resources?category=script"]').click()
-  await expect(page).toHaveURL(/\/resources\?category=script$/)
+  await card(page, 'script').getByRole('link', { name: script.label, exact: true }).click()
+  await expect(page).toHaveURL(/\/resources\?category=script$/, { timeout: 30_000 })
   await expect(page.getByRole('button', { name: `Remove ${script.label}` })).toBeVisible()
   // One group, the category, with the row's count as its total.
   const groups = page.getByRole('main').getByRole('heading', { level: 2 })
@@ -139,18 +136,15 @@ test('the tool cards open their tools, and See all tools opens the overview', as
 })
 
 test('screenshots of the library and the open source band', async ({ page }, testInfo) => {
-  await home(page)
-  await showcase(page)
-  await expect(panel(page).getByTestId('recitation-preview')).toBeVisible({ timeout: 30_000 })
-  const library = page.locator('section', { has: page.getByRole('tablist') })
+  const { props } = await home(page)
+  const library = page.locator('section', { has: page.getByTestId('library-card') })
+  for (const sample of props.samples) {
+    await card(page, sample.category).scrollIntoViewIfNeeded()
+    await expect(card(page, sample.category).getByTestId('sample-preview')).toBeVisible({ timeout: 30_000 })
+  }
   const shot = (name: string) => `tmp/playwright/home-library/${name}-${testInfo.project.name}.png`
   await library.screenshot({ path: shot('library') })
   await testInfo.attach('library', { path: shot('library'), contentType: 'image/png' })
-
-  await page.getByRole('tab', { name: 'Morphology' }).click()
-  await expect(panel(page).getByTestId('records-preview')).toBeVisible({ timeout: 30_000 })
-  await panel(page).screenshot({ path: shot('morphology') })
-  await testInfo.attach('morphology', { path: shot('morphology'), contentType: 'image/png' })
 
   const band = page.locator('section', { has: page.getByRole('list', { name: 'Contribution tools' }) })
   await band.screenshot({ path: shot('open-source') })

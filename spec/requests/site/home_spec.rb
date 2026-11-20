@@ -3,6 +3,9 @@
 require 'clone_helper'
 
 RSpec.describe 'Home page (/)', type: :request do
+  # The hero's contributor count adds the repository's GitHub contributors; no spec calls GitHub.
+  before { allow(GithubService).to receive(:contributors_count).and_return(30) }
+
   def json_ld
     JSON.parse(Nokogiri::HTML(response.body).at('script[type="application/ld+json"]').text)
   end
@@ -18,19 +21,16 @@ RSpec.describe 'Home page (/)', type: :request do
       expect(app).to be_present
       expect(app.at('h1').text).to eq('Verified data for builders impacting the Ummah.')
       expect(app.at('canvas')).to be_present
-      expect(app.css('dl dd').map(&:text)).to eq(inertia.props.values_at(:resources, :languages, :recitations)
+      expect(app.css('dl dd').map(&:text)).to eq(inertia.props.values_at(:resources, :languages, :contributors)
                                                        .map { |count| count.to_fs(:delimited) })
     end
 
-    it 'counts the published resources, their languages and the recitations as direct queries do' do
+    it 'counts the published resources and their languages as direct queries do' do
       get '/'
 
       cms = ApplicationRecord.connection
       content = QulQuranRecord.connection
       resources = cms.select_value('SELECT COUNT(*) FROM downloadable_resources WHERE published')
-      recitations = cms.select_value(
-        "SELECT COUNT(*) FROM downloadable_resources WHERE published AND resource_type = 'recitation'",
-      )
       # A resource's language is its own row's, else its content row's.
       own = cms.select_values(
         'SELECT DISTINCT language_id FROM downloadable_resources WHERE published AND language_id IS NOT NULL',
@@ -45,8 +45,19 @@ RSpec.describe 'Home page (/)', type: :request do
            OR languages.id IN (SELECT language_id FROM resource_contents WHERE id IN (#{(unset.map(&:to_i) + [0]).join(',')}))
       SQL
 
-      expect(inertia.props).to include(resources: resources, recitations: recitations, languages: languages)
-      expect([resources, recitations, languages]).to all(be_positive)
+      expect(inertia.props).to include(resources: resources, languages: languages)
+      expect([resources, languages]).to all(be_positive)
+    end
+
+    it 'counts the contributors: the CMS users who changed the data, then the GitHub contributors' do
+      get '/'
+
+      editors = PaperTrail::Version.distinct.pluck(:user_id, :whodunnit)
+        .filter_map { |id, gid| id || gid&.[](%r{/User/(\d+)\z}, 1)&.to_i }
+      editors |= ProofReadComment.distinct.pluck(:user_id)
+      editors |= UserProject.where(approved: true).distinct.pluck(:user_id)
+      expect(inertia.props[:contributors]).to eq(editors.compact.size + 30)
+      expect(editors.compact).not_to be_empty
     end
 
     it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do
@@ -71,10 +82,10 @@ RSpec.describe 'Home page (/)', type: :request do
       expect(inertia.props[:results].pluck(:type).uniq - ['quran-script', 'font']).to be_empty
     end
 
-    describe 'the data showcase' do
+    describe 'the library cards' do
       let(:preview_props) { [:recitationPreview, :mushafLayoutPreview, :translationPreview, :morphologyPreview] }
 
-      it 'holds one sample per tab, each a published resource of its type, with no preview in the first response' do
+      it 'holds one sample per sampled type, each a published resource of its type, with no preview at first' do
         get '/'
 
         samples = inertia.props[:samples]
@@ -83,14 +94,14 @@ RSpec.describe 'Home page (/)', type: :request do
           resource = Catalog::ResourcePage.find(sample[:toParam])
           expect(resource).to have_attributes(published: true, resource_type: sample[:type])
           expect(sample[:name]).to eq(resource.catalog_name)
-          expect(sample[:count]).to eq(DownloadableResource.published.where(resource_type: sample[:type]).count)
+          expect(sample[:category]).to eq(Catalog::Taxonomy.type(sample[:type]).category.key)
         end
         expect(Catalog::ResourcePage.find(samples.first[:toParam]).cardinality_type).to eq('1_chapter')
         expect(inertia.props.keys.map(&:to_sym)).not_to include(*preview_props)
         expect(inertia.deferred_props).to be_empty
       end
 
-      it "loads each tab's preview on its own, the detail page's preview of the sample" do
+      it "loads each card's preview on its own, the detail page's preview of the sample" do
         get '/'
         samples = inertia.props[:samples].index_by { |sample| sample[:type] }
 
@@ -109,7 +120,7 @@ RSpec.describe 'Home page (/)', type: :request do
         end
       end
 
-      it 'leaves out a tab whose type has no published resource, and still renders the page' do
+      it 'leaves out the sample of a type with no published resource, and still renders the page' do
         DownloadableResource.where(resource_type: 'morphology').update_all(published: false)
 
         SsrServer.with_ssr { get '/' }
@@ -120,16 +131,20 @@ RSpec.describe 'Home page (/)', type: :request do
         expect(inertia.props[:morphologyPreview]).to be_nil
       end
 
-      it 'renders the open tab on the server without its preview, and no other tab' do
+      it 'renders a card per category on the server, the sampled ones without their preview' do
         SsrServer.with_ssr { get '/' }
 
         app = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
-        tabs = app.css('[role="tab"]')
-        expect(tabs.map(&:text)).to eq(['Recitations', 'Mushaf layouts', 'Translations', 'Morphology'])
-        panels = app.css('[role="tabpanel"]')
-        expect(panels.count { |panel| !panel['hidden'] }).to eq(1)
-        expect(panels.select { |panel| panel['hidden'] }.map(&:inner_html)).to all(be_empty)
-        expect(app.at('audio, [data-testid="no-preview"]')).to be_nil
+        cards = app.css('[data-testid="library-card"]')
+        expect(cards.pluck('data-category')).to eq(Catalog::Taxonomy::CATEGORIES.keys)
+        cards.zip(inertia.props[:categories]).each do |card, category|
+          link = card.at('h3 a')
+          expect(link.text).to eq(category[:label])
+          expect(link['href']).to eq("/resources?category=#{category[:key]}")
+          expect(card.text).to include(category[:count].to_fs(:delimited))
+        end
+        expect(app.css('[role="tab"]')).to be_empty
+        expect(app.at('audio, [data-testid="sample-preview"]')).to be_nil
       end
     end
 

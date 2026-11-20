@@ -10,6 +10,7 @@ module Site
 
     def show
       @stats = Catalog::Stats.new.call
+      @contributors = data_contributors + GithubService.contributors_count
       @samples = Catalog::Samples.new.call
       @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
       @apps = AppDirectory.apps
@@ -34,6 +35,24 @@ module Site
           },
         },
       )
+    end
+
+    private
+
+    # The people who changed the Quran data in the CMS: the users its edits are attributed to
+    # (PaperTrailAttribution sets user_id; older rows have only a whodunnit GlobalID), who left a
+    # proofreading comment or who were approved for a project. GitHub logins cannot be matched to
+    # them, so someone in both lists counts twice. Cached for a day: the edits table is large.
+    def data_contributors
+      Rails.cache.fetch('home_data_contributors', expires_in: 1.day) do
+        ApplicationRecord.connection.select_value(<<~SQL.squish)
+          SELECT COUNT(DISTINCT user_id) FROM (
+            SELECT COALESCE(user_id, substring(whodunnit from '/User/([0-9]+)$')::bigint) FROM versions
+            UNION SELECT user_id FROM proof_read_comments
+            UNION SELECT user_id FROM user_projects WHERE approved
+          ) contributors(user_id)
+        SQL
+      end
     end
   end
 end

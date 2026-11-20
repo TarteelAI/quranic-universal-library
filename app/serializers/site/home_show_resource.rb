@@ -1,29 +1,28 @@
 # frozen_string_literal: true
 
 module Site
-  # Props of the home page (Site::HomeController#show): the catalog counts, the categories with
+  # Props of the home page (Site::HomeController#show): the catalog counts, the contributors, the categories with
   # their counts, the data showcase, the apps of the apps showcase, three contribution tools, the
   # guided setup's goals and the first starter kits, and the links that depend on the page groups.
   class HomeShowResource < ApplicationResource
-    # The preview each showcase type's tab shows (Previews.for), by type.
+    # The preview each sampled type's card shows a part of (Previews.for), by type.
     PREVIEWS = {
       'recitation' => 'Previews::RecitationResource', 'mushaf-layout' => 'Previews::MushafLayoutResource',
       'translation' => 'Previews::TextResource', 'morphology' => 'Previews::RecordsResource',
     }.freeze
 
-    typelize resources: :number, languages: :number, recitations: :number, apps_count: :number,
+    typelize resources: :number, languages: :number, contributors: :number, apps_count: :number,
              catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean, start_pages: :boolean
 
     attribute(:resources) { |page| page[:stats].resources }
     attribute(:languages) { |page| page[:stats].languages }
-    attribute(:recitations) { |page| page[:stats].recitations }
+    attribute(:contributors) { |page| page[:contributors] }
     many :categories, source: proc { self[:stats].categories }, resource: CategoryCountResource
 
-    many :samples, resource: SampleResource, source: proc {
-      self[:samples].map { |type, resource| { type:, resource:, count: self[:stats].per_type.fetch(type, 0) } }
-    }
-    # Each tab's preview is left out of the first response and loaded when its tab opens. A type
-    # with no sample has none.
+    many :samples, resource: SampleResource,
+                   source: proc { self[:samples].map { |type, resource| { type:, resource: } } }
+    # Each card's preview is left out of the first response and loaded when the card comes near
+    # the screen. A type with no sample has none.
     PREVIEWS.each do |type, serializer|
       name = :"#{type.underscore}_preview"
       typelize name => "#{serializer} | Previews::UnavailableResource | null"

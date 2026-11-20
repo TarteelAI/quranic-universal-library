@@ -74,14 +74,14 @@ const waqfah: SiteApp = {
 export const homePageProps: SiteHomeShow = {
   resources: 547,
   languages: 94,
-  recitations: 133,
+  contributors: 57,
   categories: [
     { key: 'audio', label: 'Audio', hint: 'Recitations with word timing', count: 133 },
     { key: 'translation', label: 'Translation', hint: 'Many languages, word by word too', count: 214 },
   ],
   samples: [
-    { type: 'recitation', category: 'audio', count: 133, name: 'Mishari Rashid al-Afasy', toParam: 'afasy' },
-    { type: 'translation', category: 'translation', count: 190, name: 'Saheeh International', toParam: 'saheeh' },
+    { type: 'recitation', category: 'audio', name: 'Mishari Rashid al-Afasy', toParam: 'afasy' },
+    { type: 'translation', category: 'translation', name: 'Saheeh International', toParam: 'saheeh' },
   ],
   showcase: [quranwbw, nimaz, waqfah, quranValidator],
   appsCount: 23,

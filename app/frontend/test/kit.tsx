@@ -35,6 +35,7 @@ import * as tabs from '@/components/ui/tabs'
 
 import { catalogPageProps, resourcePageProps } from './catalog'
 import { docsNavigation, tutorialDoc } from './content'
+import { cardLayoutPreview } from './previews'
 import { appsPageProps, homePageProps } from './site'
 import { nav as navProps } from './shell'
 import { kitCard as kitCardProps } from './start'
@@ -82,7 +83,7 @@ export const componentNames = Object.values(modules)
   .sort()
 
 const { Container, SiteShell } = layout
-const { CardPreview } = cardPreview
+const { CardPreview, LayoutThumbnail } = cardPreview
 const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
 const { AddToBundle, BundleFormats, BundleToggle, BundleTray } = bundle
@@ -319,6 +320,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     element: <CardPreview kind="font" url="/resources/font/qpc-hafs/preview" />,
     text: 'data-state="waiting"',
   },
+  LayoutThumbnail: { element: <LayoutThumbnail preview={cardLayoutPreview} />, text: 'data-line="1"' },
   StatusBadge: {
     element: (
       <StatusBadge

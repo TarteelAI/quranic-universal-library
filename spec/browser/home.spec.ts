@@ -45,10 +45,10 @@ test.describe('home page', () => {
     await expect(ring(page)).toHaveAttribute('data-motion', /running|still/)
 
     const terms = await page.locator('main dl dt').allTextContents()
-    expect(terms).toEqual(['resources', 'languages', 'recitations'])
+    expect(terms).toEqual(['resources', 'languages', 'contributors'])
     const props = JSON.parse((await page.locator('script[data-page="app"]').textContent())!).props
     const values = await page.locator('main dl dd').allTextContents()
-    expect(values).toEqual([props.resources, props.languages, props.recitations].map((n) => n.toLocaleString('en')))
+    expect(values).toEqual([props.resources, props.languages, props.contributors].map((n) => n.toLocaleString('en')))
     await expect(page.getByText('1,234 stars on GitHub')).toBeVisible()
     expect(messages).toEqual([])
   })

@@ -23,26 +23,30 @@ describe('site/HomePage', () => {
       'Verified data for builders impacting the Ummah.',
     )
     const stats = screen.getAllByRole('definition').map((value) => value.textContent)
-    expect(stats).toEqual(['547', '94', '133'])
+    expect(stats).toEqual(['547', '94', '57'])
     expect(screen.getAllByRole('term').map((term) => term.textContent)).toEqual([
       'resources',
       'languages',
-      'recitations',
+      'contributors',
     ])
   })
 
-  it('links each category row to the catalog filtered to it, with its hint and count', () => {
+  it('gives each category one card, linked to the catalog filtered to it, with its hint and count', () => {
     renderPage(HomePage, { props: homePageProps })
 
-    const row = screen.getByRole('link', { name: /^Translation/ })
-    expect(row.getAttribute('href')).toBe('/resources?category=translation')
-    expect(row.textContent).toContain('Many languages, word by word too')
-    expect(row.textContent).toContain('214')
-    // The rows replace the type links.
-    expect(screen.queryByRole('link', { name: /Transliterations/ })).toBeNull()
+    const cards = screen.getAllByTestId('library-card')
+    expect(cards.map((card) => card.dataset.category)).toEqual(['audio', 'translation'])
+    const card = within(cards[1])
+    expect(card.getByRole('link', { name: 'Translation' }).getAttribute('href')).toBe('/resources?category=translation')
+    expect(cards[1].textContent).toContain('Many languages, word by word too')
+    expect(cards[1].textContent).toContain('214')
+    expect(card.getByRole('link', { name: 'Saheeh International' }).getAttribute('href')).toBe(
+      '/resources/translation/saheeh',
+    )
+    expect(screen.queryByRole('tab')).toBeNull()
   })
 
-  it('shows a tab per sample and loads only the open tab preview, once it is on screen', () => {
+  it("loads each sampled card's preview once it is on screen", () => {
     const reload = vi.spyOn(router, 'reload').mockImplementation(() => {})
     // Every observed element is on screen at once.
     vi.stubGlobal(
@@ -57,33 +61,52 @@ describe('site/HomePage', () => {
     )
     renderPage(HomePage, { props: homePageProps })
 
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual(['Recitations', 'Translations'])
-    const panel = screen.getByRole('tabpanel')
-    expect(within(panel).getByRole('heading', { name: 'Recitations, timed to the text' })).toBeDefined()
-    expect(within(panel).getByText(/^133 recitations/)).toBeDefined()
-    expect(
-      within(panel)
-        .getByRole('link', { name: /Browse recitations/ })
-        .getAttribute('href'),
-    ).toBe('/resources/recitation')
-    expect(within(panel).getByRole('link', { name: 'Mishari Rashid al-Afasy' }).getAttribute('href')).toBe(
-      '/resources/recitation/afasy',
-    )
-    expect(reload).toHaveBeenCalledTimes(1)
-    expect(reload).toHaveBeenCalledWith(expect.objectContaining({ only: ['recitationPreview'] }))
-
-    // Radix opens a tab on mouse down.
-    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Translations' }), { button: 0 })
-    expect(reload).toHaveBeenLastCalledWith(expect.objectContaining({ only: ['translationPreview'] }))
-    expect(reload).toHaveBeenCalledTimes(2)
+    expect(reload.mock.calls.map(([options]) => options?.only)).toEqual([['recitationPreview'], ['translationPreview']])
   })
 
-  it('shows a loaded preview without asking for it again', () => {
-    const reload = vi.spyOn(router, 'reload').mockImplementation(() => {})
-    renderPage(HomePage, { props: { ...homePageProps, recitationPreview: null } })
+  it('plays the recitation an ayah at a time and steps through the translation', () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue()
+    renderPage(HomePage, {
+      props: {
+        ...homePageProps,
+        recitationPreview: {
+          kind: 'recitation',
+          granularity: 'surah',
+          highlights: true,
+          tracks: ['https://audio.test/001.mp3'],
+          surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 },
+          surahs: [],
+          ayahs: [
+            { key: '1:1', number: 1, text: 'بِسْمِ', track: 0, from: 0, to: 5000 },
+            { key: '1:2', number: 2, text: 'ٱلْحَمْدُ', track: 0, from: 5000, to: 9000 },
+          ],
+        },
+        translationPreview: {
+          kind: 'text',
+          granularity: 'ayah',
+          from: 1,
+          to: 2,
+          locale: { code: 'en', direction: 'ltr' },
+          surah: { number: 1, name: 'Al-Fatihah', versesCount: 7 },
+          surahs: [],
+          entries: [
+            { key: '1:1', text: 'In the name', truncated: false, ayahs: [], footnotes: [], words: [] },
+            { key: '1:2', text: 'All praise', truncated: false, ayahs: [], footnotes: [], words: [] },
+          ],
+        },
+      },
+    })
 
-    expect(within(screen.getByRole('tabpanel')).getByTestId('no-preview')).toBeDefined()
-    expect(reload).not.toHaveBeenCalled()
+    const audio = within(screen.getAllByTestId('library-card')[0])
+    expect(audio.getByText('بِسْمِ')).toBeDefined()
+    fireEvent.click(audio.getByRole('button', { name: 'Play from ayah 1:2' }))
+    expect(play).toHaveBeenCalledTimes(1)
+    expect(audio.getAllByRole('button', { name: /^Play from ayah/ })).toHaveLength(2)
+
+    const translation = within(screen.getAllByTestId('library-card')[1])
+    expect(translation.getByText('All praise')).toBeDefined()
+    fireEvent.click(translation.getByRole('button', { name: 'Next ayah' }))
+    expect(translation.getByText('In the name')).toBeDefined()
   })
 
   it('shows the contribution tools and links the tools overview', () => {

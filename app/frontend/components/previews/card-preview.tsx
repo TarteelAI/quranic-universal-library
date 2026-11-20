@@ -65,7 +65,8 @@ function usePaletteName() {
   return `--qul-v4-card-${React.useId().replace(/[^\w-]/g, '')}`
 }
 
-function LayoutThumbnail({ preview }: { preview: PreviewsCardLayout }) {
+// A layout's page. `className` sets the page's type size (and so its size) and colours.
+export function LayoutThumbnail({ preview, className }: { preview: PreviewsCardLayout; className?: string }) {
   const { page } = preview
   const v4 = page.textFont !== null && page.fontCode === 'v4-tajweed'
   const palette = usePaletteName()
@@ -74,7 +75,10 @@ function LayoutThumbnail({ preview }: { preview: PreviewsCardLayout }) {
       <FontFaces fonts={pageFonts(page)} palette={v4 && page.textFont ? [page.textFont] : []} paletteName={palette} />
       <div
         dir="rtl"
-        className="h-max w-max rounded-sm bg-white px-3 py-2 text-[9px] leading-[1.85] text-black shadow-xs"
+        className={cn(
+          'h-max w-max rounded-sm bg-white px-3 py-2 text-[9px] leading-[1.85] text-black shadow-xs',
+          className,
+        )}
         style={{
           fontFamily: page.textFont ? `'${page.textFont.family}'` : undefined,
           fontPalette: v4 ? palette : undefined,

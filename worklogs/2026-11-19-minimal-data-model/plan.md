@@ -11,7 +11,7 @@ catalog table for a value that can be derived. This branch adds no column to `do
 | `downloadable_resources.superseded_by_id` | Computed when read (the "(Old)" name rule), override in `meta_data` |
 | `downloadable_resources.display_name` | Computed when read (the rule the backfill used) |
 | `downloadable_resources.review` + Drafter, review marks | Removed |
-| `downloadable_related_resources.relation_type` | Computed: a link from a layout or glyph-page script to a font is "requires"; every other link pairs |
+| `downloadable_related_resources.relation_type` | Computed with the backfill's rule: the one published font that a layout's mushaf or a glyph-page script names is "requires", also where no link row exists; every other link pairs |
 | `downloadable_files.anonymous_download_count` | Kept (scope change, 2026-11-19) |
 | `resource_requests`, `resource_request_votes` | Kept (scope change, 2026-11-19) |
 | `apps` (3 migrations) | Kept, as one migration |

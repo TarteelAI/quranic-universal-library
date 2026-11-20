@@ -1,6 +1,6 @@
 ---
 agent: derive-catalog
-status: in-progress
+status: done
 ---
 
 ## Task
@@ -53,7 +53,7 @@ Leeway on how; keep it the smallest design that works.
 
 ## Contract
 
-- Set `status: in-progress` before your first change.
+- Set `status: done` before your first change.
 - **Every commit**: before you make it, append a line to `## Commits` below (what the commit does
   and any decision it encodes) and stage this file in that same commit. No sha; the orchestrator
   resolves it from `git log`. Nothing about your work should exist only in your context.
@@ -98,8 +98,30 @@ Leeway on how; keep it the smallest design that works.
   `Catalog::Backfill` is one file: blank slugs to NULL, then a slug per resource without one. The review
   report keeps its data-error sections. `Catalog::SearchQuery` reads its resources from the request's
   catalog instead of loading them again. Decisions encoded: see Decisions.
+- Handoff: status, the sections below, and the plan's link rule worded as the code does it.
 
 ## Done
+
+- `git diff origin/main -- db/schema.rb`: the `apps`, `resource_requests` and `resource_request_votes`
+  tables, their four foreign keys, `downloadable_files.anonymous_download_count` and the version
+  (2026_11_13_200000). No change to `downloadable_resources` or `downloadable_related_resources`.
+  Hand-edited, as `01` did; the clones' columns match it.
+- Stored backfill against read-time values, on clones of the snapshot (the old backfill ran on a copy,
+  `qul_cms_content_mdm_base`; the new code on `qul_cms_content_mdm`, with no catalog columns): 564
+  resources, 0 differences in script family, rendering, status, superseded-by, recommended, display name,
+  slug and summary; the 43 links and their types are the same list. Counts are in the PR body.
+- Specs: `spec/serializers/catalog/resource_resource_spec.rb` (each computed field, one override per key,
+  invalid overrides, skipped links), detail and type page request specs, the slug backfill spec. No N+1:
+  the catalog index's query-count spec (bound now 15) and a new one on a type page (26 fonts against 2).
+- Gate, split across the `qul-polish` container and the host as AGENTS.md says, on the `_mdm` clones:
+  standalone tests 267 runs, RuboCop on 34 changed files, typelizer:check, typecheck, ESLint, Prettier,
+  SSR build, RSpec 527 examples 0 failures, Vitest 450 passed.
+- Browser: all 20 spec files, both widths, against development Rails with SSR (a Vite dev server for
+  this worktree on its own port, forwarded into the container) on the `_mdm` clones. 248 tests: 203
+  passed in the parallel run, 21 skip themselves (other width, public download mode, `LOOK_PATH`), 18
+  failed and 6 did not run; those 24 pass when run one at a time (`--last-failed --workers=1`). The
+  failures were 5 s and 30 s waits on one development server under parallel load, not assertions.
+- Types regenerated, no drift. DECISIONS.md, GLOSSARY.md, AGENTS.md and the PR body updated.
 
 ## Decisions
 
@@ -108,7 +130,44 @@ Leeway on how; keep it the smallest design that works.
   existing catalog tables for values that can be derived. The brief's "do not bring back anything
   01-remove-extras removed" no longer covers these two. Schema acceptance is now: `apps`,
   `resource_requests`, `resource_request_votes`, their foreign keys, the counter column and the version.
+- The fields are read from the resource (`resource.status`), backed by one per-request catalog
+  (`Catalog::Derived.current`, an `ActiveSupport::CurrentAttributes`). Passing the catalog through every
+  serializer was the alternative; it touched about 12 call sites for no gain. A save of a resource or a
+  link drops the loaded catalog.
+- The requires-link follows the backfill's rule, not the plan's shorter wording: the one published font
+  a layout's mushaf or a glyph script names, only when the resource links to no other font. The backfill
+  also created the link where no row existed (10 of the 18), so the readers show those too
+  (`Derived::Link` with no id). `alternative` and `supersedes` link types are gone (0 rows used them).
+- Status and replacement: a `status` override wins; a `superseded-by` override alone makes the resource
+  superseded; the inferred replacement shows only while the status is superseded. `superseded-by` takes a
+  slug or an id.
+- A `display-name` override is treated as the old stored display name was: used as it is, and never given
+  to another resource.
+- "Recommended" no longer has a "suggested, not yet reviewed" form: a resource the rule finds reads
+  "Recommended". The rule finds none on the snapshot.
+- The old ERB list (`resources/resource_view/_list`) still reads `short_summary` only, as on main.
 
 ## Concerns
 
+- Cost: every request that reads a catalog field loads the catalog (564 rows, 14 queries, about 150 ms in
+  development in the container). Warm page times against a server on qul-next code: catalog index and
+  spotlight the same, a type page about 70 ms slower. Not cached, by the repo's rule that nothing needs
+  the cache to be correct.
+- A display name is no longer frozen: when an editor adds a resource with the name of an existing one,
+  the existing one gains a qualifier. Its slug does not change.
+- An invalid override is ignored without a message to the editor.
+- `git grep relation_type` still finds the computed link type (`Derived::Link#relation_type`, the
+  `relationType` prop). No code reads or writes the removed column.
+- RuboCop's unsafe autocorrect broke two lines while I cleaned the touched files (`Hash#except` for a
+  `reject`, `String#drop`). Both were caught (the comparison, the standalone tests) and fixed; a reviewer
+  may want to look at `inference.rb`'s style-only changes.
+
 ## Not done / open
+
+- CI on the PR: checked after the push; see the orchestrator report.
+- Fresh-context review owed (orchestrator).
+- Local databases left for re-checking: `qul_cms_content_mdm_base` (old backfill applied),
+  `qul_cms_content_mdm` and the `_test_mdm` pair (this branch's migrations, slugs filled, fake accounts,
+  apps imported, rows from the browser run). Drop them when done.
+- The server on :3001 in `qul-polish` runs this worktree on the shared development clone, which still has
+  the removed columns. The code ignores them.

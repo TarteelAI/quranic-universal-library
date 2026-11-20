@@ -33,6 +33,9 @@ RSpec.configure do |config|
   # config/initializers/hosts.rb limits the allowed hosts in every environment.
   config.before(type: :request) { host! 'localhost' }
 
+  # No request spec calls GitHub: the repository has no contributors unless an example lists them.
+  config.before(type: :request) { allow(GithubService).to receive(:fetch_contributors).and_return([]) }
+
   # The page group setting (PageGroups) for one example group: `page_groups: %w[catalog]` serves
   # the catalog with the new pages, `page_groups: []` serves every group with the old views.
   config.around(:example, :page_groups) do |example|

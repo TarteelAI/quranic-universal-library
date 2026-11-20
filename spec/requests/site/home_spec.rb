@@ -3,9 +3,6 @@
 require 'clone_helper'
 
 RSpec.describe 'Home page (/)', type: :request do
-  # The hero's contributor count adds the repository's GitHub contributors; no spec calls GitHub.
-  before { allow(GithubService).to receive(:contributors_count).and_return(30) }
-
   def json_ld
     JSON.parse(Nokogiri::HTML(response.body).at('script[type="application/ld+json"]').text)
   end
@@ -56,8 +53,17 @@ RSpec.describe 'Home page (/)', type: :request do
         .filter_map { |id, gid| id || gid&.[](%r{/User/(\d+)\z}, 1)&.to_i }
       editors |= ProofReadComment.distinct.pluck(:user_id)
       editors |= UserProject.where(approved: true).distinct.pluck(:user_id)
-      expect(inertia.props[:contributors]).to eq(editors.compact.size + 30)
+      # GitHub is not asked in request specs (clone_helper), so its part is the fallback count.
+      expect(inertia.props[:contributors]).to eq(editors.compact.size + GithubService::FALLBACK_CONTRIBUTORS)
       expect(editors.compact).not_to be_empty
+    end
+
+    it "does not count the contributors again for a card's partial reload" do
+      get '/'
+      expect(GithubService).to have_received(:fetch_contributors).once
+
+      inertia_reload_only(:translationPreview)
+      expect(GithubService).to have_received(:fetch_contributors).once
     end
 
     it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do

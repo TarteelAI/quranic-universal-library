@@ -10,7 +10,8 @@ module Site
 
     def show
       @stats = Catalog::Stats.new.call
-      @contributors = data_contributors + GithubService.contributors_count
+      # Counted when the prop is read: a card's partial reload does not read it.
+      @contributors = method(:contributors)
       @samples = Catalog::Samples.new.call
       @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
       @apps = AppDirectory.apps
@@ -38,6 +39,10 @@ module Site
     end
 
     private
+
+    def contributors
+      data_contributors + GithubService.contributors_count
+    end
 
     # The people who changed the Quran data in the CMS: the users its edits are attributed to
     # (PaperTrailAttribution sets user_id; older rows have only a whodunnit GlobalID), who left a

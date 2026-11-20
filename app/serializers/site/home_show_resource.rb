@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module Site
-  # Props of the home page (Site::HomeController#show): the catalog counts, the contributors, the categories with
-  # their counts, the data showcase, the apps of the apps showcase, three contribution tools, the
-  # guided setup's goals and the first starter kits, and the links that depend on the page groups.
+  # Props of the home page (Site::HomeController#show): the catalog counts, the contributors, the
+  # categories with their counts, the samples of the library cards, the apps of the apps showcase,
+  # three contribution tools, the guided setup's goals and the first starter kits, and the links
+  # that depend on the page groups.
   class HomeShowResource < ApplicationResource
     # The preview each sampled type's card shows a part of (Previews.for), by type.
     PREVIEWS = {
@@ -16,7 +17,7 @@ module Site
 
     attribute(:resources) { |page| page[:stats].resources }
     attribute(:languages) { |page| page[:stats].languages }
-    attribute(:contributors) { |page| page[:contributors] }
+    attribute(:contributors) { |page| page[:contributors].call }
     many :categories, source: proc { self[:stats].categories }, resource: CategoryCountResource
 
     many :samples, resource: SampleResource,

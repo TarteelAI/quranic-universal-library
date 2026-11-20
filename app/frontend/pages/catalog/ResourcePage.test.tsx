@@ -19,6 +19,7 @@ describe('catalog/ResourcePage', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Tafsir Ibn Kathir')
     const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
     expect(within(breadcrumb).getByRole('link', { name: 'Tafsirs' }).getAttribute('href')).toBe('/resources/tafsir')
+    expect(within(breadcrumb).queryByText('Tafsir Ibn Kathir')).toBeNull()
     expect(screen.getByText('Stable')).toBeDefined()
     expect(screen.getAllByText('Licence not yet confirmed').length).toBeGreaterThan(0)
     expect(screen.getByText('English', { selector: 'span' })).toBeDefined()

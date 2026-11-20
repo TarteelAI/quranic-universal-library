@@ -22,7 +22,10 @@ class GithubService
 
     # The repository's contributors, bots left out (GitHub lists at most 100 on one page), or the
     # count on 2026-11-20 when GitHub cannot be reached (as lib/github.ts does for the stars).
+    # Without a cache (development and test) GitHub is not asked: every page would ask it.
     def contributors_count
+      return FALLBACK_CONTRIBUTORS if Rails.cache.is_a?(ActiveSupport::Cache::NullStore)
+
       fetch_contributors(limit: 100).size.nonzero? || FALLBACK_CONTRIBUTORS
     end
 

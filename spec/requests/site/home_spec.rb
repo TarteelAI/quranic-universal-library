@@ -59,11 +59,12 @@ RSpec.describe 'Home page (/)', type: :request do
     end
 
     it "does not count the contributors again for a card's partial reload" do
+      allow(GithubService).to receive(:contributors_count).and_call_original
       get '/'
-      expect(GithubService).to have_received(:fetch_contributors).once
+      expect(GithubService).to have_received(:contributors_count).once
 
       inertia_reload_only(:translationPreview)
-      expect(GithubService).to have_received(:fetch_contributors).once
+      expect(GithubService).to have_received(:contributors_count).once
     end
 
     it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do

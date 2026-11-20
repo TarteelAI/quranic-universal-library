@@ -39,6 +39,14 @@ RSpec.describe GithubService do
     expect(http).to have_received(:request).once
   end
 
+  it 'counts the fallback without asking GitHub when nothing is cached' do
+    Rails.cache = ActiveSupport::Cache::NullStore.new
+    allow(Net::HTTP).to receive(:new)
+
+    expect(described_class.contributors_count).to eq(described_class::FALLBACK_CONTRIBUTORS)
+    expect(Net::HTTP).not_to have_received(:new)
+  end
+
   it 'remembers a request that timed out' do
     allow(Net::HTTP).to receive(:new).and_raise(Net::OpenTimeout)
 

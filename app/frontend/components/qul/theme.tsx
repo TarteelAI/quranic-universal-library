@@ -40,7 +40,8 @@ function ThemeSwitch({ className }: { className?: string }) {
 }
 
 // One button that shows the current choice and moves to the next one (light, dark, system) on
-// each press. Like the switch, it shows no choice on the server and while the page hydrates.
+// each press. On the server and while the page hydrates it shows the system icon, the choice of
+// a visitor who has made none.
 function ThemeCycle({ className }: { className?: string }) {
   const preference = useThemePreference()
   const index = OPTIONS.findIndex((option) => option.value === preference)
@@ -57,7 +58,7 @@ function ThemeCycle({ className }: { className?: string }) {
       onClick={() => chooseTheme(next.value)}
       className={className}
     >
-      {current ? <current.Icon /> : <span className="size-4" />}
+      {current ? <current.Icon /> : <MonitorIcon />}
     </Button>
   )
 }

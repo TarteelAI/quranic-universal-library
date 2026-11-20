@@ -168,8 +168,8 @@ export interface SiteHeaderProps {
 /**
  * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu
  * and a theme button that moves to the next theme. Below lg: a Menu button opens a sheet with
- * the same sections, the theme switch and the account control. The search button (and ⌘K /
- * Ctrl K) opens the spotlight.
+ * the same sections and, pinned at the bottom, the theme switch and the account control. The
+ * search button (and ⌘K / Ctrl K) opens the spotlight.
  */
 function SiteHeader({ className }: SiteHeaderProps) {
   const { url, props } = usePage()
@@ -243,27 +243,29 @@ function SiteHeader({ className }: SiteHeaderProps) {
                   Search resources
                 </button>
                 <MobileNav menus={nav.menus} url={url} onNavigate={closeMenu} />
+              </div>
+              <div className="flex shrink-0 flex-col gap-3 border-t bg-popover px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-sm text-muted-foreground">Theme</span>
                   <ThemeSwitch />
                 </div>
-              </div>
-              <div className="flex shrink-0 items-center gap-3 border-t bg-popover px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                {auth.user ? (
-                  <>
-                    <Initials user={auth.user} className="size-9" />
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium">{auth.user.name}</span>
-                    <SignOutForm>
-                      <Button type="submit" variant="outline">
-                        <LogOutIcon /> Sign out
-                      </Button>
-                    </SignOutForm>
-                  </>
-                ) : (
-                  <Button size="lg" asChild className="flex-1">
-                    <a href={signInUrl(url)}>Sign in</a>
-                  </Button>
-                )}
+                <div className="flex items-center gap-3">
+                  {auth.user ? (
+                    <>
+                      <Initials user={auth.user} className="size-9" />
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{auth.user.name}</span>
+                      <SignOutForm>
+                        <Button type="submit" variant="outline">
+                          <LogOutIcon /> Sign out
+                        </Button>
+                      </SignOutForm>
+                    </>
+                  ) : (
+                    <Button size="lg" asChild className="flex-1">
+                      <a href={signInUrl(url)}>Sign in</a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </DialogContent>
           </Dialog>
@@ -294,8 +296,8 @@ function FooterColumn({ group }: { group: SiteNavGroup }) {
 }
 
 /**
- * Global footer: the logo lockup and tagline, link columns and a bottom bar with the theme switch
- * (from lg up; below lg the switch is in the menu sheet).
+ * Global footer: the logo lockup and tagline, link columns and a bottom bar. The theme controls
+ * are in the header (from lg up) and in the menu sheet (below lg).
  */
 function SiteFooter({ className }: { className?: string }) {
   const { nav } = usePage().props
@@ -315,7 +317,6 @@ function SiteFooter({ className }: { className?: string }) {
       <div className="border-t">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-4 text-xs text-muted-foreground sm:px-6">
           <span>Quranic Universal Library, by Tarteel and contributors.</span>
-          <ThemeSwitch className="hidden lg:inline-flex" />
         </div>
       </div>
     </footer>

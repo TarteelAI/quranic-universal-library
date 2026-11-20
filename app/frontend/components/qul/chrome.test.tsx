@@ -1,11 +1,13 @@
 import { router } from '@inertiajs/react'
 import { fireEvent, screen, within } from '@testing-library/react'
+import { renderToString } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { renderPage } from '@/test/inertia'
 import { signedInAuth } from '@/test/shell'
 
 import { SiteFooter, SiteHeader } from './chrome'
+import { ThemeCycle } from './theme'
 
 const Header = () => <SiteHeader />
 const Footer = () => <SiteFooter />
@@ -17,7 +19,7 @@ describe('SiteHeader', () => {
     document.documentElement.classList.remove('dark')
   })
 
-  it('shows the icon-only logo, the menus, the search button and sign-in, and no theme switch or search field', () => {
+  it('shows the icon-only logo, the menus, the search button and sign-in, and no segmented theme switch or search field', () => {
     renderPage(Header, { props: {}, url: '/resources/tafsir?q=ibn' })
 
     const home = screen.getByRole('link', { name: 'QUL home' })
@@ -52,12 +54,38 @@ describe('SiteHeader', () => {
     expect(localStorage.getItem('qul-theme')).toBe('light')
   })
 
-  it('has the theme switch at the bottom of the menu sheet', () => {
+  it('shows the system icon before the theme is known, as the server renders it', () => {
+    const html = renderToString(<ThemeCycle />)
+
+    expect(html).toContain('aria-label="Theme"')
+    expect(html).toContain('lucide-monitor')
+  })
+
+  it('has the labelled theme switch in the menu sheet, just above the account control', () => {
+    localStorage.setItem('qul-theme', 'dark')
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: false })),
+    )
     renderPage(Header, { props: {} })
 
     fireEvent.click(screen.getByRole('button', { name: 'Menu' }))
-    const sheet = within(screen.getByRole('dialog', { name: 'Menu' }))
-    expect(sheet.getByRole('radiogroup', { name: 'Theme' })).toBeDefined()
+    const sheet = screen.getByRole('dialog', { name: 'Menu' })
+    const theme = within(sheet).getByRole('radiogroup', { name: 'Theme' })
+    // The bar pinned below the scrolling sections: the "Theme" row, then the account control.
+    const bar = theme.parentElement!.parentElement!
+    expect(bar.firstElementChild!.textContent).toBe('Theme')
+    expect(within(bar.lastElementChild as HTMLElement).getByRole('link', { name: 'Sign in' })).toBeDefined()
+    expect(bar.previousElementSibling!.contains(within(sheet).getByRole('button', { name: /^Resources/ }))).toBe(true)
+
+    expect(within(theme).getByRole('radio', { name: 'Dark theme' }).getAttribute('aria-checked')).toBe('true')
+    fireEvent.click(within(theme).getByRole('radio', { name: 'System theme' }))
+    expect(within(theme).getByRole('radio', { name: 'System theme' }).getAttribute('aria-checked')).toBe('true')
+    expect(localStorage.getItem('qul-theme')).toBe('system')
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
+    fireEvent.click(within(theme).getByRole('radio', { name: 'Dark theme' }))
+    expect(localStorage.getItem('qul-theme')).toBe('dark')
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 
   it('shows the signed-in user and signs out with a DELETE form post', () => {
@@ -89,26 +117,10 @@ describe('SiteFooter', () => {
     expect(within(footer).getByText(/Open, verified Quran data and tools\./)).toBeDefined()
   })
 
-  it('switches between the light, dark and system theme and marks the choice', () => {
-    localStorage.setItem('qul-theme', 'dark')
-    vi.stubGlobal(
-      'matchMedia',
-      vi.fn(() => ({ matches: false })),
-    )
+  it('has no theme control: the header and the menu sheet have them', () => {
     renderPage(Footer, { props: {} })
 
-    const theme = within(screen.getByRole('radiogroup', { name: 'Theme' }))
-    expect(theme.getByRole('radio', { name: 'Dark theme' }).getAttribute('aria-checked')).toBe('true')
-
-    fireEvent.click(theme.getByRole('radio', { name: 'System theme' }))
-    expect(theme.getByRole('radio', { name: 'System theme' }).getAttribute('aria-checked')).toBe('true')
-    expect(theme.getByRole('radio', { name: 'Dark theme' }).getAttribute('aria-checked')).toBe('false')
-    expect(localStorage.getItem('qul-theme')).toBe('system')
-    expect(document.documentElement.classList.contains('dark')).toBe(false)
-
-    fireEvent.click(theme.getByRole('radio', { name: 'Dark theme' }))
-    expect(localStorage.getItem('qul-theme')).toBe('dark')
-    expect(document.documentElement.classList.contains('dark')).toBe(true)
+    expect(screen.queryByRole('radiogroup', { name: 'Theme' })).toBeNull()
   })
 
   it('visits a new page with Inertia and loads an old page in full', () => {

@@ -44,12 +44,37 @@ function header(page: Page) {
   return page.getByRole('banner')
 }
 
-// The theme switch: in the footer from lg up, at the bottom of the menu sheet below it (opened here).
-async function themeSwitch(page: Page) {
-  if ((page.viewportSize()?.width ?? 0) >= 1024)
-    return page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })
+type ThemeChoice = 'Light' | 'Dark' | 'System'
+const desktop = (page: Page) => (page.viewportSize()?.width ?? 0) >= 1024
+
+// The theme controls: the header's button from lg up, which moves to the next theme on each
+// press; below lg the switch at the bottom of the menu sheet, opened here and closed again.
+async function chooseTheme(page: Page, choice: ThemeChoice) {
+  if (desktop(page)) {
+    const current = header(page).getByRole('button', { name: new RegExp(`^${choice} theme\\.`) })
+    for (let presses = 0; presses < 2 && !(await current.isVisible()); presses++)
+      await header(page)
+        .getByRole('button', { name: / theme\. Switch to / })
+        .click()
+    return
+  }
   await header(page).getByRole('button', { name: 'Menu' }).click()
-  return page.getByRole('dialog', { name: 'Menu' }).getByRole('radiogroup', { name: 'Theme' })
+  await page
+    .getByRole('dialog', { name: 'Menu' })
+    .getByRole('radio', { name: `${choice} theme` })
+    .click()
+  await page.keyboard.press('Escape')
+}
+
+async function expectTheme(page: Page, choice: ThemeChoice) {
+  if (desktop(page)) {
+    await expect(header(page).getByRole('button', { name: new RegExp(`^${choice} theme\\.`) })).toBeVisible()
+    return
+  }
+  await header(page).getByRole('button', { name: 'Menu' }).click()
+  const sheet = page.getByRole('dialog', { name: 'Menu' })
+  await expect(sheet.getByRole('radio', { name: `${choice} theme` })).toHaveAttribute('aria-checked', 'true')
+  await page.keyboard.press('Escape')
 }
 
 test.describe('site header and footer', () => {
@@ -70,7 +95,7 @@ test.describe('site header and footer', () => {
     await expect(header(page).getByRole('link', { name: 'Sign in' })).toBeVisible()
     await expect(header(page).getByRole('searchbox')).toHaveCount(0)
     await expect(header(page).getByRole('radiogroup', { name: 'Theme' })).toHaveCount(0)
-    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toBeVisible()
+    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toHaveCount(0)
     await expect(header(page).locator('kbd')).toHaveCount(0)
 
     // The header's theme button moves to the next theme and names it
@@ -137,8 +162,12 @@ test.describe('site header and footer', () => {
     await header(page).getByRole('button', { name: 'Menu' }).click()
     const sheet = page.getByRole('dialog', { name: 'Menu' })
     await expect(sheet).toBeVisible()
-    await expect(sheet.getByRole('radiogroup', { name: 'Theme' })).toBeVisible()
-    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toBeHidden()
+    // The theme switch is pinned above the account control, below the scrolling sections.
+    const themeBox = (await sheet.getByRole('radiogroup', { name: 'Theme' }).boundingBox())!
+    const signInBox = (await sheet.getByRole('link', { name: 'Sign in' }).boundingBox())!
+    expect(themeBox.y + themeBox.height).toBeLessThanOrEqual(signInBox.y)
+    expect(signInBox.y - themeBox.y).toBeLessThan(80)
+    await expect(page.getByRole('contentinfo').getByRole('radiogroup', { name: 'Theme' })).toHaveCount(0)
     const listed: string[] = []
     for (const menu of nav.menus) {
       await sheet.getByRole('button', { name: startsWith(menu.label) }).click()
@@ -347,8 +376,7 @@ test.describe('theme', () => {
     )
 
     await hydrated(page)
-    let theme = await themeSwitch(page)
-    await theme.getByRole('radio', { name: 'Light theme' }).click()
+    await chooseTheme(page, 'Light')
     await expect(page.locator('html')).not.toHaveClass(/dark/)
     await page.reload()
     expect(await page.evaluate(() => (window as unknown as { darkBeforeHydration: boolean }).darkBeforeHydration)).toBe(
@@ -356,8 +384,7 @@ test.describe('theme', () => {
     )
     await expect(page.locator('html')).not.toHaveClass(/dark/)
     await hydrated(page)
-    theme = await themeSwitch(page)
-    await expect(theme.getByRole('radio', { name: 'Light theme' })).toHaveAttribute('aria-checked', 'true')
+    await expectTheme(page, 'Light')
 
     await page.emulateMedia({ colorScheme: 'light' })
     await page.evaluate(() => localStorage.removeItem('qul-theme'))
@@ -370,11 +397,10 @@ test.describe('theme', () => {
     await page.emulateMedia({ colorScheme: 'light' })
     await page.goto(PAGE)
     await hydrated(page)
-    let theme = await themeSwitch(page)
-    await theme.getByRole('radio', { name: 'Dark theme' }).click()
+    await chooseTheme(page, 'Dark')
     await expect(page.locator('html')).toHaveClass(/dark/)
 
-    await theme.getByRole('radio', { name: 'System theme' }).click()
+    await chooseTheme(page, 'System')
     await expect(page.locator('html')).not.toHaveClass(/dark/)
     await page.emulateMedia({ colorScheme: 'dark' })
     await expect(page.locator('html')).toHaveClass(/dark/)
@@ -384,8 +410,7 @@ test.describe('theme', () => {
       true,
     )
     await hydrated(page)
-    theme = await themeSwitch(page)
-    await expect(theme.getByRole('radio', { name: 'System theme' })).toHaveAttribute('aria-checked', 'true')
+    await expectTheme(page, 'System')
     await page.emulateMedia({ colorScheme: 'light' })
     await expect(page.locator('html')).not.toHaveClass(/dark/)
   })

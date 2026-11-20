@@ -545,7 +545,8 @@ function PageThumbnail({ page, source }: { page: PreviewsMushafPage; source?: Re
         <p className="truncate text-sm font-medium">
           Page {page.number} of {number(page.pagesCount)}
         </p>
-        {source && <p className="truncate text-sm text-muted-foreground">{source}</p>}
+        {/* Two lines: a layout's name is long for a card one column wide. */}
+        {source && <p className="line-clamp-2 text-sm text-muted-foreground">{source}</p>}
       </div>
       {/* Out of the flow, so the page never sets the height of the well (which spans the rows
           of two cards from md up), and a size container, so the page fits its width and height. */}

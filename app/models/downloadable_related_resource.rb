@@ -16,7 +16,8 @@ class DownloadableRelatedResource < ApplicationRecord
   belongs_to :related_resource, class_name: 'DownloadableResource', optional: true
 
   # No unique index: the table has repeated pairs, and the readers skip them (Catalog::Derived).
-  validates :related_resource_id, uniqueness: { scope: :downloadable_resource_id } # rubocop:disable Rails/UniqueValidationWithoutIndex
+  # Checked on create only, so an existing repeated row can still be saved.
+  validates :related_resource_id, uniqueness: { scope: :downloadable_resource_id }, on: :create # rubocop:disable Rails/UniqueValidationWithoutIndex
 
   # Whether a link is a requires-link is computed from the catalog (Catalog::Derived).
   after_commit { Catalog::Derived.reset }

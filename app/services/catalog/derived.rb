@@ -52,6 +52,11 @@ module Catalog
       Current.catalog = nil
     end
 
+    # An editor's display name (the `display-name` key): a non-blank String, squished.
+    def self.display_name_override(value)
+      value.squish.presence if value.is_a?(String)
+    end
+
     def initialize
       @resources = load_resources
       @by_id = @resources.index_by(&:id)
@@ -200,7 +205,7 @@ module Catalog
 
     def override(field, value, resource)
       case field
-      when :display_name then value.squish.presence if value.is_a?(String)
+      when :display_name then self.class.display_name_override(value)
       when :script_family then choice(value, SCRIPT_FAMILIES)
       when :rendering then choice(value, RENDERINGS)
       when :status then choice(value, STATUSES)

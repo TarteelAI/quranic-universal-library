@@ -22,6 +22,8 @@ agreed for the catalog fields. qul-next now adds nothing to an existing catalog 
   production already has. `catalog:backfill` only fills empty slugs and deletes nothing.
 - `c24eca0d`: the computed name is `catalog_name` on the model, so the CMS labels a resource with its
   plain `name` and does not load the catalog (review finding).
+- Automated review fixes: the uniqueness check on related links runs on create only, so an existing
+  repeated row still saves; a new slug ignores a `display-name` that is not text.
 
 Schema against main: `apps`, `resource_requests`, `resource_request_votes`, their foreign keys and
 `downloadable_files.anonymous_download_count`.
@@ -51,8 +53,6 @@ Schema against main: `apps`, `resource_requests`, `resource_request_votes`, thei
   only: a warm type page is about 70 ms slower. Measure on staging; cache if needed.
 - A display name is not frozen: a new resource with an existing name gives the old one a qualifier. The
   slug stays.
-- The uniqueness check on related links stays while repeated pairs are no longer deleted, so saving an
-  unchanged repeated row in the CMS fails.
 - Environments that ran the old migrations keep the removed columns; the code ignores them. Drop them
   by hand or rebuild the database.
 - The browser specs passed, but not in one parallel run: timeouts on a single development server

@@ -134,7 +134,7 @@ RSpec.describe Catalog::SearchQuery do
     end
 
     it 'filters by status, and stable keeps the recommended resources' do
-      recommended = published.where(resource_type: 'translation').order(:id).first
+      recommended = published.where(resource_type: 'translation').order(:id).find(&:stable?)
       override_catalog(recommended, 'recommended' => true)
       legacy = published_ids(&:legacy?)
       expect(legacy).not_to be_empty

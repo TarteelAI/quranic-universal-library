@@ -47,7 +47,8 @@ module CatalogFields
 
   # A new resource's slug comes from the name the editor gave it.
   def assign_slug
-    name = meta_value(Catalog::Derived::OVERRIDES.fetch(:display_name)).presence || self.name
+    override = meta_value(Catalog::Derived::OVERRIDES.fetch(:display_name))
+    name = Catalog::Derived.display_name_override(override) || self.name
     self.slug = Catalog::Slugs.generate(name, resource_type) do |candidate|
       DownloadableResource.where.not(id: id).exists?(slug: candidate)
     end

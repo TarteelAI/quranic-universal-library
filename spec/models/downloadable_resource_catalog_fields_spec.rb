@@ -32,6 +32,14 @@ RSpec.describe DownloadableResource do
             counted.slug,]).to eq(['catalog-spec-taken', 'catalog-spec-taken-font', 'catalog-spec-taken-font-2'])
   end
 
+  it 'gets a slug from a display-name override, and from its name when the override is not text' do
+    first, second = free_contents.first(2)
+    named = create_resource('Catalog Spec Plain', first, meta_data: { 'display-name' => ' Catalog  Spec Shown ' })
+    listed = create_resource('Catalog Spec Listed', second, meta_data: { 'display-name' => ['Catalog Spec Array'] })
+
+    expect([named.slug, listed.slug]).to eq(['catalog-spec-shown', 'catalog-spec-listed'])
+  end
+
   it 'treats a blank slug as none and refuses an all-digit slug' do
     expect(create_resource('Catalog Spec Blank', free_contents.first, slug: '  ').slug).to eq('catalog-spec-blank')
 

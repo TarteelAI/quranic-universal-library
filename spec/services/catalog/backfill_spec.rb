@@ -37,7 +37,9 @@ RSpec.describe Catalog::Backfill do
 
   it 'writes nothing but slugs: no name, link or tagging changes, and no row is deleted' do
     tables = { 'downloadable_resources' => "id || ':' || coalesce(name, '') || coalesce(meta_data::text, '')",
-               'downloadable_related_resources' => 'id', 'downloadable_resource_taggings' => 'id', }
+               'downloadable_related_resources' => "concat_ws(':', id, downloadable_resource_id, related_resource_id)",
+               'downloadable_resource_taggings' =>
+                 "concat_ws(':', id, downloadable_resource_id, downloadable_resource_tag_id)", }
     before = tables.to_h { |table, columns| [table, checksum(table, columns)] }
 
     described_class.run

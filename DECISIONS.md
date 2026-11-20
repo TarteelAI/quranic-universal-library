@@ -85,8 +85,9 @@ them is in [`AGENTS.md`](AGENTS.md).
   recommended flag, the requires-link from a layout or glyph script to its font, and the summary
   of a resource without one are computed from the catalog on each request (`Catalog::Derived`,
   rules in `Catalog::Inference` and `Catalog::DisplayNames`). No column holds them, and the new
-  pages add no column to `downloadable_resources` or `downloadable_related_resources`. The slug is
-  the one stored value, in the column that already existed, because a URL must not change.
+  pages add no column to `downloadable_resources` or `downloadable_related_resources`. The stored
+  values are the slug, because a URL must not change, and an editor's `short_summary`, both in
+  columns that already existed.
 - **Why:** the values are copies of facts the data already has (content meta keys, the mushaf,
   the resource name). A stored copy needs a migration and a backfill at cutover, and it goes stale
   for every resource added later. Computed values need neither, and a new resource is right at

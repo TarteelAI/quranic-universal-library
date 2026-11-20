@@ -20,6 +20,8 @@ describe('catalog/ResourcePage', () => {
     const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' })
     expect(within(breadcrumb).getByRole('link', { name: 'Tafsirs' }).getAttribute('href')).toBe('/resources/tafsir')
     expect(within(breadcrumb).queryByText('Tafsir Ibn Kathir')).toBeNull()
+    // No icon box beside the title column: the eyebrow shows the type's icon.
+    expect(screen.getByRole('heading', { level: 1 }).parentElement!.previousElementSibling).toBeNull()
     expect(screen.getByText('Stable')).toBeDefined()
     expect(screen.getAllByText('Licence not yet confirmed').length).toBeGreaterThan(0)
     expect(screen.getByText('English', { selector: 'span' })).toBeDefined()

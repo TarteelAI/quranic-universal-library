@@ -156,12 +156,7 @@ export default function ResourcePage(props: CatalogResourcesShow) {
             { label: 'Resources', href: catalog.index().url },
             { label: type.title, href: catalogType(type.key).url },
           ]}
-          // The eyebrow repeats the type icon, so on a phone the title takes the full width instead.
-          icon={
-            <span className="hidden sm:block">
-              <ResourceIcon category={type.category.key} size="xl" />
-            </span>
-          }
+          // No leading icon: the eyebrow shows the type's icon, and the title takes the full width.
           eyebrow={
             <>
               <span className="inline-flex items-center gap-1.5 font-medium text-foreground">

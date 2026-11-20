@@ -169,27 +169,30 @@ test('the open tab is in the URL, Back and Forward follow it, and a tab URL load
   const { path } = fixtures.plain
   await page.goto(path)
   await hydrated(page)
-  await expect(page.getByRole('tab', { name: 'Preview' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('tab', { name: 'Data' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('region', { name: 'Overview' }).getByText('Granularity')).toBeVisible()
   await expect(page.getByTestId('text-preview')).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Changelog' })).toHaveCount(0)
+  // The tab bar is no scroll container: it scrolls neither way.
+  const tabList = page.getByRole('tablist')
+  expect(await tabList.evaluate((list) => getComputedStyle(list).overflowY)).toBe('visible')
 
-  await page.getByRole('tab', { name: 'Data' }).click()
-  await expect(page).toHaveURL(new RegExp(`${path}\\?tab=data$`))
-  await expect(page.getByRole('tabpanel').getByText('Granularity')).toBeVisible()
+  await page.getByRole('tab', { name: 'Licence' }).click()
+  await expect(page).toHaveURL(new RegExp(`${path}\\?tab=licence$`))
+  await expect(page.getByRole('tabpanel').getByRole('heading', { name: 'Licence not yet confirmed' })).toBeVisible()
 
   await page.goBack()
   await expect(page).toHaveURL(new RegExp(`${path}$`))
-  await expect(page.getByRole('tab', { name: 'Preview' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('tab', { name: 'Data' })).toHaveAttribute('aria-selected', 'true')
   await page.goForward()
-  await expect(page.getByRole('tab', { name: 'Data' })).toHaveAttribute('aria-selected', 'true')
-
-  await page.goto(`${path}?tab=data`)
-  await expect(page.getByRole('tab', { name: 'Data' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByRole('tabpanel').getByText('Granularity')).toBeVisible()
-
-  await page.goto(`${path}?tab=licence`)
   await expect(page.getByRole('tab', { name: 'Licence' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByRole('tabpanel').getByRole('heading', { name: 'Licence not yet confirmed' })).toBeVisible()
+
+  // The old Preview and Data tab URLs open Data.
+  for (const old of ['preview', 'data']) {
+    await page.goto(`${path}?tab=${old}`)
+    await expect(page.getByRole('tab', { name: 'Data' })).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByRole('region', { name: 'Overview' }).getByText('Granularity')).toBeVisible()
+  }
 })
 
 test('the Docs tab holds the format guide, opens from ?tab=docs on load and on Back, and the old docs URL redirects to it', async ({

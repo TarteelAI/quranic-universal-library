@@ -33,7 +33,6 @@ test.describe('type pages', () => {
     expect(await isInertiaPage(page)).toBe(true)
 
     // The resource guide is a new docs page while the content group is on.
-    await page.goto(`${new URL(page.url()).pathname}?tab=data`)
     await page.getByRole('link', { name: 'the tafsir guide' }).click()
     await expect(page).toHaveURL(/\/docs\/resource-tafsirs$/)
     await page.waitForLoadState()

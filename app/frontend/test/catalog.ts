@@ -21,7 +21,7 @@ const tafsir = {
   title: 'Tafsirs',
   summary: 'Short and detailed commentaries.',
   description: 'Commentaries on the Quran in many languages.',
-  category: { key: 'tafsir', label: 'Tafsir and commentary' },
+  category: { key: 'tafsir', label: 'Tafsir' },
 } satisfies CatalogType
 
 // Props of catalog/TypePage, shaped like Catalog::TypesShowResource.
@@ -310,8 +310,8 @@ export const resourcePageProps: CatalogResourcesShow = {
     },
   ],
   facts: [
-    { label: 'Type', value: 'Tafsir' },
     { label: 'Granularity', value: 'Ayah by Ayah' },
+    { label: 'Language', value: 'English' },
     { label: 'Formats', value: 'SQLite, JSON' },
   ],
   worksWith: [
@@ -367,7 +367,7 @@ export const resourcePageProps: CatalogResourcesShow = {
     },
   ],
   codeSample: { kind: 'code', html: null, language: null, label: 'JSON', code: '{ "2:4": "2:3" }' },
-  tab: 'preview',
+  tab: 'data',
   downloadMode: 'sign_in',
   download: null,
   issueUrl:

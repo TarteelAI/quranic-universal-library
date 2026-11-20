@@ -91,14 +91,16 @@ RSpec.describe 'Home page (/)', type: :request do
 
     describe 'the library cards' do
       let(:preview_props) do
-        [:recitationPreview, :mushafLayoutPreview, :translationPreview, :morphologyPreview, :ayahTopicsPreview]
+        [:recitationPreview, :mushafLayoutPreview, :quranScriptPreview, :translationPreview, :tafsirPreview,
+         :morphologyPreview, :ayahTopicsPreview, :quranMetadataPreview,]
       end
 
       it 'holds one sample per sampled type, each a published resource of its type, with no preview at first' do
         get '/'
 
         samples = inertia.props[:samples]
-        expect(samples.pluck(:type)).to eq(['recitation', 'mushaf-layout', 'translation', 'morphology', 'ayah-topics'])
+        expect(samples.pluck(:type)).to eq(['recitation', 'mushaf-layout', 'quran-script', 'translation', 'tafsir',
+                                            'morphology', 'ayah-topics', 'quran-metadata',])
         samples.each do |sample|
           resource = Catalog::ResourcePage.find(sample[:toParam])
           expect(resource).to have_attributes(published: true, resource_type: sample[:type])
@@ -115,8 +117,8 @@ RSpec.describe 'Home page (/)', type: :request do
         samples = inertia.props[:samples].index_by { |sample| sample[:type] }
 
         { recitationPreview: ['recitation', 'recitation'], mushafLayoutPreview: ['mushaf-layout', 'layout'],
-          translationPreview: ['translation', 'text'], morphologyPreview: ['morphology', 'records'],
-          ayahTopicsPreview: ['ayah-topics', 'records'], }
+          morphologyPreview: ['morphology', 'records'], ayahTopicsPreview: ['ayah-topics', 'records'],
+          quranMetadataPreview: ['quran-metadata', 'records'], }
           .each do |prop, (type, kind)|
           inertia_reload_only(prop)
           expect(inertia.props.keys.map(&:to_sym) - [:errors, :head]).to eq([prop])
@@ -130,6 +132,61 @@ RSpec.describe 'Home page (/)', type: :request do
         end
       end
 
+      it 'shows ayah 1:2 in a Madani, an IndoPak and a tajweed script, as their catalog cards do' do
+        get '/'
+        inertia_reload_only(:quranScriptPreview)
+
+        cards = inertia.props[:quranScriptPreview].as_json
+        expect(cards['kind']).to eq('cards')
+        expect(cards['cards'].pluck('label')).to eq(['Madani', 'IndoPak', 'Tajweed'])
+        cards['cards'].zip(['text_qpc_hafs', 'text_indopak_nastaleeq', 'text_uthmani_tajweed']) do |card, text_type|
+          resource = Catalog::ResourcePage.find(card['toParam'])
+          expect(resource).to have_attributes(published: true, resource_type: 'quran-script',
+                                              cardinality_type: '1_ayah',)
+          expect(resource.resource_content.meta_value('text-type')).to eq(text_type)
+          expect(card['preview']).to eq(JSON.parse(Previews::Card.for(resource).to_json))
+          expect(card['preview']['fonts']).to be_present
+        end
+        expect(cards['cards'].last['preview']['rendering']).to eq('html')
+      end
+
+      it 'shows ayah 1:2 in the sample and the first translations of other languages, as catalog cards do' do
+        get '/'
+        sample = inertia.props[:samples].find { |candidate| candidate[:type] == 'translation' }
+        inertia_reload_only(:translationPreview)
+
+        cards = inertia.props[:translationPreview].as_json['cards']
+        expect(cards.size).to eq(Site::HomeShowResource::LANGUAGES)
+        expect(cards.first['toParam']).to eq(sample[:toParam])
+        resources = cards.map { |card| Catalog::ResourcePage.find(card['toParam']) }
+        languages = resources.map { |resource| resource.resource_content.language }
+        expect(languages.uniq.size).to eq(cards.size)
+        expect(cards.pluck('label')).to eq(languages.map(&:name))
+        expect(languages.map(&:direction)).to include('rtl')
+        cards.zip(resources) do |card, resource|
+          expect(resource).to have_attributes(published: true, resource_type: 'translation', cardinality_type: '1_ayah')
+          # Read in two queries, the same as the catalog card's own preview.
+          expect(card['preview']).to eq(JSON.parse(Previews::Card.for(resource).to_json))
+        end
+      end
+
+      it "shows the start of the tafsir sample's entry for ayah 1:1" do
+        get '/'
+        sample = inertia.props[:samples].find { |candidate| candidate[:type] == 'tafsir' }
+        inertia_reload_only(:tafsirPreview)
+
+        preview = inertia.props[:tafsirPreview].as_json
+        expect(preview).to include('kind' => 'text', 'surahs' => [])
+        expect(preview['entries'].size).to eq(1)
+        entry = preview['entries'].first
+        resource = Catalog::ResourcePage.find(sample[:toParam])
+        full = Previews.for(resource, { 'surah' => '1', 'from' => '1', 'to' => '1' }).entries.first
+        expect(entry['key']).to eq(full.key)
+        expect(entry['text']).to be_present
+        expect(full.text).to start_with(entry['text'])
+        expect(entry['text'].size).to be <= Site::HomeShowResource::TAFSIR_LIMIT
+      end
+
       it 'leaves out the sample of a type with no published resource, and still renders the page' do
         DownloadableResource.where(resource_type: 'morphology').update_all(published: false)
 
@@ -137,7 +194,8 @@ RSpec.describe 'Home page (/)', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(inertia.props[:samples].pluck(:type))
-          .to eq(['recitation', 'mushaf-layout', 'translation', 'ayah-topics'])
+          .to eq(['recitation', 'mushaf-layout', 'quran-script', 'translation', 'tafsir', 'ayah-topics',
+                  'quran-metadata',])
         inertia_reload_only(:morphologyPreview)
         expect(inertia.props[:morphologyPreview]).to be_nil
       end

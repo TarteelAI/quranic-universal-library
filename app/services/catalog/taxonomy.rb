@@ -14,7 +14,7 @@ module Catalog
       Category.new(key: 'layout', label: 'Mushaf layouts', hint: 'Printed mushaf page layouts'),
       Category.new(key: 'script', label: 'Script and fonts', hint: 'Quran text and fonts'),
       Category.new(key: 'translation', label: 'Translation', hint: 'Many languages, word by word too'),
-      Category.new(key: 'tafsir', label: 'Tafsir and commentary', hint: 'Commentaries and surah introductions'),
+      Category.new(key: 'tafsir', label: 'Tafsir', hint: 'Commentaries and surah introductions'),
       Category.new(key: 'linguistics', label: 'Linguistics', hint: 'Roots, lemmas and grammar'),
       Category.new(key: 'topics', label: 'Topics and themes', hint: 'Topics, themes and similar ayahs'),
       Category.new(key: 'metadata', label: 'Metadata', hint: 'Surah, juz, hizb and page data'),

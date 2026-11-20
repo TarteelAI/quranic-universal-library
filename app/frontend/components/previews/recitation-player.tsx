@@ -43,14 +43,22 @@ export function usePlayer(tracks: string[]) {
 
   function load(index: number) {
     const element = audio.current!
-    if (element.getAttribute('src') !== tracks[index]) element.src = tracks[index]
+    if (element.getAttribute('src') !== tracks[index]) {
+      element.src = tracks[index]
+      // The old file's length would otherwise hold until the new file's metadata loads.
+      setDuration(0)
+    }
     setTrack(index)
     return element
   }
 
   function play(index = track, at?: number) {
     const element = load(index)
-    if (at !== undefined) element.currentTime = at / 1000
+    // Set the position with the track, so no frame pairs the new track with the old position.
+    if (at !== undefined) {
+      element.currentTime = at / 1000
+      setMs(at)
+    }
     void element.play()
   }
 

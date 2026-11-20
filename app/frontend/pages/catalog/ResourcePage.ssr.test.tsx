@@ -21,9 +21,9 @@ describe('catalog/ResourcePage on the server', () => {
   it('renders the Data and Docs tabs from the format doc', async () => {
     const data = await renderPageOnServer(ResourcePage, {
       props: { ...resourcePageProps, tab: 'data' },
-      url: '/resources/tafsir/tafsir-ibn-kathir?tab=data',
+      url: '/resources/tafsir/tafsir-ibn-kathir',
     })
-    expect(data.body).toContain('the ayah this row is for.')
+    expect(data.body).toContain('>ayah_key<')
     // The download URL has no origin on the server; the browser adds it after hydration.
     expect(data.body).toContain('>/resources/tafsir/tafsir-ibn-kathir/download/11<')
 

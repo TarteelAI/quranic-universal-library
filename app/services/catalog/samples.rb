@@ -13,11 +13,17 @@ module Catalog
     TYPES = {
       'recitation' => { cardinality_type: '1_chapter' },
       'mushaf-layout' => {},
+      'quran-script' => { cardinality_type: '1_ayah' },
       'translation' => { cardinality_type: '1_ayah' },
+      'tafsir' => {},
       'morphology' => {},
       'ayah-topics' => {},
+      'quran-metadata' => { cardinality_type: '1_chapter' },
     }.freeze
     STATUSES = ['stable', 'beta'].freeze
+    # The scripts the script card shows side by side, by the text type their meta names.
+    SCRIPTS = { 'text_qpc_hafs' => 'Madani', 'text_indopak_nastaleeq' => 'IndoPak',
+                'text_uthmani_tajweed' => 'Tajweed', }.freeze
 
     # Type => DownloadableResource.
     def call
@@ -31,7 +37,35 @@ module Catalog
       end.slice(*TYPES.keys)
     end
 
+    # [label, resource] for each of SCRIPTS that has a published ayah-by-ayah script: the first
+    # of its text type as `call` ranks them, downloads aside.
+    def scripts
+      resources = DownloadableResource.published.where(resource_type: 'quran-script', **TYPES['quran-script'])
+        .order(:id).preload(:resource_content).select { |resource| STATUSES.include?(resource.status) }
+      by_text_type = resources.group_by { |resource| resource.resource_content&.meta_value('text-type') }
+      SCRIPTS.filter_map do |text_type, label|
+        by_text_type[text_type]&.min_by { rank(_1, Set.new, {}) }&.then { [label, _1] }
+      end
+    end
+
+    # The first translation of each language as `call` ranks them, the languages in the order of
+    # those translations' ranks (so the sample's own comes first), at most `limit`.
+    def translations(limit)
+      candidates = translation_candidates
+      downloads = downloads(candidates)
+      rank = ->(resource) { rank(resource, Set.new, downloads) }
+      candidates.group_by { |resource| resource.resource_content.language_id }
+        .values.map { |resources| resources.min_by(&rank) }.sort_by(&rank).first(limit)
+    end
+
     private
+
+    # The published ayah-by-ayah translations a sample can be, with their language.
+    def translation_candidates
+      DownloadableResource.published.where(resource_type: 'translation', **TYPES['translation'])
+        .preload(resource_content: :language)
+        .select { |resource| STATUSES.include?(resource.status) && resource.resource_content&.language }
+    end
 
     def rank(resource, timed, downloads)
       [resource.recommended ? 0 : 1, STATUSES.index(resource.status),

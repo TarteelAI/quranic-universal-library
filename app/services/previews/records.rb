@@ -13,6 +13,8 @@ module Previews
     # The exporter's thresholds (Exporter::DownloadableResources, Exporter::ExportMutashabihat).
     MIN_MATCH_SCORE = 50
     MIN_PHRASE_WORDS = 3
+    # A well-known theme with ayahs in many surahs.
+    FEATURED_TOPIC = 'Mercy'
     # Quran metadata records by the resource's cardinality: the model and its number column.
     DIVISIONS = {
       '1_juz' => [Juz, :juz_number, 'Juz'], '1_hizb' => [Hizb, :hizb_number, 'Hizb'],
@@ -88,13 +90,16 @@ module Previews
       end
     end
 
+    # The featured topic first (the home page's topics card shows it), then the others by id. The
+    # ayahs shown start with the first of each surah, so they are not all from one surah.
     def topics
-      topics = Topic.order(:id).limit(LIMIT).to_a
+      topics = Topic.in_order_of(:name, [FEATURED_TOPIC], filter: false).order(:id).limit(LIMIT).to_a
       keys = VerseTopic.joins(:verse).where(topic_id: topics.map(&:id)).order('verses.verse_index')
                        .pluck(:topic_id, 'verses.verse_key').group_by(&:first)
       topics.map do |topic|
         ayahs = keys.fetch(topic.id, []).map(&:second)
-        tags = ayahs.first(5) + (ayahs.size > 5 ? ["#{ayahs.size - 5} more ayahs"] : [])
+        shown = (ayahs.uniq { |key| key.split(':').first } + ayahs).uniq.first(5)
+        tags = shown + (ayahs.size > 5 ? ["#{ayahs.size - 5} more ayahs"] : [])
         record(topic.id, topic.name, arabic: topic.arabic_name.presence, html: topic.description.presence, tags:)
       end
     end
@@ -158,7 +163,7 @@ module Previews
 
     def surahs_metadata
       Chapter.order(:id).limit(LIMIT).map do |chapter|
-        text = "#{chapter.verses_count} ayahs, revealed in #{chapter.revelation_place}"
+        text = "#{chapter.verses_count} ayahs, revealed in #{chapter.revelation_place.to_s.capitalize}"
         record(chapter.id, "#{chapter.id}. #{chapter.name_simple}", arabic: chapter.name_arabic, text:)
       end
     end

@@ -191,7 +191,7 @@ RSpec.describe 'Audio, text and record previews', type: :request, page_groups: %
       preview = previews.values.first
       expect(preview[:surah]).to be_nil
       expect(preview[:records].size).to eq(Previews::Records::LIMIT)
-      featured = Topic.find_by(name: Previews::Records::FEATURED_TOPIC) || Topic.order(:id).first
+      featured = Topic.where(name: Previews::Records::FEATURED_TOPIC).order(:id).first!
       expect(preview[:records].first).to include(label: featured.name)
       surahs = preview[:records].first[:tags].grep(/\A\d+:\d+\z/).map { |key| key.split(':').first }
       covered = VerseTopic.joins(:verse).where(topic: featured).distinct.count('verses.chapter_id')

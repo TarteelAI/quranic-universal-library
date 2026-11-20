@@ -163,7 +163,7 @@ module Previews
 
     def surahs_metadata
       Chapter.order(:id).limit(LIMIT).map do |chapter|
-        text = "#{chapter.verses_count} ayahs, revealed in #{chapter.revelation_place}"
+        text = "#{chapter.verses_count} ayahs, revealed in #{chapter.revelation_place.to_s.capitalize}"
         record(chapter.id, "#{chapter.id}. #{chapter.name_simple}", arabic: chapter.name_arabic, text:)
       end
     end

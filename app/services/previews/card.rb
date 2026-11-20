@@ -48,6 +48,29 @@ module Previews
       SERIALIZERS[preview.class]&.new(preview)&.serializable_hash
     end
 
+    # [resource, props] for each ayah-by-ayah translation that has the card's ayah, read in two
+    # queries rather than a preview each: the home page's translation card shows the ayah in
+    # several. Preload each resource's content and language.
+    def self.translations(resources)
+      verse = Verse.select(:id, :verse_key, :verse_number, :text_uthmani)
+        .find_by!(chapter_id: QUERY['surah'].to_i, verse_number: QUERY['from'].to_i)
+      texts = Translation.where(verse_id: verse.id, resource_content_id: resources.map(&:resource_content_id))
+        .pluck(:resource_content_id, :text).to_h
+      resources.filter_map do |resource|
+        text = texts[resource.resource_content_id] or next
+        [resource, CardTextResource.new(text_preview(verse, resource, text)).serializable_hash]
+      end
+    end
+
+    # A Previews::Text preview of one ayah-by-ayah entry, as Previews::Text builds it.
+    def self.text_preview(verse, resource, text)
+      ayah = Text::AyahText.new(key: verse.verse_key, text: verse.text_uthmani)
+      entry = Text::Entry.new(key: verse.verse_key, ayahs: [ayah], text: Previews.sanitize(text), truncated: false,
+                              footnotes: [], words: [],)
+      Text::Preview.new(granularity: 'ayah', locale: Previews.locale(resource.resource_content, 'und'), surah: nil,
+                        surahs: [], from: verse.verse_number, to: verse.verse_number, entries: [entry],)
+    end
+
     def self.empty?(preview)
       case preview
       when Text::Preview then preview.entries.empty?

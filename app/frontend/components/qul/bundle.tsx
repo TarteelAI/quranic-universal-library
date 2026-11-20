@@ -288,7 +288,7 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
 /**
  * The header's Bundle button with the count, and the tray it opens. The button is hidden while
  * the bundle is empty (on the server and while hydrating too, so the HTML matches) and stays
- * while the tray is open.
+ * while the tray is open. When the tray closes on an empty bundle, the focus moves to <main>.
  */
 export function BundleTray({ className }: { className?: string }) {
   const ids = useBundle()
@@ -319,7 +319,16 @@ export function BundleTray({ className }: { className?: string }) {
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent side="right" className="bg-background">
+      <DialogContent
+        side="right"
+        className="bg-background"
+        onCloseAutoFocus={(event) => {
+          // The button is hidden once the bundle is empty, so the page content takes the focus.
+          if (ids.length > 0) return
+          event.preventDefault()
+          document.querySelector('main')?.focus({ preventScroll: true })
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Bundle</DialogTitle>
           <DialogDescription>

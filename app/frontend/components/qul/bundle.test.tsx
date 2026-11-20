@@ -256,10 +256,18 @@ describe('the bundle tray', () => {
     expect(signedIn.queryByText(/need a free account/)).toBeNull()
   })
 
-  it('keeps the open tray when its last resource is removed, says so, and hides the button on close', async () => {
+  it('keeps the open tray when its last resource is removed, says so, and on close hides the button and focuses the page', async () => {
     window.localStorage.setItem(BUNDLE_KEY, JSON.stringify([1]))
     answer([ibnKathir])
-    renderPage(() => <BundleTray />, { props: {} })
+    renderPage(
+      () => (
+        <>
+          <BundleTray />
+          <main tabIndex={-1} />
+        </>
+      ),
+      { props: {} },
+    )
 
     const tray = within(openTray())
     fireEvent.click(await tray.findByRole('button', { name: 'Remove Tafsir Ibn Kathir from bundle' }))
@@ -267,6 +275,7 @@ describe('the bundle tray', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' })
     await waitFor(noButton)
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('main')))
   })
 
   it('says so when the lookup fails', async () => {

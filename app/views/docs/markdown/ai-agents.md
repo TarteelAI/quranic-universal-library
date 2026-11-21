@@ -1,6 +1,9 @@
 # AI Agents (MCP)
 
-AI assistants such as Claude can look up QUL resources directly through the [Model Context Protocol](https://modelcontextprotocol.io) (MCP). The assistant then quotes ayahs, translations and tafsir from QUL instead of recalling them from memory, and names the source.
+AI assistants such as Claude can use QUL resources directly through the [Model Context Protocol](https://modelcontextprotocol.io) (MCP). This helps with two things:
+
+- **Building apps with Islamic content.** A coding agent can look up the real resource IDs, scripts, response shapes and audio sources while it writes your app, instead of guessing them or inventing placeholder text.
+- **Answering questions.** The assistant quotes ayahs, translations and tafsir from QUL instead of recalling them from memory, and names the source.
 
 > **Community-maintained.** [qul-mcp](https://github.com/kzroo/qul-mcp) is an open-source MCP server built by a QUL user, not by Tarteel. It reads the same endpoints the QUL website uses, which are still in design (see [API](api.md)), so its tools may change as the API does.
 
@@ -54,7 +57,25 @@ Add the server to your client's MCP configuration:
 
 To point it at a local QUL instance (see [Project Setup](project-setup.md)), set `QUL_API_BASE_URL=http://localhost:3000/api/v1`.
 
-## Example Prompts
+## Building Apps
+
+With the server connected, a coding agent can work out what your app needs from QUL as it builds:
+
+- Pick resources by language and author, with real IDs, for example the Urdu translations or the tafsirs available in Indonesian.
+- See the exact data each script, translation and word-by-word field returns, including right-to-left text and footnote markup, before writing code against it.
+- Find recitations that have ayah timings, for audio players that highlight each ayah as it is recited.
+- Fill screens and tests with real Quran text from QUL rather than placeholder text.
+
+For production, decide where your app gets its data. Download the datasets your app needs from the [Resources](https://qul.tarteel.ai/resources) page and bundle or host them (see [Downloading & Using Data](downloading-data.md)), or call the API with caching, keeping in mind that it is still in design.
+
+Example prompts:
+
+- "Build a React Native ayah-of-the-day widget showing the Arabic in Uthmani script with the Saheeh International translation."
+- "Add a word-by-word view to my Next.js Quran reader with English meanings and transliteration."
+- "Build a recitation player for Surah Al-Mulk that highlights each ayah as Mishary Alafasy recites it."
+- "Add a screen that shows the Tafsir Ibn Kathir entry for whichever ayah the user taps, with the full text."
+
+## Example Questions
 
 - "Show 2:255 in Uthmani script with the Saheeh International translation."
 - "Compare three English translations of 112:1."
@@ -64,7 +85,7 @@ To point it at a local QUL instance (see [Project Setup](project-setup.md)), set
 
 ## Licensing
 
-The assistant fetches data through the API rather than bundling datasets. If you build something that stores or redistributes what it fetches, check each resource's license on the [Resources](https://qul.tarteel.ai/resources) page first, as you would for a download.
+Translations, tafsirs and recitations each have their own license. Before an app stores, bundles or redistributes any of them, check that resource's license on the [Resources](https://qul.tarteel.ai/resources) page, just as you would for a download.
 
 ## Issues
 

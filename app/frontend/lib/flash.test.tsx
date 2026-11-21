@@ -48,6 +48,9 @@ describe('the flash as toasts', () => {
     renderPage(Page, { props: {}, flash: { notice: 'Signed in successfully.', alert: 'The link has expired.' } })
 
     await waitFor(() => expect(shown()).toHaveLength(2))
+    // StrictMode mounts the Toaster twice, which closes the toasts of the first mount: the same
+    // two, shown again, stay.
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 600)))
     expect(shown().sort()).toEqual(['Signed in successfully.', 'The link has expired.'])
     expect(toasts().querySelector('[data-type="success"]')?.textContent).toBe('Signed in successfully.')
     expect(toasts().querySelector('[data-type="error"]')?.textContent).toBe('The link has expired.')

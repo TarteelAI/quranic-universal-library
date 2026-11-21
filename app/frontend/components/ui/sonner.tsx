@@ -15,7 +15,14 @@ function Toaster(props: ToasterProps) {
 
   // Sonner replays the toasts still open to a Toaster that mounts, and each Inertia visit mounts
   // the page shell again: a toast left open would show again, for its full time, on every page.
-  React.useEffect(() => () => void toast.dismiss(), [])
+  // Each is closed by its id: sonner then keeps a toast that is shown again at once under the
+  // same id, as StrictMode's second mount does.
+  React.useEffect(
+    () => () => {
+      for (const open of toast.getToasts()) toast.dismiss(open.id)
+    },
+    [],
+  )
 
   return (
     <Sonner

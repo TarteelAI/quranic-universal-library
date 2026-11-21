@@ -155,7 +155,8 @@ module V1
 
     def per_page
       items = params[:per_page].to_i.abs
-      [items | 10, 286].min
+      items = 10 if items.zero?
+      [items, 286].min
     end
   end
 end

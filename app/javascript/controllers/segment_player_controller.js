@@ -214,7 +214,7 @@ export default class extends Controller {
     const from = QuranUtils.getAyahNumberFromVerseKey(verseKey);
 
     try {
-      const response = await fetch(`/api/v1/chapters/${chapter}/verses?words=true&from=${from}&per_page=5`);
+      const response = await fetch(`/api/v1/chapters/${chapter}/verses?words=true&from=${from}&per_page=15`);
       const data = await response.json();
 
       for (const verse of data.verses) {

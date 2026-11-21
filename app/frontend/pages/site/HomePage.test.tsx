@@ -3,7 +3,7 @@ import { act, fireEvent, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { hydratePage, renderPage } from '@/test/inertia'
-import { layoutPreview } from '@/test/previews'
+import { cardFontPreview, layoutPreview } from '@/test/previews'
 import { homePageProps } from '@/test/site'
 import type { SiteSampleCard } from '@/types/serializers'
 
@@ -241,6 +241,12 @@ describe('site/HomePage', () => {
           cards: [
             scriptCard('Madani', 'qpc-hafs', 'text', 'ٱلْحَمْدُ لِلَّهِ'),
             scriptCard('Tajweed', 'qpc-tajweed', 'html', 'ٱلْحَمْدُ <rule class="ham_wasl">ٱ</rule>'),
+            {
+              label: 'Surah names',
+              name: 'Surah name font',
+              toParam: 'surah-name-font',
+              preview: { ...cardFontPreview, text: 'surah001' },
+            },
           ],
         },
         tafsirPreview: {
@@ -287,10 +293,14 @@ describe('site/HomePage', () => {
 
     // Each script in its own font, the tajweed rules kept for their colours; the fonts' rules on the page.
     const lines = script.querySelectorAll('[data-script]')
-    expect([...lines].map((line) => line.getAttribute('data-script'))).toEqual(['Madani', 'Tajweed'])
+    expect([...lines].map((line) => line.getAttribute('data-script'))).toEqual(['Madani', 'Tajweed', 'Surah names'])
     expect(lines[0].querySelector('span[style]')!.getAttribute('style')).toContain('qpc-hafs')
     expect(lines[1].querySelector('.tajweed rule.ham_wasl')).not.toBeNull()
     expect(script.querySelector('style')!.textContent).toContain('https://cdn.test/qpc-tajweed.woff2')
+    // A font's line is its sample text, drawn in the font.
+    const name = lines[2].querySelector('p')!
+    expect(name.textContent).toBe('surah001')
+    expect(name.getAttribute('style')).toContain(cardFontPreview.font.family)
 
     const excerpt = within(tafsir)
     expect(excerpt.getByText('This Surah is called Al-Fatihah.')).toBeDefined()
@@ -304,7 +314,7 @@ describe('site/HomePage', () => {
     ])
   })
 
-  it('shows a layout as a tall card: the page, its count, and the sample it is from', () => {
+  it('shows a layout in a card as high as the others: the page, its count, and the sample it is from', () => {
     renderPage(HomePage, {
       props: {
         ...homePageProps,
@@ -315,9 +325,10 @@ describe('site/HomePage', () => {
     })
 
     const [card] = screen.getAllByTestId('library-card')
-    expect(card.parentElement!.className).toContain('md:row-span-4')
+    expect(card.parentElement!.className).toContain('md:col-span-2')
+    expect(card.parentElement!.className).not.toContain('row-span-4')
     const preview = within(screen.getByTestId('sample-preview'))
-    expect(preview.getByText('Page 2 of 604')).toBeDefined()
+    expect(preview.getByText('604')).toBeDefined()
     expect(preview.getByRole('link', { name: 'KFGQPC V2' }).getAttribute('href')).toBe('/resources/mushaf-layout/v2')
   })
 

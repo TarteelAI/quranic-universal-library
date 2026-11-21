@@ -28,15 +28,16 @@ RSpec.describe 'Guided setup (/start)', type: :request do
       expect(html.at('title').text).to eq('Start building - QUL')
     end
 
-    it 'gives each script the most downloaded Quran script of its family as a sample' do
-      script = DownloadableResource.published.where(resource_type: 'quran-script').order(:id).first
-      override_catalog(script, 'script-family' => 'indopak')
+    it "gives each script the home page script card's sample of its family" do
       get '/start'
 
-      sample = inertia.props[:scripts].find { |option| option[:key] == 'indopak' }[:sample]
-      indopak = Catalog::SearchQuery.new(Catalog::SearchFilters.from(type: 'quran-script', script: ['indopak'],
-                                                                     sort: 'popular',)).call.results.first
-      expect(sample).to include(id: indopak.resource.id, type: 'quran-script', previewKind: be_present)
+      samples = Catalog::Samples.new.scripts.to_h
+      { 'madani' => 'Madani', 'indopak' => 'IndoPak' }.each do |key, label|
+        sample = inertia.props[:scripts].find { |option| option[:key] == key }[:sample]
+        expect(sample).to include(id: samples.fetch(label).id, type: 'quran-script', previewKind: be_present)
+      end
+      text_types = samples.values_at('Madani', 'IndoPak').map { _1.resource_content.meta_value('text-type') }
+      expect(text_types).to eq(['text_qpc_hafs', 'text_digital_khatt_indopak'])
     end
 
     # The query, the answers read from it and the step the flow opens at.

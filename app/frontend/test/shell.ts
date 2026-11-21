@@ -78,6 +78,8 @@ export const nav: SiteNav = {
     },
   ],
   search: link('Search resources', '/resources', { inertia: true }),
+  profile: link('Profile', '/profile', { inertia: true }),
+  settings: link('Account settings', '/profile/edit', { inertia: true }),
   footer: [
     {
       heading: 'Resources',

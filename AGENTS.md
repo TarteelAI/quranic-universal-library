@@ -158,7 +158,7 @@ New pages are Inertia + React 19 + TypeScript, built by Vite (`vite_rails`, `con
 
 New pages take over existing URLs one page group at a time. `QUL_PAGE_GROUPS` is a deploy-time,
 comma-separated list of the groups the new pages serve: `home`, `catalog` (`/resources` and
-below), `apps`, `content`, `start` and `requests` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
+below), `apps`, `content`, `start`, `requests` and `account` (`PageGroups` in `app/services/page_groups.rb`). Unset means every
 URL is served by the old ERB views. A group takes over only the URLs that have a new page so far (for
 `catalog`: `/resources`, `/resources/:type` and the detail page `/resources/:type/:slug`); the
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
@@ -212,6 +212,13 @@ is one row per user and request (unique index `index_resource_request_votes_uniq
 ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
 and whether the current user voted, by votes or by date, one query a page, and no author or voter.
 Editors set the status and hide requests in the CMS (`/cms/resource_requests`, admins only).
+`account` serves the signed-in user's own pages (`Account::ProfilesController`; off, the old profile
+pages answer): the profile `/profile`, whose tabs (`?tab=`) list the user's downloads, contributions,
+edit access and, with `requests` on, resource requests (`Account::Profile`, one tab's rows a visit),
+and the account settings `/profile/edit`. Its two forms send `PATCH /profile`, which keeps the old
+rule: a new email or password needs the current password. The "about me" text is plain text there;
+text the old editor saved as HTML is shown as prose and becomes plain text when the user saves it.
+The header's account menu links to both pages whatever the group (`nav.profile`, `nav.settings`).
 The spotlight's JSON endpoint (`/spotlight?q=…`, `Catalog::SpotlightController`) is outside the
 groups, for every new page: the header's search button and ⌘K / Ctrl K open the spotlight.
 
@@ -310,14 +317,16 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 - Links to old pages (contributor tools, sign-in, a page whose group is off) are plain `<a>` with
   the typed route helpers; links between new pages are Inertia `<Link>`.
 - Shell: every page renders inside `SiteShell` (`components/layout.tsx`): the v7 header, the
-  flash messages (`notice` and `alert`), the page and the footer. The header and footer links
+  page and the footer, and the toasts (`Toaster`, sonner), which show the flash messages
+  (`notice` and `alert`) and move no content. The header and footer links
   come from the server (`SiteNav`, shared prop `nav`, a once prop), and each link says whether a
   new page serves it (`inertia`), which depends on the page groups; `NavAnchor` renders an
   Inertia `<Link>` or a plain `<a>` from that. The Inertia version names the page groups
   (`config/initializers/inertia_rails.rb`), so a tab loaded under another setting reloads in full
   on its next visit and gets the current navigation. With `content` on, the only old pages the
   header, menus and footer link are the contributor tools and sign-in. The contributor tools in
-  the Contribute menu are `ToolsHelper#developer_tools`. The shared prop `auth` holds only `{ user: { initials, name } }`
+  the Contribute menu are `ToolsHelper#developer_tools`. The header shows a signed-in user as their initials; the button opens the account menu (profile,
+  account settings, sign out). The shared prop `auth` holds only `{ user: { initials, name } }`
   or `{ user: null }`; sign-in links pass the current path as `user_return_to`.
 - Theme: light and dark tokens in `app/frontend/styles/inertia.css`, switched by the `dark`
   class on `<html>`. An inline script in the layout sets it before the first paint from the
@@ -404,9 +413,9 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
 ```
 
 - The command starts Vite (`localhost:3036`) and `bin/rails server -p 3000` with
-  `QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests`, or reuses servers already on those ports. When Rails runs
+  `QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests,account`, or reuses servers already on those ports. When Rails runs
   in Docker, start it there first with the page groups set, plus the `socat` forward (below):
-  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
+  `docker exec -d -e QUL_PAGE_GROUPS=home,catalog,apps,content,start,requests,account qul-dev bin/rails server -b 0.0.0.0 -p 3000`.
   The global setup stops the run when the reused server does not serve the catalog group.
 - Each test prints a provenance line: `real backend`, or `mixed` with the routes it stubbed
   (stub through the `stubs.route` fixture in `spec/browser/support/test.ts`, never `page.route`).

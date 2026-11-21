@@ -1,6 +1,7 @@
 import { Deferred, router, usePage } from '@inertiajs/react'
 import { FlagIcon } from 'lucide-react'
 import * as React from 'react'
+import { toast } from 'sonner'
 
 import { Container, SiteShell } from '@/components/layout'
 import type { PreviewNavigation, PreviewQuery } from '@/components/previews/navigation'
@@ -174,6 +175,10 @@ export default function ResourcePage(props: CatalogResourcesShow) {
       preserveScroll: true,
     })
   }, [props.download, resource, tab, url])
+  const startedName = startedFile?.name
+  React.useEffect(() => {
+    if (startedName) toast.success(`Your download of ${startedName} has started.`, { id: 'download-started' })
+  }, [startedName])
   const signInHref = shared.auth.user ? null : newUserSession({ query: { user_return_to: url } }).url
 
   function selectTab(value: string) {
@@ -333,16 +338,11 @@ export default function ResourcePage(props: CatalogResourcesShow) {
 
         <div className="flex min-w-0 flex-col gap-3 lg:sticky lg:top-20 lg:self-start">
           {startedFile && (
-            <>
-              <p role="status" className="rounded-lg bg-brand-subtle p-3 text-sm">
-                Your download of {startedFile.name} has started.
-              </p>
-              <iframe
-                hidden
-                title={`Download of ${startedFile.name}`}
-                src={catalogDownload({ type: resource.type, slug: resource.toParam, fileId: startedFile.id }).url}
-              />
-            </>
+            <iframe
+              hidden
+              title={`Download of ${startedFile.name}`}
+              src={catalogDownload({ type: resource.type, slug: resource.toParam, fileId: startedFile.id }).url}
+            />
           )}
           <DownloadPanel
             id={resource.id}

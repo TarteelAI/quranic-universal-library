@@ -223,7 +223,7 @@ describe('catalog/ResourcePage', () => {
     expect(within(panel).getByRole('heading', { name: 'Licence not yet confirmed' })).toBeDefined()
   })
 
-  it('starts the download sign-in returned for in a hidden frame, and takes it out of the URL', () => {
+  it('starts the download sign-in returned for in a hidden frame, and takes it out of the URL', async () => {
     const replace = vi.spyOn(router, 'replace').mockImplementation(() => {})
     renderPage(ResourcePage, { props: { ...props, download: 12 }, url: `${url}?download=12` })
 
@@ -234,7 +234,10 @@ describe('catalog/ResourcePage', () => {
     // The history entry keeps no download, so Back to this page does not start it again.
     const [{ props: update }] = replace.mock.calls[0]
     expect(typeof update === 'function' && update({ ...props, download: 12 }, {})).toMatchObject({ download: null })
-    expect(screen.getByRole('status').textContent).toBe('Your download of simple.json has started.')
+    // The message is a toast, outside the page flow.
+    const toasts = screen.getByRole('region', { name: /^Notifications/ })
+    expect(await within(toasts).findByText('Your download of simple.json has started.')).toBeDefined()
+    expect(screen.getByRole('main').contains(toasts)).toBe(false)
   })
 
   it('starts no download without the parameter', () => {

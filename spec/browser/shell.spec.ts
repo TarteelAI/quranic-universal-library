@@ -334,9 +334,11 @@ test.describe('account control', () => {
     await page.getByRole('button', { name: 'Sign in' }).click()
 
     await expect(page).toHaveURL(new RegExp(`${PAGE}$`))
-    await expect(page.getByRole('status').filter({ hasText: 'Signed in successfully.' })).toBeVisible()
-    const account = header(page).getByRole('button', { name: READER.name })
-    await expect(account).toHaveText(`${READER.initials}${READER.name}`)
+    await expect(
+      page.getByRole('region', { name: /^Notifications/ }).getByText('Signed in successfully.'),
+    ).toBeVisible()
+    const account = header(page).getByRole('button', { name: `Account menu: ${READER.name}` })
+    await expect(account).toHaveText(READER.initials)
     await expect(header(page).getByRole('link', { name: 'Sign in' })).toHaveCount(0)
 
     await page.getByRole('navigation', { name: 'Other resource types' }).getByRole('link', { name: 'Tafsirs' }).click()

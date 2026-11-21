@@ -6116,6 +6116,11 @@ socks@^2.8.10, socks@^2.8.3:
     ip-address "^10.1.1"
     smart-buffer "^4.2.0"
 
+sonner@2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/sonner/-/sonner-2.0.8.tgz#dbfa02bb4eb0924616800a4594e9a455a9a195ac"
+  integrity sha512-UM/ByIoFra8yzV75n1o0Puu0bw5U/9UNnDacrJNspekBewIfsQ3D6ez1nvlWpt7aTsO6rujQtifBpycwIivqlg==
+
 sortablejs@^1.15.2:
   version "1.15.2"
   resolved "https://registry.npmjs.org/sortablejs/-/sortablejs-1.15.2.tgz"

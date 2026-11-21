@@ -15,10 +15,16 @@ type Props = {
 const PREVIEW_PROPS: Record<string, string> = {
   recitation: 'recitationPreview',
   'mushaf-layout': 'mushafLayoutPreview',
+  'quran-script': 'quranScriptPreview',
   translation: 'translationPreview',
+  tafsir: 'tafsirPreview',
   morphology: 'morphologyPreview',
   'ayah-topics': 'ayahTopicsPreview',
+  'quran-metadata': 'quranMetadataPreview',
 }
+
+// The cards that name no sample: each line or row of theirs is its own.
+const UNNAMED = ['quran-script', 'ayah-topics', 'quran-metadata']
 
 async function home(page: Page) {
   const response = await page.goto('/')
@@ -50,8 +56,7 @@ test('each sampled card loads its preview once near the screen, and links its sa
     const sampled = card(page, sample.category)
     await sampled.scrollIntoViewIfNeeded()
     await expect(sampled.getByTestId('sample-preview')).toHaveAttribute('data-type', sample.type, { timeout: 30_000 })
-    // The one-column topics card names no sample.
-    if (sample.type === 'ayah-topics') continue
+    if (UNNAMED.includes(sample.type)) continue
     await expect(sampled.getByRole('link', { name: sample.name, exact: true })).toHaveAttribute(
       'href',
       `/resources/${sample.type}/${sample.toParam}`,
@@ -80,14 +85,16 @@ test('the audio card plays an ayah at a time, plays from an ayah, and pauses', a
   expect(await audio.evaluate((element: HTMLAudioElement) => element.paused)).toBe(true)
 })
 
-test('the translation card steps through the ayahs, and the linguistics card through the words', async ({ page }) => {
+test('the translation card switches language, and the linguistics card steps through the words', async ({ page }) => {
   await home(page)
   const translation = card(page, 'translation')
   await translation.scrollIntoViewIfNeeded()
   const well = translation.getByTestId('sample-preview')
-  await expect(well).toContainText('1:2', { timeout: 30_000 })
-  await translation.getByRole('button', { name: 'Next ayah' }).click()
-  await expect(well).toContainText('1:3')
+  await expect(well).toContainText('Ayah 1:2', { timeout: 30_000 })
+  const languages = translation.getByRole('group', { name: 'Languages' }).getByRole('button')
+  await languages.nth(1).click()
+  await expect(languages.nth(1)).toHaveAttribute('aria-pressed', 'true')
+  await expect(languages.first()).toHaveAttribute('aria-pressed', 'false')
 
   const linguistics = card(page, 'linguistics')
   await linguistics.scrollIntoViewIfNeeded()

@@ -22,8 +22,11 @@ module Catalog
     }.freeze
     STATUSES = ['stable', 'beta'].freeze
     # The scripts the script card shows side by side, by the text type their meta names.
-    SCRIPTS = { 'text_qpc_hafs' => 'Madani', 'text_indopak_nastaleeq' => 'IndoPak',
-                'text_uthmani_tajweed' => 'Tajweed', }.freeze
+    SCRIPTS = { 'text_qpc_hafs' => 'Madani', 'text_digital_khatt_indopak' => 'IndoPak' }.freeze
+    # The script card's last line is a font that draws the surah names: one file for the surahs.
+    SURAH_NAMES = 'Surah names'
+    SURAH_NAME_FONT = { resource_type: 'font', cardinality_type: '1_chapter' }.freeze
+    SURAH_NAME = /\Asurah names?\b/i
 
     # Type => DownloadableResource.
     def call
@@ -37,15 +40,14 @@ module Catalog
       end.slice(*TYPES.keys)
     end
 
-    # [label, resource] for each of SCRIPTS that has a published ayah-by-ayah script: the first
-    # of its text type as `call` ranks them, downloads aside.
+    # [label, resource] for each of SCRIPTS that has a published ayah-by-ayah script, then for a
+    # surah name font: the first of each as `call` ranks them, downloads aside.
     def scripts
-      resources = DownloadableResource.published.where(resource_type: 'quran-script', **TYPES['quran-script'])
-        .order(:id).preload(:resource_content).select { |resource| STATUSES.include?(resource.status) }
-      by_text_type = resources.group_by { |resource| resource.resource_content&.meta_value('text-type') }
-      SCRIPTS.filter_map do |text_type, label|
+      by_text_type = script_candidates.group_by { |resource| resource.resource_content&.meta_value('text-type') }
+      scripts = SCRIPTS.filter_map do |text_type, label|
         by_text_type[text_type]&.min_by { rank(_1, Set.new, {}) }&.then { [label, _1] }
       end
+      scripts + [surah_name_font&.then { [SURAH_NAMES, _1] }].compact
     end
 
     # The first translation of each language as `call` ranks them, the languages in the order of
@@ -59,6 +61,17 @@ module Catalog
     end
 
     private
+
+    def script_candidates
+      DownloadableResource.published.where(resource_type: 'quran-script', **TYPES['quran-script'])
+        .order(:id).preload(:resource_content).select { |resource| STATUSES.include?(resource.status) }
+    end
+
+    def surah_name_font
+      DownloadableResource.published.where(**SURAH_NAME_FONT).order(:id)
+        .select { |resource| STATUSES.include?(resource.status) && resource.catalog_name.match?(SURAH_NAME) }
+        .min_by { |resource| rank(resource, Set.new, {}) }
+    end
 
     # The published ayah-by-ayah translations a sample can be, with their language.
     def translation_candidates

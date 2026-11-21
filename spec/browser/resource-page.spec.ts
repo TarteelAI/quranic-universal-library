@@ -113,7 +113,7 @@ test.describe('sign-in mode', () => {
 
     expect(await file).toMatch(/\.(zip|bz2)$/)
     await expect(page).toHaveURL(new RegExp(`${path}$`))
-    await expect(page.getByRole('status').filter({ hasText: 'has started' })).toBeVisible()
+    await expect(page.getByRole('region', { name: /^Notifications/ }).getByText('has started')).toBeVisible()
     expect(rails<number>(`puts ${rows}.count`)).toBe(1)
   })
 })

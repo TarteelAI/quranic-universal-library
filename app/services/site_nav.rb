@@ -47,7 +47,7 @@ class SiteNav
   REQUEST_URL = "#{REPO_URL}/issues/new?template=resource_request.yml".freeze
   DISCORD_URL = 'https://t.zip/discord?utm_source=qul%20header&utm_campaign=qul'
 
-  attr_reader :home, :menus, :footer, :search, :request
+  attr_reader :home, :menus, :footer, :search, :request, :profile, :settings
 
   # `tools` are the contributor tools (ToolsHelper#developer_tools): anything with a title and a url.
   def initialize(tools:)
@@ -58,6 +58,7 @@ class SiteNav
     @tools = tools
     @requests = PageGroups.enabled?(:requests)
     @request = request_link
+    @profile, @settings = account_links
     @menus = [*start_menu, resources_menu, docs_menu, developers_menu, contribute_menu]
     @footer = footer_groups
     @search = catalog_link('Search resources', '/resources')
@@ -96,6 +97,13 @@ class SiteNav
   # The old changelog URL redirects to the new one while `content` is on.
   def changelog_link
     content_link('Changelog', @content ? routes.changelog_page_path : routes.change_logs_path)
+  end
+
+  # The signed-in user's profile and account settings: new pages while the `account` group is on.
+  def account_links
+    inertia = PageGroups.enabled?(:account)
+    [Link.new(label: 'Profile', href: routes.profile_path, inertia:),
+     Link.new(label: 'Account settings', href: routes.edit_profile_path, inertia:),]
   end
 
   # The request form: the requests page's dialog while `requests` is on (`?request=new` opens it

@@ -5,7 +5,7 @@ module Site
   # and card preview.
   class SampleCardResource < ApplicationResource
     typelize label: :string, name: :string, to_param: :string,
-             preview: 'Previews::CardScriptResource | Previews::CardTextResource'
+             preview: 'Previews::CardScriptResource | Previews::CardFontResource | Previews::CardTextResource'
     attributes :label, :preview
     attribute(:name) { |card| card[:resource].catalog_name }
     attribute(:to_param) { |card| card[:resource].to_param }

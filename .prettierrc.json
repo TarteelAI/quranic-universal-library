@@ -1,0 +1,8 @@
+{
+  "overrides": [
+    {
+      "files": ["app/frontend/**/*", "spec/browser/**/*", "*.mts", "playwright.config.ts", "eslint.config.mjs"],
+      "options": { "semi": false, "singleQuote": true, "printWidth": 120, "trailingComma": "all" }
+    }
+  ]
+}

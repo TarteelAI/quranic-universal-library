@@ -19,6 +19,7 @@
 #
 class DownloadableResource < ApplicationRecord
   include HasMetaData
+  include CatalogFields
 
   belongs_to :language, optional: true
   belongs_to :resource_content, optional: true

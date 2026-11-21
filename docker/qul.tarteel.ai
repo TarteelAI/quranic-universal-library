@@ -30,4 +30,16 @@ server {
     gzip_static on;
     add_header Cache-Control public;
   }
+
+  # Vite client build (hashed file names)
+  location ^~ /vite/ {
+    expires 1y;
+    gzip_static on;
+    add_header Cache-Control public;
+  }
+
+  # The SSR bundle is read by the inertia-ssr service, not served
+  location ^~ /vite-ssr/ {
+    return 404;
+  }
 }

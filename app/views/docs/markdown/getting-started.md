@@ -21,7 +21,7 @@ You can start here without cloning the repository or running QUL locally.
 
 ## 5-Minute Quick Start (Resource Users)
 
-1. Open the resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+1. Open the resources directory: [/resources](/resources)
 2. Pick a dataset category (start with Quran Script or Translation).
 3. Choose format:
    - JSON for quick integration and scripts
@@ -31,13 +31,13 @@ You can start here without cloning the repository or running QUL locally.
 
 ## Common Dataset Categories
 
-- Quran Script: [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script)
-- Translations: [https://qul.tarteel.ai/resources/translation](https://qul.tarteel.ai/resources/translation)
-- Tafsir: [https://qul.tarteel.ai/resources/tafsir](https://qul.tarteel.ai/resources/tafsir)
-- Recitations: [https://qul.tarteel.ai/resources/recitation](https://qul.tarteel.ai/resources/recitation)
-- Morphology: [https://qul.tarteel.ai/resources/morphology](https://qul.tarteel.ai/resources/morphology)
-- Topics: [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics)
-- Metadata: [https://qul.tarteel.ai/resources/quran-metadata](https://qul.tarteel.ai/resources/quran-metadata)
+- Quran Script: [/resources/quran-script](/resources/quran-script)
+- Translations: [/resources/translation](/resources/translation)
+- Tafsir: [/resources/tafsir](/resources/tafsir)
+- Recitations: [/resources/recitation](/resources/recitation)
+- Morphology: [/resources/morphology](/resources/morphology)
+- Topics: [/resources/ayah-topics](/resources/ayah-topics)
+- Metadata: [/resources/quran-metadata](/resources/quran-metadata)
 
 ## Minimal Load Example
 
@@ -46,7 +46,7 @@ You can start here without cloning the repository or running QUL locally.
 ```javascript
 const fs = require("fs")
 const data = JSON.parse(fs.readFileSync("data.json", "utf8"))
-console.log(data[0])
+console.log(data["1:1"])
 ```
 
 ### Python
@@ -57,16 +57,17 @@ import json
 with open("data.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
-print(data[0])
+print(data["1:1"])
 ```
 
 ## Identifiers to Learn First
 
-Most datasets can be joined using:
+Most JSON exports are objects keyed by location, not arrays, so `data["1:1"]` is the first ayah of Al-Fatihah. Every dataset joins on the same two keys:
 
-- `surah_id`
-- `ayah_number`
-- `word_position` (word-level resources)
+- **Ayah key** `surah:ayah`, for example `"2:255"`. The JSON key of ayah-level exports.
+- **Word location** `surah:ayah:word`, for example `"1:1:2"`. The JSON key of word-level exports.
+
+SQLite tables split these into number columns, and the names vary by export: `surah` / `ayah` / `word` (Quran script), `sura` / `ayah` (translations), `surah_number` / `ayah_number` / `word_number` (metadata, recitations, word-by-word translations). Check the Docs tab of each resource for its exact columns.
 
 For details, see [data-model.md](data-model.md).
 

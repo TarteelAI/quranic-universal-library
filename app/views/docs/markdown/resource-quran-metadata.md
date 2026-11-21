@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/quran-metadata](https://qul.tarteel.ai/resources/quran-metadata)
+- [/resources/quran-metadata](/resources/quran-metadata)

@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics)
+- [/resources/ayah-topics](/resources/ayah-topics)

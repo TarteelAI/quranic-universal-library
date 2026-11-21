@@ -86,3 +86,5 @@ categories:
     pages:
       - slug: api
         title: Overview
+      - slug: ai-agents
+        title: AI Agents (MCP)

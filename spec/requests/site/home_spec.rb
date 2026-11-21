@@ -132,14 +132,15 @@ RSpec.describe 'Home page (/)', type: :request do
         end
       end
 
-      it 'shows ayah 1:2 in a Madani, an IndoPak and a tajweed script, as their catalog cards do' do
+      it 'shows ayah 1:2 in a Madani and an IndoPak script and a surah name font, as their catalog cards do' do
         get '/'
         inertia_reload_only(:quranScriptPreview)
 
         cards = inertia.props[:quranScriptPreview].as_json
         expect(cards['kind']).to eq('cards')
-        expect(cards['cards'].pluck('label')).to eq(['Madani', 'IndoPak', 'Tajweed'])
-        cards['cards'].zip(['text_qpc_hafs', 'text_indopak_nastaleeq', 'text_uthmani_tajweed']) do |card, text_type|
+        expect(cards['cards'].pluck('label')).to eq(['Madani', 'IndoPak', 'Surah names'])
+        *scripts, font = cards['cards']
+        scripts.zip(['text_qpc_hafs', 'text_digital_khatt_indopak']) do |card, text_type|
           resource = Catalog::ResourcePage.find(card['toParam'])
           expect(resource).to have_attributes(published: true, resource_type: 'quran-script',
                                               cardinality_type: '1_ayah',)
@@ -147,7 +148,11 @@ RSpec.describe 'Home page (/)', type: :request do
           expect(card['preview']).to eq(JSON.parse(Previews::Card.for(resource).to_json))
           expect(card['preview']['fonts']).to be_present
         end
-        expect(cards['cards'].last['preview']['rendering']).to eq('html')
+        resource = Catalog::ResourcePage.find(font['toParam'])
+        expect(resource).to have_attributes(published: true, resource_type: 'font', cardinality_type: '1_chapter')
+        expect(font['name']).to match(/\Asurah name/i)
+        expect(font['preview']).to eq(JSON.parse(Previews::Card.for(resource).to_json))
+        expect(font['preview']).to include('kind' => 'font', 'text' => be_present)
       end
 
       it 'shows ayah 1:2 in the sample and the first translations of other languages, as catalog cards do' do

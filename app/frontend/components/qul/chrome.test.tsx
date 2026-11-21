@@ -88,11 +88,11 @@ describe('SiteHeader', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true)
   })
 
-  it('shows the signed-in user and signs out with a DELETE form post', () => {
+  it('shows the signed-in user as their initials alone, and signs out with a DELETE form post', () => {
     renderPage(Header, { props: {}, shared: { auth: signedInAuth } })
 
-    const account = screen.getByRole('button', { name: 'Fake' })
-    expect(account.textContent).toBe('FRFake')
+    const account = screen.getByRole('button', { name: 'Account menu: Fake' })
+    expect(account.textContent).toBe('FR')
     expect(screen.queryByRole('link', { name: 'Sign in' })).toBeNull()
     const form = document.querySelector<HTMLFormElement>('form[action="/users/sign_out"]')
     expect(form?.getAttribute('method')).toBe('post')

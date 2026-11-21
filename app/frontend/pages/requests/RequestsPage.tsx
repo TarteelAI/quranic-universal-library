@@ -5,8 +5,7 @@ import * as React from 'react'
 import { Container, SiteShell } from '@/components/layout'
 import { EmptyState } from '@/components/qul/catalog'
 import { PageHeader } from '@/components/qul/page-header'
-import { RequestButton } from '@/components/qul/request-dialog'
-import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { RequestButton, RequestStatusBadge } from '@/components/qul/request-dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { newUserSession, requestsPage, resourceRequestVote, requestsRequests } from '@/routes'
@@ -18,14 +17,6 @@ const SORTS: { key: Sort; label: string }[] = [
   { key: 'votes', label: 'Most votes' },
   { key: 'date', label: 'Newest' },
 ]
-
-const STATUS_BADGE: Record<RequestsListItem['status'], BadgeProps['variant']> = {
-  open: 'secondary',
-  planned: 'info',
-  in_progress: 'warning',
-  added: 'success',
-  declined: 'outline',
-}
 
 // The list URL: votes and page 1 are the defaults, so they stay out of it.
 const listUrl = (sort: Sort, page = 1) => {
@@ -120,7 +111,7 @@ export default function RequestsPage({ requests, sort, page, pages, total }: Req
                 <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                     <h2 className="text-lg font-medium tracking-tight break-words">{request.title}</h2>
-                    <Badge variant={STATUS_BADGE[request.status]}>{request.statusLabel}</Badge>
+                    <RequestStatusBadge status={request.status} label={request.statusLabel} />
                   </div>
                   <p className="text-sm text-muted-foreground">
                     {[request.type, request.language, request.date].filter(Boolean).join(' · ')}

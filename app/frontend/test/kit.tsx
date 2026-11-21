@@ -11,7 +11,6 @@ import * as copyButton from '@/components/qul/copy-button'
 import * as data from '@/components/qul/data'
 import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
-import * as flash from '@/components/qul/flash'
 import * as gatedForm from '@/components/qul/gated-form'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
@@ -31,6 +30,7 @@ import * as drawer from '@/components/ui/drawer'
 import * as input from '@/components/ui/input'
 import * as misc from '@/components/ui/misc'
 import * as overlays from '@/components/ui/overlays'
+import * as sonner from '@/components/ui/sonner'
 import * as tabs from '@/components/ui/tabs'
 
 import { catalogPageProps, resourcePageProps } from './catalog'
@@ -52,7 +52,6 @@ const modules = {
   data,
   docs,
   downloadPanel,
-  flash,
   gatedForm,
   icons,
   nav,
@@ -72,6 +71,7 @@ const modules = {
   input,
   misc,
   overlays,
+  sonner,
   tabs,
 }
 
@@ -89,13 +89,12 @@ const { AppSubmissionDialog } = appSubmission
 const { AddToBundle, BundleFormats, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
 const { EmptyState, FacetGroup, FilterChip } = catalog
-const { RequestButton, RequestCard, RequestDialogProvider } = requestDialog
+const { RequestButton, RequestCard, RequestDialogProvider, RequestStatusBadge } = requestDialog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
 const { CopyButton } = copyButton
 const { SchemaTable } = data
 const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
-const { FlashMessages } = flash
 const { GatedForm } = gatedForm
 const { GoalCard, GoalIcon, KitCard, ResultCard } = start
 const { GitHubMark, QulIcon, ResourceIcon } = icons
@@ -108,6 +107,7 @@ const { ToolCard } = toolCard
 const { ThemeCycle, ThemeSwitch } = theme
 const { Badge } = badge
 const { Button } = button
+const { Toaster } = sonner
 const { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } = card
 const {
   Drawer,
@@ -225,7 +225,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   SearchInput: { element: <SearchInput placeholder="Search" shortcut="⌘K" />, text: '⌘K' },
   SiteHeader: { element: <SiteHeader />, text: 'Resources' },
   SiteFooter: { element: <SiteFooter />, text: 'All docs' },
-  FlashMessages: { element: <FlashMessages />, text: 'Signed in successfully.' },
+  Toaster: { element: <Toaster />, text: 'aria-live="polite"' },
   DownloadPanel: {
     element: (
       <DownloadPanel
@@ -394,6 +394,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   RequestCard: { element: <RequestCard link={navProps.request} />, text: 'resource_request.yml' },
   RequestButton: { element: <RequestButton link={navProps.request} />, text: 'resource_request.yml' },
+  RequestStatusBadge: { element: <RequestStatusBadge status="planned" label="Planned" />, text: 'Planned' },
   RequestDialogProvider: {
     element: (
       <RequestDialogProvider>

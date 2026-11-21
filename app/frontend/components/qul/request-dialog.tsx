@@ -2,6 +2,7 @@ import { Link, useForm, usePage } from '@inertiajs/react'
 import { ArrowUpRightIcon } from 'lucide-react'
 import * as React from 'react'
 
+import { Badge, type BadgeProps } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/input'
 import {
@@ -14,7 +15,7 @@ import {
 } from '@/components/ui/overlays'
 import { cn } from '@/lib/utils'
 import { requestsPage, resourceRequests } from '@/routes'
-import type { SiteNavLink } from '@/types/serializers'
+import type { RequestsListItem, SiteNavLink } from '@/types/serializers'
 
 import { FilterChip } from './catalog'
 import { GatedForm } from './gated-form'
@@ -24,6 +25,19 @@ import { QulIcon } from './icons'
 const OPEN_PARAM = 'request'
 
 type Fields = { title: string; description: string; resource_type: string; language: string }
+
+const STATUS_BADGE: Record<RequestsListItem['status'], BadgeProps['variant']> = {
+  open: 'secondary',
+  planned: 'info',
+  in_progress: 'warning',
+  added: 'success',
+  declined: 'outline',
+}
+
+/** A request's status as a badge, on the requests page and the profile's requests. */
+function RequestStatusBadge({ status, label }: { status: RequestsListItem['status']; label: string }) {
+  return <Badge variant={STATUS_BADGE[status]}>{label}</Badge>
+}
 
 const RequestDialogContext = React.createContext<(() => void) | null>(null)
 
@@ -274,4 +288,4 @@ function RequestCard({ link, className }: { link: RequestLink; className?: strin
   )
 }
 
-export { RequestButton, RequestCard, RequestDialogProvider, useRequestDialog }
+export { RequestButton, RequestCard, RequestDialogProvider, RequestStatusBadge, useRequestDialog }

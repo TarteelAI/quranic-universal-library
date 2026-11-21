@@ -113,6 +113,13 @@ Rails.application.routes.draw do
     sessions: 'users/sessions',
   }
 
+  # The new profile and account settings pages while the `account` page group is on, above the old
+  # routes for the same paths.
+  constraints(PageGroups.constraint(:account)) do
+    get '/profile', to: 'account/profiles#show', as: :account_profile, format: false
+    get '/profile/edit', to: 'account/profiles#edit', as: :account_settings, format: false
+    patch '/profile', to: 'account/profiles#update', format: false
+  end
   resource :profile, only: [:show, :edit, :update]
 
   authenticated :user, ->(user) { user.is_super_admin? || user.is_admin? } do

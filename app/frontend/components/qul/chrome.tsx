@@ -1,5 +1,5 @@
 import { router, usePage } from '@inertiajs/react'
-import { ArrowUpRightIcon, LogOutIcon, MenuIcon, SearchIcon } from 'lucide-react'
+import { ArrowUpRightIcon, LogOutIcon, MenuIcon, SearchIcon, SettingsIcon, UserIcon } from 'lucide-react'
 import { DropdownMenu as DropdownPrimitive } from 'radix-ui'
 import * as React from 'react'
 
@@ -10,7 +10,7 @@ import { fillAuthenticityToken } from '@/lib/csrf'
 import { REPO_URL } from '@/lib/github'
 import { cn } from '@/lib/utils'
 import { destroyUserSession, newUserSession } from '@/routes'
-import type { AuthUser, SiteNavGroup } from '@/types/serializers'
+import type { AuthUser, SiteNav, SiteNavGroup } from '@/types/serializers'
 
 import { BundleTray } from './bundle'
 import { GitHubMark } from './icons'
@@ -120,8 +120,11 @@ function signInUrl(url: string) {
   return newUserSession({ query: { user_return_to: url } }).url
 }
 
-/** The signed-in user's initials and name, with a menu to sign out. */
-function AccountMenu({ user }: { user: AuthUser }) {
+const MENU_ITEM =
+  'flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-sm outline-none data-[highlighted]:bg-foreground/[0.05] [&_svg]:size-4 [&_svg]:text-muted-foreground'
+
+/** The signed-in user's initials, with a menu: their profile, the account settings and sign-out. */
+function AccountMenu({ user, nav }: { user: AuthUser; nav: SiteNav }) {
   const formRef = React.useRef<HTMLFormElement>(null)
   return (
     <>
@@ -129,26 +132,35 @@ function AccountMenu({ user }: { user: AuthUser }) {
         <DropdownPrimitive.Trigger asChild>
           <button
             type="button"
-            className="flex h-9 items-center gap-2 rounded-full ps-0.5 pe-2.5 text-sm outline-none hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            aria-label={`Account menu: ${user.name}`}
+            className="flex size-9 items-center justify-center rounded-full outline-none hover:bg-foreground/[0.05] focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             <Initials user={user} />
-            <span className="max-w-32 truncate font-medium">{user.name}</span>
           </button>
         </DropdownPrimitive.Trigger>
         <DropdownPrimitive.Portal>
           <DropdownPrimitive.Content
             align="end"
             sideOffset={8}
-            className="z-50 min-w-48 rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
+            className="z-50 min-w-52 rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95"
           >
-            <DropdownPrimitive.Label className="truncate px-2.5 py-2 text-sm font-medium">
-              {user.name}
+            <DropdownPrimitive.Label className="flex items-center gap-2.5 px-2.5 py-2 text-sm font-medium">
+              <Initials user={user} />
+              <span className="max-w-40 truncate">{user.name}</span>
             </DropdownPrimitive.Label>
             <DropdownPrimitive.Separator className="my-1 h-px bg-border" />
-            <DropdownPrimitive.Item
-              onSelect={() => formRef.current?.requestSubmit()}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-sm outline-none data-[highlighted]:bg-foreground/[0.05] [&_svg]:size-4"
-            >
+            <DropdownPrimitive.Item asChild className={MENU_ITEM}>
+              <NavAnchor link={nav.profile}>
+                <UserIcon /> {nav.profile.label}
+              </NavAnchor>
+            </DropdownPrimitive.Item>
+            <DropdownPrimitive.Item asChild className={MENU_ITEM}>
+              <NavAnchor link={nav.settings}>
+                <SettingsIcon /> {nav.settings.label}
+              </NavAnchor>
+            </DropdownPrimitive.Item>
+            <DropdownPrimitive.Separator className="my-1 h-px bg-border" />
+            <DropdownPrimitive.Item onSelect={() => formRef.current?.requestSubmit()} className={MENU_ITEM}>
               <LogOutIcon /> Sign out
             </DropdownPrimitive.Item>
           </DropdownPrimitive.Content>
@@ -168,7 +180,8 @@ export interface SiteHeaderProps {
 /**
  * Global header of the new pages. Sticky, translucent over content. From lg up: the mega menu
  * and a theme button that moves to the next theme. Below lg: a Menu button opens a sheet with
- * the same sections and, pinned at the bottom, the theme switch and the account control. The
+ * the same sections and, pinned at the bottom, the theme switch and the account control (the
+ * user's name links to their profile). The
  * search button (and ⌘K / Ctrl K) opens the spotlight.
  */
 function SiteHeader({ className }: SiteHeaderProps) {
@@ -200,7 +213,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
           </Button>
           <div className="hidden lg:flex">
             {auth.user ? (
-              <AccountMenu user={auth.user} />
+              <AccountMenu user={auth.user} nav={nav} />
             ) : (
               <Button size="sm" asChild>
                 <a href={signInUrl(url)}>Sign in</a>
@@ -252,8 +265,14 @@ function SiteHeader({ className }: SiteHeaderProps) {
                 <div className="flex items-center gap-3">
                   {auth.user ? (
                     <>
-                      <Initials user={auth.user} className="size-9" />
-                      <span className="min-w-0 flex-1 truncate text-sm font-medium">{auth.user.name}</span>
+                      <NavAnchor
+                        link={nav.profile}
+                        aria-label={`${nav.profile.label}: ${auth.user.name}`}
+                        className="flex min-w-0 flex-1 items-center gap-3 rounded-lg outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                      >
+                        <Initials user={auth.user} className="size-9" />
+                        <span className="min-w-0 flex-1 truncate text-sm font-medium">{auth.user.name}</span>
+                      </NavAnchor>
                       <SignOutForm>
                         <Button type="submit" variant="outline">
                           <LogOutIcon /> Sign out

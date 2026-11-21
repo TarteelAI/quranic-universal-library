@@ -103,7 +103,7 @@ function Hero({ resources, languages, contributors, catalogPages, startPages }: 
             style={{ background: `linear-gradient(to bottom, transparent 15%, ${RING_BG} 75%)` }}
           />
           <div className="relative flex flex-col justify-center gap-4 px-5 pt-44 pb-8 sm:gap-6 sm:px-12 sm:pt-72 sm:pb-14 lg:order-1 lg:py-20 lg:ps-14 lg:pe-0">
-            <p className="text-sm font-medium text-brand">The world's largest Quranic dataset for app developers</p>
+            <p className="text-sm font-medium text-brand">Quranic Universal Library</p>
             <h1 className="headline -mt-1 text-[clamp(2rem,4.6vw,4.25rem)] text-balance text-white">
               Verified data for builders impacting the Ummah.
             </h1>
@@ -248,13 +248,13 @@ const PREVIEW_PROPS = {
   'quran-metadata': 'quranMetadataPreview',
 } as const satisfies Record<SampleType, keyof SiteHomeShow>
 
-// The height of each sample's well once its preview is in. The well has it from the start, so the
-// section does not grow as the previews load. The narrow cards' wells are as high as an empty one
-// (EmptyWell); from md up the tall card's well is as high as the two cards beside it. The words of
-// the morphology sample take two lines, but one on the full-width card at md.
+// The height of each sample's well once its preview is in (the layout's page is under its text
+// below sm, beside it from sm up). The well has it from the start, so the section does not grow
+// as the previews load. The narrow cards' wells are as high as an empty one (EmptyWell). The words
+// of the morphology sample take two lines, but one on the full-width card at md.
 const WELL_HEIGHT: Record<SampleType, string> = {
   recitation: 'min-h-42',
-  'mushaf-layout': 'min-h-102 md:min-h-0',
+  'mushaf-layout': 'min-h-71 sm:min-h-53',
   translation: 'min-h-65 sm:min-h-52 lg:min-h-58',
   morphology: 'min-h-67 md:min-h-57 lg:min-h-67',
   'ayah-topics': 'min-h-32 md:min-h-40',
@@ -265,10 +265,6 @@ const WELL_HEIGHT: Record<SampleType, string> = {
 
 // The sampled types whose card is one column wide, the others two. Topics names no sample.
 const NARROW: SampleType[] = ['quran-script', 'tafsir', 'ayah-topics', 'quran-metadata']
-
-// A sampled type whose card is one column wide and two cards high from md up, so a whole page
-// fits in its well.
-const TALL: SampleType = 'mushaf-layout'
 
 function Library(props: SiteHomeShow) {
   const { categories, resources, samples, catalogPages } = props
@@ -286,11 +282,10 @@ function Library(props: SiteHomeShow) {
             </NavAnchor>
           </Button>
         </div>
-        {/* A bento grid in taxonomy order: the interactive cards take two columns and the tall
-            one a column of two cards, so each row of four columns is full; `dense` lets a
-            one-column card fill a gap at two columns. A card is two rows of the grid (its
-            heading, its well; the tall one's well takes the rows of the card under it), so the
-            wells of a row start on one line whatever the length of the headings. */}
+        {/* A bento grid in taxonomy order: the interactive cards take two columns, so each row
+            of four columns is full; `dense` lets a one-column card fill a gap at two columns.
+            A card is two rows of the grid (its heading, its well), so the wells of a row start
+            on one line whatever the length of the headings. */}
         <ul className="mt-10 grid gap-3 md:grid-flow-dense md:grid-cols-2 lg:grid-cols-4">
           {categories.map((category) => {
             const sample = samples.find((candidate) => candidate.category === category.key)
@@ -299,7 +294,7 @@ function Library(props: SiteHomeShow) {
                 key={category.key}
                 className={cn(
                   'row-span-2 grid grid-cols-1 grid-rows-subgrid',
-                  sample?.type === TALL ? 'md:row-span-4' : sample && !NARROW.includes(sample.type) && 'md:col-span-2',
+                  sample && !NARROW.includes(sample.type) && 'md:col-span-2',
                 )}
               >
                 <CategoryCard category={category} catalogPages={catalogPages}>
@@ -536,28 +531,16 @@ function AyahPlayer({ preview, source }: { preview: PreviewsRecitation; source?:
   )
 }
 
-// A layout's first page, whole: a printed page's shape, as large as the well allows, with the
-// text sized to the page's width (a surah's header, the widest line, is 20em).
+// A layout's first page, as the catalog's layout cards show it, beside its page count.
 function PageThumbnail({ page, source }: { page: PreviewsMushafPage; source?: React.ReactNode }) {
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium">
-          Page {page.number} of {number(page.pagesCount)}
-        </p>
-        {/* Two lines: a layout's name is long for a card one column wide. */}
-        {source && <p className="line-clamp-2 text-sm text-muted-foreground">{source}</p>}
+    <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:gap-6">
+      <div className="flex min-w-0 flex-col gap-1 self-start sm:flex-1 sm:self-center">
+        <p className="headline text-3xl tabular-nums">{number(page.pagesCount)}</p>
+        <p className="text-sm text-pretty text-muted-foreground">pages, line for line as printed</p>
+        {source && <p className="mt-2 truncate text-sm text-muted-foreground">{source}</p>}
       </div>
-      {/* Out of the flow, so the page never sets the height of the well (which spans the rows
-          of two cards from md up), and a size container, so the page fits its width and height. */}
-      <div className="relative min-h-80 flex-1 md:min-h-0">
-        <div className="absolute inset-0 [container-type:size]">
-          <LayoutThumbnail
-            preview={{ kind: 'layout', page }}
-            className="flex aspect-[2/3] h-auto w-(--page) flex-col justify-center self-center px-[0.75em] text-[length:calc(var(--page)/21.5)] [--page:min(100cqw,100cqh*2/3)]"
-          />
-        </div>
-      </div>
+      <LayoutThumbnail preview={{ kind: 'layout', page }} className="text-[11px]" />
     </div>
   )
 }
@@ -634,9 +617,7 @@ function AyahTranslations({ preview }: { preview: SiteSampleCards }) {
   return (
     <div ref={ref} className="flex flex-1 flex-col gap-3" data-language={shown.preview.locale.code}>
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium">
-          Ayah {entry.key} in {translations.length} languages
-        </p>
+        <p className="truncate text-sm font-medium">Ayah {entry.key}</p>
         <p className="truncate text-sm text-muted-foreground">
           From{' '}
           <NavAnchor
@@ -776,14 +757,15 @@ function TopicAyahs({ preview }: { preview: PreviewsRecords }) {
   )
 }
 
-// Ayah 1:2 in a Madani, an IndoPak and a tajweed script, each in its own font, as the catalog's
-// script cards show it. The fonts load with the preview, once the card is near the screen.
+// Ayah 1:2 in a Madani and an IndoPak script, each in its own font, and a surah's name in a
+// surah name font, as the catalog's script and font cards show them. The fonts load with the
+// preview, once the card is near the screen.
 function ScriptLines({ preview }: { preview: SiteSampleCards }) {
   const scripts = preview.cards.flatMap((card) =>
-    card.preview.kind === 'script' ? [{ ...card, preview: card.preview }] : [],
+    card.preview.kind === 'script' || card.preview.kind === 'font' ? [{ ...card, preview: card.preview }] : [],
   )
   const fonts = scripts
-    .flatMap((script) => script.preview.fonts)
+    .flatMap((script) => (script.preview.kind === 'font' ? [script.preview.font] : script.preview.fonts))
     .filter((font, at, all) => all.findIndex((other) => other.family === font.family) === at)
 
   return (
@@ -805,10 +787,15 @@ function ScriptLines({ preview }: { preview: SiteSampleCards }) {
             lang="ar"
             className={cn(
               'min-w-0 flex-1 overflow-x-clip text-[min(22px,calc(100cqw/8.6))] leading-[1.4] whitespace-nowrap @[14rem]:text-[min(22px,calc((100cqw-68px)/8.6))] @[14rem]:leading-[2]',
-              script.preview.rendering === 'html' && 'tajweed',
+              script.preview.kind === 'script' && script.preview.rendering === 'html' && 'tajweed',
             )}
+            style={script.preview.kind === 'font' ? { fontFamily: `'${script.preview.font.family}'` } : undefined}
           >
-            <AyahText ayah={script.preview.ayah} rendering={script.preview.rendering} />
+            {script.preview.kind === 'font' ? (
+              script.preview.text
+            ) : (
+              <AyahText ayah={script.preview.ayah} rendering={script.preview.rendering} />
+            )}
           </p>
         </div>
       ))}

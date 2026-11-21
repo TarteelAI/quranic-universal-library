@@ -178,6 +178,13 @@ RSpec.describe 'The profile and account settings (/profile, /profile/edit)', typ
         )
       end
 
+      it 'keeps plain about text as the user wrote it' do
+        user.update!(about_me: 'Plain text with <no> tags')
+        get '/profile/edit'
+
+        expect(inertia.props[:about]).to eq('Plain text with <no> tags')
+      end
+
       it 'saves a name and about text without a password, and goes to the profile with a notice' do
         update_account(first_name: 'New', last_name: 'Name', about_me: 'Plain text')
 

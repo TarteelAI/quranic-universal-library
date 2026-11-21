@@ -26,8 +26,11 @@ module Account
     Request = Data.define(:id, :title, :status, :status_label, :votes, :date)
 
     # The user's "about me" as the settings form edits it: plain text. Text saved by the old
-    # page's editor is HTML, so its paragraphs and line breaks become line breaks.
+    # page's editor is HTML, so its paragraphs and line breaks become line breaks. Plain text stays
+    # as it is.
     def self.plain_about(about)
+      return about.to_s.strip unless about.to_s.match?(HTML_TAG)
+
       html = about.to_s.gsub(%r{</(p|div|li|h[1-6])>|<br\s*/?>}i, "\n")
       Nokogiri::HTML5.fragment(html).text.gsub(/\n{3,}/, "\n\n").strip
     end

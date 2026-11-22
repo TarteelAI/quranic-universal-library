@@ -70,7 +70,8 @@ class ApplicationPresenter
   end
 
   def current_page
-    params[:page].to_i.abs.positive? ? params[:page].to_i : 1
+    page = params[:page].to_i
+    page.positive? ? page : 1
   end
 
   def mushaf_id

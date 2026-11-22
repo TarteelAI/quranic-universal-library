@@ -1,9 +1,7 @@
 module V1
   class ResourcesPresenter < ApiPresenter
     def translations
-      list = ResourceContent
-               .translations
-               .approved
+      list = shareable_translations
                .one_verse
                .order(priority: :asc, id: :asc)
 
@@ -59,9 +57,7 @@ module V1
     end
 
     def languages
-      translation_counts = ResourceContent
-                             .translations
-                             .approved
+      translation_counts = shareable_translations
                              .group(:language_id)
                              .count
 
@@ -95,6 +91,17 @@ module V1
     end
 
     private
+
+    # The translation endpoints (V1::TranslationFinder) refuse resources whose
+    # share permission was rejected, so the catalog must not list them either.
+    def shareable_translations
+      rejected_ids = ResourcePermission.share_permission_is_rejected.pluck(:resource_content_id)
+
+      ResourceContent
+        .translations
+        .approved
+        .where.not(id: rejected_ids)
+    end
 
     def process_results(records, resource_type: ResourceContent)
       records = apply_language_filter(records, resource_type: resource_type)

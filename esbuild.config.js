@@ -24,12 +24,23 @@ const entryPoints = [
   "application.js",
   "active_admin.js",
   "segments/index.js",
-  "audio_repair/index.js",
   "svg/index.js",
   "shards/index.js"
 ]
 
+// Bundles for the QUL internal tools
+const privateJavascript = path.join(process.cwd(), "qul-scripts/app/javascript");
+const privateEntries = path.join(privateJavascript, "entries.json");
+if (require("fs").existsSync(privateEntries)) {
+  for (const entry of JSON.parse(require("fs").readFileSync(privateEntries, "utf8"))) {
+    entryPoints.push({ in: path.join(privateJavascript, entry), out: entry.replace(/\.js$/, "") });
+  }
+}
+
 const watchDirectories = [
+  "./qul-scripts/app/javascript/**/*.js",
+  "./qul-scripts/app/javascript/**/*.vue",
+  "./qul-scripts/app/views/**/*.html.erb",
   "./app/javascript/**/*.js",
   "./app/javascript/**/*.vue",
   "./app/javascript/**/*.jsx",
@@ -55,6 +66,7 @@ const config = {
   bundle: true,
   entryPoints: entryPoints,
   minify: minify,
+  outbase: path.join(process.cwd(), "app/javascript"),
   outdir: path.join(process.cwd(), "app/assets/builds"),
   plugins: [rails(), vuePlugin()],
   sourcemap: sourcemap,

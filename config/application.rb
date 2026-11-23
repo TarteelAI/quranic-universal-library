@@ -41,9 +41,11 @@ module Qul
 
       [
         [config.paths["app/views"], File.join(qul_scripts_lib, "app/views")],
-        [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")]
+        [config.paths["db/migrate"], File.join(qul_scripts_lib, "db/migrate")],
+        # Extra routes for the internal QUL tools
+        [config.paths["config/routes.rb"], File.join(qul_scripts_lib, "config/routes.rb")]
       ].each do |paths, path|
-        paths << path if File.directory?(path)
+        paths << path if File.exist?(path)
       end
     end
 

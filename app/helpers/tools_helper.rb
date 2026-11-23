@@ -227,26 +227,8 @@ module ToolsHelper
   end
 
   def internal_developer_tools
-    return [] unless qul_scripts_available?
+    return [] unless qul_scripts_available? && defined?(QulScripts::ToolCards)
 
-    [
-      ToolCard.new(
-        title: 'Segment pipeline',
-        description: 'Generate and check the word timestamps of any recitation, and follow each run.',
-        url: segment_pipeline_root_path,
-        type: 'segments',
-        icon: 'timestamp.svg',
-        tags: [['Recitation', 'recitation'], ['Timestamp', 'timestamp']]
-      ),
-
-       ToolCard.new(
-        title: 'Add reciter audio',
-        description: 'Import and check the recordings of a new reciter, one surah at a time.',
-        url: audio_repair_ingests_path,
-        type: 'segments',
-        icon: 'timestamp.svg',
-        tags: [['Recitation', 'recitation'], ['Surah by Surah', 'surah-by-surah']]
-      )
-    ]
+    QulScripts::ToolCards.cards(self, ToolCard)
   end
 end

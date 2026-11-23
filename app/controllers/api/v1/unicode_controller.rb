@@ -12,16 +12,15 @@ module Api
         end
         
         begin
-          # Handle both hex strings (e.g., "0626") and integers
-          if code_point.is_a?(String)
-            code_point_int = code_point.to_i(16)
-          else
-            code_point_int = code_point.to_i
+          code_point_int = parse_code_point(code_point)
+          unless code_point_int
+            render json: { error: "Invalid Unicode code point: #{code_point}" }, status: :bad_request
+            return
           end
           
           # Get the character from the code point
           begin
-            char = code_point_int.chr
+            char = code_point_int.chr(Encoding::UTF_8)
           rescue RangeError
             # Invalid code point
             render json: { error: "Invalid Unicode code point: #{code_point}" }, status: :bad_request
@@ -30,7 +29,7 @@ module Api
           
           name = Unicode::Name.of(char)
           decimal = char.ord
-          html_entity_decimal = "&#{decimal};"
+          html_entity_decimal = format('&#%d;', decimal)
           html_entity_hex = "&#x#{code_point_int.to_s(16).upcase};"
           
           # Get decomposition if available
@@ -73,6 +72,14 @@ module Api
 
       def init_presenter
 
+      end
+
+      private
+
+      # Accepts "0626", "U+0626" and "0x0626"; anything else is not a code point.
+      def parse_code_point(value)
+        hex = value.to_s.strip.sub(/\A(?:U\+|0x)/i, '')
+        hex.to_i(16) if hex.match?(/\A\h{1,6}\z/)
       end
     end
   end

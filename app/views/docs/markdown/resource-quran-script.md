@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script)
+- [/resources/quran-script](/resources/quran-script)

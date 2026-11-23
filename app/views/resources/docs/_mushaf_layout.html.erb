@@ -1,5 +1,203 @@
-<% tag = DownloadableResourceTag.find_by(slug: 'mushaf-layout') %>
-
 <div class="qul-docs">
-  <%= safe_html tag.description if tag %>
+  <h2>About mushaf layouts</h2>
+
+  <p>
+    A mushaf layout says how a printed page looks: which words sit on which line of which page, and whether a
+    line is centred or justified. Pair it with a word-by-word <strong>Quran script</strong> and a matching
+    <strong>font</strong> to draw page-accurate mushaf pages. Use the script and font the layout was built for:
+    another script splits words differently and the word ranges will not line up.
+  </p>
+
+  <h2>What's in the download</h2>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Download</th>
+          <th>What it holds</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>SQLite</td>
+          <td>One <code>.db</code> file with two tables: <code>pages</code> (one row per line) and <code>info</code> (one row about the mushaf).</td>
+        </tr>
+        <tr>
+          <td>JSON</td>
+          <td><code>info.json</code> and one file per page, <code>1.json</code> to the last page. Ayah lines carry the words' text too.</td>
+        </tr>
+        <tr>
+          <td>DOCX</td>
+          <td>One Word document per page, <code>1.docx</code> and on, with centred and justified lines kept. Not every layout has it.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>JSON format</h2>
+  <p>
+    Each page file holds one page. Lines are keyed by line number, from <code>"1"</code> at the top. Page 1 of the
+    Madani 15-line layout, shortened:
+  </p>
+  <div class="docs-code">
+    <div class="docs-code-header"><span>JSON</span></div>
+    <pre><code>{
+  "page": 1,
+  "lines": {
+    "1": { "type": "surah_name", "alignment": "centered", "surah_number": 1 },
+    "2": {
+      "type": "ayah",
+      "alignment": "centered",
+      "first_word_id": 1,
+      "last_word_id": 5,
+      "data": ["بِسۡمِ", "ٱللَّهِ", "ٱلرَّحۡمَٰنِ", "ٱلرَّحِيمِ", "١"]
+    }
+  }
+}</code></pre>
+  </div>
+  <ul>
+    <li><code>type</code>: <code>ayah</code>, <code>surah_name</code> or <code>basmallah</code>.</li>
+    <li><code>alignment</code>: <code>centered</code> or <code>justified</code>.</li>
+    <li><code>first_word_id</code> / <code>last_word_id</code>: the first and last word on the line. Ayah lines only.</li>
+    <li><code>data</code>: the words' text, in order. Ayah lines only. Layouts for the V1 and V2 page fonts hold the fonts' glyph codes, not readable text.</li>
+    <li><code>surah_number</code>: the surah whose heading this is. Surah name lines only.</li>
+  </ul>
+  <p>
+    <code>info.json</code> holds <code>name</code>, <code>number_of_pages</code>, <code>lines_per_page</code> and
+    <code>font_name</code>, the same as the <code>info</code> table below.
+  </p>
+
+  <h2>The pages table</h2>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>page_number</td>
+          <td>INTEGER</td>
+          <td>Page in this mushaf, from 1</td>
+        </tr>
+        <tr>
+          <td>line_number</td>
+          <td>INTEGER</td>
+          <td>Line on the page, from 1 at the top</td>
+        </tr>
+        <tr>
+          <td>line_type</td>
+          <td>TEXT</td>
+          <td><code>ayah</code>, <code>surah_name</code> or <code>basmallah</code></td>
+        </tr>
+        <tr>
+          <td>is_centered</td>
+          <td>INTEGER</td>
+          <td><code>1</code> to centre the line, <code>0</code> to justify it</td>
+        </tr>
+        <tr>
+          <td>first_word_id</td>
+          <td>INTEGER</td>
+          <td>First word on the line (<code>id</code> in the word-by-word script). Ayah lines only, empty otherwise</td>
+        </tr>
+        <tr>
+          <td>last_word_id</td>
+          <td>INTEGER</td>
+          <td>Last word on the line, inclusive. Ayah lines only, empty otherwise</td>
+        </tr>
+        <tr>
+          <td>surah_number</td>
+          <td>INTEGER</td>
+          <td>Surah whose heading this is. Surah name lines only, empty otherwise</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>The info table</h2>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>name</td>
+          <td>TEXT</td>
+          <td>Name of the mushaf</td>
+        </tr>
+        <tr>
+          <td>number_of_pages</td>
+          <td>INTEGER</td>
+          <td>Total pages, for example <code>604</code></td>
+        </tr>
+        <tr>
+          <td>lines_per_page</td>
+          <td>INTEGER</td>
+          <td>Lines on a full page, for example <code>15</code></td>
+        </tr>
+        <tr>
+          <td>font_name</td>
+          <td>TEXT</td>
+          <td>Font the layout was built for</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Rendering a line</h2>
+  <div class="tools-table-overflow">
+    <table>
+      <thead>
+        <tr>
+          <th>Line type</th>
+          <th>How to render it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>ayah</code></td>
+          <td>The words <code>first_word_id</code> to <code>last_word_id</code> from the script, in id order. Ayah-end markers are words too.</td>
+        </tr>
+        <tr>
+          <td><code>surah_name</code></td>
+          <td>The heading for <code>surah_number</code>, with a surah name font or your own list of names. Always centred.</td>
+        </tr>
+        <tr>
+          <td><code>basmallah</code></td>
+          <td>The basmallah. No word range. Always centred.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="docs-callout docs-callout-info">
+    Word ids are a global index across the whole Quran, not a word's position in its ayah. Join them to
+    <code>id</code> in the word-by-word Quran script.
+  </div>
+
+  <div class="docs-code">
+    <div class="docs-code-header"><span>SQL</span></div>
+    <pre><code>-- SQLite: the text of each line on page 1, with the word-by-word script attached
+ATTACH 'word-by-word-script.db' AS script;
+
+SELECT p.line_number, p.line_type, p.is_centered, group_concat(w.text, ' ') AS text
+FROM pages p
+LEFT JOIN script.words w ON w.id BETWEEN p.first_word_id AND p.last_word_id
+WHERE p.page_number = 1
+GROUP BY p.line_number
+ORDER BY p.line_number;</code></pre>
+  </div>
+
+  <p>
+    For a longer walkthrough, see
+    <a href='/docs/tutorial-mushaf-layout-end-to-end'>Tutorial 2: Mushaf Layout End-to-End</a>.
+  </p>
 </div>

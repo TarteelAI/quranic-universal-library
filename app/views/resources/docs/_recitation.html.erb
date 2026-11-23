@@ -31,23 +31,40 @@
   <h2>Data format</h2>
 
   <h3>Ayah by ayah</h3>
+  <p>
+    The JSON file is one object keyed by ayah key (<code>surah:ayah</code>). The SQLite file has the same fields in
+    the <code>verses</code> table, one row per ayah, with <code>segments</code> stored as JSON text.
+  </p>
   <div class="docs-code">
     <div class="docs-code-header"><span>JSON</span></div>
     <pre><code>{
-  "surah": 1,
-  "ayah": 1,
-  "audio_url": "https://.../001001.mp3",
-  "segments": [
-    [1, 361, 1051],
-    [2, 1051, 1622]
-  ]
+  "1:1": {
+    "surah_number": 1,
+    "ayah_number": 1,
+    "audio_url": "https://.../001001.mp3",
+    "duration": 6,
+    "segments": [
+      [1, 0, 1030],
+      [2, 1030, 1650]
+    ]
+  }
 }</code></pre>
   </div>
+  <ul>
+    <li><code>surah_number</code>: the surah, 1 to 114.</li>
+    <li><code>ayah_number</code>: the ayah within the surah.</li>
+    <li><code>audio_url</code>: the ayah's audio file.</li>
+    <li><code>duration</code>: length of the file in seconds.</li>
+    <li><code>segments</code>: word timings, relative to the start of the file.</li>
+  </ul>
 
   <h3>Surah by surah</h3>
   <p>
-    Keyed by <code>surah:ayah</code>. <code>timestamp_from</code> and <code>timestamp_to</code> locate the
-    ayah inside the surah's audio file; the word timings inside <code>segments</code> use the same clock.
+    The JSON download holds two files. <code>surah.json</code> lists the audio files, keyed by surah number:
+    <code>surah_number</code>, <code>audio_url</code> and <code>duration</code> (in seconds).
+    <code>segments.json</code> holds the timings, keyed by <code>surah:ayah</code>. <code>timestamp_from</code> and
+    <code>timestamp_to</code> locate the ayah inside the surah's audio file; the word timings inside
+    <code>segments</code> use the same clock.
   </p>
   <div class="docs-code">
     <div class="docs-code-header"><span>JSON</span></div>
@@ -66,5 +83,21 @@
   }
 }</code></pre>
   </div>
+
+  <h4>SQLite tables</h4>
+  <p>
+    The SQLite file has two tables: <code>surah_list</code> (<code>surah_number</code>, <code>audio_url</code>,
+    <code>duration</code>) and <code>segments</code>, one row per ayah:
+  </p>
+  <ul>
+    <li><code>surah_number</code> / <code>ayah_number</code>: the ayah.</li>
+    <li><code>duration_sec</code>: length of the ayah in seconds.</li>
+    <li><code>timestamp_from</code> / <code>timestamp_to</code>: start and end of the ayah in the surah's file, in ms.</li>
+    <li><code>segments</code>: word timings as JSON text.</li>
+  </ul>
+
+  <div class="docs-callout docs-callout-info">
+    Some surah-by-surah recitations also have letter-level timings, as a separate download with
+    <code>surah_number</code>, <code>ayah_number</code> and <code>segments</code> per ayah.
+  </div>
 </div>
-    

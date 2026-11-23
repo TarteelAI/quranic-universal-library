@@ -15,7 +15,7 @@ Depending on the selected package, script data can include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script)
+- [/resources/quran-script](/resources/quran-script)
 
 ## 2) When to Use It
 
@@ -27,11 +27,11 @@ Use Quran Script data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/quran-script](https://qul.tarteel.ai/resources/quran-script).
+1. Open [/resources/quran-script](/resources/quran-script).
 2. Keep the default listing order and open the first published card.
 3. Confirm the detail page includes:
    - `Preview` tab
-   - `Help` tab
+   - `Docs` tab
 4. Confirm available downloads:
    - `sqlite`
    - `json`
@@ -47,7 +47,7 @@ On the script detail page:
   - `Jump to Ayah` selector
   - Previous/next ayah navigation
   - Rendered Arabic script output (often word-by-word blocks in word resources)
-- `Help` tab:
+- `Docs` tab:
   - Sample JSON structure
   - Field descriptions (`verse_key`, `text`, `script_type`, `font_family`, `words`)
   - Rendering notes and usage examples (CSS + JS)
@@ -78,8 +78,9 @@ Starter integration snippet (JavaScript):
 
 ```javascript
 // Build fast verse lookup by canonical ayah key.
+// JSON exports are objects keyed by ayah key ("1:1"); SQLite gives an array of rows.
 const buildVerseIndex = (rows) =>
-  rows.reduce((index, row) => {
+  Object.values(rows).reduce((index, row) => {
     index[row.verse_key] = {
       text: row.text,
       scriptType: row.script_type,

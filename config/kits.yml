@@ -1,0 +1,137 @@
+# Starter kits: curated sets of resources that work together for one kind of app, shown on
+# /kits, /kits/:key and the home page while the `start` page group is on. Read through Kits
+# (app/services/kits.rb); spec/services/kits_spec.rb fails when a slug below does not name a
+# published resource. Nothing is marked recommended yet, so the picks are named here by hand.
+#
+# - `key`: the kit's URL (/kits/<key>). Lowercase words joined by hyphens.
+# - `tag`: a few words on the kit's card.
+# - `blurb`: one line on the kit's card; `description`: the kit page's intro.
+# - `answers`: the guided setup's answers for this kind of app (GuidedSetup::Answers), so a
+#   visitor can start from them and change any.
+# - `items`: in the order the kit page lists them. `resource` and `alternative` are resource
+#   slugs; `why` says why this one; `alternative` is optional. A resource that is unpublished
+#   later drops out of the kit until this file is fixed.
+
+kits:
+  - key: madani-reader
+    title: Madani reader
+    tag: Mushaf app
+    blurb: The KFGQPC V2 page layout with its font and text, Saheeh International and juz data.
+    description: >-
+      Everything a mushaf app in the Madani script needs: the 15-line KFGQPC V2 pages, the font
+      and word-by-word text the layout is drawn with, an English translation and the juz
+      boundaries for the table of contents.
+    answers: { goal: reader, platform: 'android,ios', feature: 'mushaf,translation,nav', script: madani, lang: en }
+    items:
+      - need: Page layout
+        resource: kfgqpc-v2-layout-1421h-print
+        why: The page, line and word positions of the 1421H King Fahd Complex print.
+        alternative: digital-khatt-kfgqpc-v2-1421h-print-layout
+      - need: Font
+        resource: qpc-v2-font
+        why: The layout above is drawn with this font, one font file for each page.
+      - need: Quran text
+        resource: qpc-v2-glyph-word-by-word
+        why: The glyph codes of each word, which the layout's word positions point to.
+      - need: English translation
+        resource: saheeh-international
+        why: Clear, literal English, ayah by ayah.
+        alternative: dr-mustafa-khattab-the-clear-quran
+      - need: Navigation
+        resource: juz
+        why: The first and last ayah of each juz, for the table of contents.
+        alternative: hizb
+
+  - key: indopak-urdu
+    title: IndoPak reader with Urdu and English
+    tag: South Asia
+    blurb: An IndoPak 15-line layout, the Nastaleeq font and text, Urdu and English translations and Urdu tafsir.
+    description: >-
+      Everything a mushaf app in the IndoPak script needs, for readers in Pakistan, India and
+      Bangladesh: the 15-line pages, the Nastaleeq font and text, Urdu and English translations
+      and an Urdu tafsir.
+    answers:
+      goal: reader
+      platform: 'android,ios'
+      feature: 'mushaf,translation,tafsir,nav'
+      script: indopak
+      lang: 'ur,en'
+    items:
+      - need: Page layout
+        resource: indopak-15-lines-layout-qudratullah
+        why: The 15-line IndoPak mushaf that most readers in South Asia learned from.
+        alternative: indopak-16-lines-layout-taj-company
+      - need: Font
+        resource: indopak-nastaleeq-font
+        why: Both layouts here are drawn with this font.
+      - need: Quran text
+        resource: indopak-nastaleeq-script-word-by-word
+        why: The words the layout places on each line, in the script the font draws.
+        alternative: indopak-nastaleeq-script-ayah-by-ayah
+      - need: Urdu translation
+        resource: fatah-muhammad-jalandhari
+        why: One of the most widely read Urdu translations.
+        alternative: maulana-muhammad-junagarhi
+      - need: English translation
+        resource: saheeh-international
+        why: Clear, literal English, ayah by ayah.
+        alternative: dr-mustafa-khattab-the-clear-quran
+      - need: Tafsir
+        resource: tafsir-ibn-kathir-urdu
+        why: A complete classical commentary in Urdu.
+        alternative: tafsir-bayan-ul-quran
+      - need: Navigation
+        resource: juz
+        why: The first and last ayah of each juz, for the table of contents.
+        alternative: hizb
+
+  - key: recitation
+    title: Recitation with highlighting
+    tag: Audio
+    blurb: Mishari al-Afasy with the timing of each word, the KFGQPC Hafs text and font, and surah names.
+    description: >-
+      Everything an app needs to play a recitation and highlight each word as it is recited:
+      ayah-by-ayah audio with word timing, the text and font to show, and the surah names for
+      the list of surahs.
+    answers: { goal: audio, platform: web, feature: 'audio,highlight,nav', script: madani, lang: '' }
+    items:
+      - need: Recitation
+        resource: mishari-rashid-al-afasy-ayah-by-ayah
+        why: A well-known murattal recitation with the start and end time of each word.
+        alternative: mahmoud-khalil-al-husary-murattal
+      - need: Quran text
+        resource: kfgqpc-hafs-script-word-by-word
+        why: One row for each word, so the word being recited can be highlighted.
+      - need: Font
+        resource: qpc-hafs-font
+        why: The font this text is written for.
+      - need: Surah names
+        resource: surah-names
+        why: The name of each surah, for the list of surahs and the player.
+
+  - key: word-by-word
+    title: Word by word learning
+    tag: Learning
+    blurb: English meaning and transliteration of each word, the KFGQPC Hafs text and font, and word roots.
+    description: >-
+      Everything a learning app needs to teach the Quran word by word: the meaning and
+      transliteration of each word in English, the text and font to show, and the root of each
+      word.
+    answers: { goal: learning, platform: web, feature: 'ayah,wbw,translit', script: madani, lang: en }
+    items:
+      - need: Quran text
+        resource: kfgqpc-hafs-script-word-by-word
+        why: One row for each word, to put the meaning under.
+      - need: Font
+        resource: qpc-hafs-font
+        why: The font this text is written for.
+      - need: Word meanings
+        resource: english-word-by-word-translation
+        why: The English meaning of each word.
+      - need: Transliteration
+        resource: english-wbw-transliteration
+        why: The English transliteration of each word, to help with pronunciation.
+      - need: Word roots
+        resource: quran-word-roots
+        why: The root of each word, to show the words that share it.
+        alternative: word-lemma

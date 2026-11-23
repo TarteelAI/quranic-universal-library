@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/recitation](https://qul.tarteel.ai/resources/recitation)
+- [/resources/recitation](/resources/recitation)

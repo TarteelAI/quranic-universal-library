@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/translation](https://qul.tarteel.ai/resources/translation)
+- [/resources/translation](/resources/translation)

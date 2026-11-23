@@ -15,6 +15,10 @@ storage
 public/assets
 public/packs
 public/packs-test
+public/vite
+public/vite-dev
+public/vite-test
+public/vite-ssr
 
 coverage
 spec/reports
@@ -24,3 +28,11 @@ test/reports
 *.swo
 
 todo.txt
+
+# local environment and planning files
+.env
+.env.*
+!.env.sample
+.agents
+sprints
+AGENTS.md

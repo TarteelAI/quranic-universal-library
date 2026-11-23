@@ -14,7 +14,7 @@ Typical content includes:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics)
+- [/resources/ayah-topics](/resources/ayah-topics)
 
 ## 2) When to Use It
 
@@ -26,11 +26,11 @@ Use ayah-topics data when building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/ayah-topics](https://qul.tarteel.ai/resources/ayah-topics).
+1. Open [/resources/ayah-topics](/resources/ayah-topics).
 2. Keep default listing order and open the first published card.
 3. Confirm page sections include:
    - Topics listing/search area
-   - `Help` tab
+   - `Docs` tab
 4. Confirm available download formats (commonly `sqlite` on this resource type).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -43,7 +43,7 @@ On ayah-topics detail pages:
   - Search input for topic names/metadata
   - Topic list with ayah counts
   - Topic detail navigation
-- `Help` tab:
+- `Docs` tab:
   - Explains topic families and usage
   - Documents mapping behavior between topics and ayahs
 

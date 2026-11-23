@@ -2,8 +2,8 @@
 
 ## Data and Schema
 
-- Keep `surah_id`, `ayah_number`, and `word_position` as integers.
-- Add indexes for `surah_id + ayah_number` in verse-level tables.
+- Keep surah, ayah and word numbers as integers.
+- Index verse-level tables on the ayah key, or on the surah and ayah number columns.
 - Keep translations and tafsir in separate tables to support multiple sources and languages.
 - Avoid duplicating large text blobs when ID-based references are enough.
 
@@ -16,7 +16,7 @@
 
 ## Data Quality and Validation
 
-- Validate required keys (`surah_id`, `ayah_number`, `word_position`) early.
+- Validate required keys (ayah key `"1:1"`, word location `"1:1:1"`) early.
 - Keep a small verification script to test joins across selected resource categories.
 - Confirm UTF-8 handling in your runtime, storage, and API outputs.
 - Track dataset source/version in your metadata for traceability.

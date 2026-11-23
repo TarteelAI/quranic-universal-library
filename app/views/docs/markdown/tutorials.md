@@ -13,7 +13,7 @@ Use this repeatable rule for any resource type:
 1. Open the resource category page.
 2. Use the default listing order.
 3. Open the first published resource card shown.
-4. Check the preview and help tabs.
+4. Check the Preview, Data and Docs tabs.
 5. Download the format that fits your project.
 
 ## Tutorial Index

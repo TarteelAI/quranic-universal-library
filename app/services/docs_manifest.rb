@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class DocsManifest
-  MANIFEST_PATH = Rails.root.join("config/docs.yml").freeze
+  MANIFEST_PATH = Rails.root.join('config', 'docs.yml').freeze
 
   Category = Struct.new(:slug, :title, :description, :icon, :accent, :badge, :pages, keyword_init: true)
   Page = Struct.new(:slug, :title, :children, keyword_init: true)
@@ -22,9 +24,15 @@ class DocsManifest
       titles[slug.to_s]
     end
 
+    # Every page in reading order: the categories in order, each page followed by its children.
+    def pages_in_order
+      @pages_in_order ||= load.values.flat_map { |category| flatten(category.pages) }
+    end
+
     def reload!
       @load = nil
       @titles = nil
+      @pages_in_order = nil
     end
 
     private
@@ -48,17 +56,17 @@ class DocsManifest
 
     def build
       raw = YAML.safe_load(File.read(MANIFEST_PATH)) || {}
-      categories = raw.fetch("categories", [])
+      categories = raw.fetch('categories', [])
 
       categories.each_with_object({}) do |attrs, memo|
         category = Category.new(
-          slug: attrs["slug"],
-          title: attrs["title"],
-          description: attrs["description"],
-          icon: attrs["icon"],
-          accent: attrs["accent"],
-          badge: attrs["badge"],
-          pages: build_pages(attrs.fetch("pages", []))
+          slug: attrs['slug'],
+          title: attrs['title'],
+          description: attrs['description'],
+          icon: attrs['icon'],
+          accent: attrs['accent'],
+          badge: attrs['badge'],
+          pages: build_pages(attrs.fetch('pages', [])),
         )
         memo[category.slug] = category
       end
@@ -67,11 +75,15 @@ class DocsManifest
     def build_pages(pages)
       pages.map do |page|
         Page.new(
-          slug: page["slug"],
-          title: page["title"],
-          children: build_pages(page.fetch("children", []))
+          slug: page['slug'],
+          title: page['title'],
+          children: build_pages(page.fetch('children', [])),
         )
       end
+    end
+
+    def flatten(pages)
+      pages.flat_map { |page| [page, *flatten(page.children)] }
     end
 
     def page_matches?(page, slug)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 env = Rails.env
-host = env.development? ? 'localhost:3000' : 'qul.tarteel.ai'
+host = ENV['APP_HOST'].presence || (env.development? ? 'localhost:3000' : 'qul.tarteel.ai')
 
 Rails.application.configure do
-  hosts = ['qul.tarteel.ai', 'localhost']
+  hosts = ['qul.tarteel.ai', 'localhost', host.split(':').first].uniq
   config.hosts += hosts
   config.action_cable.allowed_request_origins = hosts
 

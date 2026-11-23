@@ -82,6 +82,7 @@ test/fixtures
 # Ignore environment variables
 /.env
 /.env.development.local
+/.env.test.local
 
 #---------------------------------------#
 # IDEs & Editors Ignores                #
@@ -173,3 +174,9 @@ scripts/exported_data
 
 # Cypress local secrets (testmail.app credentials etc.)
 cypress.env.json
+
+# Vite (app/frontend) build output
+/public/vite
+/public/vite-dev
+/public/vite-test
+/public/vite-ssr

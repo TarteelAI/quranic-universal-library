@@ -23,8 +23,10 @@ Sidekiq.configure_server do |config|
   Sidekiq::Status.configure_server_middleware config
   Sidekiq::Status.configure_client_middleware config
 
-  # Load the schedule
+  # Load the schedule. QUL_SCHEDULED_JOBS=off skips it (staging copies of production).
   config.on(:startup) do
+    next if ENV['QUL_SCHEDULED_JOBS'] == 'off'
+
     Sidekiq.schedule = YAML.load_file('config/sidekiq_scheduler.yml')
     SidekiqScheduler::Scheduler.instance.reload_schedule!
   end

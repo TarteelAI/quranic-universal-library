@@ -14,7 +14,7 @@ Typical entries include:
 
 Primary category:
 
-- [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration)
+- [/resources/transliteration](/resources/transliteration)
 
 ## 2) When to Use It
 
@@ -26,11 +26,11 @@ Use transliteration data when you are building:
 
 ## 3) How to Get Your First Example Resource
 
-1. Open [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration).
+1. Open [/resources/transliteration](/resources/transliteration).
 2. Keep default listing order and open the first published card.
 3. Confirm the detail page includes:
-   - `Transliteration Preview` tab
-   - `Help` tab
+   - `Preview` tab
+   - `Docs` tab
 4. Confirm downloads (`json`, `sqlite`).
 
 This keeps onboarding concrete without hardcoded IDs.
@@ -39,11 +39,11 @@ This keeps onboarding concrete without hardcoded IDs.
 
 On transliteration detail pages:
 
-- `Transliteration Preview` tab:
+- `Preview` tab:
   - `Jump to Ayah`
   - Previous/next ayah navigation
   - Arabic line + transliteration line
-- `Help` tab:
+- `Docs` tab:
   - Data shape keyed by `ayah_key`
   - Field examples for app integration
 
@@ -63,6 +63,8 @@ Practical meaning:
 Starter integration snippet (JavaScript):
 
 ```javascript
+// JSON exports are already keyed by ayah key ({ "1:1": "text" }) and can be used as the index.
+// SQLite rows (sura, ayah, ayah_key, text) are indexed like this:
 const buildTransliterationIndex = (rows) =>
   rows.reduce((index, row) => {
     index[row.ayah_key] = row.text;

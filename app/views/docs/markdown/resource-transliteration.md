@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/transliteration](https://qul.tarteel.ai/resources/transliteration)
+- [/resources/transliteration](/resources/transliteration)

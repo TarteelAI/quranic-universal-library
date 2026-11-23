@@ -2,7 +2,7 @@
 
 Use this guide when consuming QUL data in your own application or research pipeline.
 
-Resources directory: [https://qul.tarteel.ai/resources](https://qul.tarteel.ai/resources)
+Resources directory: [/resources](/resources)
 
 Many resources are available in:
 
@@ -15,7 +15,7 @@ SQLite docs: [https://www.sqlite.org/docs.html](https://www.sqlite.org/docs.html
 
 1. Select a dataset from `/resources`.
 2. Download JSON or SQLite.
-3. Inspect keys (`surah_id`, `ayah_number`, `word_position`, etc.).
+3. Inspect keys: JSON is keyed by ayah key (`"1:1"`) or word location (`"1:1:1"`); SQLite column names vary by export.
 4. Load into your runtime.
 5. Import into your database for production workloads.
 6. Add indexes on high-traffic query keys.
@@ -27,7 +27,7 @@ SQLite docs: [https://www.sqlite.org/docs.html](https://www.sqlite.org/docs.html
 ```javascript
 const fs = require("fs")
 const data = JSON.parse(fs.readFileSync("data.json", "utf8"))
-console.log(data[0])
+console.log(data["1:1"])
 ```
 
 ### Python
@@ -38,7 +38,7 @@ import json
 with open("data.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
-print(data[0])
+print(data["1:1"])
 ```
 
 ### Ruby
@@ -47,12 +47,12 @@ print(data[0])
 require "json"
 
 data = JSON.parse(File.read("data.json"))
-puts data.first
+puts data["1:1"]
 ```
 
 ## Performance Tips
 
-- Index by `surah_id` + `ayah_number`.
+- Index by the ayah key, or by the surah and ayah number columns.
 - For large datasets, prefer SQLite or PostgreSQL over in-memory JSON processing.
 - Cache frequently accessed verses/tafsir payloads.
 - Stream very large JSON files instead of loading full files into memory.
@@ -82,7 +82,7 @@ Include:
 
 - resource URL
 - chosen format (JSON/SQLite)
-- identifiers involved (`surah_id`, `ayah_number`, `word_position` if relevant)
+- the ayah key or word location involved (for example `2:255` or `1:1:2`)
 - expected vs actual behavior
 - a minimal reproducible snippet
 

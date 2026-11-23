@@ -12,4 +12,4 @@ Recommended starting point for new users:
 
 Resource directory entry:
 
-- [https://qul.tarteel.ai/resources/morphology](https://qul.tarteel.ai/resources/morphology)
+- [/resources/morphology](/resources/morphology)

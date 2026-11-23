@@ -37,7 +37,11 @@ module V1
 
       return nil unless chapter.present?
 
-      chapter.to_i.abs
+      # Otherwise an unknown chapter matches no verse and the random endpoints raise a 500.
+      number = chapter.to_s.strip
+      invalid_chapter(chapter) unless number.match?(/\A\d+\z/) && (1..114).cover?(number.to_i)
+
+      number.to_i
     end
 
     def eager_load_best_names(resources, resource_type: ResourceContent)

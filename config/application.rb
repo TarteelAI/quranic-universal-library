@@ -54,6 +54,10 @@ module Qul
 
     config.assets.css_compressor = :escompress
 
+    # Rails 8.1 raises MissingController (a 500) when a route points at a
+    # controller that doesn't exist. 8.0 returned 404, so keep that.
+    config.action_dispatch.rescue_responses["ActionDispatch::MissingController"] = :not_found
+
     config.active_record.yaml_column_permitted_classes = [
       Symbol,
       Date,

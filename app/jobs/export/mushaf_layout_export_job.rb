@@ -38,7 +38,7 @@ module Export
       admin = User.find(user_id)
 
       # zip the file
-      `bzip2 #{file_path}`
+      system('bzip2', file_path.to_s)
 
       zip_path = "#{file_path}.bz2"
 

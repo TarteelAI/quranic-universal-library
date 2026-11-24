@@ -1,0 +1,317 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "0a3f6e28cbe1bb6d2b16b5e0f1861ff299c0047450c9977eba19f6c32d3a4046",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/presenters/quran_scripts_comparison_presenter.rb",
+      "line": 114,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Word.unscoped.where(\"#{(params[:script].to_s.strip or scripts.first)} LIKE ?\", \"%#{char}%\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "QuranScriptsComparisonPresenter",
+        "method": "words"
+      },
+      "user_input": "params[:script]",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "script is checked against the scripts allowlist on the line above"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "5aeecba4cbe8e5bbe4ea3c1084e54d6ef2b1dbcb9e95195677269158f3c09fb6",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/presenters/word_texts_presenter.rb",
+      "line": 17,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Word.words.select(:id, params[:col_a].to_s.strip, params[:col_b].to_s.strip, \"LENGTH(REGEXP_REPLACE(#{params[:col_a].to_s.strip}, '#{\"[^\\\\u064B-\\\\u065F\\\\u0670\\\\u06D6-\\\\u06ED]\"}', '', 'g')) AS #{params[:col_a].to_s.strip}_tashkeel_count\", \"LENGTH(REGEXP_REPLACE(#{params[:col_b].to_s.strip}, '#{\"[^\\\\u064B-\\\\u065F\\\\u0670\\\\u06D6-\\\\u06ED]\"}', '', 'g')) AS #{params[:col_b].to_s.strip}_tashkeel_count\").where(\"LENGTH(REGEXP_REPLACE(#{params[:col_a].to_s.strip}, '#{\"[^\\\\u064B-\\\\u065F\\\\u0670\\\\u06D6-\\\\u06ED]\"}', '', 'g')) <> LENGTH(REGEXP_REPLACE(#{params[:col_b].to_s.strip}, '#{\"[^\\\\u064B-\\\\u065F\\\\u0670\\\\u06D6-\\\\u06ED]\"}', '', 'g'))\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "WordTextsPresenter",
+        "method": "words_with_tashkeel_differences"
+      },
+      "user_input": "params[:col_a]",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "col_a/col_b are checked against Word text_* columns before use"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "6e6d11bc11ff9451c9ae03ee3826826b0504453ec7c712aba1b8d9efd228d8c6",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/export_mushaf_layout.rb",
+      "line": 207,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ExportedLayout.connection.execute(\"  INSERT INTO #{ExportedLayout.table_name} (\\n    page,\\n    line,\\n    type,\\n    is_centered,\\n    range_start,\\n    range_end\\n  ) VALUES\\n    #{layout_records.map do\n \"(#{record[0]}, #{record[1]}, #{ExportedLayout.connection.quote(record[2])}, #{record[3] ? (\"TRUE\") : (\"FALSE\")}, #{record[4] ? (record[4]) : (\"NULL\")}, #{record[5] ? (record[5]) : (\"NULL\")})\"\n end.join(\", \")}\\n\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ExportMushafLayout",
+        "method": "bulk_insert_layouts"
+      },
+      "user_input": "ExportedLayout.connection.quote(record[2])",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "internal export; values are integers or connection.quote-d"
+    },
+    {
+      "warning_type": "SSL Verification Bypass",
+      "warning_code": 71,
+      "fingerprint": "a3ce6828b030756ce186fec856f647c276bde3792811e4911e0be88dcb383200",
+      "check_name": "SSLVerify",
+      "message": "SSL certificate verification was bypassed",
+      "file": "lib/importer/base.rb",
+      "line": 138,
+      "link": "https://brakemanscanner.org/docs/warning_types/ssl_verification_bypass/",
+      "code": "Mechanize.new.verify_mode = OpenSSL::SSL::VERIFY_NONE",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Importer::Base",
+        "method": "mechanize_agent"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        295
+      ],
+      "note": "importer scraping job, run by admins only; not request-driven"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "bd0a1eefe18880ba4b524ba7b64519a6ce7941ea5d891c4f82f8cadd4be6f5c6",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/services/morphology/noor_bayan/script_refresher.rb",
+      "line": 86,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Morphology::WordToken.connection.execute(\"UPDATE morphology_word_tokens AS t\\nSET text_qpc_hafs = COALESCE(v.qpc, t.text_qpc_hafs),\\n    text_digital_khatt = COALESCE(v.dk, t.text_digital_khatt)\\nFROM (VALUES #{slice.map do\n qpc = Morphology::WordToken.connection.quote(columns[\"text_qpc_hafs\"])\ndk = Morphology::WordToken.connection.quote(columns[\"text_digital_khatt\"])\n\"(#{id.to_i}, #{Morphology::WordToken.connection.quote(columns[\"text_qpc_hafs\"])}, #{Morphology::WordToken.connection.quote(columns[\"text_digital_khatt\"])})\"\n end.join(\", \")}) AS v(id, qpc, dk)\\nWHERE t.id = v.id\\n\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Morphology::NoorBayan::ScriptRefresher",
+        "method": "apply"
+      },
+      "user_input": "Morphology::WordToken.connection.quote(columns[\"text_digital_khatt\"])",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "ids are to_i and text is connection.quote-d"
+    },
+    {
+      "warning_type": "Dangerous Send",
+      "warning_code": 23,
+      "fingerprint": "bf785751553f4d1e83ba136e557fc6d0497bc282011790874cad1666af426c07",
+      "check_name": "Send",
+      "message": "User controlled method execution",
+      "file": "app/views/community/tool_help.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/dangerous_send/",
+      "code": "send(\"#{params[:key].to_s.downcase.strip}_help\")",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "CommunityController",
+          "method": "tool_help",
+          "line": 79,
+          "file": "app/controllers/community_controller.rb",
+          "rendered": {
+            "name": "community/tool_help",
+            "file": "app/views/community/tool_help.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "community/tool_help"
+      },
+      "user_input": "params[:key].to_s.downcase.strip",
+      "confidence": "High",
+      "cwe_id": [
+        77
+      ],
+      "note": "key is checked against available_tool_keys before send"
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "c15eed4310db8ad686ff7c853713cd70d718e2f7efc52f5e4ca9f7fa4e925173",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/shared/_mushaf_page_svg.html.erb",
+      "line": 23,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "MushafPage.where(:page_number => page, :mushaf => mushaf).first.text",
+      "render_path": [
+        {
+          "type": "template",
+          "name": "exports/mushaf",
+          "line": 282,
+          "file": "app/views/exports/mushaf.html.erb",
+          "rendered": {
+            "name": "shared/_mushaf_page",
+            "file": "app/views/shared/_mushaf_page.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "shared/_mushaf_page",
+          "line": 35,
+          "file": "app/views/shared/_mushaf_page.html.erb",
+          "rendered": {
+            "name": "shared/_mushaf_page_svg",
+            "file": "app/views/shared/_mushaf_page_svg.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "shared/_mushaf_page_svg"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        79
+      ],
+      "note": "SVG page content managed by admins in the CMS"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c9695847fb45a532883ede0a2256f84eccdeb8d1034bb24d7c760cc6ffae05e3",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "lib/export_mushaf_layout.rb",
+      "line": 349,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ExportedWord.connection.execute(\"  INSERT INTO words (\\n    surah_number,\\n    ayah_number,\\n    word_number,\\n    word_number_all,\\n    uthmani,\\n    nastaleeq,\\n    indopak,\\n    dk_indopak,\\n    qpc_v1,\\n    dk_v2,\\n    dk_v1,\\n    qpc_hafs,\\n    is_ayah_marker\\n  ) VALUES\\n    #{values.map do\n \"(#{row[0]}, #{row[1]}, #{row[2]}, #{row[3]}, #{ExportedWord.connection.quote(row[4])}, #{ExportedWord.connection.quote(row[5])}, #{ExportedWord.connection.quote(row[6])}, #{ExportedWord.connection.quote(row[7])}, #{ExportedWord.connection.quote(row[8])}, #{ExportedWord.connection.quote(row[9])}, #{ExportedWord.connection.quote(row[10])}, #{ExportedWord.connection.quote(row[11])}, #{row[12] ? (\"TRUE\") : (\"FALSE\")})\"\n end.join(\", \")}\\n\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ExportMushafLayout",
+        "method": "bulk_insert_words"
+      },
+      "user_input": "ExportedWord.connection.quote(row[11])",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "internal export; values are integers or connection.quote-d"
+    },
+    {
+      "warning_type": "Unmaintained Dependency",
+      "warning_code": 120,
+      "fingerprint": "d84924377155b41e094acae7404ec2e521629d86f97b0ff628e3d1b263f8101c",
+      "check_name": "EOLRails",
+      "message": "Support for Rails 8.0.5.1 ended on 2026-11-07",
+      "file": "Gemfile.lock",
+      "line": 384,
+      "link": "https://brakemanscanner.org/docs/warning_types/unmaintained_dependency/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        1104
+      ],
+      "note": "Rails 8.0 EOL: upgrade to 8.1 tracked separately; patched to 8.0.5.2"
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "f75e2e2afb5966b0e9ee8e15f0267a244136a647486948f2348e544d6eafd46b",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/views/community/_chars_table.html.erb",
+      "line": 6,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Word.order(\"word_index ASC\").where(\"#{(params[:script].to_s.downcase.strip or \"text_uthmani\")} ilike ?\", \"%#{params[:char].strip}%\")",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "CommunityController",
+          "method": "chars_info",
+          "line": 85,
+          "file": "app/controllers/community_controller.rb",
+          "rendered": {
+            "name": "community/chars_info",
+            "file": "app/views/community/chars_info.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "community/chars_info",
+          "line": 25,
+          "file": "app/views/community/chars_info.html.erb",
+          "rendered": {
+            "name": "community/_chars_table",
+            "file": "app/views/community/_chars_table.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "community/_chars_table"
+      },
+      "user_input": "params[:script].to_s.downcase",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "script is checked against quran_scripts keys and Word columns"
+    },
+    {
+      "warning_type": "Dynamic Render Path",
+      "warning_code": 15,
+      "fingerprint": "fd00b576371801ca067c7705907f147e1d9007edd7f26acbedbd2d0a05f7bb5a",
+      "check_name": "Render",
+      "message": "Render path contains parameter value",
+      "file": "app/views/learning_activities/show.html.erb",
+      "line": 15,
+      "link": "https://brakemanscanner.org/docs/warning_types/dynamic_render_path/",
+      "code": "render(action => (params[:activity] or params[:id]).to_s.downcase, {})",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "LearningActivitiesController",
+          "method": "show",
+          "line": 8,
+          "file": "app/controllers/learning_activities_controller.rb",
+          "rendered": {
+            "name": "learning_activities/show",
+            "file": "app/views/learning_activities/show.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "learning_activities/show"
+      },
+      "user_input": "params[:activity]",
+      "confidence": "High",
+      "cwe_id": [
+        22
+      ],
+      "note": "activity is checked with valid_activity? before render"
+    }
+  ],
+  "brakeman_version": "8.1.0"
+}

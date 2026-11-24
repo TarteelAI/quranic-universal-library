@@ -90,11 +90,22 @@ ActiveAdmin.register User do
       f.input :last_name
       f.input :email
 
-      f.input :password, required: false, input_html: {
-        data: {
-          controller: 'toggle-password'
+      editing_self = f.object.persisted? && f.object.id == current_user.id
+
+      # New users need a password, and super admins can reset anyone's.
+      # Only your own account asks for the current password.
+      if f.object.new_record? || editing_self || current_user.super_admin?
+        f.input :password, required: f.object.new_record?, input_html: {
+          data: {
+            controller: 'toggle-password'
+          }
         }
-      }
+      end
+
+      if editing_self
+        f.input :current_password, as: :password, required: false,
+                hint: 'Required to change your email or password'
+      end
 
       if current_user.super_admin?
         f.input :approved
@@ -131,15 +142,35 @@ ActiveAdmin.register User do
   end
 
   controller do
+    before_action only: :all_options do
+      unless current_user.super_admin? || current_user.is_admin? || current_user.is_moderator?
+        raise ActiveAdmin::AccessDenied.new(current_user, :all_options, User)
+      end
+    end
+
     def update
       attributes = permitted_params['user']
       attributes.delete(:password) if attributes[:password].blank?
+
+      if needs_current_password?(attributes) && !resource.valid_password?(params.dig(:user, :current_password).to_s)
+        resource.assign_attributes(attributes.except(:password))
+        resource.errors.add(:current_password, 'is required to change your email or password')
+        return render action: :edit, status: :unprocessable_entity
+      end
 
       if resource.update(attributes)
         redirect_to [:cms, resource], notice: 'Updated successfully'
       else
         render action: :edit
       end
+    end
+
+    protected
+
+    def needs_current_password?(attributes)
+      return false unless resource.id == current_user.id
+
+      attributes[:password].present? || (attributes.key?(:email) && attributes[:email].to_s.strip.casecmp(resource.email.to_s) != 0)
     end
   end
 end

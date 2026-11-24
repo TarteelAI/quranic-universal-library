@@ -172,8 +172,20 @@ module ApplicationHelper
     ]
   end
 
+  # Renders stored HTML (translations, tafsirs, suggestions) after stripping
+  # scripts, event handlers and javascript: URLs. See Utils::SafeHtml.
   def safe_html(html)
-    html.to_s.html_safe
+    Utils::SafeHtml.sanitize(html)
+  end
+
+  def cms_user_label(user)
+    return '' if user.blank?
+
+    if current_user && current_user.super_admin?
+      "#{user.name}(#{user.email})"
+    else
+      [user.first_name, user.last_name].compact_blank.join(' ')
+    end
   end
 
   def pagination_section(pagy, nav_options: {}, extra_class: nil)

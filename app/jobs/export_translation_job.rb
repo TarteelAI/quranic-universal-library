@@ -74,7 +74,7 @@ class ExportTranslationJob < ApplicationJob
 
   def compress_sqlite_db_file
     # zip the file
-    `bzip2 #{file_name}`
+    system('bzip2', file_name.to_s)
   end
 
   def import_data_in_sqlite_db

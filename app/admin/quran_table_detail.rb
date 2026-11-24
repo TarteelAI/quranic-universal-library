@@ -20,7 +20,7 @@ ActiveAdmin.register QuranTableDetail do
         attributes_table_for(record) do
           record.attributes.each do |key, _val|
             row key do
-              record.send(key).to_s.html_safe
+              record.read_attribute(key).to_s
             end
           end
         end

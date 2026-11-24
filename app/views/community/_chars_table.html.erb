@@ -1,6 +1,8 @@
 <%
   char = params[:char].strip
   script = params[:script].to_s.downcase.strip
+  # chars_info only renders this for a known script key; check again before it goes into SQL
+  script = 'text_uthmani' unless scripts.key?(script.to_sym) && Word.column_names.include?(script)
   words = Word.order('word_index ASC').where("#{script} ilike ?", "%#{char}%")
   pagination, words = pagy(words, items: 500)
 %>

@@ -26,7 +26,7 @@
     </div>
   </div>
   <div class="relative mt-6 password">
-    <%= f.password_field :password, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ', required: true, minlength: 6, data: {controller: 'toggle-password' } %>
+    <%= f.password_field :password, class: 'block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent peer', placeholder: ' ', required: true, minlength: 12, data: {controller: 'toggle-password' } %>
     <%= f.label :password, class: 'absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 start-1 pointer-events-none', required: true %>
     <div class="text-sm text-red-600 mt-1 hidden invalid-feedback">
       Password does not meet minimum security requirements.

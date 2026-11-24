@@ -14,12 +14,29 @@ ActiveAdmin.register UserProject do
   end
 
   controller do
+    before_action :prevent_self_assignment, only: %i[create update]
+
     def update
       attributes = permitted_params['user_project']
       resource.attributes = attributes
       resource.save(validate: false)
 
       redirect_to [:cms, resource], notice: 'Updated successfully'
+    end
+
+    protected
+
+    # Moderators can manage projects, but not grant or edit access for themselves
+    def prevent_self_assignment
+      return if current_user.super_admin? || current_user.is_admin?
+
+      target_user_id = params.dig(:user_project, :user_id).presence&.to_i
+      own_project = params[:id].present? && resource.user_id == current_user.id
+
+      if own_project || target_user_id == current_user.id
+        redirect_back fallback_location: cms_user_projects_path,
+                      alert: "You can't create or change a project for your own account."
+      end
     end
   end
 

@@ -19,6 +19,7 @@ ActiveAdmin.register Draft::WordRoot do
   scope :pending_contributions
 
   batch_action :approve_and_update, confirm: 'Approve and update the selected words?' do |ids|
+    authorize! :manage, :draft_content
     drafts = Draft::WordRoot.where(id: ids, imported: false)
     drafts.each(&:import!)
 

@@ -24,3 +24,10 @@ test/reports
 *.swo
 
 todo.txt
+
+# secrets
+.env
+.env.*
+config/master.key
+config/credentials/*.key
+*.pem

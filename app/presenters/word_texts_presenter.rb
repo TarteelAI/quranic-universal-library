@@ -1,7 +1,9 @@
 class WordTextsPresenter < ApplicationPresenter
   def words_with_tashkeel_differences
+    text_columns = Word.column_names.select { |c| c.start_with?('text_') }
     col_a = params[:col_a].to_s.strip
     col_b = params[:col_b].to_s.strip
+    return paginate(Word.none) unless text_columns.include?(col_a) && text_columns.include?(col_b)
 
     regex = '[^\u064B-\u065F\u0670\u06D6-\u06ED]'
 

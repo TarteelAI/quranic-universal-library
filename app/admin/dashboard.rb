@@ -109,7 +109,7 @@ ActiveAdmin.register_page 'Dashboard' do
           end
           column('User') do |v|
             if (user = GlobalID::Locator.locate(v.whodunnit))
-              link_to "#{user.name}(#{user.email})", [:cms, user]
+              link_to cms_user_label(user), [:cms, user]
             end
           end
         end

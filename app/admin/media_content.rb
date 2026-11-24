@@ -16,7 +16,8 @@ ActiveAdmin.register MediaContent do
       row :created_at
       row :updated_at
       row :embed_text do |resource|
-        div safe_html(resource.embed_text)
+        # Embed code is generated server-side from the video URL (VideoInfo) and is an iframe, which safe_html strips
+        div resource.embed_text.to_s.html_safe
       end
     end
   end

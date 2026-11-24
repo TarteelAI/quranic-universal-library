@@ -40,13 +40,13 @@ class Root < QulQuranRecord
   end
 
   def english_translations
-    Oj.load(en_translations.to_s) || []
+    Oj.safe_load(en_translations.to_s) || []
   rescue Exception => e
     []
   end
 
   def urdu_translations
-    Oj.load(ur_translations.to_s) || []
+    Oj.safe_load(ur_translations.to_s) || []
   rescue Exception => e
     []
   end

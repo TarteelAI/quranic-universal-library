@@ -55,7 +55,7 @@ class ApiClient < QulQuranRecord
 
   def track_requests(list)
     list = list.map do |query|
-      parsed = Oj.load(query)
+      parsed = Oj.safe_load(query)
       parsed["date"] = Time.at(parsed['timestamp']).to_date
 
       parsed

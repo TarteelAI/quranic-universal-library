@@ -134,7 +134,7 @@ module Audio
       user = User.find(user_id)
 
       # zip the file
-      `bzip2 #{file_path}/ayah-by-ayah`
+      system('bzip2', "#{file_path}/ayah-by-ayah")
 
       zip_path = "#{file_path}/ayah-by-ayah.bz2"
 

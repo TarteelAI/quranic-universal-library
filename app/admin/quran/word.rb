@@ -565,7 +565,9 @@ ActiveAdmin.register Word do
   end
 
   collection_action :export_sqlite_db, method: 'put' do
-    file_name = params[:file_name].to_s.strip || 'words'
+    authorize! :download, :from_admin
+
+    file_name = File.basename(params[:file_name].to_s.strip.presence || 'words').gsub(/[^\w.\-]/, '_')
     mushaf_id = params[:mushaf_id].to_s.strip
     language = params[:word_translation_language].to_s
     include_word_audio = params[:include_word_audio].to_s == 'on'
@@ -583,7 +585,7 @@ ActiveAdmin.register Word do
 
     ExportWordsJob.perform_later(
       file_name: file_name,
-      admin_id: current_user.id,
+      user_id: current_user.id,
       mushaf_id: mushaf_id,
       language_id: language,
       word_fields: word_fields

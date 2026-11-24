@@ -296,7 +296,7 @@ class ResourcePresenter < ApplicationPresenter
     css_format = { 'woff2' => 'woff2', 'woff' => 'woff', 'otf' => 'opentype' }.fetch(font_format, 'truetype')
 
     ligatures = resource_content.meta_value('ligatures')
-    ligatures = Oj.load(ligatures) if ligatures.present?
+    ligatures = Oj.safe_load(ligatures) if ligatures.present?
 
     preview_text = params[:text].presence || sample_text
 

@@ -21,6 +21,8 @@ ActiveAdmin.register Morphology::PhraseVerse do
   end
 
   member_action :approve, method: 'put' do
+    authorize! :update, Morphology::PhraseVerse
+
     if params[:all] && params[:toggle]
       Morphology::PhraseVerse.where(phrase_id: params[:id]).update_all(approved: params[:toggle] == '1')
     else

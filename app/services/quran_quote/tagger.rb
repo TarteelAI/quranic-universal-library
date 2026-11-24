@@ -24,6 +24,9 @@ module QuranQuote
     # Brackets tafsirs put around a quote. Only ﴿ ﴾ go inside the tag, the
     # Quran font draws them.
     BRACKETS = [[OPEN_BRACKET, CLOSE_BRACKET], ['{', '}']].freeze
+    # Brackets that may hold a quote. ( ) and [ ] also hold ayah numbers in
+    # the middle of a quote, so unlike BRACKETS they don't end one.
+    UNIT_BRACKETS = (BRACKETS + [['(', ')'], ['[', ']'], ['«', '»']]).freeze
 
     # Markup a quote can run through. Anything else (p, div, br, li...) ends
     # the text a quote is looked for in.
@@ -31,9 +34,20 @@ module QuranQuote
 
     # How many words a quote needs before it's tagged. Arabic tafsirs repeat
     # Quran words all the time while explaining them, so plain text needs a
-    # few. A quote the tafsir marks itself with ﴿ ﴾ or { } needs fewer, and fewer
-    # again when it's from the ayahs the tafsir explains. The qpc-hafs class
-    # doesn't count as a mark, tafsirs put it on hadith too.
+    # few. A marked quote needs fewer, and fewer again when it's from the
+    # ayahs the tafsir explains (verse_ids). A quote is marked when it's
+    # inside ﴿ ﴾, or when it's the whole of the Arabic in:
+    #
+    # - an inline element (a highlighted span, bold...) or any element with
+    #   the qpc-hafs class. Not a plain paragraph, a short Arabic paragraph
+    #   is as likely a heading.
+    # - brackets: { } ( ) [ ] « »
+    # - the Arabic between words in another language, like an English
+    #   tafsir quoting Arabic. Not in an Arabic paragraph, where it would be
+    #   any explanation between two quotes.
+    #
+    # Being inside a qpc-hafs element isn't enough on its own, tafsirs put
+    # the class on hadith too.
     MIN_WORDS = {
       [true, true] => 1,   # marked, from the tafsir's ayahs
       [true, false] => 2,  # marked
@@ -74,7 +88,7 @@ module QuranQuote
       tokens = WordIndex.tokenize(text).map(&:first)
       return Result.new(words: 0, total: 0) if tokens.empty?
 
-      match, located = pick(@index.matches_at(tokens, 0), marked: true)
+      match, located = pick(@index.matches_at(tokens, 0)) { true }
       return Result.new(words: 0, total: tokens.size) unless match
 
       Result.new(**location_attributes(match, located), words: match.size, total: tokens.size)
@@ -111,21 +125,25 @@ module QuranQuote
       tokens = WordIndex.tokenize(text)
       return if tokens.empty?
 
-      brackets = bracket_ranges(text)
+      segments = segments(text, tokens)
+      units = units(text, tokens, nodes, starts, segments)
+      quote_brackets = bracket_ranges(text, [[OPEN_BRACKET, CLOSE_BRACKET]])
+      marked = lambda do |match|
+        quote_brackets.any? { |range| range.cover?(tokens[match.token_start][1]) } ||
+          units.include?([match.token_start, match.token_end])
+      end
       quotes = []
 
-      segments(text, tokens).each do |first, last|
+      segments.each do |first, last|
         words = tokens[first..last].map(&:first)
         position = 0
 
         while position < words.size
-          candidates = @index.matches_at(words, position)
-          in_brackets = brackets.any? { |range| range.cover?(tokens[first + position][1]) }
-          match, located = pick(candidates, marked: in_brackets)
+          match, located = pick(candidates(words, position, first, units), &marked)
 
           if match
-            quotes << [shift(match, first), located]
-            position = match.token_end + 1
+            quotes << [match, located]
+            position = match.token_end - first + 1
           else
             position += 1
           end
@@ -161,6 +179,47 @@ module QuranQuote
       segments
     end
 
+    # Places the words from position on match, as token indices of the run.
+    # Besides the longest match from each place, the match cut at the end of
+    # a unit starting here, so a quote filling a span still counts as marked
+    # when the Quran words carry on after the span.
+    def candidates(words, position, first, units)
+      unit_ends = units.filter_map { |start, last| last - first if start == first + position && last - first < words.size - 1 }
+      [words.size - 1, *unit_ends].uniq.flat_map do |last|
+        @index.matches_at(words[0..last], position).map { |match| shift(match, first) }
+      end
+    end
+
+    # Token ranges [first, last] a quote that fills them counts as marked:
+    # each element's Arabic, each bracket's, and each stretch between words
+    # in another language
+    def units(text, tokens, nodes, starts, segments)
+      units = Set.new
+      units.merge(segments) if text.match?(OTHER_LANGUAGE)
+
+      token_nodes = tokens.map { |_, start, _| starts.rindex { |node_start| node_start <= start } }
+      by_element = Hash.new { |hash, element| hash[element] = [] }
+      token_nodes.each_with_index.group_by(&:first).each do |node_index, pairs|
+        nodes[node_index].ancestors.each do |ancestor|
+          by_element[ancestor].concat(pairs.map(&:last)) if marking_element?(ancestor)
+        end
+      end
+      by_element.each_value { |indices| units << [indices.min, indices.max] }
+
+      bracket_ranges(text, UNIT_BRACKETS).each do |range|
+        inside = tokens.each_index.select { |index| range.cover?(tokens[index][1]) }
+        units << [inside.min, inside.max] if inside.any?
+      end
+
+      units
+    end
+
+    OTHER_LANGUAGE = /[\p{L}&&\P{Arabic}]/
+
+    def marking_element?(node)
+      node.element? && (INLINE_ELEMENTS.include?(node.name) || node.classes.include?(OLD_CLASS))
+    end
+
     def shift(match, by)
       WordIndex::Match.new(match.token_start + by, match.token_end + by, match.word_start, match.word_end)
     end
@@ -168,20 +227,21 @@ module QuranQuote
     # The longest match that has enough words, preferring the tafsir's ayahs.
     # Returns [match, located]: located is false when the same words are in
     # more than one place and nothing says which.
-    def pick(candidates, marked:)
-      qualifying = candidates.select { |m| m.size >= MIN_WORDS[[marked, in_range?(m)]] }
+    def pick(candidates, &marked)
+      qualifying = candidates.select { |m| m.size >= MIN_WORDS[[marked.call(m), in_range?(m)]] }
       return if qualifying.empty?
 
       size = qualifying.map(&:size).max
       longest = qualifying.select { |m| m.size == size }
       in_range = longest.select { |m| in_range?(m) }
+      match = in_range.first || longest.first
 
-      located = in_range.any? || longest.size == 1
+      located = in_range.any? || longest.map(&:word_start).uniq.size == 1
       # Plain text that's in the Quran in several places is more likely a
       # common phrase (in a hadith, a dua...) than a quote
-      return if !marked && !located
+      return if !marked.call(match) && !located
 
-      [in_range.first || longest.first, located]
+      [match, located]
     end
 
     def in_range?(match)
@@ -196,9 +256,9 @@ module QuranQuote
       { from: @index.location(match.word_start), to: @index.location(match.word_end) }
     end
 
-    # Character ranges inside ﴿ ﴾ or { } in a text
-    def bracket_ranges(text)
-      BRACKETS.flat_map do |open, close|
+    # Character ranges inside the brackets in a text
+    def bracket_ranges(text, brackets = BRACKETS)
+      brackets.flat_map do |open, close|
         ranges = []
         text.scan(/#{Regexp.escape(open)}[^#{Regexp.escape(close)}]*#{Regexp.escape(close)}?/) do
           match = Regexp.last_match

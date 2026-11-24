@@ -102,12 +102,46 @@ class QuranQuoteTaggerTest < Minitest::Test
   def test_quote_does_not_run_past_a_bracket_or_another_language
     assert_equal '<p>{<quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text>}: لم يلد</p>',
                  tag('<p>{الله الصمد}: لم يلد</p>')
-    assert_equal '<p>قل هو is الله احد</p>', tag('<p>قل هو is الله احد</p>')
+    # two quotes, not one 112:1:1-4 across the English word
+    assert_equal '<p><quran-text data-from="112:1:1" data-to="112:1:2">قل هو</quran-text> is <quran-text data-from="112:1:3" data-to="112:1:4">الله احد</quran-text></p>',
+                 tag('<p>قل هو is الله احد</p>')
   end
 
   def test_tatweel_is_part_of_a_word
     assert_equal '<p>قال <quran-text data-from="112:2:1" data-to="112:2:2">﴿اللـه الصمـد﴾</quran-text></p>',
                  tag('<p>قال ﴿اللـه الصمـد﴾</p>')
+  end
+
+  def test_qpc_hafs_span_filled_by_a_short_quote_is_marked
+    html = tag('<p>قال <span class="qpc-hafs">الله الصمد</span> ثم</p>')
+
+    assert_equal '<p>قال <quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text> ثم</p>', html
+  end
+
+  def test_short_quote_inside_a_longer_qpc_hafs_span_is_not_marked
+    # a hadith in the QPC font that only contains two Quran words
+    assert_equal '<p><span>كلام الله الصمد كلام</span></p>', tag('<p><span class="qpc-hafs">كلام الله الصمد كلام</span></p>')
+  end
+
+  def test_quote_filling_a_span_is_marked_even_when_the_quran_carries_on
+    # لم follows الصمد in the Quran, but not in the span
+    html = tag('<p>قال <span class="brown">الله الصمد</span> لم أجد</p>')
+
+    assert_includes html, '<span class="brown"><quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text></span>'
+  end
+
+  def test_parentheses_filled_by_a_quote_are_marked
+    assert_includes tag('<p>قوله: (الله الصمد) يعني</p>'), '(<quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text>)'
+  end
+
+  def test_arabic_between_words_in_another_language_is_marked
+    html = tag('<p>The Prophet recited الله الصمد in prayer.</p>')
+
+    assert_equal '<p>The Prophet recited <quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text> in prayer.</p>', html
+  end
+
+  def test_short_plain_arabic_in_arabic_text_is_not_marked
+    assert_equal '<p>قال الله الصمد كلام</p>', tag('<p>قال الله الصمد كلام</p>')
   end
 
   def test_quote_starting_part_way_through_a_spelling

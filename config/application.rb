@@ -53,7 +53,6 @@ module Qul
     config.middleware.use MaintenanceMode::Middleware
 
     config.assets.css_compressor = :escompress
-    config.active_support.to_time_preserves_timezone = :zone
 
     config.active_record.yaml_column_permitted_classes = [
       Symbol,

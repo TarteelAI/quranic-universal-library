@@ -33,7 +33,7 @@ class TajweedWord < QulQuranRecord
   belongs_to :verse, optional: true
 
   scope :rule_eq, lambda { |rule|
-    where("EXISTS (SELECT 1 FROM jsonb_array_elements(letters) AS elem WHERE elem->>'r' = '#{rule}')")
+    where("EXISTS (SELECT 1 FROM jsonb_array_elements(letters) AS elem WHERE elem->>'r' = ?)", rule.to_s)
   }
 
   after_commit :update_word_text_if_letters_changed

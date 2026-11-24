@@ -17,8 +17,8 @@ if Rails.env.production?
     # dependency info
     config.send_modules = false
 
-    # Send user ip, query string, cookies to sentry
-    config.send_default_pii = true
+    # Don't send user IPs, cookies or request bodies to Sentry
+    config.send_default_pii = false
 
     # The sampling factor to apply to events. A value of 0.0 will not send
     # any events, and a value of 1.0 will send 100% of events.

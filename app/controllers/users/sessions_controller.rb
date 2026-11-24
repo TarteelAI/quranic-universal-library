@@ -3,7 +3,8 @@ class Users::SessionsController < Devise::SessionsController
 
   protected
 
+  # store_location_for keeps only the path, so an off-site URL can't be used as a redirect target
   def store_return_url
-    session["user_return_to"] = params[:user_return_to] || session["user_return_to"]
+    store_location_for(:user, params[:user_return_to]) if params[:user_return_to].present?
   end
 end

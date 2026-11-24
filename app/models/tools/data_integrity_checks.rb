@@ -33,7 +33,20 @@ module Tools
     end
 
     def self.valid_check?(name)
-      respond_to? name
+      checks.map(&:to_s).include?(name.to_s)
+    end
+
+    # Integer id from a request param, or nil. Keeps raw params out of SQL.
+    def self.safe_id(value)
+      value.to_s.strip.match?(/\A\d+\z/) ? value.to_i : nil
+    end
+
+    def self.safe_sort_order(value)
+      value.to_s.downcase == 'desc' ? 'desc' : 'asc'
+    end
+
+    def self.safe_sort_column(model, value, default)
+      model.column_names.include?(value.to_s) ? value.to_s : default
     end
 
     def self.ayah_with_different_mushaf_page
@@ -74,8 +87,8 @@ module Tools
           end
         },
         check: ->(params) do
-          first_mushaf_id = params[:first_mushaf_id]
-          second_mushaf_id = params[:second_mushaf_id]
+          first_mushaf_id = safe_id(params[:first_mushaf_id])
+          second_mushaf_id = safe_id(params[:second_mushaf_id])
 
           if first_mushaf_id && second_mushaf_id
             result = Verse
@@ -155,8 +168,8 @@ module Tools
           end,
         },
         check: ->(params) do
-          first_mushaf_id = params[:first_mushaf_id]
-          second_mushaf_id = params[:second_mushaf_id]
+          first_mushaf_id = safe_id(params[:first_mushaf_id])
+          second_mushaf_id = safe_id(params[:second_mushaf_id])
           compare_filed = params[:compare_field] || 'both'
 
           if first_mushaf_id && second_mushaf_id
@@ -518,8 +531,8 @@ module Tools
           }
         ],
         check: ->(params) do
-          first_translation_id = params[:first_translation]
-          second_translation_id = params[:second_translation]
+          first_translation_id = safe_id(params[:first_translation])
+          second_translation_id = safe_id(params[:second_translation])
           verse_key = params[:verse_key]
           matched = params[:matched]
           exact_compare = params[:exact_compare] == '1'
@@ -623,11 +636,11 @@ module Tools
           }
         ],
         check: ->(params) do
-          first_mushaf_id = params[:first_mushaf_id]
-          second_mushaf_id = params[:second_mushaf_id]
+          first_mushaf_id = safe_id(params[:first_mushaf_id])
+          second_mushaf_id = safe_id(params[:second_mushaf_id])
           compare_type = params[:compare_type] || 'text'
           sort_by = params[:sort_by].presence || 'word_id'
-          sort_order = params[:sort_order].presence || 'asc'
+          sort_order = safe_sort_order(params[:sort_order])
 
           sort_column_mapping = {
             'word_id' => 'word_id',
@@ -734,9 +747,9 @@ module Tools
           }
         ],
         check: ->(params) do
-          first_mushaf_id = params[:first_mushaf_id].presence
-          second_mushaf_id = params[:second_mushaf_id].presence
-          compare_attr = params[:compare_field].presence || 'page_number'
+          first_mushaf_id = safe_id(params[:first_mushaf_id])
+          second_mushaf_id = safe_id(params[:second_mushaf_id])
+          compare_attr = %w[page_number line_number].include?(params[:compare_field].to_s) ? params[:compare_field].to_s : 'page_number'
 
           if first_mushaf_id && second_mushaf_id
             matching_words = MushafWord
@@ -916,7 +929,7 @@ module Tools
         check: ->(params) do
           script_type = params[:script_type]
 
-          query = if script_type.present?
+          query = if script_type.present? && text_attrs.include?(script_type.to_s.strip)
                     attr = script_type.to_s.strip
 
                     "#{attr} IS NULL OR #{attr} = ''"
@@ -976,8 +989,8 @@ module Tools
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
+          sort_by = safe_sort_column(Word, params[:sort_by], 'id')
+          sort_order = safe_sort_order(params[:sort_order])
 
           results = Word.without_lemma.order("#{sort_by} #{sort_order}")
           paginate(results, params)
@@ -996,8 +1009,8 @@ module Tools
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
+          sort_by = safe_sort_column(Word, params[:sort_by], 'id')
+          sort_order = safe_sort_order(params[:sort_order])
 
           results = Word.without_stem.order("#{sort_by} #{sort_order}")
           paginate(results, params)
@@ -1016,8 +1029,8 @@ module Tools
         table_attrs: ['id', 'location', 'text_uthmani'],
         fields: [],
         check: ->(params) do
-          sort_by = params[:sort_by].presence || 'id'
-          sort_order = params[:sort_order].presence || 'asc'
+          sort_by = safe_sort_column(Word, params[:sort_by], 'id')
+          sort_order = safe_sort_order(params[:sort_order])
 
           results = Word.without_root.order("#{sort_by} #{sort_order}")
           paginate(results, params)
@@ -1366,7 +1379,7 @@ module Tools
 
     def self.paginate(results, params)
       page = (params[:page] || 0).to_i
-      per_page = (params[:per_page] || 20).to_i
+      per_page = (params[:per_page] || 20).to_i.clamp(1, 500)
 
       results.page(page).per(per_page)
     end

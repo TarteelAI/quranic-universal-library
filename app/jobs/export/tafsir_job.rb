@@ -179,7 +179,7 @@ module Export
     end
 
     def compress
-      `bzip2 #{file_name}`
+      system('bzip2', file_name.to_s)
     end
 
     def send_email(zip_path, admin_user)

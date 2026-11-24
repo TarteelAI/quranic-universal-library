@@ -40,7 +40,7 @@ module AudioSegment
 
       db.close
 
-      `bzip2 #{file_path}`
+      system('bzip2', file_path.to_s)
       FileUtils.rm_rf(file_path)
 
       "#{file_path}.bz2"

@@ -63,7 +63,7 @@ class Morphology::MatchingVerse < ApplicationRecord
   end
 
   def matched_word_positions=(val)
-    super val.is_a?(String) ? Oj.load(val) : val
+    super val.is_a?(String) ? Oj.safe_load(val) : val
   end
 
   protected

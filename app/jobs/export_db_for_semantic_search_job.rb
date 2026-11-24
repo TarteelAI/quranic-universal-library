@@ -35,7 +35,7 @@ class ExportDbForSemanticSearchJob < ApplicationJob
 
 
     # zip the file
-    `bzip2 #{file_path}/#{file_name}.db`
+    system('bzip2', "#{file_path}/#{file_name}.db")
 
     # return the db file path
     "#{file_path}/#{file_name}.db.bz2"

@@ -1,0 +1,49 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly, so new advisories for existing gems show up without a code change
+    - cron: '0 6 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  brakeman:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1
+        with:
+          ruby-version-file: .ruby-version
+
+      # Standalone install: brakeman only parses the code, it doesn't need the bundle.
+      # Reviewed false positives live in config/brakeman.ignore.
+      - name: Install brakeman
+        run: gem install brakeman -v 8.1.0 --no-document
+
+      - name: Run brakeman (high confidence)
+        run: brakeman --confidence-level 3 --no-pager
+
+  bundler-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # v1
+        with:
+          ruby-version-file: .ruby-version
+
+      - name: Install bundler-audit
+        run: gem install bundler-audit -v 0.9.3 --no-document
+
+      - name: Check Gemfile.lock for known advisories
+        run: bundle-audit check --update

@@ -20,6 +20,10 @@ class Ability
     cannot :read, Licence
     cannot :read, ActiveAdmin::Page, name: "Analytics"
 
+    cannot :read, ApiClient
+    cannot :read, DatabaseBackup
+    cannot :read, QuranTableDetail
+
     can :read, User, id: user.id
     can :update, User, id: user.id
 
@@ -65,10 +69,8 @@ class Ability
     end
 
     if user.is_normal_user?
-      cannot :read, ApiClient
       cannot :read, AdminTodo
       cannot :read, Feedback
-      cannot :read, DatabaseBackup
       cannot :read, ResourcePermission
       cannot :read, UserProject
       cannot :read, ActiveAdmin::Comment

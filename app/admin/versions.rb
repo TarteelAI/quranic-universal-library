@@ -26,7 +26,7 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
     column :created_at
     column :user do |resource|
       if user = GlobalID::Locator.locate(resource.whodunnit)
-        link_to "#{user.name}(#{user.email})", [:cms, user]
+        link_to cms_user_label(user), [:cms, user]
       end
     end
   end
@@ -91,7 +91,7 @@ ActiveAdmin.register PaperTrail::Version, as: 'ContentChanges' do
       row :user do
         if user = GlobalID::Locator.locate(resource.whodunnit)
           begin
-            link_to(user.try(:email), [:cms, user])
+            link_to(cms_user_label(user), [:cms, user])
           rescue StandardError
             'Unknown'
           end

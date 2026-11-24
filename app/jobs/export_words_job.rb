@@ -13,7 +13,7 @@ class ExportWordsJob < ApplicationJob
     export_db(mushaf_id, word_fields, language_id)
 
     # zip the file
-    `bzip2 #{file_path}/#{file_name}.db`
+    system('bzip2', "#{file_path}/#{file_name}.db")
 
     zip_path = "#{file_path}/#{file_name}.db.bz2"
     send_email(user_id, zip_path)

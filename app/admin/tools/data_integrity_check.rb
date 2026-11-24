@@ -24,7 +24,7 @@ ActiveAdmin.register_page 'Data Integrity Check' do
       stats = {}
     else
       title = 'Results'
-      description = "Sorry <b>#{check_name}</b> is not a valid check".html_safe
+      description = ERB::Util.html_escape(check_name).then { |name| "Sorry <b>#{name}</b> is not a valid check".html_safe }
       instructions = []
     end
 
@@ -69,7 +69,8 @@ ActiveAdmin.register_page 'Data Integrity Check' do
             thead do
               table_columns.each do |attr|
                 th do
-                  link_attrs = params.except(:controller, :action, :commit).permit!.to_h
+                  link_attrs = params.except(:controller, :action, :commit, :host, :protocol, :port, :domain,
+                                             :subdomain, :tld_length, :script_name, :only_path, :anchor, :params).permit!.to_h
                   link_to(attr, link_attrs.merge(
                     { per_page: per_page,
                       sort_by: attr,

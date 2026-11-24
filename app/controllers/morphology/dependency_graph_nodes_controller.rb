@@ -95,6 +95,7 @@ module Morphology
     end
 
     def fields
+      node_type = %w[word elided reference phrase].include?(params[:node_type].to_s) ? params[:node_type].to_s : 'word'
       graph = Morphology::DependencyGraph::Graph.find(params[:dependency_graph_id])
       presenter = Morphology::GraphEditPresenter.new(graph)
 
@@ -102,7 +103,7 @@ module Morphology
         format.turbo_stream do
           render turbo_stream: turbo_stream.update(
             "node_#{params[:id]}_fields",
-            partial: "morphology/dependency_graphs/forms/#{params[:node_type]}_fields",
+            partial: "morphology/dependency_graphs/forms/#{node_type}_fields",
             locals: { node_id: params[:id], presenter: presenter }
           )
         end

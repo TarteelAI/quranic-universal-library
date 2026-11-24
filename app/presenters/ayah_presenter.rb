@@ -36,7 +36,8 @@ class AyahPresenter < ApplicationPresenter
   end
 
   def script
-    params[:script].presence || 'text_qpc_hafs'
+    selected = params[:script].to_s
+    scripts.to_h.key?(selected) ? selected : 'text_qpc_hafs'
   end
 
   def script_label

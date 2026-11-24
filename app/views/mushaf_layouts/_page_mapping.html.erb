@@ -43,7 +43,7 @@
         </tr>
         </thead>
         <tbody>
-        <% sort_key = MushafPage.column_names.include?(params[:sort_key].to_s) ? params[:sort_key].to_s : 'page_number' %>
+        <% sort_key = %w[page_number first_verse_id last_verse_id verses_count lines_count].include?(params[:sort_key].to_s) ? params[:sort_key].to_s : 'page_number' %>
         <% sort_order = params[:sort_order].to_s.downcase == 'desc' ? 'desc' : 'asc' %>
         <% @mushaf.mushaf_pages.order("#{sort_key} #{sort_order}").each do |page| %>
           <%

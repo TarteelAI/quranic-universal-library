@@ -31,7 +31,8 @@
           Help
         <% end %>
       <% end %>
-      <%= safe_html actions.join('') %>
+      <%# Actions are built by our own views (links, dropdown buttons), not stored content, so they skip safe_html %>
+      <%= raw actions.join('') %>
     </div>
   </div>
 

@@ -58,11 +58,11 @@
       </div>
 
       <div class="border-t border-black/5 pt-5">
-        <p class="text-xs text-gray-500 mb-4">Leave the password fields blank to keep your current password. New passwords must be between 6 and 128 characters.</p>
+        <p class="text-xs text-gray-500 mb-4">Leave the password fields blank to keep your current password. New passwords must be between 12 and 128 characters.</p>
         <div class="mb-4">
           <%= f.label :password, "New password", class: "block text-sm text-black mb-1" %>
           <div class="relative password">
-            <%= f.password_field :password, autocomplete: "new-password", data: { controller: "toggle-password", "account-form-target": "password", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
+            <%= f.password_field :password, autocomplete: "new-password", minlength: 12, data: { controller: "toggle-password", "account-form-target": "password", action: "input->account-form#refresh" }, class: "block w-full rounded-lg border-gray-300 focus:border-[#46ac7a] focus:ring-[#46ac7a]" %>
           </div>
         </div>
         <div>

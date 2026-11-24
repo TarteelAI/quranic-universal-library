@@ -90,12 +90,19 @@ ActiveAdmin.register User do
       f.input :last_name
       f.input :email
 
-      if f.object.id == current_user.id
-        f.input :password, required: false, input_html: {
+      editing_self = f.object.persisted? && f.object.id == current_user.id
+
+      # New users need a password, and super admins can reset anyone's.
+      # Only your own account asks for the current password.
+      if f.object.new_record? || editing_self || current_user.super_admin?
+        f.input :password, required: f.object.new_record?, input_html: {
           data: {
-          controller: 'toggle-password'
+            controller: 'toggle-password'
           }
         }
+      end
+
+      if editing_self
         f.input :current_password, as: :password, required: false,
                 hint: 'Required to change your email or password'
       end

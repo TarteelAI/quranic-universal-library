@@ -5,7 +5,7 @@ ruby ">= 3.3.3", "<= 3.3.13"
 
 gem 'concurrent-ruby', '>= 1.3.7'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 8.0.0"
+gem "rails", "~> 8.1.4"
 gem "nokogiri", '~> 1.19.4', require: false
 
 # Use postgresql as the database for Active Record
@@ -46,7 +46,7 @@ gem "redis", "~> 4.0"
 gem 'image_processing', require: false
 
 # Admin panel
-gem 'activeadmin', '~> 3.2.3'
+gem 'activeadmin', '~> 3.5.2'
 gem 'activeadmin-searchable_select', '>= 1.8.0'
 gem 'paper_trail', '>= 15.0.0'
 

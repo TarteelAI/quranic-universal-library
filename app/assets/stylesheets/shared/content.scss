@@ -52,10 +52,8 @@ hadith-text, hadith-text * {
   font-family: 'Noto Naskh Arabic', serif !important;
 }
 
-// A quote on its own, not inside a paragraph, is a paragraph itself.
-// .has-quotes is for places that show tafsir HTML without the .tafsir styles.
-.tafsir > quran-text, .tafsir > hadith-text,
-.has-quotes > quran-text, .has-quotes > hadith-text {
+// A quote on its own, not inside a paragraph, is a paragraph itself
+quran-text[data-display="block"], hadith-text[data-display="block"] {
   display: block;
   margin: 0.75rem 0;
   // 30px in a 20px tafsir, the size the old qpc-hafs paragraphs had

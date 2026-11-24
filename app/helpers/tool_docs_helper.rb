@@ -783,7 +783,7 @@ module ToolDocsHelper
           <p>A tafsir is formatted with HTML tags: paragraphs, headings, bold, and Arabic quotes from the Quran or hadith. The editor shows the formatted text, so you can fix most typos right there.</p>
           <p class="mt-2">To see or fix the tags, click <code>View</code> and then <code>Source code</code> in the editor. Change the HTML and click <code>Save</code> to go back to the editor, then <code>Propose changes</code> as usual.</p>
           #{ui_screen(
-            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>&lt;h2&gt;The Meaning of Al-Fatihah&lt;/h2&gt;\n&lt;p class=\"en\"&gt;This Surah is called Al-Fatihah...&lt;/p&gt;\n&lt;p class=\"ar\"&gt;&lt;quran-text data-from=\"1:2:1\" data-to=\"1:2:4\"&gt;ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ&lt;/quran-text&gt;&lt;/p&gt;</pre>",
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>&lt;h2&gt;The Meaning of Al-Fatihah&lt;/h2&gt;\n&lt;p class=\"en\"&gt;This Surah is called Al-Fatihah...&lt;/p&gt;\n&lt;quran-text data-from=\"1:2:1\" data-to=\"1:2:4\" data-display=\"block\"&gt;ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ&lt;/quran-text&gt;</pre>",
             ui_button('Cancel', :light), ui_button('Save', :blue),
             title: 'Source code'
           )}
@@ -803,12 +803,13 @@ module ToolDocsHelper
         text: <<~HTML
           <p>A quote from the Quran goes in a <code>&lt;quran-text&gt;</code> tag. The tag draws it in a Quran font, right to left, even in the middle of an English sentence. Hadith and other Arabic stay outside it, in the normal Arabic font, which has the punctuation (، ؛ ؟) the Quran font doesn't.</p>
           #{ui_screen(
-            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>Allah said, &lt;quran-text data-from=\"17:110:13\" data-to=\"17:110:22\"&gt;وَلَا تَجۡهَرۡ بِصَلَاتِكَ...&lt;/quran-text&gt;, meaning...</pre>",
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>Allah said, &lt;quran-text data-from=\"17:110:13\" data-to=\"17:110:15\"&gt;وَلَا تَجۡهَرۡ بِصَلَاتِكَ&lt;/quran-text&gt;..., meaning...</pre>",
             title: 'Source code'
           )}
           <ul class="list-disc ps-5 mt-2">
             <li><code>data-from</code> and <code>data-to</code> are the first and last word of the quote, as surah:ayah:word. One tag can hold several ayahs.</li>
             <li><code>data-script="dk"</code> draws the quote in Digital Khatt. Without it, the quote is in QPC Hafs.</li>
+            <li><code>data-display="block"</code> shows a quote on its own line, like a paragraph. A quote that fills its whole paragraph is saved this way, without the <code>&lt;p&gt;</code> around it.</li>
           </ul>
           <p class="mt-2">To tag a quote, select it, click <code>Quran</code> in the toolbar and pick a font. The editor finds which ayahs the words are from and shows them next to the quote. Check them: if the words are in the Quran more than once, or only part of the selection matches, it tells you.</p>
           #{ui_screen(

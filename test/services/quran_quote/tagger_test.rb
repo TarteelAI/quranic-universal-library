@@ -6,7 +6,7 @@ require_relative '../../../app/services/quran_quote/word_index'
 require_relative '../../../app/services/quran_quote/tagger'
 
 class QuranQuoteTaggerTest < Minitest::Test
-  # Al-Ikhlas (verse ids 1-4) and the first ayah of Al-Falaq (5) and An-Nas (6), each word as
+  # Al-Ikhlas (verse ids 1-4), the first ayah of Al-Falaq (5) and An-Nas (6) and the start of 2:21 (7), each word as
   # [location, verse_id, [spellings]]
   WORDS = [
     ['112:1:1', 1, ['قُلۡ', 'قل']], ['112:1:2', 1, ['هُوَ', 'هو']], ['112:1:3', 1, ['ٱللَّهُ', 'الله']], ['112:1:4', 1, ['أَحَدٌ', 'احد']],
@@ -14,7 +14,9 @@ class QuranQuoteTaggerTest < Minitest::Test
     ['112:3:1', 3, ['لَمۡ', 'لم']], ['112:3:2', 3, ['يَلِدۡ', 'يلد']], ['112:3:3', 3, ['وَلَمۡ', 'ولم']], ['112:3:4', 3, ['يُولَدۡ', 'يولد']],
     ['112:4:1', 4, ['وَلَمۡ', 'ولم']], ['112:4:2', 4, ['يَكُن', 'يكن']], ['112:4:3', 4, ['لَّهُۥ', 'له']], ['112:4:4', 4, ['كُفُوًا', 'كفوا']], ['112:4:5', 4, ['أَحَدُۢ', 'احد']],
     ['113:1:1', 5, ['قُلۡ', 'قل']], ['113:1:2', 5, ['أَعُوذُ', 'اعوذ']], ['113:1:3', 5, ['بِرَبِّ', 'برب']], ['113:1:4', 5, ['ٱلۡفَلَقِ', 'الفلق']],
-    ['114:1:1', 6, ['قُلۡ', 'قل']], ['114:1:2', 6, ['أَعُوذُ', 'اعوذ']], ['114:1:3', 6, ['بِرَبِّ', 'برب']], ['114:1:4', 6, ['ٱلنَّاسِ', 'الناس']]
+    ['114:1:1', 6, ['قُلۡ', 'قل']], ['114:1:2', 6, ['أَعُوذُ', 'اعوذ']], ['114:1:3', 6, ['بِرَبِّ', 'برب']], ['114:1:4', 6, ['ٱلنَّاسِ', 'الناس']],
+    # Imlaei spells the first word as two
+    ['2:21:1', 7, ['يَٰٓأَيُّهَا', 'يا أيها']], ['2:21:2', 7, ['ٱلنَّاسُ', 'الناس']], ['2:21:3', 7, ['ٱعۡبُدُواْ', 'اعبدوا']]
   ].freeze
 
   def index
@@ -70,7 +72,51 @@ class QuranQuoteTaggerTest < Minitest::Test
   def test_paragraph_holding_only_a_quote_is_replaced_by_it
     html = tag('<p>Allah says:</p><p class="ar qpc-hafs red" lang="ar">﴿قل هو الله احد﴾</p><p>meaning...</p>')
 
-    assert_equal '<p>Allah says:</p><quran-text data-from="112:1:1" data-to="112:1:4" class="red">﴿قل هو الله احد﴾</quran-text><p>meaning...</p>', html
+    assert_equal '<p>Allah says:</p><quran-text data-from="112:1:1" data-to="112:1:4" class="red" data-display="block">﴿قل هو الله احد﴾</quran-text><p>meaning...</p>', html
+  end
+
+  def test_paragraph_language_class_is_not_moved_onto_the_quote
+    html = tag('<p class="ur" lang="ur">﴿قل هو الله احد﴾</p>')
+
+    refute_includes html, 'class='
+  end
+
+  def test_curly_braces_mark_a_quote_and_stay_outside_the_tag
+    html = tag('<p>قال {الله الصمد} ثم</p>')
+
+    assert_equal '<p>قال {<quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text>} ثم</p>', html
+  end
+
+  def test_quote_through_inline_markup
+    html = tag('<p>قال ﴿قل هو <span class="red">الله</span> احد﴾ ثم</p>')
+
+    assert_equal '<p>قال <quran-text data-from="112:1:1" data-to="112:1:4">﴿قل هو <span class="red">الله</span> احد﴾</quran-text> ثم</p>', html
+  end
+
+  def test_quote_starting_inside_markup_splits_it
+    html = tag('<p><span class="hlt">قال ﴿قل هو</span> الله احد﴾ ثم</p>')
+
+    assert_equal '<p><span class="hlt">قال </span><quran-text data-from="112:1:1" data-to="112:1:4"><span class="hlt">﴿قل هو</span> الله احد﴾</quran-text> ثم</p>', html
+  end
+
+  def test_quote_does_not_run_past_a_bracket_or_another_language
+    assert_equal '<p>{<quran-text data-from="112:2:1" data-to="112:2:2">الله الصمد</quran-text>}: لم يلد</p>',
+                 tag('<p>{الله الصمد}: لم يلد</p>')
+    assert_equal '<p>قل هو is الله احد</p>', tag('<p>قل هو is الله احد</p>')
+  end
+
+  def test_tatweel_is_part_of_a_word
+    assert_equal '<p>قال <quran-text data-from="112:2:1" data-to="112:2:2">﴿اللـه الصمـد﴾</quran-text></p>',
+                 tag('<p>قال ﴿اللـه الصمـد﴾</p>')
+  end
+
+  def test_quote_starting_part_way_through_a_spelling
+    assert_includes tag('<p>قال ﴿أيها الناس اعبدوا﴾</p>'), 'data-from="2:21:1" data-to="2:21:3"'
+  end
+
+  def test_quote_ending_part_way_through_a_spelling
+    # 2:21 comes right after 114:1 in this index, "يا" is the start of its first word
+    assert_includes tag('<p>قال ﴿برب الناس يا﴾</p>', verse_ids: 6..6), 'data-from="114:1:3" data-to="2:21:1"'
   end
 
   def test_paragraph_with_more_than_the_quote_is_kept

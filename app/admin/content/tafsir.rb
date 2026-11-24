@@ -71,7 +71,7 @@ ActiveAdmin.register Tafsir do
       row :group_verses_count
 
       row :text do
-        div resource.text.to_s.html_safe, class: 'has-quotes'
+        resource.text.to_s.html_safe
       end
       row :created_at
       row :updated_at

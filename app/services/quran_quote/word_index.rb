@@ -18,8 +18,9 @@ module QuranQuote
     ].freeze
 
     # A run of Arabic letters with the marks on them. Harakat are in the
-    # Inherited script, not Arabic, so any combining mark counts.
-    WORD_PATTERN = /(?:[\p{L}&&\p{Arabic}]|\p{M})+/
+    # Inherited script and the tatweel (ـ) in Common, not Arabic, so they're
+    # listed on their own.
+    WORD_PATTERN = /(?:[\p{L}&&\p{Arabic}]|\p{M}|\u0640)+/
 
     # tokens[token_start..token_end] is the Quran from word_start to word_end
     Match = Struct.new(:token_start, :token_end, :word_start, :word_end) do
@@ -67,6 +68,8 @@ module QuranQuote
       @locations = []
       @verse_ids = []
       @forms = []
+      @start_forms = []
+      @end_forms = []
       @starts = Hash.new { |hash, key| hash[key] = [] }
 
       words.each_with_index do |(location, verse_id, texts), index|
@@ -74,12 +77,16 @@ module QuranQuote
         forms = texts.map { |text| self.class.tokenize(text).map(&:first) }
                      .reject(&:empty?)
                      .uniq
-                     .sort_by { |form| -form.size }
+        long = forms.select { |form| form.size > 1 }
 
         @locations << location
         @verse_ids << verse_id
-        @forms << forms
-        forms.map(&:first).uniq.each { |first| @starts[first] << index }
+        @forms << longest_first(forms)
+        # A quote can start or end part way through such a spelling: "أيها"
+        # on its own starts with the second half of "يا أيها"
+        @start_forms << longest_first(forms + long.flat_map { |form| (1...form.size).map { |i| form[i..] } })
+        @end_forms << longest_first(long.flat_map { |form| (1...form.size).map { |i| form[0...i] } })
+        @start_forms.last.map(&:first).uniq.each { |first| @starts[first] << index }
       end
 
       @starts.default_proc = nil
@@ -99,14 +106,32 @@ module QuranQuote
       @starts.fetch(tokens[from], []).map do |word_start|
         token = from
         word = word_start
+        forms = @start_forms[word]
 
-        while word < @forms.size && (form = @forms[word].find { |f| tokens[token, f.size] == f })
+        while word < @forms.size && (form = find_form(forms, tokens, token))
+          token += form.size
+          word += 1
+          forms = @forms[word]
+        end
+
+        # the quote may stop part way through the next word's spelling
+        if word > word_start && word < @forms.size && (form = find_form(@end_forms[word], tokens, token))
           token += form.size
           word += 1
         end
 
         Match.new(from, token - 1, word_start, word - 1)
       end.select { |match| match.size.positive? }
+    end
+
+    private
+
+    def find_form(forms, tokens, token)
+      forms.find { |form| tokens[token, form.size] == form }
+    end
+
+    def longest_first(forms)
+      forms.uniq.sort_by { |form| -form.size }
     end
   end
 end

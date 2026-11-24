@@ -41,9 +41,5 @@
 
 // A quote standing on its own (see addQuoteParagraphs in tinymce_controller)
 .mce-content-body p[data-quote] {
-  margin: 0.75rem 0;
-
-  > quran-text, > hadith-text {
-    font-size: 1.5em;
-  }
+  margin: 0;
 }

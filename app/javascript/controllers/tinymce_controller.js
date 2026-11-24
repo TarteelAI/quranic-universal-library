@@ -32,16 +32,19 @@ const TAFSIR_HIGHLIGHTS = [
 
 const highlightFormat = (name) => `highlight_${name}`;
 
-// Scripts a <quran-text> tag can be drawn in, as its data-script. No
-// data-script means QPC Hafs. The fonts are set in shared/content.scss.
 // A quote that fills its whole paragraph is saved without the paragraph:
 // <p class="ar qpc-hafs"><quran-text>…</quran-text></p> is saved as
-// <quran-text>…</quran-text>, and shown as a block (see shared/content.scss).
+// <quran-text data-display="block">…</quran-text>, shown as a paragraph
+// (see shared/content.scss).
 //
 // TinyMCE wraps anything inline at the top level in a <p> (force_p_newlines),
 // so while editing such a quote sits in a <p data-quote dir="rtl">, which is
 // dropped again when the text is saved. See addQuoteParagraphs.
 const QUOTE_TAGS = ["quran-text", "hadith-text"];
+
+// The paragraph's language and font classes don't apply to the quote,
+// anything else (a colour...) moves onto it. Same as QuranQuote::Tagger.
+const PARAGRAPH_CLASSES = ["ar", "arabic", "qpc-hafs"];
 
 const markQuoteParagraph = (editor, element) => {
   const parent = element.parentNode;
@@ -49,11 +52,31 @@ const markQuoteParagraph = (editor, element) => {
   if (parent && parent !== editor.getBody() && ["P", "DIV"].includes(parent.nodeName) &&
     parent.textContent.trim() === element.textContent.trim()) {
     const paragraph = parent.nodeName === "P" ? parent : editor.dom.rename(parent, "p");
+    const lang = paragraph.getAttribute("lang");
+
+    [...paragraph.classList]
+      .filter((name) => !PARAGRAPH_CLASSES.includes(name) && name !== lang)
+      .forEach((name) => element.classList.add(name));
     [...paragraph.attributes].forEach(({name}) => paragraph.removeAttribute(name));
     editor.dom.setAttribs(paragraph, {"data-quote": "1", dir: "rtl"});
+    element.setAttribute("data-display", "block");
   }
 };
 
+// Wraps the selection in a quote tag and returns the new tags. After the
+// format is applied the selection can be the paragraph around the tag, so
+// they're found by comparing with the tags that were there before.
+const applyQuote = (editor, tag) => {
+  const before = new Set(editor.dom.select(tag));
+  editor.formatter.apply(tag.replace("-", "_"));
+
+  const added = editor.dom.select(tag).filter((element) => !before.has(element));
+  added.forEach((element) => markQuoteParagraph(editor, element));
+  return added;
+};
+
+// Scripts a <quran-text> tag can be drawn in, as its data-script. No
+// data-script means QPC Hafs. The fonts are set in shared/content.scss.
 const QURAN_SCRIPTS = [
   {value: "", label: "QPC Hafs"},
   {value: "dk", label: "Digital Khatt"},
@@ -133,7 +156,7 @@ export default class extends Controller {
       // <quran-text> holds a Quran quote (see QuranQuote::Tagger), <hadith-text>
       // a hadith. "~" makes them inline elements like span.
       custom_elements: "~quran-text,~hadith-text",
-      extended_valid_elements: "quran-text[data-from|data-to|data-script|class|lang|dir],hadith-text[class|lang|dir],p[class|lang|dir|style|data-quote]",
+      extended_valid_elements: "quran-text[data-from|data-to|data-script|data-display|class|lang|dir],hadith-text[data-display|class|lang|dir],p[class|lang|dir|style|data-quote]",
       formats: {
         ...Object.fromEntries(highlightColors.map(({name}) => [
           highlightFormat(name), {inline: "span", classes: name, exact: true}
@@ -208,8 +231,9 @@ export default class extends Controller {
 
     const locate = (element) => {
       const form = this.element.closest("form");
+      const text = element.textContent;
       const body = new FormData();
-      body.append("text", element.textContent);
+      body.append("text", text);
       ["start_verse_id", "end_verse_id"].forEach((name) => {
         const value = form?.querySelector(`[name="tafsir[${name}]"]`)?.value;
         if (value) body.append(name, value);
@@ -225,6 +249,9 @@ export default class extends Controller {
       })
         .then((response) => response.ok ? response.json() : Promise.reject(response.status))
         .then((result) => {
+          // the quote was edited or removed while this was looked up
+          if (!editor.getBody().contains(element) || element.textContent !== text) return;
+
           editor.undoManager.transact(() => {
             if (result.from) {
               editor.dom.setAttribs(element, {"data-from": result.from, "data-to": result.to});
@@ -253,16 +280,15 @@ export default class extends Controller {
         return;
       }
 
-      let element;
+      let elements = [];
       editor.undoManager.transact(() => {
-        editor.formatter.apply("quran_text");
-        element = current();
-        if (element) markQuoteParagraph(editor, element);
+        elements = applyQuote(editor, "quran-text");
+        // merged into a quote next to it
+        if (!elements.length && current()) elements = [current()];
+        if (script) elements.forEach((element) => element.setAttribute("data-script", script));
       });
-      if (!element) return;
 
-      if (script) element.setAttribute("data-script", script);
-      locate(element);
+      elements.forEach(locate);
     };
 
     editor.ui.registry.addMenuButton("quranText", {
@@ -312,7 +338,7 @@ export default class extends Controller {
 
     editor.on("PreInit", () => {
       editor.parser.addNodeFilter(QUOTE_TAGS.join(","), (nodes) => nodes.forEach((node) => {
-        if (node.parent && !node.parent.parent) {
+        if (node.attr("data-display") === "block" && node.parent && !node.parent.parent) {
           const paragraph = new tinymce.html.Node("p", 1);
           paragraph.attr({"data-quote": "1", dir: "rtl"});
           node.wrap(paragraph);
@@ -328,10 +354,12 @@ export default class extends Controller {
         }
 
         if (children.length === 1 && isQuote(children[0])) {
+          children[0].attr("data-display", "block");
           paragraph.unwrap();
         } else {
           // more text was typed in, keep it as a normal paragraph
           paragraph.attr({"data-quote": null, dir: null});
+          children.filter(isQuote).forEach((quote) => quote.attr("data-display", null));
         }
       }));
     });
@@ -353,11 +381,7 @@ export default class extends Controller {
         } else if (editor.selection.isCollapsed()) {
           editor.notificationManager.open({text: "Select the hadith text first.", type: "warning", timeout: 5000});
         } else {
-          editor.undoManager.transact(() => {
-            editor.formatter.apply("hadith_text");
-            const element = current();
-            if (element) markQuoteParagraph(editor, element);
-          });
+          editor.undoManager.transact(() => applyQuote(editor, "hadith-text"));
         }
         editor.nodeChanged();
       },

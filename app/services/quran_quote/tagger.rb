@@ -13,15 +13,25 @@ module QuranQuote
   # quran-text tag, and the class is dropped everywhere else. Hadith and
   # other Arabic then use the normal Arabic font, which has the punctuation
   # (، ؛ ؟) the QPC font is missing.
+  #
+  # A quote can run through inline markup (a highlighted word, bold...), the
+  # markup is split where the quote starts and ends.
   class Tagger
     TAG = 'quran-text'
     OLD_CLASS = 'qpc-hafs'
     OPEN_BRACKET = '﴿'
     CLOSE_BRACKET = '﴾'
+    # Brackets tafsirs put around a quote. Only ﴿ ﴾ go inside the tag, the
+    # Quran font draws them.
+    BRACKETS = [[OPEN_BRACKET, CLOSE_BRACKET], ['{', '}']].freeze
+
+    # Markup a quote can run through. Anything else (p, div, br, li...) ends
+    # the text a quote is looked for in.
+    INLINE_ELEMENTS = %w[span b strong i em u a sup sub small mark del ins font abbr].freeze
 
     # How many words a quote needs before it's tagged. Arabic tafsirs repeat
     # Quran words all the time while explaining them, so plain text needs a
-    # few. A quote the tafsir marks itself with ﴿ ﴾ needs fewer, and fewer
+    # few. A quote the tafsir marks itself with ﴿ ﴾ or { } needs fewer, and fewer
     # again when it's from the ayahs the tafsir explains. The qpc-hafs class
     # doesn't count as a mark, tafsirs put it on hadith too.
     MIN_WORDS = {
@@ -50,9 +60,7 @@ module QuranQuote
 
     # Tags quotes in a Nokogiri fragment, in place
     def tag(fragment)
-      fragment.xpath(".//text()[not(ancestor::#{TAG})]").each do |node|
-        tag_text_node(node)
-      end
+      text_runs(fragment).each { |nodes| tag_run(nodes) }
 
       fragment.css(".#{OLD_CLASS}").each { |element| replace_old_class(element) }
       fragment.css(TAG).each { |quote| replace_paragraph(quote) }
@@ -74,31 +82,87 @@ module QuranQuote
 
     private
 
-    def tag_text_node(node)
-      text = node.text
-      tokens = WordIndex.tokenize(text)
-      return if tokens.empty?
-
-      words = tokens.map(&:first)
-      brackets = bracket_ranges(text)
-      quotes = []
-      position = 0
-
-      while position < words.size
-        candidates = @index.matches_at(words, position)
-        start_char = tokens[position][1]
-        in_brackets = brackets.any? { |range| range.cover?(start_char) }
-        match, located = pick(candidates, marked: in_brackets)
-
-        if match
-          quotes << [match, located]
-          position = match.token_end + 1
-        else
-          position += 1
+    # The text nodes of a fragment, grouped into runs of text a quote can
+    # span: a paragraph's text, through its inline markup. Existing quotes
+    # are skipped.
+    def text_runs(root)
+      runs = [[]]
+      walk = lambda do |node|
+        node.children.each do |child|
+          if child.text?
+            runs.last << child
+          elsif child.element? && INLINE_ELEMENTS.include?(child.name)
+            walk.call(child)
+          elsif child.element?
+            runs << []
+            walk.call(child) unless child.name == TAG
+            runs << []
+          end
         end
       end
 
-      replace_with_quotes(node, text, tokens, quotes) if quotes.any?
+      walk.call(root)
+      runs.reject(&:empty?)
+    end
+
+    def tag_run(nodes)
+      text = +''
+      starts = nodes.map { |node| text.length.tap { text << node.text } }
+      tokens = WordIndex.tokenize(text)
+      return if tokens.empty?
+
+      brackets = bracket_ranges(text)
+      quotes = []
+
+      segments(text, tokens).each do |first, last|
+        words = tokens[first..last].map(&:first)
+        position = 0
+
+        while position < words.size
+          candidates = @index.matches_at(words, position)
+          in_brackets = brackets.any? { |range| range.cover?(tokens[first + position][1]) }
+          match, located = pick(candidates, marked: in_brackets)
+
+          if match
+            quotes << [shift(match, first), located]
+            position = match.token_end + 1
+          else
+            position += 1
+          end
+        end
+      end
+
+      # From the last quote back, so splitting the text for one quote doesn't
+      # move the text of the quotes before it
+      quotes.reverse_each do |match, located|
+        from = include_bracket_before(text, tokens[match.token_start][1])
+        to = include_bracket_after(text, tokens[match.token_end][2])
+
+        wrap(*node_at(nodes, starts, from, ending: false), *node_at(nodes, starts, to, ending: true),
+             location_attributes(match, located))
+      end
+    end
+
+    # A quote can't run past words in another language (only Arabic words
+    # are tokens, so they'd be skipped) or past a bracket, which starts or
+    # ends a quote. Returns [first, last] token indices of each stretch a
+    # quote can be in.
+    QUOTE_BREAK = /[\p{L}#{BRACKETS.flatten.map { |b| Regexp.escape(b) }.join}]/
+
+    def segments(text, tokens)
+      segments = [[0, 0]]
+      tokens.each_cons(2).with_index(1) do |(previous, token), index|
+        if text[previous[2]...token[1]].match?(QUOTE_BREAK)
+          segments << [index, index]
+        else
+          segments.last[1] = index
+        end
+      end
+      segments
+    end
+
+    def shift(match, by)
+      WordIndex::Match.new(match.token_start + by, match.token_end + by, match.word_start, match.word_end)
     end
 
     # The longest match that has enough words, preferring the tafsir's ayahs.
@@ -123,8 +187,7 @@ module QuranQuote
     def in_range?(match)
       return false if @verse_ids.blank?
 
-      @verse_ids.include?(@index.verse_id(match.word_start)) ||
-        @verse_ids.include?(@index.verse_id(match.word_end))
+      (match.word_start..match.word_end).any? { |word| @verse_ids.include?(@index.verse_id(word)) }
     end
 
     def location_attributes(match, located)
@@ -133,36 +196,88 @@ module QuranQuote
       { from: @index.location(match.word_start), to: @index.location(match.word_end) }
     end
 
-    # Character ranges inside ﴿ ﴾ in a text
+    # Character ranges inside ﴿ ﴾ or { } in a text
     def bracket_ranges(text)
-      ranges = []
-      text.scan(/#{OPEN_BRACKET}[^#{CLOSE_BRACKET}]*#{CLOSE_BRACKET}?/o) do
-        match = Regexp.last_match
-        ranges << (match.begin(0)...match.end(0))
+      BRACKETS.flat_map do |open, close|
+        ranges = []
+        text.scan(/#{Regexp.escape(open)}[^#{Regexp.escape(close)}]*#{Regexp.escape(close)}?/) do
+          match = Regexp.last_match
+          ranges << (match.begin(0)...match.end(0))
+        end
+        ranges
       end
-      ranges
     end
 
-    def replace_with_quotes(node, text, tokens, quotes)
-      document = node.document
-      cursor = 0
+    # The text node and offset in it of a character position in a run. A
+    # quote's end belongs to the node it ends in, not the next one.
+    def node_at(nodes, starts, position, ending:)
+      nodes.each_with_index do |node, index|
+        offset = position - starts[index]
+        length = node.text.length
+        return [node, offset] if ending ? offset.positive? && offset <= length : offset >= 0 && offset < length
+      end
+    end
 
-      quotes.each do |match, located|
-        from = include_bracket_before(text, tokens[match.token_start][1])
-        to = include_bracket_after(text, tokens[match.token_end][2])
+    # Wraps the text from start_offset in start_node to end_offset in
+    # end_node in a quote tag, splitting any markup it starts or ends inside
+    def wrap(start_node, start_offset, end_node, end_offset, attributes)
+      split_text(end_node, end_offset)
+      quote_start = start_offset.zero? ? start_node : split_text(start_node, start_offset)
+      end_node = quote_start if end_node == start_node
 
-        node.add_previous_sibling(Nokogiri::XML::Text.new(text[cursor...from], document)) if from > cursor
+      container = (end_node.ancestors.to_a & quote_start.ancestors.to_a).first
+      first = lift(quote_start, container, :start)
+      last = lift(end_node, container, :end)
 
-        element = document.create_element(TAG)
-        element.content = text[from...to]
-        location_attributes(match, located).each { |key, value| element["data-#{key}"] = value }
-        node.add_previous_sibling(element)
+      element = container.document.create_element(TAG)
+      attributes.each { |key, value| element["data-#{key}"] = value }
+      first.add_previous_sibling(element)
 
-        cursor = to
+      node = first
+      loop do
+        following = node.next_sibling
+        element.add_child(node)
+        break if node == last
+
+        node = following
+      end
+    end
+
+    # Cuts a text node at offset, returns the part after it
+    def split_text(node, offset)
+      text = node.text
+      return if offset >= text.length
+
+      rest = Nokogiri::XML::Text.new(text[offset..], node.document)
+      node.content = text[0...offset]
+      node.add_next_sibling(rest)
+      rest
+    end
+
+    # Splits the elements between node and container, so node starts (or
+    # ends) a child of container. Returns that child.
+    def lift(node, container, side)
+      while node.parent != container
+        parent = node.parent
+        cut = side == :start ? node.previous_sibling : node.next_sibling
+
+        if cut
+          clone = parent.document.create_element(parent.name)
+          parent.attribute_nodes.each { |attribute| clone[attribute.name] = attribute.value }
+          parent.add_next_sibling(clone)
+          moving = side == :start ? [node] : []
+          sibling = node.next_sibling
+          while sibling
+            moving << sibling
+            sibling = sibling.next_sibling
+          end
+          moving.each { |child| clone.add_child(child) }
+        end
+
+        node = side == :start && cut ? clone : parent
       end
 
-      node.add_previous_sibling(Nokogiri::XML::Text.new(text[cursor..], document)) if cursor < text.length
-      node.remove
+      node
     end
 
     # Keep the ﴿ ﴾ around a quote inside the tag, they're drawn by the
@@ -178,9 +293,10 @@ module QuranQuote
       after ? position + after.length : position
     end
 
-    # A paragraph that only holds a quote is replaced by the quote, which is
-    # shown as a block on its own. The paragraph's language and font classes
-    # don't apply to the quote, anything else (a colour...) moves onto it.
+    # A paragraph that only holds a quote is replaced by the quote, marked
+    # data-display="block" to show it as a paragraph. The paragraph's
+    # language and font classes don't apply to the quote, anything else (a
+    # colour...) moves onto it.
     PARAGRAPHS = %w[p div].freeze
     PARAGRAPH_CLASSES = ['ar', 'arabic', OLD_CLASS].freeze
 
@@ -189,8 +305,9 @@ module QuranQuote
       return unless paragraph.respond_to?(:name) && PARAGRAPHS.include?(paragraph.name)
       return unless paragraph.element_children.size == 1 && paragraph.text.strip == quote.text.strip
 
-      classes = (quote.classes + paragraph.classes - PARAGRAPH_CLASSES).uniq
+      classes = (quote.classes + paragraph.classes - PARAGRAPH_CLASSES - [paragraph['lang']]).uniq
       quote['class'] = classes.join(' ') if classes.any?
+      quote['data-display'] = 'block'
       paragraph.replace(quote)
     end
 

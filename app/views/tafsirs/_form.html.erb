@@ -33,7 +33,7 @@
 
   <div class="mb-4 <%= lang %>" id="tafsir_text">
     <%= form.label :text, 'Tafsir text', class: 'form-label' %>
-    <%= form.text_area :text, class: 'form-control', id: 'editor', data: { controller: 'tinymce' } %>
+    <%= form.text_area :text, class: 'form-control', id: 'editor', data: { controller: 'tinymce', body_class: "tafsir #{lang}", highlights: 'tafsir', quran_text_url: quran_text_location_tafsirs_path(resource_id: @resource.id), hadith_text: true } %>
   </div>
 
   <%= render 'shared/draft_comment_field', form: form, value: params.dig(:tafsir, :comment) %>

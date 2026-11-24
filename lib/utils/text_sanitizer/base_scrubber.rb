@@ -30,8 +30,9 @@ module Utils
 
         @class_mapping = HashWithIndifferentAccess.new(class_mapping)
         @color_mapping = HashWithIndifferentAccess.new(color_mapping)
-        self.tags = %w(strong em tag b i pre a sup sub span div del ins p blockquote br ul ol li h1 h2 h3 h4).freeze
-        self.attributes = %w(lang xml:lang ayah-range word-range class data-id).freeze
+        self.tags = %w(strong em tag b i pre a sup sub span div del ins p blockquote br ul ol li h1 h2 h3 h4 quran-text hadith-text).freeze
+        # data-from, data-to and data-script belong to <quran-text>
+        self.attributes = %w(lang xml:lang ayah-range word-range class data-id data-from data-to data-script).freeze
       end
 
       def scrub(node)

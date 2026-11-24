@@ -45,7 +45,7 @@
             <% elsif local_assigns[:summary] %>
               <%= summary.call(first) %>
             <% else %>
-              <div dir="<%= local_assigns[:dir] %>"><%= safe_html first.draft_text %></div>
+              <div class="has-quotes" dir="<%= local_assigns[:dir] %>"><%= safe_html first.draft_text %></div>
             <% end %>
 
             <% if first.respond_to?(:comment) && first.comment.present? %>

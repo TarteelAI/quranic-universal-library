@@ -783,13 +783,71 @@ module ToolDocsHelper
           <p>A tafsir is formatted with HTML tags: paragraphs, headings, bold, and Arabic quotes from the Quran or hadith. The editor shows the formatted text, so you can fix most typos right there.</p>
           <p class="mt-2">To see or fix the tags, click <code>View</code> and then <code>Source code</code> in the editor. Change the HTML and click <code>Save</code> to go back to the editor, then <code>Propose changes</code> as usual.</p>
           #{ui_screen(
-            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>&lt;h2&gt;The Meaning of Al-Fatihah&lt;/h2&gt;\n&lt;p class=\"en\"&gt;This Surah is called Al-Fatihah...&lt;/p&gt;\n&lt;p class=\"ar qpc-hafs\"&gt;ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ&lt;/p&gt;</pre>",
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>&lt;h2&gt;The Meaning of Al-Fatihah&lt;/h2&gt;\n&lt;p class=\"en\"&gt;This Surah is called Al-Fatihah...&lt;/p&gt;\n&lt;p class=\"ar\"&gt;&lt;quran-text data-from=\"1:2:1\" data-to=\"1:2:4\"&gt;ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ&lt;/quran-text&gt;&lt;/p&gt;</pre>",
             ui_button('Cancel', :light), ui_button('Save', :blue),
             title: 'Source code'
           )}
           <ul class="list-disc ps-5 mt-2">
-            <li>Keep the <code>class</code> on each tag. <code>ar qpc-hafs</code> shows Arabic in the Quran font, <code>en</code> marks the translation language.</li>
+            <li>Keep the <code>class</code> on each tag. <code>en</code> or <code>ar</code> marks the language of the text.</li>
+            <li>Quran quotes are in a <code>&lt;quran-text&gt;</code> tag, see <strong>Quran and hadith text</strong> below.</li>
             <li>Use <code>&lt;h2&gt;</code> for headings and <code>&lt;p&gt;</code> for paragraphs. Don't paste styled text from other sites, it brings fonts and colours with it.</li>
+          </ul>
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Quran and hadith text'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>A quote from the Quran goes in a <code>&lt;quran-text&gt;</code> tag. The tag draws it in a Quran font, right to left, even in the middle of an English sentence. Hadith and other Arabic stay outside it, in the normal Arabic font, which has the punctuation (، ؛ ؟) the Quran font doesn't.</p>
+          #{ui_screen(
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>Allah said, &lt;quran-text data-from=\"17:110:13\" data-to=\"17:110:22\"&gt;وَلَا تَجۡهَرۡ بِصَلَاتِكَ...&lt;/quran-text&gt;, meaning...</pre>",
+            title: 'Source code'
+          )}
+          <ul class="list-disc ps-5 mt-2">
+            <li><code>data-from</code> and <code>data-to</code> are the first and last word of the quote, as surah:ayah:word. One tag can hold several ayahs.</li>
+            <li><code>data-script="dk"</code> draws the quote in Digital Khatt. Without it, the quote is in QPC Hafs.</li>
+          </ul>
+          <p class="mt-2">To tag a quote, select it, click <code>Quran</code> in the toolbar and pick a font. The editor finds which ayahs the words are from and shows them next to the quote. Check them: if the words are in the Quran more than once, or only part of the selection matches, it tells you.</p>
+          #{ui_screen(
+            "<div class='w-56 rounded border border-gray-300 bg-white text-xs text-gray-800 shadow-sm'>" \
+            "<div class='px-2 py-1'>QPC Hafs ✓</div><div class='px-2 py-1'>Digital Khatt</div>" \
+            "<div class='border-t px-2 py-1'>Find the ayahs again</div><div class='px-2 py-1'>Remove Quran tag</div></div>",
+            title: 'Quran'
+          )}
+          <p class="mt-2">With the cursor inside a quote, the same menu changes its font, looks the ayahs up again after you fix the text, or removes the tag.</p>
+          <p class="mt-2"><strong>Hadith</strong> go in a <code>&lt;hadith-text&gt;</code> tag. Select the hadith and click <code>Hadith</code> in the toolbar. Click it again with the cursor inside a hadith to remove the tag. Tag only the words of the hadith, not the narrator chain or your own explanation around it.</p>
+          #{ui_screen(
+            "<pre class='w-full overflow-x-auto whitespace-pre-wrap rounded border border-gray-300 bg-white p-2 text-xs text-gray-800'>The Prophet said, &lt;hadith-text&gt;مَنْ صَلَّى صَلَاةً لَمْ يَقْرَأْ فِيهَا بِأُمِّ الْقُرْآنِ فَهِيَ خِدَاجٌ&lt;/hadith-text&gt;</pre>",
+            title: 'Source code'
+          )}
+        HTML
+      },
+      {
+        type: 'heading',
+        text: 'Highlighted text'
+      },
+      {
+        type: 'info',
+        text: <<~HTML
+          <p>Some tafsirs colour parts of the text, as the printed book does. The editor shows these colours as they look on the tafsir page.</p>
+          <p class="mt-2"><strong>A colour has no fixed meaning.</strong> All tafsirs share the same set of colours, but each tafsir uses them its own way. <span style="color:#999">Gray</span> might mark extra explanation in one tafsir and something else in another. When you colour text, use the colour this tafsir already uses for the same kind of text.</p>
+          <p class="mt-2">To change a colour, select the text, click the <code>Highlight</code> button (the marker next to <code>B</code> and <code>I</code>) and pick a colour. The colour the text has now is ticked. Picking another colour replaces it.</p>
+          #{ui_screen(
+            "<div class='w-56 rounded border border-gray-300 bg-white text-xs text-gray-800 shadow-sm'>" +
+            [['Red', '#950000'], ['Blue', '#006d98'], ['Green', '#008000'], ['Light green', '#57D798'],
+             ['Brown', '#707070'], ['Gray ✓', '#999999'], ['Reference (small, pink)', '#FF0066']].map { |label, color|
+              "<div class='flex items-center gap-2 px-2 py-1'><span class='inline-block w-3 h-3 rounded-sm' style='background:#{color}'></span>#{label}</div>"
+            }.join +
+            "<div class='border-t px-2 py-1'>Remove highlight</div></div>",
+            title: 'Highlight'
+          )}
+          <ul class="list-disc ps-5 mt-2">
+            <li>To remove a colour, select the text and pick <code>Remove highlight</code>. Selecting part of a highlight removes the colour from that part only.</li>
+            <li>In <code>Source code</code> a highlight is a <code>span</code> with the colour as its class, like <code>&lt;span class="gray"&gt;(the way)&lt;/span&gt;</code>. The classes are <code>red</code>, <code>blue</code>, <code>green</code>, <code>hlt</code> (light green), <code>brown</code>, <code>gray</code> and <code>reference</code>.</li>
+            <li>Use only these colours. Don't paste coloured text from other sites or add <code>style="color: ..."</code> by hand, a colour set that way doesn't follow the tafsir's styling.</li>
           </ul>
         HTML
       },
@@ -873,12 +931,12 @@ module ToolDocsHelper
         type: 'step',
         title: '5. Quran text in the wrong font',
         text: <<~HTML
-          <p>Quran text in a tafsir must show in the QPC Hafs font. Its tag needs the class <code>qpc-hafs</code> and Arabic as its language. Another language, like <code>ur</code>, switches it to that language's font.</p>
+          <p>Quran text shows in a Quran font only inside a <code>&lt;quran-text&gt;</code> tag. A quote in the normal Arabic or Urdu font wasn't tagged.</p>
           <div class="grid grid-cols-2 gap-2 my-2 max-w-xl text-xs">
-            <div class="rounded border border-red-400 bg-red-50 p-2"><div class="font-semibold text-gray-500 mb-1">Now</div><div class="ur text-2xl leading-loose" dir="rtl">عُمْيٌ</div><code class="block mt-1 whitespace-normal">&lt;p class="ur qpc-hafs" lang="ur"&gt;</code></div>
-            <div class="rounded border border-green-600 bg-green-50 p-2"><div class="font-semibold text-gray-500 mb-1">After</div><div class="qpc-hafs text-2xl leading-loose" dir="rtl">عُمۡيٞ</div><code class="block mt-1 whitespace-normal">&lt;p class="ar qpc-hafs" lang="ar"&gt;</code></div>
+            <div class="rounded border border-red-400 bg-red-50 p-2"><div class="font-semibold text-gray-500 mb-1">Now</div><div class="ur text-2xl leading-loose" dir="rtl">عُمْيٌ</div><code class="block mt-1 whitespace-normal">&lt;p class="ur"&gt;عُمْيٌ&lt;/p&gt;</code></div>
+            <div class="rounded border border-green-600 bg-green-50 p-2"><div class="font-semibold text-gray-500 mb-1">After</div><div class="qpc-hafs text-2xl leading-loose" dir="rtl">عُمۡيٞ</div><code class="block mt-1 whitespace-normal">&lt;p class="ur"&gt;&lt;quran-text data-from="2:18:3" data-to="2:18:3"&gt;عُمۡيٞ&lt;/quran-text&gt;&lt;/p&gt;</code></div>
           </div>
-          <p>Fix the tag in <code>Source code</code>. The text must suit the font too: copy the ayah or word from QUL rather than typing it, other sources use different marks that the font doesn't draw well.</p>
+          <p>Select the quote and tag it from the <code>Quran</code> menu, see <strong>Quran and hadith text</strong> above. The text must suit the font too: copy the ayah or word from QUL rather than typing it, other sources use different marks that the font doesn't draw well.</p>
         HTML
       },
       {

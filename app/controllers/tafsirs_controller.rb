@@ -1,7 +1,7 @@
 class TafsirsController < CommunityController
   before_action :normalize_page_param, only: %i[index]
   before_action :load_resource_access
-  before_action :authenticate_user!, only: %i[edit update new create]
+  before_action :authenticate_user!, only: %i[edit update new create quran_text_location]
 
   def show
     #TODO: use presenter to load data
@@ -37,6 +37,15 @@ class TafsirsController < CommunityController
     @range_change = @tafisr.range_change_for(params[:start_verse_id], params[:end_verse_id])
 
     render layout: false
+  end
+
+  # Where text selected in the editor is in the Quran, to fill in a
+  # <quran-text> tag's data-from and data-to
+  def quran_text_location
+    verse_ids = params[:start_verse_id].to_i..params[:end_verse_id].to_i if params[:start_verse_id].present?
+    result = QuranQuote::Tagger.new(verse_ids: verse_ids).locate(params[:text].to_s.first(5000))
+
+    render json: result.to_h
   end
 
   def edit

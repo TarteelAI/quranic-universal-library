@@ -15,3 +15,35 @@
     font-size: 24px;
   }
 }
+
+// In the editor, outline hadith quotes so they're told apart from Quran ones
+.mce-content-body hadith-text {
+  outline: 1px dashed rgba(0, 128, 0, 0.45);
+  outline-offset: 2px;
+}
+
+// In the editor, outline Quran quotes and show where they're from, so
+// editors can check the tag. Not part of the saved text.
+.mce-content-body quran-text {
+  outline: 1px dashed rgba(0, 109, 152, 0.45);
+  outline-offset: 2px;
+
+  &[data-from]::after {
+    content: attr(data-from) " – " attr(data-to);
+    direction: ltr;
+    unicode-bidi: isolate;
+    margin-inline-start: 4px;
+    font: 11px/1 sans-serif;
+    color: #006d98;
+    vertical-align: super;
+  }
+}
+
+// A quote standing on its own (see addQuoteParagraphs in tinymce_controller)
+.mce-content-body p[data-quote] {
+  margin: 0.75rem 0;
+
+  > quran-text, > hadith-text {
+    font-size: 1.5em;
+  }
+}

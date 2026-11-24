@@ -203,6 +203,7 @@ Rails.application.routes.draw do
   resources :word_transliterations, only: %i[index show edit update]
   resources :tafsirs, except: :destroy do
     get :range_preview, on: :collection
+    post :quran_text_location, on: :collection
   end
   resources :topics, only: %i[index show edit update]
   # ayah_theme is taken by /ayah/:key/theme

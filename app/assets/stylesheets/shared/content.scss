@@ -18,6 +18,48 @@ body {
   color: #FF00CC;
 }
 
+// A Quran quote in a tafsir: <quran-text data-from="2:255:1" data-to="2:255:9">.
+// Inline, so it can sit in the middle of a sentence in any language, and
+// isolated so the right-to-left text doesn't reorder what's around it.
+// !important beats the font classes around it or inside it (.ar, .qpc-hafs...).
+quran-text {
+  display: inline;
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-size: 1.3em;
+  line-height: normal;
+}
+
+quran-text, quran-text * {
+  font-family: 'qpc-hafs', serif !important;
+}
+
+quran-text[data-script="dk"], quran-text[data-script="dk"] * {
+  font-family: 'digitalkhatt-v2', 'qpc-hafs', serif !important;
+}
+
+// A hadith quoted in a tafsir. Same layout as <quran-text>, in the normal
+// Arabic font, which has the punctuation (، ؛ ؟) the Quran fonts don't.
+hadith-text {
+  display: inline;
+  direction: rtl;
+  unicode-bidi: isolate;
+  font-size: 1.3em;
+  line-height: normal;
+}
+
+hadith-text, hadith-text * {
+  font-family: 'Noto Naskh Arabic', serif !important;
+}
+
+// A quote on its own, not inside a paragraph, is a paragraph itself
+quran-text[data-display="block"], hadith-text[data-display="block"] {
+  display: block;
+  margin: 0.75rem 0;
+  // 30px in a 20px tafsir, the size the old qpc-hafs paragraphs had
+  font-size: 1.5em;
+}
+
 .tafsir {
   font-size: 20px;
 
@@ -89,13 +131,6 @@ body {
     text-align: center;
     margin: 12px 0;
   }
-}
-
-.suggestion-popup {
-  position: fixed;
-  right: 41px;
-  bottom: 92px;
-  transform: translate(41px, 92px);
 }
 
 .mushaf {

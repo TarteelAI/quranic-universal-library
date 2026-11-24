@@ -152,7 +152,8 @@ class Draft::Tafsir < ApplicationRecord
     sanitizer = Utils::TextSanitizer::TafsirSanitizer.new
     text =  sanitizer.sanitize(
       draft_text,
-      resource_language: resource_content.language.iso_code
+      resource_language: resource_content.language.iso_code,
+      verse_ids: start_verse_id..end_verse_id
     ).html
 
     update_columns(draft_text: text)

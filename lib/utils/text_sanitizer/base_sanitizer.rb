@@ -57,7 +57,9 @@ module Utils
                   end
                 end
 
-                set_content_lang(node)
+                # a quote's tag already says what it is, and .ar would
+                # change its font size
+                set_content_lang(node) unless %w[quran-text hadith-text].include?(node.name)
               end
             end
           end

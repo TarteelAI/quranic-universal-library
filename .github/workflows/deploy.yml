@@ -38,6 +38,9 @@ jobs:
     needs: build
     runs-on: ubuntu-24.04
     timeout-minutes: 50
+    concurrency:
+      group: production
+      cancel-in-progress: false
     # Holds the infra App key; only main can use it.
     environment: production
     permissions:
@@ -88,7 +91,7 @@ jobs:
           for _ in $(seq 30); do
             sleep 5
             id="$(gh run list -R TarteelAI/infra -w flux-promote.yml -e workflow_dispatch -L 50 \
-              --json databaseId,displayTitle --jq 'map(select(.displayTitle == env.TITLE))[0].databaseId // empty')"
+              --json databaseId,displayTitle --jq 'map(select(.displayTitle == env.TITLE))[0].databaseId // empty')" || id=""
             [[ -n "$id" ]] && break
           done
           [[ -n "$id" ]] || { echo "::error::The deploy did not start"; exit 1; }

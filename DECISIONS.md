@@ -196,8 +196,8 @@ them is in [`AGENTS.md`](AGENTS.md).
   position is featured: the directory and the home page's apps band (its first eight) list the
   featured apps first, lowest position first, then the others by id. Only a super admin
   (`User#super_admin?`, the existing `super_admin` role) can set or clear it in `/cms/apps`; other
-  admins see it and edit the rest of an app. A new app, a submission included, has none.
-  `config/apps.yml` gives the featured entries their positions. The migration gives the apps
+  admins see it and edit the rest of an app. An app made in the CMS or submitted has none;
+  `apps:import` takes the featured entries' positions from `config/apps.yml`. The migration gives the apps
   featured before it positions in their order then (by id), clears the others and drops
   `featured`.
 - **Why:** the team asked to set the order without a deploy, and only super admins may. The flag

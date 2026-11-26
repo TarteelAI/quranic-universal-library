@@ -167,8 +167,8 @@ page: off, it is a 404 and no new page links to it. Its entries are the publishe
 CMS database (`AppDirectory`: the featured apps, those with a `position`, first in position
 order, then the others by id; the home page's apps band shows the first eight), which editors
 publish, edit and remove in the CMS (`/cms/apps`, admins only). Only a super admin
-(`User#super_admin?`) can set or clear the position, which is how an app is featured; a new app
-has none. `bin/rails apps:import` makes the entries of `config/apps.yml` (icons in
+(`User#super_admin?`) can set or clear the position, which is how an app is featured; an app made
+in the CMS or submitted has none. `bin/rails apps:import` makes the entries of `config/apps.yml` (icons in
 `public/app-icons`, an entry's `position` makes it featured) published rows once, keyed on the
 entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
 app" form (`?submit=1` opens it; the home page's button links there) posts to `POST /apps`

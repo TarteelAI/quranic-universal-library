@@ -59,29 +59,31 @@ module Site
     typelize resources: :number, languages: :number, contributors: :number, apps_count: :number,
              catalog_pages: :boolean, apps_page: :boolean, content_pages: :boolean, start_pages: :boolean
 
-    attribute(:resources) { |page| page[:stats].resources }
-    attribute(:languages) { |page| page[:stats].languages }
+    attribute(:resources) { |page| page[:stats].call.resources }
+    attribute(:languages) { |page| page[:stats].call.languages }
     attribute(:contributors) { |page| page[:contributors].call }
-    many :categories, source: proc { self[:stats].categories }, resource: CategoryCountResource
+    many :categories, source: proc { self[:stats].call.categories }, resource: CategoryCountResource
 
     many :samples, resource: SampleResource,
-                   source: proc { self[:samples].map { |type, resource| { type:, resource: } } }
+                   source: proc { self[:samples].call.map { |type, resource| { type:, resource: } } }
     # Each card's preview is left out of the first response and loaded when the card comes near
     # the screen. A type with no sample has none.
     PREVIEWS.each do |type, serializer|
       name = :"#{type.underscore}_preview"
       typelize name => "#{serializer} | Previews::UnavailableResource | null"
-      attribute(name, inertia: :optional) { |page| page[:samples][type]&.then { HomeShowResource.preview(type, _1) } }
+      attribute(name, inertia: :optional) do |page|
+        page[:samples].call[type]&.then { HomeShowResource.preview(type, _1) }
+      end
     end
 
-    many :showcase, resource: AppResource
-    attribute(:apps_count) { |page| page[:apps].size }
+    many :showcase, source: proc { self[:apps].call.first(AppDirectory::SHOWCASE_SIZE) }, resource: AppResource
+    attribute(:apps_count) { |page| page[:apps].call.size }
     many :tools, resource: SiteNavLinkResource
     # The guided setup's goals and the first starter kits, while the `start` group serves them;
     # otherwise none, and the hero and closing buttons keep their catalog links.
     many :goals, source: proc { PageGroups.enabled?(:start) ? GuidedSetup::GOALS.values : [] },
                  resource: Start::GoalResource
-    many :kits, resource: Start::KitCardResource
+    many :kits, source: proc { self[:kits].call }, resource: Start::KitCardResource
     # Whether the catalog, the apps directory and the tools overview are new pages (Inertia
     # visits) or old pages; with the `apps` group off there is no apps directory, and with
     # `start` off no guided setup or kits.

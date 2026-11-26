@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# Times the catalog's pages, their partial reloads and JSON endpoints, one request at a time,
+# so each performance change can be compared before and after on the same URLs.
+#
+#   bin/bench-catalog [-n 50] [-w 5] [-l log/development.log] [-o results.tsv] BASE_URL
+#
+# Prints p50/p95 of TTFB and total time per URL, and the commit the server says it runs. With -l (a local server's Rails log), also the
+# SQL queries of each request and its server time, read from Rails' "Completed" lines, and the
+# queries of a whole home and detail page view (the page plus the reloads the browser makes).
+# A server behind Cloudflare Access: set CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET in the
+# environment (they are passed to curl through a file descriptor, never on the command line).
+# Keep it light on shared servers: requests are sequential.
+set -euo pipefail
+
+runs=50 warmup=5 log='' out=''
+while getopts 'n:w:l:o:' opt; do
+  case $opt in
+    n) runs=$OPTARG ;; w) warmup=$OPTARG ;; l) log=$OPTARG ;; o) out=$OPTARG ;;
+    *) exit 2 ;;
+  esac
+done
+shift $((OPTIND - 1))
+base=${1:?usage: bin/bench-catalog [-n runs] [-w warmup] [-l rails-log] [-o out.tsv] BASE_URL}
+base=${base%/}
+
+auth_headers() {
+  if [[ -n ${CF_ACCESS_CLIENT_ID:-} ]]; then
+    : "${CF_ACCESS_CLIENT_SECRET:?CF_ACCESS_CLIENT_SECRET is not set}"
+    printf 'CF-Access-Client-Id: %s\nCF-Access-Client-Secret: %s\n' "$CF_ACCESS_CLIENT_ID" "$CF_ACCESS_CLIENT_SECRET"
+  fi
+}
+fetch() { curl -sS --max-time 30 -H @<(auth_headers) "$@"; }
+
+# Name, path, and for a partial reload "component|props" (Inertia's X-Inertia-Partial-* headers).
+# A resource id redirects to its slug URL (one same-origin hop), which is resolved once below.
+HOME_PREVIEWS='recitationPreview mushafLayoutPreview quranScriptPreview translationPreview tafsirPreview
+  morphologyPreview ayahTopicsPreview quranMetadataPreview'
+DETAIL=/resources/mushaf-layout/19
+detail=$(fetch -o /dev/null -w '%{redirect_url}' "$base$DETAIL")
+detail=${detail#"$base"}
+detail=${detail%%\?*}
+detail=${detail:-$DETAIL}
+requests=("home|/|")
+for prop in $HOME_PREVIEWS; do requests+=("home:$prop|/|site/HomePage|$prop"); done
+requests+=(
+  "catalog|/resources|"
+  "catalog:search|/resources?q=english|catalog/CatalogPage|filters,results,groups,facets,total,page,pages"
+  "type:mushaf-layout|/resources/mushaf-layout|"
+  "type:translation|/resources/translation|"
+  "type:translation:search|/resources/translation?q=english|catalog/TypePage|resources,search"
+  "detail|$detail|"
+  "detail:preview|$detail|catalog/ResourcePage|preview"
+  "card-preview|$detail/preview|"
+  "bundle|/bundle?ids=19,10,249|"
+  "spotlight|/spotlight?q=quran|"
+)
+
+home_html=$(fetch "$base/")
+version=$(grep -o '"version":"[^"]*"' <<<"$home_html" | head -1 | cut -d'"' -f4 || true)
+[[ -n $version ]] || { echo "no Inertia version in $base/" >&2; exit 1; }
+# The commit a staging build names (the review overlay's data-build), when the page has one.
+build=$(grep -o 'data-build="[0-9a-f]*"' <<<"$home_html" | head -1 | cut -d'"' -f2 || true)
+
+# One request: prints "ttfb total status" in seconds; a failed connection is status 000.
+hit() {
+  local path=$1 component=$2 props=$3
+  local args=(-o /dev/null -w '%{time_starttransfer} %{time_total} %{http_code}\n')
+  if [[ -n $component ]]; then
+    args+=(-H 'X-Inertia: true' -H "X-Inertia-Version: $version" -H 'X-Requested-With: XMLHttpRequest'
+      -H "X-Inertia-Partial-Component: $component" -H "X-Inertia-Partial-Data: $props"
+      -H 'Accept: text/html, application/xhtml+xml')
+  fi
+  fetch "${args[@]}" "$base$path" || true
+}
+
+# The last "Completed" line written to the log since byte $1: "queries cached server_ms".
+completed() {
+  local line
+  line=$(tail -c +$(($1 + 1)) "$log" | grep 'Completed ' | tail -1)
+  sed -E 's/.* in ([0-9]+)ms.*\(([0-9]+) queries, ([0-9]+) cached\).*/\2 \3 \1/' <<<"$line"
+}
+
+pct() { sort -n | awk -v p="$1" '{ v[NR] = $1 } END { i = int(NR * p / 100 + 0.999); if (i < 1) i = 1; printf "%.0f", v[i] * 1000 }'; }
+median() { sort -n | awk '{ v[NR] = $1 } END { print v[int((NR + 1) / 2)] }'; }
+
+header="name	status	ttfb_p50_ms	ttfb_p95_ms	total_p50_ms	total_p95_ms"
+[[ -n $log ]] && header+="	queries	cached	server_p50_ms"
+echo "# $base${build:+ at $build}, $runs runs after $warmup warm-up, $(date -u +%FT%TZ)"
+[[ -n $out ]] && : >"$out"
+{
+  echo "$header"
+  home_q=0 detail_q=0
+  for request in "${requests[@]}"; do
+    IFS='|' read -r name path component props <<<"$request"
+    for ((i = 0; i < warmup; i++)); do hit "$path" "$component" "$props" >/dev/null; done
+    times=() server=() queries='' cached=''
+    for ((i = 0; i < runs; i++)); do
+      [[ -n $log ]] && size=$(wc -c <"$log")
+      times+=("$(hit "$path" "$component" "$props")")
+      if [[ -n $log ]]; then
+        sleep 0.05
+        read -r queries cached ms <<<"$(completed "$size")"
+        server+=("$ms")
+      fi
+    done
+    status=$(printf '%s\n' "${times[@]}" | awk '{ print $3 }' | sort -u | paste -sd/ -)
+    row="$name	$status"
+    row+="	$(printf '%s\n' "${times[@]}" | awk '{ print $1 }' | pct 50)"
+    row+="	$(printf '%s\n' "${times[@]}" | awk '{ print $1 }' | pct 95)"
+    row+="	$(printf '%s\n' "${times[@]}" | awk '{ print $2 }' | pct 50)"
+    row+="	$(printf '%s\n' "${times[@]}" | awk '{ print $2 }' | pct 95)"
+    if [[ -n $log ]]; then
+      row+="	$queries	$cached	$(printf '%s\n' "${server[@]}" | median)"
+      [[ $name == home* ]] && home_q=$((home_q + queries))
+      [[ $name == detail* ]] && detail_q=$((detail_q + queries))
+    fi
+    echo "$row"
+  done
+  if [[ -n $log ]]; then
+    echo "# queries per page view: home (page + 8 previews) $home_q, detail (page + preview) $detail_q"
+  fi
+} | tee ${out:+"$out"}

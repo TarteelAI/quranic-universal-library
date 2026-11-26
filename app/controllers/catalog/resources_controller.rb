@@ -40,12 +40,15 @@ module Catalog
       return redirect_to_page(resource, request.query_parameters) unless canonical?(resource)
 
       @page = ResourcePage.new(resource, viewer: current_user)
+      # Only plain values: `?page[]=2` is not a page.
+      @preview_query = request.query_parameters.slice(*Previews::QUERY_KEYS).select { |_, value| value.is_a?(String) }
+      # The deferred preview's reload reads only the preview, and the page keeps its head.
+      return render_inertia('catalog/ResourcePage') if preview_reload?
+
       @tab = @page.tab(params[:tab])
       @download_mode = DownloadMode.current
       @download = download_to_start(params[:download])
       @issue_url = @page.issue_url("#{SeoHelper::HOST}#{request.path}")
-      # Only plain values: `?page[]=2` is not a page.
-      @preview_query = request.query_parameters.slice(*Previews::QUERY_KEYS).select { |_, value| value.is_a?(String) }
 
       render_inertia 'catalog/ResourcePage', meta: page_meta(
         title: "#{resource.catalog_name} - #{@page.type.label} - QUL",
@@ -63,6 +66,13 @@ module Catalog
     end
 
     private
+
+    # A partial reload of this page that asks for the preview only (Inertia's partial reload
+    # headers), as the deferred preview and the preview's own navigation send it.
+    def preview_reload?
+      request.inertia? && request.headers['X-Inertia-Partial-Component'] == 'catalog/ResourcePage' &&
+        request.headers['X-Inertia-Partial-Data'] == 'preview'
+    end
 
     def canonical?(resource)
       params[:type] == resource.resource_type && params[:slug] == resource.to_param

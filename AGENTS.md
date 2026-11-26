@@ -296,6 +296,12 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   Inertia or the session (`Catalog::ResourcesQuery`, `Catalog::ResourceCardResource`), so the
   public API can reuse them. CMS and content rows are preloaded in separate queries (`preload`),
   never joined.
+- Partial reloads: the serializer's props are evaluated only when asked for, so the action
+  computes nothing a partial reload does not read. An instance variable that only some props need
+  is a lambda the serializer calls (`Site::HomeController#lazy`); an action whose page meta is
+  costly returns early for its partial reload (`Catalog::ResourcesController#preview_reload?`).
+  `bin/bench-catalog` times the catalog's pages, reloads and endpoints and, with `-l` on a local
+  server's log, counts their queries.
 - Copy that is shared by several pages lives in one server-side file and goes to the page as
   props: the catalog taxonomy (type labels, descriptions, categories) is `Catalog::Taxonomy`.
 - Head: `render_inertia '<page>', meta: page_meta(title:, description:, json_ld:)`. `PageMeta`

@@ -8,15 +8,15 @@ module Site
     # The starter kits the "Start from a kit" row shows; its "All kits" link lists the rest.
     KITS = 3
 
-    def show
-      @stats = Catalog::Stats.new.call
-      # Counted when the prop is read: a card's partial reload does not read it.
-      @contributors = method(:contributors)
-      @samples = Catalog::Samples.new.call
+    def show # rubocop:disable Metrics/AbcSize -- sets each prop of the page
+      # Each is computed when a prop first reads it (HomeShowResource calls it): a card's partial
+      # reload reads only its sample's preview, so it skips the counts, the apps and the kits.
+      @stats = lazy { Catalog::Stats.new.call }
+      @contributors = lazy { contributors }
+      @samples = lazy { Catalog::Samples.new.call }
       @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
-      @apps = AppDirectory.apps
-      @showcase = @apps.first(AppDirectory::SHOWCASE_SIZE)
-      @kits = PageGroups.enabled?(:start) ? Kits.listed(Kits.all.first(KITS)) : []
+      @apps = lazy { AppDirectory.apps }
+      @kits = lazy { PageGroups.enabled?(:start) ? Kits.listed(Kits.all.first(KITS)) : [] }
 
       render_inertia 'site/HomePage', meta: page_meta(
         title: 'Quranic Universal Library — Download Quran Data, JSON & APIs',
@@ -39,6 +39,12 @@ module Site
     end
 
     private
+
+    # A value computed on the first call and kept for the request. The values here are never nil.
+    def lazy
+      value = nil
+      -> { value ||= yield }
+    end
 
     def contributors
       data_contributors + GithubService.contributors_count

@@ -1,0 +1,42 @@
+<%= render 'layouts/qul_head' %>
+
+<%= render 'layouts/grid' do %>
+  <main class="mt-6 mb-10">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="max-w-3xl">
+        <h1 class="text-2xl md:text-3xl">
+          Built with QUL
+        </h1>
+        <p class="mt-2 text-pretty">
+          Apps, libraries, APIs and models that the community has built with resources from the Quranic Universal
+          Library. Browse them for inspiration, or add your own project so others can find it.
+        </p>
+      </div>
+
+      <%= link_to 'Submit your project', new_showcase_project_path, class: 'btn btn-cta shrink-0 self-start md:self-center' %>
+    </div>
+
+    <%= render 'own_projects', projects: @own_projects if @own_projects.present? %>
+
+    <% if @projects.any? %>
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <%= render partial: 'showcase_project', collection: @projects, as: :project %>
+      </div>
+
+      <div class="mt-12 border-t border-gray-200 pt-8 text-center">
+        <h2 class="text-xl font-semibold text-gray-800">Built something with QUL?</h2>
+        <p class="mt-2 text-gray-500 max-w-2xl mx-auto">
+          Apps, websites, bots, libraries, CLIs, APIs and models trained on QUL data are all welcome. Submit your
+          project and we'll review it and add it to this page.
+        </p>
+        <%= link_to 'Submit your project', new_showcase_project_path, class: 'btn btn-cta mt-6' %>
+      </div>
+    <% else %>
+      <div class="mt-10 py-16 text-center border border-dashed border-gray-300 rounded-xl">
+        <h2 class="text-xl font-semibold text-gray-800">No projects listed yet</h2>
+        <p class="mt-2 text-gray-500">Built something with QUL? Be the first to add it.</p>
+        <%= link_to 'Submit your project', new_showcase_project_path, class: 'btn btn-cta mt-6' %>
+      </div>
+    <% end %>
+  </main>
+<% end %>

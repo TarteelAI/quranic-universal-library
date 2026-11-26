@@ -67,6 +67,7 @@ Rails.application.routes.draw do
 
   get :svg, to: 'community#svg_optimizer'
   get :credits, to: 'community#credits', as: :credits
+  resources :showcase_projects, path: 'showcase', only: %i[index new create edit update]
   get :faq, to: 'community#faq', as: :faq
   get :compare_ayah, to: 'verses#compare', as: :compare_ayah
 

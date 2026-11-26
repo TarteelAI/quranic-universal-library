@@ -17,6 +17,7 @@ class Ability
     cannot :read, AdminTodo
     cannot :notify_users, DownloadableResource
     cannot :read, Contributor
+    cannot :read, ShowcaseProject
     cannot :read, Licence
     cannot :read, ActiveAdmin::Page, name: "Analytics"
 
@@ -38,6 +39,7 @@ class Ability
       can :manage, Draft::Tafsir
       can :manage, Draft::FootNote
       can :manage, Faq
+      can :manage, ShowcaseProject
 
       can :manage, Reciter
       can :manage, Tafsir

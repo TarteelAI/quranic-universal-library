@@ -1,0 +1,19 @@
+<section class="mt-8 bg-white border border-black/10 rounded-xl p-5">
+  <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Your submissions</h2>
+
+  <ul class="divide-y divide-black/5">
+    <% projects.each do |project| %>
+      <li class="flex items-center justify-between gap-4 py-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="truncate text-gray-900"><%= project.name %></span>
+          <% if project.published? %>
+            <span class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-700">Published</span>
+          <% else %>
+            <span class="shrink-0 text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">In review</span>
+          <% end %>
+        </div>
+        <%= link_to 'Edit', edit_showcase_project_path(project), class: 'shrink-0 text-sm underline hover:text-[#46ac7a]' %>
+      </li>
+    <% end %>
+  </ul>
+</section>

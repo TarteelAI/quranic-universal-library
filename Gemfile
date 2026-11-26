@@ -46,7 +46,7 @@ gem "redis", "~> 4.0"
 gem 'image_processing', require: false
 
 # Admin panel
-gem 'activeadmin', '~> 3.2.3'
+gem 'activeadmin', '~> 3.5.2'
 gem 'activeadmin-searchable_select', '>= 1.8.0'
 gem 'paper_trail', '>= 15.0.0'
 

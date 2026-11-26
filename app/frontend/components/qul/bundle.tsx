@@ -12,20 +12,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/overlays'
-import { addToBundle, removeFromBundle, toggleInBundle, useBundle } from '@/lib/bundle'
+import { addToBundle, fetchBundle, removeFromBundle, shownFiles, toggleInBundle, useBundle } from '@/lib/bundle'
 import { formatBytes } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { catalogBundle, catalogDownload, detailResources, newUserSession } from '@/routes'
+import { catalogDownload, detailResources, newUserSession } from '@/routes'
 import type { CatalogBundle, CatalogBundleItem, CatalogOption, CatalogResourceRef } from '@/types/serializers'
 
 import { QulIcon, ResourceIcon } from './icons'
 import { NavAnchor } from './nav'
+import { ZipDownload } from './zip-download'
 
 // The bundle tray, from the v8 design (ds/src/components/qul/chrome.tsx, BundleTray, and
 // ds/src/app/shell.tsx): a visitor collects resources from cards, kit pages and detail pages, and
 // the tray lists each file with its own download link. The links are the download route every
-// page uses, so the download rules and the counting are the same; there is no zip. The bundle
-// is browser state (lib/bundle.ts) and exists while the catalog pages are new pages (nav.bundle).
+// page uses, so the download rules and the counting are the same. "Download bundle" zips the
+// files the tray lists, in the browser (zip-download.tsx). The bundle is browser state (lib/bundle.ts) and exists while the catalog pages are new pages (nav.bundle).
 
 function useBundleEnabled() {
   return usePage().props.nav.bundle
@@ -38,12 +39,6 @@ const FormatsContext = React.createContext<CatalogOption[]>([])
 /** Tells the bundle tray inside it which file formats suit the visitor's app. */
 export function BundleFormats({ formats, children }: { formats: CatalogOption[]; children: React.ReactNode }) {
   return <FormatsContext.Provider value={formats}>{children}</FormatsContext.Provider>
-}
-
-// The files to list: those in `formats` when the resource has any, else all of them.
-function shownFiles(item: CatalogBundleItem, formats: string[] | null) {
-  const matching = formats && item.files.filter((file) => formats.includes(file.format))
-  return matching && matching.length > 0 ? matching : item.files
 }
 
 /** The + / check on a resource card that adds the resource to the bundle or takes it out. */
@@ -118,14 +113,7 @@ function useLookup(ids: number[], open: boolean): Lookup {
   React.useEffect(() => {
     if (!open || !stale || !query) return
     const controller = new AbortController()
-    fetch(catalogBundle({ query: { ids: query } }).url, {
-      headers: { Accept: 'application/json' },
-      signal: controller.signal,
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error(`Bundle lookup failed: ${response.status}`)
-        return response.json() as Promise<CatalogBundle>
-      })
+    fetchBundle(query.split(',').map(Number), controller.signal)
       .then((bundle) => setAnswer({ bundle, failed: null }))
       .catch((error: unknown) => {
         if (controller.signal.aborted) return
@@ -239,6 +227,7 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
 
   const items = lookup.bundle.items.filter((item) => ids.includes(item.id))
   const signIn = lookup.bundle.downloadMode === 'sign_in' && !props.auth.user
+  const signInHref = newUserSession({ query: { user_return_to: url } }).url
   const formats = suited.length > 0 && !allFiles ? suited.map((format) => format.key) : null
   const folds = suited.length > 0 && items.some((item) => shownFiles(item, formats).length < item.files.length)
 
@@ -265,20 +254,26 @@ function BundleContents({ ids, lookup }: { ids: number[]; lookup: Lookup }) {
           <BundleEntry key={item.id} item={item} formats={formats} />
         ))}
       </ul>
-      <div className="flex items-center justify-between gap-3 border-t pt-4">
-        <p className="text-sm text-muted-foreground">Copy the list of names and download links.</p>
-        <CopyButton text={() => bundleText(items, window.location.origin, formats)} label="Copy list" />
+      <div className="flex flex-col gap-3 border-t pt-4">
+        <ZipDownload
+          title="QUL bundle"
+          items={items}
+          formats={formats}
+          label="Download bundle"
+          signInHref={signIn ? signInHref : null}
+        />
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">Copy the list of names and download links.</p>
+          <CopyButton text={() => bundleText(items, window.location.origin, formats)} label="Copy list" />
+        </div>
       </div>
       {signIn && (
         <p className="text-sm text-muted-foreground">
           Downloads need a free account.{' '}
-          <a
-            href={newUserSession({ query: { user_return_to: url } }).url}
-            className="text-foreground underline underline-offset-2"
-          >
+          <a href={signInHref} className="text-foreground underline underline-offset-2">
             Sign in
           </a>{' '}
-          first, then download each file.
+          first, then download the bundle or each file.
         </p>
       )}
     </div>
@@ -332,7 +327,7 @@ export function BundleTray({ className }: { className?: string }) {
         <DialogHeader>
           <DialogTitle>Bundle</DialogTitle>
           <DialogDescription>
-            Collect resources from anywhere on QUL, then download each file from this list.
+            Collect resources from anywhere on QUL, then download them as one zip or file by file.
           </DialogDescription>
         </DialogHeader>
         <BundleContents ids={ids} lookup={lookup} />

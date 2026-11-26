@@ -6,11 +6,12 @@ module Catalog
   # its published files, as its detail page lists them. An id that is not a published resource
   # comes back with no resource, and a restricted resource with no files (Catalog::ResourcePage
   # decides who may download it), so the tray shows them as unavailable instead of a dead link.
+  # Each resource's licence goes into the README of the zip the tray and kit pages build.
   # It knows nothing of the request or the session: the caller passes the signed-in user or nil.
   class Bundle
     MAX_IDS = 100
 
-    Item = Data.define(:id, :resource, :files, :restricted)
+    Item = Data.define(:id, :resource, :files, :restricted, :licence)
 
     # The ids of a comma list, in order, without repeats, at most MAX_IDS.
     def self.ids(param)
@@ -24,13 +25,15 @@ module Catalog
 
     def items
       resources = DownloadableResource.published.where(id: @ids)
-        .preload(downloadable_files: { file_attachment: :blob }).index_by(&:id)
+        .preload(downloadable_files: { file_attachment: :blob }, resource_content: { resource_permission: :licence })
+        .index_by(&:id)
       @ids.map do |id|
         resource = resources[id]
-        next Item.new(id:, resource: nil, files: [], restricted: false) unless resource
+        next Item.new(id:, resource: nil, files: [], restricted: false, licence: nil) unless resource
 
         allowed = ResourcePage.download_allowed?(resource, @viewer)
-        Item.new(id:, resource:, files: allowed ? files_of(resource) : [], restricted: !allowed)
+        Item.new(id:, resource:, files: allowed ? files_of(resource) : [], restricted: !allowed,
+                 licence: ResourcePage.licence(resource),)
       end
     end
 

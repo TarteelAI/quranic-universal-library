@@ -23,6 +23,7 @@ import * as start from '@/components/qul/start'
 import * as statusBadge from '@/components/qul/status-badge'
 import * as theme from '@/components/qul/theme'
 import * as toolCard from '@/components/qul/tool-card'
+import * as zipDownload from '@/components/qul/zip-download'
 import * as badge from '@/components/ui/badge'
 import * as button from '@/components/ui/button'
 import * as card from '@/components/ui/card'
@@ -64,6 +65,7 @@ const modules = {
   statusBadge,
   theme,
   toolCard,
+  zipDownload,
   badge,
   button,
   card,
@@ -88,6 +90,7 @@ const { AppIcon } = appIcon
 const { AppSubmissionDialog } = appSubmission
 const { AddToBundle, BundleFormats, BundleToggle, BundleTray } = bundle
 const { ShardRing } = shardRing
+const { ZipDownload } = zipDownload
 const { EmptyState, FacetGroup, FilterChip } = catalog
 const { RequestButton, RequestCard, RequestDialogProvider, RequestStatusBadge } = requestDialog
 const { Logo, SearchInput, SiteFooter, SiteHeader } = chrome
@@ -301,6 +304,10 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   },
   AddToBundle: { element: <AddToBundle ids={[1, 2]} label="Add kit to bundle" />, text: 'Add kit to bundle' },
   BundleTray: { element: <BundleTray />, text: 'Bundle, 0 resources' },
+  ZipDownload: {
+    element: <ZipDownload title="Recitation kit" items={[]} label="Download kit" signInHref={null} />,
+    text: 'Download kit',
+  },
   BundleFormats: {
     element: (
       <BundleFormats formats={[{ key: 'sqlite', label: 'SQLite' }]}>

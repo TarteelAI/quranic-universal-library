@@ -287,6 +287,7 @@ export const resourcePageProps: CatalogResourcesShow = {
     {
       id: 11,
       name: 'simple.sqlite',
+      filename: 'simple.sqlite.zip',
       format: 'sqlite',
       formatLabel: 'SQLite',
       byteSize: 5_347_738,
@@ -295,6 +296,7 @@ export const resourcePageProps: CatalogResourcesShow = {
     {
       id: 12,
       name: 'simple.json',
+      filename: 'simple.json.zip',
       format: 'json',
       formatLabel: 'JSON',
       byteSize: 812,
@@ -303,6 +305,7 @@ export const resourcePageProps: CatalogResourcesShow = {
     {
       id: 13,
       name: 'translation-text-chunk.sqlite',
+      filename: 'translation-text-chunk.sqlite.zip',
       format: 'sqlite',
       formatLabel: 'SQLite',
       byteSize: 1_048_576,

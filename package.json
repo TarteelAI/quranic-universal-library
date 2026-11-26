@@ -20,6 +20,7 @@
     "chartkick": "^5.0.1",
     "chokidar": "^3.6.0",
     "class-variance-authority": "0.7.1",
+    "client-zip": "2.5.1",
     "clsx": "2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "dom-to-image-more": "^3.7.2",

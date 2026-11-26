@@ -2,11 +2,11 @@ import type { BrowserContext, Page } from '@playwright/test'
 
 import { expect as baseExpect, test } from './support/test'
 
-// The bundle tray (002-17) on the development clone: adding and removing from a card, a kit page
-// and a detail page, the header count across a reload and a second tab, and the tray's download
-// links in the server's download mode. Download mode is the server's QUL_DOWNLOAD_MODE, so each
-// mode's test runs only against a server in that mode: run the file once as is, and once against
-// Rails started with QUL_DOWNLOAD_MODE=public.
+// The bundle tray (002-17) on the development clone: adding and removing from the cards of a type
+// page and a kit page and from a detail page, the header count across a reload and a second tab,
+// and the tray's download links in the server's download mode. Download mode is the server's
+// QUL_DOWNLOAD_MODE, so each mode's test runs only against a server in that mode: run the file
+// once as is, and once against Rails started with QUL_DOWNLOAD_MODE=public.
 
 // Kit and type pages run catalog searches; allow for a slow server.
 const expect = baseExpect.configure({ timeout: 20_000 })
@@ -89,12 +89,15 @@ test('a card, a kit page and a detail page add and remove, and the count holds a
     .click()
   await expectCount(page, 1)
 
-  // The kit page adds every item in one press.
+  // The kit page's cards add each item.
   await page.goto(KIT)
   await hydrated(page)
-  await page.getByRole('button', { name: 'Add kit to bundle' }).click()
-  await expect(page.getByRole('button', { name: 'Kit is in your bundle' })).toBeVisible()
-  await expectCount(page, 1 + kitIds.length)
+  const kitToggles = page.getByRole('main').getByRole('button', { name: /^Add .+ to bundle$/ })
+  await expect(kitToggles).toHaveCount(kitIds.length)
+  for (let added = 1; added <= kitIds.length; added += 1) {
+    await kitToggles.first().click()
+    await expectCount(page, 1 + added)
+  }
 
   // The detail page's download panel.
   await page.goto(detailPath(detail))
@@ -120,8 +123,11 @@ test('a card, a kit page and a detail page add and remove, and the count holds a
 
   await page.goto(KIT)
   await hydrated(page)
-  await page.getByRole('button', { name: 'Kit is in your bundle' }).click()
-  await expectCount(page, 1)
+  const kitRemoves = page.getByRole('main').getByRole('button', { name: /^Remove .+ from bundle$/ })
+  for (let left = kitIds.length - 1; left >= 0; left -= 1) {
+    await kitRemoves.first().click()
+    await expectCount(page, 1 + left)
+  }
   await expectCount(other, 1)
 
   await page.goto('/resources/translation')

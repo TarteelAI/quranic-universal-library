@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import { ArrowRightIcon } from 'lucide-react'
 
 import { Container, SiteShell } from '@/components/layout'
@@ -8,8 +8,10 @@ import { QulIcon } from '@/components/qul/icons'
 import { NavAnchor } from '@/components/qul/nav'
 import { PageHeader } from '@/components/qul/page-header'
 import { ResultCard } from '@/components/qul/start'
+import { ZipDownload } from '@/components/qul/zip-download'
 import { Button } from '@/components/ui/button'
-import { detailResources } from '@/routes'
+import { fetchBundle } from '@/lib/bundle'
+import { detailResources, newUserSession } from '@/routes'
 import type { StartKitsShow } from '@/types/serializers'
 
 const textLink = 'text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground'
@@ -17,7 +19,10 @@ const textLink = 'text-foreground underline decoration-foreground/30 underline-o
 // /kits/:key: a starter kit (config/kits.yml), from the v8 design (ds/src/app/pages/wizard.tsx,
 // Kit). Each item names what it is for, its resource as a card, why it was picked and the
 // alternative to swap it for. The kit's guided setup answers open the setup to build your own.
-// A resource that is unpublished is left out by the server.
+// A resource that is unpublished is left out by the server. "Download kit" zips every file of the
+// kit in the browser (components/qul/zip-download.tsx), after asking the bundle lookup for the
+// files, so it exists while the bundle does (the catalog group).
+
 export default function KitPage({
   title,
   description,
@@ -27,7 +32,13 @@ export default function KitPage({
   items,
   vocabularies,
   catalogPages,
+  downloadMode,
 }: StartKitsShow) {
+  const { url, props } = usePage()
+  const ids = items.map((item) => item.resource.id)
+  const signInHref =
+    downloadMode === 'sign_in' && !props.auth.user ? newUserSession({ query: { user_return_to: url } }).url : null
+
   return (
     <SiteShell>
       <Container className="py-12">
@@ -51,11 +62,16 @@ export default function KitPage({
           actions={
             <>
               <CopyButton text={() => window.location.href} label="Copy link" />
-              <AddToBundle
-                ids={items.map((item) => item.resource.id)}
-                label="Add kit to bundle"
-                addedLabel="Kit is in your bundle"
-              />
+              {props.nav.bundle && ids.length > 0 && (
+                <ZipDownload
+                  title={title}
+                  items={async () => (await fetchBundle(ids)).items}
+                  label="Download kit"
+                  signInHref={signInHref}
+                  className="items-start sm:items-end"
+                  tooBig={<AddToBundle ids={ids} label="Add kit to bundle" addedLabel="Kit is in your bundle" />}
+                />
+              )}
             </>
           }
         />

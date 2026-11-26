@@ -33,8 +33,18 @@ RSpec.describe 'The bundle lookup (/bundle)', type: :request do
       expect(item[:resource]).to eq(id: resource.id, name: resource.catalog_name, type: 'tafsir',
                                     toParam: resource.to_param,)
       expect(item[:files].pluck(:id)).to eq([first_file.id, second_file.id])
-      expect(item[:files].first.keys).to contain_exactly(:id, :name, :format, :formatLabel, :byteSize, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name
+      expect(item[:files].first.keys).to contain_exactly(:id, :name, :filename, :format, :formatLabel, :byteSize, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name
+      expect(item[:files].first[:filename]).to eq('spec.json.zip')
       expect(item[:files].pluck(:id)).not_to include(hidden_file.id)
+      expect(item[:licence]).to be_nil
+    end
+
+    it "gives each resource's licence, for the README of a zip" do
+      licence = Licence.create!(name: 'Spec licence', url: 'https://example.test/licence')
+      ResourcePermission.create!(resource_content_id: resource.resource_content_id, licence:)
+
+      expect(lookup(resource.id)[:items].first[:licence])
+        .to eq(name: licence.display_name, url: 'https://example.test/licence', summary: nil)
     end
 
     it 'gives no resource for an unpublished or unknown id, and no files for a resource that lost them' do
@@ -49,8 +59,9 @@ RSpec.describe 'The bundle lookup (/bundle)', type: :request do
       expect(items.pluck(:id)).to eq([resource.id, emptied.id, unpublished.id, unknown])
       expect(items[1]).to include(restricted: false, files: [])
       expect(items[1][:resource][:id]).to eq(emptied.id)
-      expect(items[2]).to eq(id: unpublished.id, restricted: false, resource: nil, category: nil, files: [])
-      expect(items[3]).to eq(id: unknown, restricted: false, resource: nil, category: nil, files: [])
+      gone = { restricted: false, resource: nil, category: nil, files: [], licence: nil }
+      expect(items[2]).to eq(id: unpublished.id, **gone)
+      expect(items[3]).to eq(id: unknown, **gone)
     end
 
     it 'orders the resources by type in taxonomy order, in the given order within a type' do

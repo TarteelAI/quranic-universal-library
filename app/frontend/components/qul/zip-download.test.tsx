@@ -76,6 +76,21 @@ describe('ZipDownload', () => {
     expect(screen.queryByRole('progressbar')).toBeNull()
   })
 
+  it('starts one zip when the button is clicked again during the lookup', async () => {
+    const { finish } = stubZip()
+    let resolve: (items: CatalogBundleItem[]) => void = () => {}
+    const lookup = vi.fn(() => new Promise<CatalogBundleItem[]>((r) => (resolve = r)))
+    render(<ZipDownload title="Kit" items={lookup} label="Download kit" signInHref={null} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download kit' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Download kit' }))
+    resolve([item(10)])
+    await screen.findByRole('progressbar', { name: 'Zip progress' })
+    finish()
+    await waitFor(() => expect(saved).toEqual(['kit.zip']))
+    expect(lookup).toHaveBeenCalledTimes(1)
+  })
+
   it('says how many files are in the zip when some failed', async () => {
     const { finish } = stubZip([{ path: 'a', reason: 'no longer available' }])
     const warning = vi.spyOn(toast, 'warning')

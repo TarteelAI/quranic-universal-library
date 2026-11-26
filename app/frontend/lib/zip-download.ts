@@ -102,10 +102,12 @@ export function canStream() {
   return typeof window !== 'undefined' && 'showSaveFilePicker' in window
 }
 
-// Why a file's response is not the file: a status the download route answers with, or the
-// sign-in page that an anonymous request is sent to in sign-in mode.
+// Why a file's response is not the file: a status the download route or the storage it
+// redirects to answers with, or the sign-in page that an anonymous request is sent to in sign-in
+// mode. A 403 is not read as a restricted resource: those have no entries, so it is most likely
+// the storage's.
 function problem(response: Response) {
-  if (response.status === 403) return 'the publisher does not allow downloads'
+  if (response.status === 403) return 'the server refused the download'
   if (response.status === 404) return 'no longer available'
   if (!response.ok) return `the server answered ${response.status}`
   if (response.headers.get('content-type')?.includes('text/html')) return 'sign in to download'

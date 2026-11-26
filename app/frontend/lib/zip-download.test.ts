@@ -145,6 +145,23 @@ describe('zipStream', () => {
     expect(progress).toHaveBeenLastCalledWith({ files: 2, bytes: 10 })
   })
 
+  it('gives a refused file a neutral reason, since storage answers 403 too', async () => {
+    vi.stubGlobal('fetch', () => Promise.resolve(new Response('denied', { status: 403 })))
+    const entries = zipEntries([translation]).slice(0, 1)
+
+    const { stream, failed } = await zipStream({
+      title: 'Kit',
+      origin: 'https://qul.tarteel.ai',
+      items: [translation],
+      entries,
+      signal: new AbortController().signal,
+      onProgress: () => {},
+    })
+    await new Response(stream).arrayBuffer()
+
+    expect(failed).toEqual([{ path: entries[0].path, reason: 'the server refused the download' }])
+  })
+
   it('stops when the signal aborts', async () => {
     const abort = new AbortController()
     vi.stubGlobal(

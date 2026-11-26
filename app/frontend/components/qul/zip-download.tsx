@@ -67,6 +67,9 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
     )
 
   async function start() {
+    // The button is disabled only once the zip runs: a click during the save dialog or the lookup
+    // would start a second zip and leave this one without a cancel button.
+    if (controller.current) return
     const abort = new AbortController()
     controller.current = abort
     const name = zipName(title)

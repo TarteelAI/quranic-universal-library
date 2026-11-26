@@ -147,10 +147,10 @@ class SIGNUP {
           );
           this.toostMessage("Signed in successfully.");
         } else {
-          cy.log("Confirmation link not found.");
+          throw new Error("Confirmation link not found in the signup email.");
         }
       } else {
-        cy.log("Email with subject 'Confirmation instructions' not found.");
+        throw new Error("Email with subject 'Confirmation instructions' not found.");
       }
     });
   }
@@ -187,10 +187,10 @@ class SIGNUP {
           this.toostMessage("Your password has been changed successfully. You are now signed in.")
           this.validateSignInSuccess();
         } else {
-          cy.log("Reset password instructions link not found.");
+          throw new Error("Reset password link not found in the reset email.");
         }
       } else {
-        cy.log("Email with subject 'Reset password instructions' not found.");
+        throw new Error("Email with subject 'Reset password instructions' not found.");
       }
     });
   }

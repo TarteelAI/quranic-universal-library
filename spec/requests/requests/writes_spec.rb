@@ -202,6 +202,22 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
           expect(request.errors[:source_url]).to eq(['must be a web address starting with http:// or https://'])
         end
 
+        it 'types a file by its bytes, using the name only for Word and text' do
+          request = ResourceRequest.new(valid_request)
+          request.source_uploads = [
+            upload('old.doc', "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1".b + ("\0" * 504)),
+            upload('latin1.txt', "\xC3\x28 latin1 \xE9".b),
+            upload('noise.pdf', "\x00\x01\x02\x03".b * 30),
+            upload('archive.docx', "PK\x03\x04".b + ("\0" * 60)),
+          ]
+
+          expect(request.source_files.map { |file| [file.filename.to_s, file.content_type] }).to eq(
+            [['old.doc', 'application/msword'], ['latin1.txt', 'application/octet-stream'],
+             ['noise.pdf', 'application/octet-stream'], ['archive.docx', 'application/zip'],],
+          )
+          expect(request).not_to be_valid
+        end
+
         it 'refuses more than five files, a file over 10 MB and a year in the future' do
           files = Array.new(6) { |n| upload("part-#{n}.txt", 'text') }
           big = upload('big.pdf', "%PDF-1.4\n".b + ('0' * 10.megabytes))

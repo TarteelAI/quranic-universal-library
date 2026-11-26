@@ -97,26 +97,29 @@ class ResourceRequest < ApplicationRecord
     STATUSES.fetch(status)
   end
 
-  # Attaches uploaded source files. Each file's type comes from its bytes (its name only tells a
-  # Word file from other OLE files, and marks text, which has no magic bytes); text must be UTF-8.
-  # The blobs are marked as analysed, because analysis runs as a job and a request enqueues nothing.
+  # Attaches uploaded source files. Each file's type comes from its bytes; its name only tells a
+  # Word file from other OLE files, and marks text, which has no magic bytes and must be UTF-8.
+  # Active Storage is told not to identify the type again (`identify: false`), which would let the
+  # name decide. The blobs are marked as analysed, because analysis runs as a job and a request
+  # enqueues nothing.
   def source_uploads=(files)
     Array(files).compact_blank.each do |file|
       name = file.respond_to?(:original_filename) ? file.original_filename.to_s : 'source'
       file = StringIO.new(file.to_s) unless file.respond_to?(:read)
       source_files.attach(io: file, filename: name.presence || 'source', content_type: source_type(file, name),
-                          metadata: { analyzed: true },)
+                          metadata: { analyzed: true }, identify: false,)
     end
   end
 
   private
 
   def source_type(file, name)
-    type = Marcel::MimeType.for(file, name: name)
-    type = Marcel::MimeType.for(name: name) if type == 'application/x-ole-storage'
-    type = 'application/octet-stream' if type == 'text/plain' && !utf8_text?(file)
+    type = Marcel::Magic.by_magic(file)&.type
+    by_name = Marcel::MimeType.for(name: name)
+    type = by_name if type == 'application/x-ole-storage' && by_name == 'application/msword'
+    type ||= 'text/plain' if by_name == 'text/plain' && utf8_text?(file)
     file.rewind
-    type
+    type || 'application/octet-stream'
   end
 
   def utf8_text?(file)

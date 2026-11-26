@@ -289,10 +289,8 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
                         form={form}
                         name="publishing_year"
                         label="Year published"
-                        type="number"
                         inputMode="numeric"
-                        min={1}
-                        max={new Date().getFullYear()}
+                        maxLength={4}
                         field={field}
                         error={errors.publishing_year}
                       />
@@ -342,7 +340,7 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
                     form={form}
                     name="source_url"
                     label="Link to the source"
-                    type="url"
+                    inputMode="url"
                     maxLength={500}
                     placeholder="https://"
                     field={field}

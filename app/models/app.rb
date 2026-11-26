@@ -38,7 +38,7 @@ class App < ApplicationRecord
   before_validation { self.position ||= App.next_position if new_record? }
 
   validates :name, presence: true, length: { maximum: 100 }
-  validates :position, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :position, numericality: { only_integer: true, in: 0...(2**31) }
   validates :url, presence: true
   validates(*LINKS, length: { maximum: 500 })
   validates :project_type, inclusion: { in: AppDirectory::PROJECT_TYPES.keys, message: 'must be chosen from the list' }

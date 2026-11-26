@@ -241,7 +241,8 @@ them is in [`AGENTS.md`](AGENTS.md).
   texts, audio files), and code changes on a server that sets no `GIT_SHA` and changes no
   frontend file, can show stale for up to a day at the edge plus an hour in a browser. A build
   or an edit to a resource makes every page name new preview URLs, so their first visits all
-  reach Rails.
+  reach Rails. A preview already at the edge stays there for its day after its resource is
+  restricted or unpublished, under a URL no page names any more.
 
 ## Storage
 

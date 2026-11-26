@@ -58,13 +58,18 @@ RSpec.describe 'Home page (/)', type: :request do
       expect(editors.compact).not_to be_empty
     end
 
-    it "does not count the contributors again for a card's partial reload" do
-      allow(GithubService).to receive(:contributors_count).and_call_original
+    it "computes only the card's sample and preview for a card's partial reload",
+       page_groups: ['home', 'catalog', 'apps', 'start'] do
+      expensive = { GithubService => :contributors_count, Catalog::Stats => :new, AppDirectory => :apps,
+                    Kits => :listed, }
+      expensive.each { |object, method| allow(object).to receive(method).and_call_original }
       get '/'
-      expect(GithubService).to have_received(:contributors_count).once
+      expensive.each { |object, method| expect(object).to have_received(method).once }
 
       inertia_reload_only(:translationPreview)
-      expect(GithubService).to have_received(:contributors_count).once
+      expect(inertia.props.keys.map(&:to_sym) - [:errors, :head]).to eq([:translationPreview])
+      expect(inertia.props[:translationPreview]).to be_present
+      expensive.each { |object, method| expect(object).to have_received(method).once }
     end
 
     it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do

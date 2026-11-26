@@ -133,6 +133,21 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       expect(inertia).to have_deferred_props(:preview)
     end
 
+    it "computes only the preview for the deferred preview's reload: no head, no computed catalog fields" do
+      layout = DownloadableResource.published.where(resource_type: 'mushaf-layout')
+        .where('name LIKE ?', 'KFGQPC V2 layout%').order(:id).first!
+      get page_path(layout, 'page=300')
+      allow(PageMeta).to receive(:new).and_call_original
+      allow(Catalog::Derived).to receive(:new).and_call_original
+
+      inertia_load_deferred_props
+
+      expect(inertia.props.keys.map(&:to_sym)).to contain_exactly(:errors, :preview)
+      expect(props[:preview][:page]).to include(number: 300)
+      expect(PageMeta).not_to have_received(:new)
+      expect(Catalog::Derived).not_to have_received(:new)
+    end
+
     it 'says why a restricted resource cannot be downloaded, and lets only an admin download it' do
       restricted = create_download_resource(restricted: true)
       create_download_file(restricted)

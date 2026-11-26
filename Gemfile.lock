@@ -435,7 +435,8 @@ GEM
       psych (>= 4.0.0)
       tsort
     redcarpet (3.5.1)
-    redis (4.7.0)
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
     redis-client (0.26.4)
       connection_pool
     regexp_parser (2.13.4)
@@ -653,7 +654,7 @@ DEPENDENCIES
   rails (~> 8.1.4)
   rails-html-sanitizer (>= 1.4.2)
   redcarpet
-  redis (~> 4.0)
+  redis (~> 5.4)
   rest-client
   rubocop
   rubocop-performance

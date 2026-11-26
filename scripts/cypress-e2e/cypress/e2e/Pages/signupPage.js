@@ -135,20 +135,18 @@ class SIGNUP {
         cy.log(`Email Text: ${emailText}`);
         const confirmationLink = this.extractConfirmationLink(emailText);
         cy.log(`Confirmation Link: ${confirmationLink}`);
-        expect(confirmationLink).to.not.be.null;
-        if (confirmationLink) {
-          cy.visit(confirmationLink);
-          this.toostMessage(
-            "Your email address has been successfully confirmed."
-          );
-          this.signIn(
-            `${namespace}.${tag}@inbox.testmail.app`,
-            "TestPassword123"
-          );
-          this.toostMessage("Signed in successfully.");
-        } else {
+        if (!confirmationLink) {
           throw new Error("Confirmation link not found in the signup email.");
         }
+        cy.visit(confirmationLink);
+        this.toostMessage(
+          "Your email address has been successfully confirmed."
+        );
+        this.signIn(
+          `${namespace}.${tag}@inbox.testmail.app`,
+          "TestPassword123"
+        );
+        this.toostMessage("Signed in successfully.");
       } else {
         throw new Error("Email with subject 'Confirmation instructions' not found.");
       }
@@ -180,15 +178,13 @@ class SIGNUP {
         cy.log(`Email Text: ${emailText}`);
         const confirmationLink = this.extractResetPasswordLink(emailText);
         cy.log(`Reset Password Link: ${confirmationLink}`);
-        expect(confirmationLink).to.not.be.null;
-        if (confirmationLink) {
-          cy.visit(confirmationLink);
-          this.resetPassword("changePassword", "changePassword");
-          this.toostMessage("Your password has been changed successfully. You are now signed in.")
-          this.validateSignInSuccess();
-        } else {
+        if (!confirmationLink) {
           throw new Error("Reset password link not found in the reset email.");
         }
+        cy.visit(confirmationLink);
+        this.resetPassword("changePassword", "changePassword");
+        this.toostMessage("Your password has been changed successfully. You are now signed in.")
+        this.validateSignInSuccess();
       } else {
         throw new Error("Email with subject 'Reset password instructions' not found.");
       }

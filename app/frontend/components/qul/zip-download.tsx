@@ -73,9 +73,11 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
   else if (running) phase = 'running'
 
   // The control that had the focus is hidden or removed when the phase changes; its successor
-  // takes it, unless the visitor has moved the focus elsewhere.
+  // takes it, unless the visitor has moved the focus elsewhere. A layout effect, so this runs
+  // before a modal dialog around it (the bundle tray) sees the focus lost and takes it.
   const lastPhase = React.useRef(phase)
-  React.useEffect(() => {
+  const noteId = React.useId()
+  React.useLayoutEffect(() => {
     if (lastPhase.current === phase) return
     lastPhase.current = phase
     const active = document.activeElement
@@ -166,7 +168,7 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
     <Popover.Root open={status.state === 'too-big'} onOpenChange={(open) => !open && setStatus({ state: 'idle' })}>
       <Popover.Anchor asChild>
         <div ref={root} className={cn(box, '@container')}>
-          <Button ref={button} onClick={start} inert={running} className={cn(running && 'invisible')}>
+          <Button ref={button} onClick={start} inert={running} className={cn(running && 'opacity-0')}>
             <DownloadIcon /> {label}
           </Button>
           {running && (
@@ -229,10 +231,19 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
           align="end"
           sideOffset={8}
           collisionPadding={16}
+          aria-labelledby={noteId}
+          // The popover has an anchor, not a trigger, so Radix has nowhere to return the focus.
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+            const active = document.activeElement
+            // A click outside that focused something else keeps that focus.
+            if (active && active !== document.body && !(event.currentTarget as Node).contains(active)) return
+            button.current?.focus({ preventScroll: true })
+          }}
           className="z-50 flex w-72 max-w-[calc(100vw-2rem)] flex-col items-start gap-3 rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-md outline-none"
         >
           {status.state === 'too-big' && (
-            <p>
+            <p id={noteId} role="status">
               This is {formatBytes(status.bytes)}, more than this browser can zip. Chrome and Edge can, or download each
               file on its own.
             </p>

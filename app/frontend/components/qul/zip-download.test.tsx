@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { toast } from 'sonner'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/overlays'
 import * as zip from '@/lib/zip-download'
 import type { CatalogBundleItem } from '@/types/serializers'
 
@@ -220,12 +221,83 @@ describe('ZipDownload', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download kit' }))
 
     // Beside the button, not in the page's flow.
-    const note = await screen.findByRole('dialog')
-    expect(note.textContent).toMatch(/^This is 500 MB, more than this browser can zip/)
+    const note = await screen.findByRole('dialog', { name: /^This is 500 MB, more than this browser can zip/ })
+    expect(screen.getByRole('status').textContent).toMatch(/^This is 500 MB/)
     expect(screen.getByRole('button', { name: 'Add kit to bundle' })).toBeDefined()
     expect(zipStream).not.toHaveBeenCalled()
 
     fireEvent.keyDown(note, { key: 'Escape' })
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Download kit' }))
+  })
+
+  describe('inside a modal dialog (the bundle tray)', () => {
+    function Tray({ items }: { items: CatalogBundleItem[] }) {
+      return (
+        <Dialog open>
+          <DialogContent side="right">
+            <DialogTitle>Bundle</DialogTitle>
+            <DialogDescription>Your bundle</DialogDescription>
+            <ZipDownload title="QUL bundle" items={items} label="Download bundle" signInHref={null} />
+          </DialogContent>
+        </Dialog>
+      )
+    }
+
+    it('hands the focus on from cancel to the finishing state and back to the button', async () => {
+      const { finish, progress } = stubZip()
+      render(<Tray items={[item(10)]} />)
+      const download = screen.getByRole('button', { name: 'Download bundle' })
+      download.focus()
+      fireEvent.click(download)
+      const cancel = await screen.findByRole('button', { name: 'Cancel the zip' })
+      await waitFor(() => expect(document.activeElement).toBe(cancel))
+
+      progress({ files: 1, bytes: 10 })
+      await screen.findByText('Finishing the zip…', { selector: '[aria-hidden]' })
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(document.activeElement).toBe(screen.getByRole('status').parentElement)
+
+      finish()
+      await waitFor(() => expect(screen.queryByRole('progressbar')).toBeNull())
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Download bundle' }))
+    })
+
+    it('gives the focus back to the button when the zip is cancelled', async () => {
+      vi.spyOn(zip, 'zipStream').mockImplementation(async (options) => {
+        const stream = new ReadableStream<Uint8Array>({
+          start(controller) {
+            options.signal.addEventListener('abort', () => controller.error(new DOMException('Aborted', 'AbortError')))
+          },
+        })
+        return { stream, failed: [] }
+      })
+      render(<Tray items={[item(10)]} />)
+      const download = screen.getByRole('button', { name: 'Download bundle' })
+      download.focus()
+      fireEvent.click(download)
+      const cancel = await screen.findByRole('button', { name: 'Cancel the zip' })
+      await waitFor(() => expect(document.activeElement).toBe(cancel))
+
+      fireEvent.click(cancel)
+      await waitFor(() => expect(screen.queryByRole('progressbar')).toBeNull())
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Download bundle' }))
+    })
+
+    it('gives the focus back to the button when the too-big note closes', async () => {
+      render(<Tray items={[item(zip.MEMORY_LIMIT + 1)]} />)
+      const download = screen.getByRole('button', { name: 'Download bundle' })
+      download.focus()
+      fireEvent.click(download)
+      const note = await screen.findByRole('dialog', { name: /more than this browser can zip/ })
+
+      fireEvent.keyDown(note, { key: 'Escape' })
+      await waitFor(() => expect(screen.queryByRole('dialog', { name: /more than this browser/ })).toBeNull())
+      await new Promise((resolve) => setTimeout(resolve, 0))
+      expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Download bundle' }))
+      expect(screen.getByRole('dialog', { name: 'Bundle' })).toBeDefined()
+    })
   })
 })

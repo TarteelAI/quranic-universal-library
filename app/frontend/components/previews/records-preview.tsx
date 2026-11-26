@@ -1,6 +1,7 @@
 import type { PreviewsRecord, PreviewsRecords } from '@/types/serializers'
 
 import { PreviewToolbar, StepButtons, SurahSelect, type PreviewNavigation } from './navigation'
+import { localeClass } from './text-preview'
 
 function Record({ record, preview }: { record: PreviewsRecord; preview: PreviewsRecords }) {
   const { locale } = preview
@@ -13,7 +14,7 @@ function Record({ record, preview }: { record: PreviewsRecord; preview: Previews
         </p>
       )}
       {record.text && (
-        <p lang={locale.code} dir={locale.direction} className="text-sm">
+        <p lang={locale.code} dir={locale.direction} className={localeClass(locale, 'text-sm')}>
           {record.text}
         </p>
       )}
@@ -22,7 +23,7 @@ function Record({ record, preview }: { record: PreviewsRecord; preview: Previews
         <div
           lang={locale.code}
           dir={locale.direction}
-          className="preview-html text-sm leading-relaxed"
+          className={localeClass(locale, 'preview-html text-sm leading-relaxed')}
           dangerouslySetInnerHTML={{ __html: record.html }}
         />
       )}

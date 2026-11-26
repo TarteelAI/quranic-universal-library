@@ -41,8 +41,9 @@ RSpec.describe 'Starter kits (/kits)', type: :request do
       expect(response).to have_http_status(:ok)
       expect(inertia).to render_component('start/KitPage')
       expect(props).to include(key: 'indopak-urdu', title: kit.title, description: kit.description,
-                               kitsPath: '/kits', platforms: ['iOS', 'Android'], formats: ['SQLite'],
-                               catalogPages: true,)
+                               kitsPath: '/kits', catalogPages: true,
+                               typeCounts: ['1 mushaf layout', '1 Quran script', '1 font', '2 translations',
+                                            '1 tafsir', '1 Quran metadata',],)
       expect(props[:items].map { |item| [item[:need], item[:resource][:toParam], item[:alternative]&.dig(:toParam)] })
         .to eq(kit.items.map { |item| [item.need, item.resource, item.alternative] })
       expect(props[:items].pluck(:why)).to eq(kit.items.map(&:why))

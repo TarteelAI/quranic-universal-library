@@ -102,9 +102,10 @@ function ShardRing({ className, fallbackSrc = '/shards.webp' }: ShardRingProps) 
   return (
     <div ref={rootRef} data-motion={motion} className={cn('relative overflow-hidden', className)}>
       {motion === 'fallback' ? (
-        <img src={fallbackSrc} alt="" className="size-full object-cover" />
+        <img src={fallbackSrc} alt="" className="absolute inset-0 block size-full object-cover" />
       ) : (
-        <canvas ref={canvasRef} className="block size-full" aria-hidden="true" />
+        // Out of flow, so the backing-store size the renderer sets never sizes the box it measures.
+        <canvas ref={canvasRef} className="absolute inset-0 block size-full" aria-hidden="true" />
       )}
     </div>
   )

@@ -42,13 +42,13 @@ export const setupPageProps: StartSetupShow = {
 }
 
 // Props of start/SetupResultsPage, shaped like Start::SetupResultsResource: a reader app with an
-// English translation, a need nothing fits and a need the chosen script has nothing for.
+// English translation and a need the chosen script has nothing for (a need nothing fits is left out
+// on the server).
 export const setupResultsProps: StartSetupResults = {
   goals: ['Quran reader app'],
   platforms: ['iOS', 'Android'],
   formats: ['SQLite'],
   editPath: '/start?goal=reader&platform=ios,android&feature=translation,mushaf&script=madani&lang=en',
-  total: 9,
   sections: [
     {
       key: 'translation-en',
@@ -58,15 +58,6 @@ export const setupResultsProps: StartSetupResults = {
       catalogPath: '/resources?granularity=1_ayah&language=en&type=translation',
       scripts: [],
       results: [catalogPageProps.results[0]],
-    },
-    {
-      key: 'tafsir-ur',
-      label: 'Tafsir in Urdu',
-      type: 'tafsir',
-      total: 0,
-      catalogPath: '/resources?language=ur&type=tafsir',
-      scripts: [],
-      results: [],
     },
     {
       key: 'tajweed',
@@ -113,8 +104,7 @@ export const kitPageProps: StartKitsShow = {
   description: 'Everything a mushaf app in the Madani script needs.',
   setupPath: '/start?goal=reader&platform=android,ios&feature=mushaf,translation,nav&script=madani&lang=en',
   kitsPath: '/kits',
-  platforms: ['iOS', 'Android'],
-  formats: ['SQLite'],
+  typeCounts: ['1 translation', '1 tafsir'],
   items: [
     {
       need: 'English translation',

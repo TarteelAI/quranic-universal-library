@@ -418,7 +418,16 @@ export function DocsLayout({
                 <ChevronDownIcon className="ms-auto size-4 shrink-0 text-muted-foreground" />
               </button>
             </DialogTrigger>
-            <DialogContent side="bottom" className="overflow-y-auto bg-background px-5 pt-6 pb-8">
+            {/* Focus goes to the sheet itself, not its first field: focusing the search field
+                would open the phone keyboard over the menu. */}
+            <DialogContent
+              side="bottom"
+              className="overflow-y-auto bg-background px-5 pt-6 pb-8"
+              onOpenAutoFocus={(event) => {
+                event.preventDefault()
+                ;(event.currentTarget as HTMLElement).focus()
+              }}
+            >
               <DialogTitle className="text-base">Docs</DialogTitle>
               <DialogDescription className="sr-only">The docs pages</DialogDescription>
               <DocsNav navigation={navigation} current={current} onNavigate={closeMenu} />

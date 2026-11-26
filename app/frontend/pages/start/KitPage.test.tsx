@@ -11,7 +11,7 @@ describe('start/KitPage', () => {
     renderPage(KitPage, { props: kitPageProps, url: '/kits/madani-reader' })
 
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Madani reader')
-    expect(screen.getByText('2 resources · iOS and Android · SQLite')).toBeDefined()
+    expect(screen.getByText('1 translation · 1 tafsir')).toBeDefined()
     const items = within(screen.getByRole('list', { name: 'In Madani reader' })).getAllByRole('listitem')
     expect(items).toHaveLength(2)
 

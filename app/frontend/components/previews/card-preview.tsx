@@ -14,7 +14,7 @@ import type {
 import { FontFaces } from './fonts'
 import { MushafLine, pageFonts } from './mushaf-page'
 import { AyahText } from './script-preview'
-import { Html } from './text-preview'
+import { Html, localeClass, nastaliq } from './text-preview'
 
 export type CardPreviewKind = NonNullable<CatalogSearchResult['previewKind']>
 type CardPreviewData =
@@ -189,14 +189,15 @@ function FontLine({ preview }: { preview: PreviewsCardFont }) {
 
 function TextAyah({ preview }: { preview: PreviewsCardText }) {
   const { entry, locale } = preview
-  const textClass = 'line-clamp-3 text-sm leading-snug'
+  // A Nastaliq line is taller, so two of them fill the well that three Naskh or Latin lines do.
+  const textClass = cn('text-sm leading-snug', nastaliq(locale) ? 'line-clamp-2' : 'line-clamp-3')
   return (
     <div className="flex h-full flex-col gap-1.5 overflow-hidden">
       <p dir="rtl" lang="ar" className="truncate font-arabic text-lg leading-normal">
         {entry.ayahs.map((ayah) => ayah.text).join(' ')}
       </p>
       {preview.granularity === 'word' ? (
-        <p lang={locale.code} dir={locale.direction} className={textClass}>
+        <p lang={locale.code} dir={locale.direction} className={localeClass(locale, textClass)}>
           {entry.words.map((word) => word.text).join(' · ')}
         </p>
       ) : (
@@ -230,7 +231,9 @@ function wellState(state: State, seen: boolean) {
 // A resource card's preview (Previews::Card), fetched from `url` once the card comes near the
 // viewport, so the catalog's first response, and the fonts and audio of cards never scrolled to,
 // cost nothing. Until it arrives the well keeps its loaded size; when it cannot be loaded the
-// well goes and the card shows without a preview.
+// well goes and the card shows without a preview. The well's width comes from the card, never
+// from its content (`contain-inline-size`): a line that does not wrap (an ayah run, a font line,
+// a page) is cut at the edge instead of widening the card's grid track and the page.
 export function CardPreview({ kind, url }: { kind: CardPreviewKind; url: string }) {
   const ref = React.useRef<HTMLDivElement>(null)
   const seen = useSeen(ref)
@@ -257,7 +260,7 @@ export function CardPreview({ kind, url }: { kind: CardPreviewKind; url: string 
     <div
       ref={ref}
       className={cn(
-        'm-1.5 mb-0 overflow-hidden rounded-lg bg-surface p-4',
+        'm-1.5 mb-0 overflow-hidden rounded-lg bg-surface p-4 contain-inline-size',
         state.status !== 'loaded' && 'animate-pulse',
       )}
       data-testid="card-preview"

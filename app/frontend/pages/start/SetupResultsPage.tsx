@@ -9,6 +9,9 @@ import { ResultCard } from '@/components/qul/start'
 import { catalogResources, catalogType } from '@/routes'
 import type { StartSetupResults } from '@/types/serializers'
 
+const textLink =
+  'font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground'
+
 function joinAnd(items: string[]) {
   return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
 }
@@ -17,6 +20,7 @@ function joinAnd(items: string[]) {
 // what it is filtered for and links back to the setup with the answers kept; the checklist names
 // each need, and a section per need shows its first resources and links to the catalog search
 // that lists all of them. With nothing marked recommended yet, the checklist names needs, not picks.
+// The server leaves out a need nothing in the library fits, unless it is narrowed to scripts.
 // While this page is open the bundle tray lists the files in the answers' formats first-hand.
 export default function SetupResultsPage({
   goals,
@@ -24,7 +28,6 @@ export default function SetupResultsPage({
   formats,
   editPath,
   sections,
-  total,
   vocabularies,
 }: StartSetupResults) {
   // The bundle tray on this page lists the files in these formats first-hand.
@@ -55,32 +58,45 @@ export default function SetupResultsPage({
                 href={catalogResources.index().url}
                 className="text-foreground/60 underline decoration-foreground/30 underline-offset-4 hover:text-foreground"
               >
-                Show everything
+                Browse full library
               </Link>
             </div>
           </div>
           <PageHeader
             title="Resources for your app"
-            count={total}
-            description="Everything below fits your answers. Pick one of each; open a need to see all of its resources and filter them further."
+            description="Resources below match your answers. Add what you need to your bundle, or open a section to see all of its resources."
           />
-          <nav aria-label="Your app needs" className="flex flex-col gap-3 rounded-xl bg-card p-4 shadow-xs">
-            <p className="text-sm font-medium">Your app needs</p>
-            <ul className="flex flex-wrap gap-2">
-              {sections.map((section) => (
-                <li key={section.key}>
-                  <a
-                    href={`#need-${section.key}`}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors hover:border-foreground/30"
-                  >
-                    <ResourceIcon category={categoryOf(section.type)} variant="plain" size="sm" />
-                    {section.label}
-                    <span className="text-xs text-muted-foreground tabular-nums">{section.total}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {sections.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nothing in the library fits these answers yet.{' '}
+              <Link href={editPath} className={textLink}>
+                Change your answers
+              </Link>{' '}
+              or{' '}
+              <Link href={catalogResources.index().url} className={textLink}>
+                browse the full library
+              </Link>
+              .
+            </p>
+          ) : (
+            <nav aria-label="Your app needs" className="flex flex-col gap-3 rounded-xl bg-card p-4 shadow-xs">
+              <p className="text-sm font-medium">Your app needs</p>
+              <ul className="flex flex-wrap gap-2">
+                {sections.map((section) => (
+                  <li key={section.key}>
+                    <a
+                      href={`#need-${section.key}`}
+                      className="inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors hover:border-foreground/30"
+                    >
+                      <ResourceIcon category={categoryOf(section.type)} variant="plain" size="sm" />
+                      {section.label}
+                      <span className="text-xs text-muted-foreground tabular-nums">{section.total}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
         </Container>
 
         <Container className="flex flex-col gap-12 py-10">
@@ -117,20 +133,15 @@ export default function SetupResultsPage({
                     </li>
                   ))}
                 </ul>
-              ) : section.scripts.length > 0 ? (
+              ) : (
                 // Never other scripts' resources in place of the chosen ones: say so, and link to
                 // every script, named as such (the type page).
                 <p className="text-sm text-muted-foreground">
                   No {joinAnd(section.scripts)} resources of this kind are tagged yet.{' '}
-                  <Link
-                    href={catalogType(section.type).url}
-                    className="font-medium text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground"
-                  >
+                  <Link href={catalogType(section.type).url} className={textLink}>
                     Browse all {typeOf(section.type)?.label ?? section.label} resources
                   </Link>
                 </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">Nothing in the library fits this yet.</p>
               )}
             </section>
           ))}

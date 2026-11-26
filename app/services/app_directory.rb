@@ -33,7 +33,7 @@ module AppDirectory
     YAML.safe_load_file(FILE)
   end
 
-  # Every published app, featured first.
+  # Every published app, the featured ones (with a position) first.
   def self.apps
     App.directory.with_attached_icon.to_a
   end

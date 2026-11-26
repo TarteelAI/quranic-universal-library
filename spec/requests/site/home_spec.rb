@@ -239,7 +239,7 @@ RSpec.describe 'Home page (/)', type: :request do
     it 'shows the first eight published apps of the directory in the apps band, and no submission' do
       AppDirectory::Import.run
       submission = App.create!(name: 'Spec Unpublished Submission', url: 'https://example.test/app',
-                               platforms: ['web'], uses: ['translation'], featured: true,)
+                               platforms: ['web'], uses: ['translation'], position: 0,)
       get '/'
 
       # The featured apps, then the others in the order of config/apps.yml.

@@ -13,7 +13,7 @@ RSpec.describe AppDirectory do
 
     entries.each do |entry|
       keys = ['id', 'name', 'url', 'source_url', 'icon', 'project_type', 'platforms', 'kind', 'description', 'uses',
-              'evidence', 'featured',]
+              'evidence', 'position',]
       expect(entry.keys - keys).to be_empty, entry['id']
       expect(entry.values_at('id', 'name', 'kind', 'description')).to all(be_present), entry['id']
       expect(entry['url']).to start_with('https://'), entry['id']
@@ -38,26 +38,27 @@ RSpec.describe AppDirectory do
   describe 'the directory' do
     before { AppDirectory::Import.run }
 
-    it 'lists the published apps, featured first, then in the order they were imported' do
+    it 'lists the published apps, the featured ones (with a position) first, then in the order they were imported' do
       submission = App.create!(name: 'Unpublished', url: 'https://example.test/app', platforms: ['web'],
                                uses: ['translation'],)
-      featured, rest = entries.partition { |entry| entry['featured'] }
+      featured, rest = entries.partition { |entry| entry['position'] }
+      featured = featured.sort_by { |entry| entry['position'] }
 
       apps = described_class.apps
       expect(apps.map(&:import_key)).to eq((featured + rest).pluck('id'))
       expect(apps).not_to include(submission)
     end
 
-    it 'orders by position after the featured flag, and puts a new app last' do
+    it 'features an app given a position, in position order, and unfeatures one whose position is cleared' do
       App.find_by!(import_key: 'bayaan').update!(position: 0)
-      App.find_by!(import_key: 'quranwbw').update!(position: App.next_position)
+      App.find_by!(import_key: 'quranwbw').update!(position: nil)
 
       keys = described_class.apps.map(&:import_key)
-      expect(keys.index('bayaan')).to eq(entries.count { |entry| entry['featured'] })
-      expect(keys.index('bayaan')).to be < keys.index('mihrab')
-      expect(keys.index('quranwbw')).to be < keys.index('bayaan')
+      expect(keys.first).to eq('bayaan')
+      featured = entries.count { |entry| entry['position'] }
+      expect(keys.index('quranwbw')).to be >= featured
       expect(App.create!(name: 'New', url: 'https://example.test/new', platforms: ['web'], uses: ['translation'])
-        .position).to eq(App.maximum(:position))
+        .position).to be_nil
     end
 
     it 'filters by platform and resource type' do

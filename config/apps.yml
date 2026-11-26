@@ -9,7 +9,7 @@
 # - `uses`: the QUL resource types the app credits, as Catalog::Taxonomy type keys. The first one
 #   tints the initials tile of an app without an icon.
 # - `icon`: a file in public/app-icons (from the app's store listing, repo or site), else none.
-# - `featured`: listed first.
+# - `position`: makes the app featured: listed first, lowest position first.
 # - `source_url`: the app's public repo when `url` is not it, taken from `evidence`.
 # - `kind`: a short noun for the home page's apps band, which shows the first eight apps.
 
@@ -24,7 +24,7 @@ apps:
     uses: [translation]
     evidence: https://github.com/marwan/quranwbw
     source_url: https://github.com/marwan/quranwbw
-    featured: true
+    position: 1
 
   - id: qurancaption
     name: QuranCaption
@@ -36,7 +36,7 @@ apps:
     uses: [translation]
     evidence: https://github.com/zonetecde/QuranCaption/blob/main/scripts/convert-saheehinternational-v2.js
     source_url: https://github.com/zonetecde/QuranCaption
-    featured: true
+    position: 2
 
   - id: quran-library
     name: quran_library
@@ -48,7 +48,7 @@ apps:
     uses: [font, tafsir, translation]
     evidence: https://github.com/alheekmahlib/quran_library
     source_url: https://github.com/alheekmahlib/quran_library
-    featured: true
+    position: 3
 
   - id: quran-validator
     name: Quran Validator
@@ -59,7 +59,7 @@ apps:
     uses: [quran-script]
     evidence: https://github.com/yazinsai/quran-validator
     source_url: https://github.com/yazinsai/quran-validator
-    featured: true
+    position: 4
 
   - id: mushaf-js
     name: mushaf.js
@@ -71,7 +71,7 @@ apps:
     uses: [mushaf-layout, quran-script, quran-metadata]
     evidence: https://github.com/YouBar/mushaf-js/blob/develop/README.md#credits
     source_url: https://github.com/YouBar/mushaf-js
-    featured: true
+    position: 5
 
   - id: mihrab
     name: Mihrab

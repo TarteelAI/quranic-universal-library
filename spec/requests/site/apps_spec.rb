@@ -17,16 +17,18 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
   end
 
   describe 'with the apps page group on', page_groups: ['apps', 'catalog'] do
-    it 'renders exactly the published apps, featured first, server-rendered' do
+    it 'renders exactly the published apps, featured (with a position) first in position order, server-rendered' do
       submission
-      App.find_by!(import_key: 'nimaz').update!(featured: true)
+      App.find_by!(import_key: 'nimaz').update!(position: 0)
       SsrServer.with_ssr { get '/apps' }
 
       expect(response).to have_http_status(:ok)
       expect(controller).to be_a(Site::AppsController)
       expect(inertia).to render_component('site/AppsPage')
-      featured, rest = published.order(:id).partition(&:featured)
+      featured, rest = published.order(:id).partition(&:position)
+      featured = featured.sort_by { |app| [app.position, app.id] }
       expect(inertia.props[:apps].pluck(:id)).to eq((featured + rest).map { |app| app.id.to_s })
+      expect(featured.first.import_key).to eq('nimaz')
       expect(inertia.props[:total]).to eq(published.count)
       expect(featured.map(&:import_key)).to include('nimaz')
 
@@ -40,11 +42,11 @@ RSpec.describe 'Apps directory (/apps)', type: :request do
       get '/apps'
 
       quranwbw = app_props('quranwbw')
-      expect(quranwbw.keys.map(&:to_s)).to match_array(['id', 'name', 'url', 'kind', 'description', 'featured',
+      expect(quranwbw.keys.map(&:to_s)).to match_array(['id', 'name', 'url', 'kind', 'description',
                                                         'projectType', 'iconUrl', 'platforms', 'appStoreUrl',
                                                         'playStoreUrl', 'sourceUrl', 'uses',])
       expect(quranwbw).to include(name: 'QuranWBW', url: 'https://quranwbw.com', kind: 'Word by word',
-                                  projectType: 'App', platforms: ['Web'], featured: true,
+                                  projectType: 'App', platforms: ['Web'],
                                   sourceUrl: 'https://github.com/marwan/quranwbw', appStoreUrl: nil,
                                   uses: [{ key: 'translation', label: 'Translation', category: 'translation' }],)
       expect(quranwbw[:iconUrl]).to match(%r{\A/rails/active_storage/blobs/redirect/[^/]+/icon\.png\z})

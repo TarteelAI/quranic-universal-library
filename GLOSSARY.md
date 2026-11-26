@@ -38,8 +38,8 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
 - **Source details**: what a request says about where its resource comes from, asked by type
   (`ResourceRequest::DETAILS`): the author, book name, publisher and year of a written work, the
   licence, source files and a source link. For editors only.
-- **Position**: an app's place in the apps directory after the featured apps, set by a super
-  admin in the CMS.
+- **Position**: an app's place among the featured apps of the directory, set by a super admin in
+  the CMS. An app with a position is featured; one without is not.
 - **App submission**: an `App` row a signed-in user sends from the form on `/apps`. It stays
   unpublished until an editor publishes it.
 - **Gated form**: a form only a signed-in user can send (`GatedForm`). A visitor who is not

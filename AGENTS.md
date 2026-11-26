@@ -164,12 +164,13 @@ URL is served by the old ERB views. A group takes over only the URLs that have a
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
 page: off, it is a 404 and no new page links to it. Its entries are the published `App` rows of the
-CMS database (`AppDirectory`, featured first, then by `position`, then by id; the home page's apps
-band shows the first eight), which editors publish, edit, feature and remove in the CMS
-(`/cms/apps`, admins only). Only a super admin (`User#super_admin?`) sees and sends the position
-field; a new app goes last. `bin/rails apps:import` makes the entries of `config/apps.yml` (icons
-in `public/app-icons`) published rows once, keyed on the entry id (`import_key`), after the apps
-already there in the file's order: an entry that has a row is skipped. Its "Submit your
+CMS database (`AppDirectory`: the featured apps, those with a `position`, first in position
+order, then the others by id; the home page's apps band shows the first eight), which editors
+publish, edit and remove in the CMS (`/cms/apps`, admins only). Only a super admin
+(`User#super_admin?`) can set or clear the position, which is how an app is featured; a new app
+has none. `bin/rails apps:import` makes the entries of `config/apps.yml` (icons in
+`public/app-icons`, an entry's `position` makes it featured) published rows once, keyed on the
+entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
 app" form (`?submit=1` opens it; the home page's button links there) posts to `POST /apps`
 (`Site::AppSubmissionsController`), which needs a signed-in user, takes at most
 `App::DAILY_LIMIT` submissions per user and day, and stores an unpublished `App` row.
@@ -215,8 +216,9 @@ ON CONFLICT DO NOTHING). Beyond the title and description, what a request asks f
 type (`ResourceRequest::DETAILS`, sent to the dialog in `nav.requestTypes`): a translation, tafsir or
 surah info needs its author and may name the book, publisher and year; Other may name them; a font
 needs a source file or a link. Every type may add licence details, up to
-`ResourceRequest::SOURCE_MAX_FILES` source files (PDF, Word, text or font, typed by their bytes, each
-up to `SOURCE_MAX_SIZE`) and a source link. These minimums apply to new requests only
+`ResourceRequest::SOURCE_MAX_FILES` source files (PDF, Word, text or font, each up to `SOURCE_MAX_SIZE`; typed by their bytes,
+with the name deciding only a .doc among OLE files, a .docx package holding `word/document.xml` and
+UTF-8 text, `ResourceRequest#source_uploads=`) and a source link. These minimums apply to new requests only
 (`on: :submission`). Source files are on the private default service, never on `qul_exports`. The
 public list is `Requests::ListQuery`: visible requests with vote counts and whether the current user
 voted, by votes or by date, one query a page, and no author, voter, source detail or file. Editors

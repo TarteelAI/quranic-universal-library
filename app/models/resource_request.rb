@@ -35,11 +35,12 @@ class ResourceRequest < ApplicationRecord
   NO_DETAILS = Details.new(author: nil, source_required: false)
   WORK_FIELDS = [:author, :book_name, :publisher, :publishing_year].freeze
 
+  DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   # The source files a request may carry, by the type their bytes show, with a label for the form.
   SOURCE_TYPES = {
     'application/pdf' => 'PDF',
     'application/msword' => 'Word',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'Word',
+    DOCX => 'Word',
     'text/plain' => 'Text',
     'font/ttf' => 'TrueType font', 'font/otf' => 'OpenType font', 'font/woff' => 'WOFF font',
     'font/woff2' => 'WOFF2 font',
@@ -97,8 +98,10 @@ class ResourceRequest < ApplicationRecord
     STATUSES.fetch(status)
   end
 
-  # Attaches uploaded source files. Each file's type comes from its bytes; its name only tells a
-  # Word file from other OLE files, and marks text, which has no magic bytes and must be UTF-8.
+  # Attaches uploaded source files. Each file's type comes from its bytes. The name helps in three
+  # cases only: a .doc among OLE files, a .docx package whose Word part lies past the bytes Marcel
+  # looks at (it must still hold word/document.xml), and text, which has no magic bytes and must be
+  # UTF-8.
   # Active Storage is told not to identify the type again (`identify: false`), which would let the
   # name decide. The blobs are marked as analysed, because analysis runs as a job and a request
   # enqueues nothing.
@@ -113,13 +116,31 @@ class ResourceRequest < ApplicationRecord
 
   private
 
+  # The type the bytes show => the one the name may narrow it to (text has no magic bytes).
+  NAMED_TYPES = { 'application/x-ole-storage' => 'application/msword', 'application/zip' => DOCX,
+                  nil => 'text/plain', }.freeze
+
   def source_type(file, name)
-    type = Marcel::Magic.by_magic(file)&.type
+    by_bytes = Marcel::Magic.by_magic(file)&.type
     by_name = Marcel::MimeType.for(name: name)
-    type = by_name if type == 'application/x-ole-storage' && by_name == 'application/msword'
-    type ||= 'text/plain' if by_name == 'text/plain' && utf8_text?(file)
+    type = named_type?(by_bytes, by_name, file) ? by_name : by_bytes
     file.rewind
     type || 'application/octet-stream'
+  end
+
+  def named_type?(by_bytes, by_name, file)
+    return false unless NAMED_TYPES.key?(by_bytes) && NAMED_TYPES[by_bytes] == by_name
+
+    case by_name
+    when DOCX then word_package?(file)
+    when 'text/plain' then utf8_text?(file)
+    else true
+    end
+  end
+
+  def word_package?(file)
+    file.rewind
+    file.read(SOURCE_MAX_SIZE + 1).to_s.b.include?('word/document.xml')
   end
 
   def utf8_text?(file)

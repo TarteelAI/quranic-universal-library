@@ -28,7 +28,7 @@ RSpec.describe 'apps:import' do
         name: entry['name'], url: entry['url'], source_url: entry['source_url'],
         project_type: entry.fetch('project_type', 'app'), platforms: entry.fetch('platforms', []), uses: entry['uses'],
         kind: entry['kind'], description: entry['description'], evidence: entry['evidence'],
-        featured: entry.fetch('featured', false), published: true, user: nil, contact: nil,
+        position: entry['position'], published: true, user: nil, contact: nil,
       )
       expect(app.icon.attached?).to eq(entry.key?('icon')), entry['id']
     end
@@ -43,13 +43,13 @@ RSpec.describe 'apps:import' do
   it 'changes nothing the second time, and keeps an edit made between the runs' do
     import
     edited = App.find_by!(import_key: 'quranwbw')
-    edited.update!(name: 'QuranWBW (edited)', featured: false, description: 'Edited by an editor.')
+    edited.update!(name: 'QuranWBW (edited)', position: nil, description: 'Edited by an editor.')
     before = snapshot
 
     expect { import }.not_to change(App, :count)
 
     expect(snapshot).to eq(before)
-    expect(edited.reload).to have_attributes(name: 'QuranWBW (edited)', featured: false,
+    expect(edited.reload).to have_attributes(name: 'QuranWBW (edited)', position: nil,
                                              description: 'Edited by an editor.',)
   end
 
@@ -59,10 +59,6 @@ RSpec.describe 'apps:import' do
 
     import
 
-    expect(submission.reload).to have_attributes(import_key: nil, published: false)
-    # The entries go after it, in the file's order.
-    imported = App.where.not(import_key: nil).order(:position).pluck(:import_key, :position)
-    expect(imported.map(&:first)).to eq(entries.pluck('id'))
-    expect(imported.map(&:last)).to eq(Array.new(entries.size) { |index| submission.position + 1 + index })
+    expect(submission.reload).to have_attributes(import_key: nil, published: false, position: nil)
   end
 end

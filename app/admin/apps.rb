@@ -3,18 +3,18 @@
 # The apps directory (/apps and the home page's apps band): editors publish, edit, feature and
 # remove apps here. Submissions from the form on /apps arrive unpublished. Admins only (Ability),
 # because a submission holds the submitter's contact address. Only a super admin changes an app's
-# position, the order of the directory after the featured apps.
+# position: an app with one is featured, listed first in position order.
 ActiveAdmin.register App do
   menu parent: 'Settings', label: 'Apps directory'
 
   scope :all, default: true
   scope('Submitted') { |apps| apps.where(published: false) }
   scope('Published') { |apps| apps.where(published: true) }
+  scope('Featured') { |apps| apps.where.not(position: nil) }
 
   filter :name
   filter :url
   filter :published
-  filter :featured
   filter :created_at
 
   includes :user, icon_attachment: :blob
@@ -27,7 +27,6 @@ ActiveAdmin.register App do
     column :name
     column :url
     column :published
-    column :featured
     column :position
     column :user
     column :created_at
@@ -50,7 +49,6 @@ ActiveAdmin.register App do
       row(:uses) { |app| app.uses.map { |key| Catalog::Taxonomy.type(key).label }.join(', ') }
       row :evidence
       row :published
-      row :featured
       row :position
       row :contact
       row :consent
@@ -66,9 +64,10 @@ ActiveAdmin.register App do
     f.semantic_errors(*f.object.errors.attribute_names)
     f.inputs do
       f.input :published, hint: 'Shown on /apps. Needs a kind and a description.'
-      f.input :featured, hint: 'Listed first. The home page shows the first eight apps.'
       if current_user.super_admin?
-        f.input :position, hint: 'The order after the featured apps: lower comes first. New apps go last.'
+        f.input :position, label: 'Featured position',
+                           hint: 'Featured apps are listed first, lowest first; empty is not featured. ' \
+                                 'The home page shows the first eight apps.'
       end
       f.input :name
       f.input :project_type, as: :select, include_blank: false,
@@ -91,7 +90,7 @@ ActiveAdmin.register App do
   end
 
   permit_params do
-    fields = [:published, :featured, :name, :project_type, :url, :app_store_url, :play_store_url, :source_url,
+    fields = [:published, :name, :project_type, :url, :app_store_url, :play_store_url, :source_url,
               :kind, :description, :icon_upload, :evidence, :contact, { platforms: [], uses: [] },]
     current_user.super_admin? ? [:position, *fields] : fields
   end

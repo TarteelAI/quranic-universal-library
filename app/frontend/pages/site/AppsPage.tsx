@@ -56,7 +56,7 @@ function appLinks(app: SiteApp) {
   return [{ label: linkLabel(app.url), url: app.url }, ...extra]
 }
 
-// /apps: the apps built with QUL, featured first, with type, platform and resource type filters in
+// /apps: the apps built with QUL, featured (positioned) first, with type, platform and resource type filters in
 // the query string. From the v7 design (ds/src/app/pages/apps.tsx), with filters and resource type chips
 // that link to the type pages. `?submit` in the URL opens the submission form (sign-in returns there).
 export default function AppsPage({

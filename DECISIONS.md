@@ -190,19 +190,20 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Cost:** three more link columns and a type to keep right in the CMS; a new type needs a
   constant and its label.
 
-### The apps directory is ordered by a position only super admins set
+### Featuring an app means giving it a position, which only super admins set
 
-- **Decision:** an app has an integer `position`. The directory and the home page's apps band
-  list published apps featured first, then by position, then by id. Only a super admin
-  (`User#super_admin?`, the existing `super_admin` role) sees and changes it in `/cms/apps`; other
-  admins edit the rest of an app, featuring included. A new app (a submission, or one made in the
-  CMS) goes last; `apps:import` numbers its entries after the existing apps in the file's order;
-  the migration numbers existing rows by id, so the order does not change when it runs.
-- **Why:** the team asked to set the order without a deploy, and only super admins may. Keeping
-  `featured` first means admins who feature an app see it move up as before, and the position
-  only orders apps within the featured and the other apps.
-- **Cost:** two settings decide the order, and putting an app above a featured one means
-  featuring it. Positions are not renumbered: two apps with one position fall back to id order.
+- **Decision:** one nullable integer, `position`, replaces the `featured` flag. An app with a
+  position is featured: the directory and the home page's apps band (its first eight) list the
+  featured apps first, lowest position first, then the others by id. Only a super admin
+  (`User#super_admin?`, the existing `super_admin` role) can set or clear it in `/cms/apps`; other
+  admins see it and edit the rest of an app. A new app, a submission included, has none.
+  `config/apps.yml` gives the featured entries their positions. The migration gives the apps
+  featured before it positions in their order then (by id), clears the others and drops
+  `featured`.
+- **Why:** the team asked to set the order without a deploy, and only super admins may. The flag
+  did nothing but order the list, so two fields for one order would have to be kept in step.
+- **Cost:** only super admins can feature an app now. Positions are not renumbered: two apps with
+  one position fall back to id order, and the apps that are not featured cannot be ordered.
 
 ### A request says where its resource comes from
 
@@ -211,7 +212,8 @@ them is in [`AGENTS.md`](AGENTS.md).
   the book, publisher and publishing year; Other may name an author and a book; a font needs a
   source file or a link to one; the other types (recitations, layouts, scripts, data sets) ask for
   neither. Every type may add licence details, up to 5 source files (PDF, Word, text, TTF, OTF,
-  WOFF, WOFF2, each up to 10 MB, typed by their bytes) and an http or https source link. The
+  WOFF, WOFF2, each up to 10 MB, typed by their bytes; the name only tells a .doc from other OLE
+  files, a .docx package from other zips, and marks UTF-8 text) and an http or https source link. The
   dialog shows the type's fields once a type is chosen, with the book details and the source
   folded. The minimums apply to new requests only, so editors can still change older ones. Source
   files are on the private default storage service, for editors in the CMS; the public list shows

@@ -1,8 +1,26 @@
+import { execSync } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+
 import type { Locator, Page, TestInfo } from '@playwright/test'
 
 import { expect, test } from './support/test'
 
 // Needs the `requests` page group on the server (QUL_PAGE_GROUPS in playwright.config.ts).
+// Writes go through `bin/rails runner`; QUL_BROWSER_RAILS_RUNNER replaces that command (for example
+// `docker exec qul-dev bin/rails runner` when Rails runs in Docker).
+const RUNNER = process.env.QUL_BROWSER_RAILS_RUNNER ?? 'bin/rails runner'
+
+function rails(code: string) {
+  mkdirSync('tmp/playwright', { recursive: true })
+  const script = `tmp/playwright/runner-${randomUUID()}.rb`
+  writeFileSync(script, code)
+  try {
+    execSync(`${RUNNER} ${script}`, { stdio: 'ignore' })
+  } finally {
+    rmSync(script, { force: true })
+  }
+}
 
 async function hydrated(page: Page) {
   await page.waitForFunction(() =>
@@ -87,6 +105,13 @@ test.describe('request dialog for a signed-out visitor', () => {
 // (`bin/rails dev:fake_accounts`): five runs a day.
 test.describe('sending a request and voting', () => {
   test.describe.configure({ mode: 'serial' })
+
+  // Each run sends requests from the fake accounts, and the daily limit counts the day's: the
+  // requests earlier runs sent are dated a day back, so any number of runs fit in a day.
+  test.beforeAll(() => {
+    rails(`ResourceRequest.joins(:user).where(users: { email: %w[reader@example.test admin@example.test] })
+      .where('resource_requests.title LIKE ?', 'Browser spec%').update_all(created_at: 1.day.ago)`)
+  })
 
   const PASSWORD = 'fake-account-password'
   const account = (testInfo: TestInfo) =>

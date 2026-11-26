@@ -158,9 +158,11 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
         end
 
         it 'needs the author of a translation, tafsir or surah info, and not of other types' do
-          expect { submit(valid_request.merge(author: ' ')) }.not_to change(ResourceRequest, :count)
-          follow_redirect!(headers: inertia_headers)
-          expect(inertia.props[:errors]).to eq('author' => ["Author can't be blank"])
+          ['translation', 'tafsir', 'surah-info'].each do |resource_type|
+            expect { submit(valid_request.merge(resource_type:, author: ' ')) }.not_to change(ResourceRequest, :count)
+            follow_redirect!(headers: inertia_headers)
+            expect(inertia.props[:errors]).to eq('author' => ["Author can't be blank"]), resource_type
+          end
 
           expect { submit(valid_request.merge(resource_type: 'other', author: '')) }
             .to change(ResourceRequest, :count).by(1)
@@ -184,19 +186,21 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
             .to change(ResourceRequest, :count).by(1)
         end
 
+        let(:type_message) { 'must be PDF, Word, text or font files (TTF, OTF, WOFF, WOFF2)' }
+
         it 'refuses a file that is not a document or a font, whatever its name, and a link that is not a web address' do
           program = upload('tafsir.pdf', "MZ\x90\x00".b + ("\0" * 60))
           binary = upload('notes.txt', "\x7FELF\x02\x01".b + ("\0" * 60))
 
-          expect do
-            submit(valid_request.merge(source_files: [program], source_url: 'javascript:alert(1)'))
-            submit(valid_request.merge(source_files: [binary]))
-          end.not_to change(ResourceRequest, :count)
-
-          follow_redirect!(headers: inertia_headers)
-          expect(inertia.props[:errors]).to eq(
-            'source_files' => ['Source files must be PDF, Word, text or font files (TTF, OTF, WOFF, WOFF2)'],
-          )
+          file_error = { 'source_files' => ["Source files #{type_message}"] }
+          link_error = { 'source_url' => ['Source url must be a web address starting with http:// or https://'] }
+          # One invalid field a request, so each check is shown to refuse on its own.
+          [[{ source_files: [program] }, file_error], [{ source_files: [binary] }, file_error],
+           [{ source_url: 'javascript:alert(1)' }, link_error],].each do |fields, errors|
+            expect { submit(valid_request.merge(fields)) }.not_to change(ResourceRequest, :count)
+            follow_redirect!(headers: inertia_headers)
+            expect(inertia.props[:errors]).to eq(errors)
+          end
           request = ResourceRequest.new(valid_request.merge(source_url: 'ftp://example.test/x'))
           expect(request).not_to be_valid
           expect(request.errors[:source_url]).to eq(['must be a web address starting with http:// or https://'])
@@ -209,11 +213,14 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
             upload('latin1.txt', "\xC3\x28 latin1 \xE9".b),
             upload('noise.pdf', "\x00\x01\x02\x03".b * 30),
             upload('archive.docx', "PK\x03\x04".b + ("\0" * 60)),
+            # A package whose Word part lies past the bytes Marcel reads is still Word by its name.
+            upload('late.docx', "PK\x03\x04".b + ("\0" * 8000) + 'word/document.xml'.b),
           ]
 
           expect(request.source_files.map { |file| [file.filename.to_s, file.content_type] }).to eq(
             [['old.doc', 'application/msword'], ['latin1.txt', 'application/octet-stream'],
-             ['noise.pdf', 'application/octet-stream'], ['archive.docx', 'application/zip'],],
+             ['noise.pdf', 'application/octet-stream'], ['archive.docx', 'application/zip'],
+             ['late.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],],
           )
           expect(request).not_to be_valid
         end

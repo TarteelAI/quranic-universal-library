@@ -41,7 +41,7 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
       sign_in user
 
       links = { app_store_url: 'https://apps.apple.com/app/id1', source_url: 'https://github.com/example/spec-reader' }
-      expect { submit(valid_app.merge(icon: icon, published: '1', featured: '1', **links)) }
+      expect { submit(valid_app.merge(icon: icon, published: '1', position: '1', **links)) }
         .to change(App, :count).by(1)
 
       expect(response).to redirect_to('/apps')
@@ -50,7 +50,7 @@ RSpec.describe 'App submissions (POST /apps)', type: :request do
                                      project_type: 'app', description: 'Reads the Quran with translations.',
                                      play_store_url: nil, platforms: ['ios', 'web'],
                                      uses: ['translation', 'recitation'], contact: 'maker@example.test', consent: true,
-                                     published: false, featured: false, user: user,)
+                                     published: false, position: nil, user: user,)
       expect(app.icon).to be_attached
       expect(app.icon.blob).to have_attributes(content_type: 'image/png',
                                                filename: ActiveStorage::Filename.new('icon.png'),

@@ -30,15 +30,12 @@ class App < ApplicationRecord
     self.app_store_url = self.play_store_url = nil
   end
 
-  # The directory: published apps, featured first, then by position (which only a super admin
-  # changes, in the CMS), then oldest first.
-  scope :directory, -> { where(published: true).order(featured: :desc, position: :asc, id: :asc) }
-
-  # A new app goes last unless it is given a position (the import gives each entry its own).
-  before_validation { self.position ||= App.next_position if new_record? }
+  # The directory: published apps, the featured ones first (an app with a position, which only a
+  # super admin sets, in the CMS) in position order, then the others, oldest first.
+  scope :directory, -> { where(published: true).order(arel_table[:position].asc.nulls_last, id: :asc) }
 
   validates :name, presence: true, length: { maximum: 100 }
-  validates :position, numericality: { only_integer: true, in: 0...(2**31) }
+  validates :position, numericality: { only_integer: true, in: 0...(2**31) }, allow_nil: true
   validates :url, presence: true
   validates(*LINKS, length: { maximum: 500 })
   validates :project_type, inclusion: { in: AppDirectory::PROJECT_TYPES.keys, message: 'must be chosen from the list' }
@@ -69,11 +66,6 @@ class App < ApplicationRecord
     extension = ICON_TYPES[type]
     icon.attach(io: file, filename: extension ? "icon.#{extension}" : 'icon',
                 content_type: type || 'application/octet-stream', metadata: { analyzed: true },)
-  end
-
-  # The position after every app's.
-  def self.next_position
-    (App.maximum(:position) || 0) + 1
   end
 
   private

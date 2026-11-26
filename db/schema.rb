@@ -110,7 +110,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_26_130000) do
     t.string "uses", default: [], null: false, array: true
     t.string "contact"
     t.boolean "consent", default: false, null: false
-    t.boolean "featured", default: false, null: false
     t.boolean "published", default: false, null: false
     t.bigint "user_id"
     t.datetime "created_at", null: false
@@ -123,7 +122,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_26_130000) do
     t.string "app_store_url"
     t.string "play_store_url"
     t.string "source_url"
-    t.integer "position", null: false
+    t.integer "position"
     t.index ["import_key"], name: "index_apps_on_import_key", unique: true
     t.index ["user_id"], name: "index_apps_on_user_id"
   end

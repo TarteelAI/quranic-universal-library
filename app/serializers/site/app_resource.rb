@@ -3,11 +3,11 @@
 module Site
   # A published app of the apps directory (App). Its type and platforms are labels. Never the contact.
   class AppResource < ApplicationResource
-    typelize id: :string, name: :string, url: :string, kind: :string, description: :string, featured: :boolean,
+    typelize id: :string, name: :string, url: :string, kind: :string, description: :string,
              project_type: :string, icon_url: [:string, { nullable: true }], platforms: [:string, { multi: true }],
              app_store_url: [:string, { nullable: true }], play_store_url: [:string, { nullable: true }],
              source_url: [:string, { nullable: true }]
-    attributes :name, :url, :kind, :description, :featured, :app_store_url, :play_store_url, :source_url
+    attributes :name, :url, :kind, :description, :app_store_url, :play_store_url, :source_url
 
     attribute(:project_type) { |app| AppDirectory::PROJECT_TYPES.fetch(app.project_type).label }
 

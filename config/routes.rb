@@ -12,10 +12,6 @@ Rails.application.routes.draw do
   get '/health', to: 'health#show'
 
   namespace :api, defaults: { format: :json } do
-    namespace :morphology do
-      resources :edge_relations, only: [:index]
-    end
-
     namespace :v1 do
       resources :chapters, only: [:index, :show] do
         member do

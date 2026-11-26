@@ -80,7 +80,8 @@ class ApplicationPresenter
 
   def per_page
     items = params[:per_page].to_i.abs
-    [items | 10, MAX_RECORDS_PER_PAGE].min
+    items = 10 if items.zero?
+    [items, MAX_RECORDS_PER_PAGE].min
   end
 
   def sort_order

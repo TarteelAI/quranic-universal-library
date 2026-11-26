@@ -12,6 +12,10 @@ A single, comprehensive REST API that exposes every Quranic resource managed by 
 https://qul.tarteel.ai/api/v1
 ```
 
+## Using QUL from AI Agents
+
+AI assistants such as Claude can already read QUL resources through a community-maintained MCP server. See [AI Agents (MCP)](ai-agents.md).
+
 ## Follow Along
 
 The full specification — including implemented and proposed endpoints — is being drafted in the repository:

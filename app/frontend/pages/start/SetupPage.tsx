@@ -3,13 +3,13 @@ import { ArrowLeftIcon, ArrowRightIcon, CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
-import { CardPreview } from '@/components/previews/card-preview'
+import { CardPreview, cardPreviewUrl } from '@/components/previews/card-preview'
 import { FilterChip } from '@/components/qul/catalog'
 import { SearchInput } from '@/components/qul/chrome'
 import { GoalIcon } from '@/components/qul/start'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { catalogResourcePreview, catalogResources, startSetup } from '@/routes'
+import { catalogResources, startSetup } from '@/routes'
 import type { StartAnswers, StartSetupShow } from '@/types/serializers'
 
 type Step = StartAnswers['answered'][number]
@@ -219,10 +219,7 @@ export default function SetupPage({
                   title={<span className="text-lg font-medium tracking-tight">{script.label}</span>}
                 >
                   {script.sample?.previewKind && (
-                    <CardPreview
-                      kind={script.sample.previewKind}
-                      url={catalogResourcePreview({ type: script.sample.type, slug: script.sample.toParam }).url}
-                    />
+                    <CardPreview kind={script.sample.previewKind} url={cardPreviewUrl(script.sample)} />
                   )}
                   <span className="text-sm text-muted-foreground">{script.blurb}</span>
                 </Tile>

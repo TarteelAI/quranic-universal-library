@@ -33,6 +33,9 @@ module Catalog
     # The kind of preview the card fetches once on screen (Previews::Card), or null for none.
     typelize preview_kind: [:string, { nullable: true, enum: Previews::Card::KINDS.values.uniq }]
     attribute(:preview_kind) { |resource| Previews::Card.kind(resource.resource_type) }
+    # The preview URL's `v` (Previews::Card.version), so a shared cache can keep the preview.
+    typelize preview_version: [:string, { nullable: true }]
+    attribute(:preview_version) { |resource| Previews::Card.version(resource) }
 
     typelize superseded_by: { nullable: true }
     one :superseded_by, source: proc { superseded_by if superseded_by&.published }, resource: ResourceRefResource

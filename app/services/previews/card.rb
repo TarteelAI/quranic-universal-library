@@ -36,6 +36,23 @@ module Previews
       KINDS[type]
     end
 
+    # The `v` of the preview URL a card fetches: a digest of the build and of the rows an editor
+    # changes (the resource and its content row), so a shared cache can keep a preview for long
+    # and an edit or a deploy shows on the next page load (DECISIONS.md). The other content rows
+    # a preview reads (words, texts, audio files) are not in it. Nil for a type without a card
+    # preview.
+    def self.version(resource)
+      return unless kind(resource.resource_type)
+
+      times = [resource.updated_at, resource.resource_content&.updated_at].map { |time| time&.iso8601(6) }
+      Digest::SHA256.hexdigest([build, *times].join('|'))[0, 12]
+    end
+
+    # The deployed commit where the image names one (GIT_SHA), else the frontend's digest.
+    def self.build
+      @build ||= ENV['GIT_SHA'].presence || ViteRuby.digest
+    end
+
     # The card preview props, or nil when the type has no card preview or this resource cannot
     # be shown (Previews::Unavailable, a tafsir with no entry for the ayah, or a page font whose
     # page 1 has no words).

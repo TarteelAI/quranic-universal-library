@@ -8,7 +8,7 @@ import { RequestCard } from '@/components/qul/request-dialog'
 import { SearchInput } from '@/components/qul/chrome'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
-import { CardPreview } from '@/components/previews/card-preview'
+import { CardPreview, cardPreviewUrl } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ import {
   DrawerTrigger,
 } from '@/components/ui/drawer'
 import { cn } from '@/lib/utils'
-import { catalogResourcePreview, catalogResources, detailResources } from '@/routes'
+import { catalogResources, detailResources } from '@/routes'
 import type {
   CatalogFacetValue,
   CatalogOption,
@@ -286,13 +286,7 @@ export default function CatalogPage({
         formats={result.formats.map((format) => labelOf(vocabularies.formats, format))}
         muted={result.status === 'legacy' || result.status === 'superseded'}
         preview={
-          !compact &&
-          result.previewKind && (
-            <CardPreview
-              kind={result.previewKind}
-              url={catalogResourcePreview({ type: result.type, slug: result.toParam }).url}
-            />
-          )
+          !compact && result.previewKind && <CardPreview kind={result.previewKind} url={cardPreviewUrl(result)} />
         }
       />
     </li>

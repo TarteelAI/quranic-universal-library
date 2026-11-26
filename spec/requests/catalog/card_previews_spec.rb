@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 require 'clone_helper'
+require_relative '../../support/download_files'
 
 # Card previews (Previews::Card): the kind each catalog and type page card carries, and the JSON
 # a card fetches from /resources/:type/:slug/preview once it is on screen. Resources are the
 # snapshot clone's published ones.
 RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request do
+  include Devise::Test::IntegrationHelpers
+  include DownloadFiles
+
   def published(type)
     DownloadableResource.published.where(resource_type: type).order(:id).preload(:resource_content)
   end
@@ -14,8 +18,16 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
     published(type).where('name LIKE ?', "#{name}%").first!
   end
 
-  def preview_path(resource, type: resource.resource_type)
-    "/resources/#{type}/#{resource.to_param}/preview"
+  def preview_path(resource, type: resource.resource_type, version: nil)
+    "/resources/#{type}/#{resource.to_param}/preview#{"?v=#{version}" if version}"
+  end
+
+  def layout
+    named('mushaf-layout', 'KFGQPC V2 layout')
+  end
+
+  def shared
+    'max-age=3600, public, stale-while-revalidate=86400, s-maxage=86400'
   end
 
   def card_preview(resource)
@@ -128,12 +140,87 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       expect(preview[:text]).to be_present
     end
 
-    it 'is internal and kept by the browser, not by shared caches' do
-      get preview_path(named('mushaf-layout', 'KFGQPC V2 layout'))
+    it 'is internal, and kept by the browser only without a version' do
+      get preview_path(layout)
 
       expect(response.headers['X-Robots-Tag']).to eq('noindex')
       expect(response.headers['Cache-Control']).to eq('max-age=3600, private')
       expect(response.headers['Set-Cookie']).to be_nil
+    end
+
+    it 'gives each card the version of its preview URL, which changes with the resource and its content row' do
+      get "/resources/#{layout.resource_type}"
+      card = inertia.props[:resources].find { |resource| resource[:id] == layout.id }
+      expect(card[:previewVersion]).to eq(Previews::Card.version(layout)).and match(/\A\h{12}\z/)
+
+      get '/resources', params: { q: layout.name }
+      expect(inertia.props[:results].find { |result| result[:id] == layout.id }[:previewVersion])
+        .to eq(card[:previewVersion])
+      get '/resources/surah-info'
+      expect(inertia.props[:resources].pluck(:previewVersion).uniq).to eq([nil])
+
+      resource = layout
+      resource.updated_at += 1.minute
+      edited = Previews::Card.version(resource)
+      expect(edited).not_to eq(card[:previewVersion])
+      resource.resource_content.updated_at += 1.minute
+      expect(Previews::Card.version(resource)).not_to eq(edited)
+    end
+
+    # Forgery protection is off in test; on, inertia_rails would add its XSRF cookie to an XHR answer.
+    it 'is shared with a version, the same for every visitor, and writes no cookie' do
+      ActionController::Base.allow_forgery_protection = true
+      path = preview_path(layout, version: Previews::Card.version(layout))
+      get path
+      anonymous = response.body
+      expect(response.headers['Cache-Control']).to eq(shared)
+      expect(response.headers['Set-Cookie']).to be_nil
+      get path, headers: { 'If-None-Match' => response.headers['ETag'] }
+      expect(response).to have_http_status(:not_modified)
+
+      sign_in create_account(role: :admin)
+      get path, headers: { 'Accept' => 'text/html', 'X-Requested-With' => 'XMLHttpRequest' }
+      expect(response.body).to eq(anonymous)
+      expect(response.headers['Cache-Control']).to eq(shared)
+      expect(response.headers['Set-Cookie']).to be_nil
+    ensure
+      ActionController::Base.allow_forgery_protection = false
+    end
+
+    # A remembered visitor whose session has gone would be signed in again (and the sign-in
+    # recorded) by anything that asks Warden for the user.
+    it 'does not sign in a remembered visitor' do
+      user = create_account
+      post '/users/sign_in',
+           params: { user: { email: user.email, password: DownloadFiles::PASSWORD, remember_me: '1' } }
+      expect(cookies['remember_user_token']).to be_present
+      cookies.delete('_quran_com-community_session')
+      signed_in = user.reload.sign_in_count
+
+      get preview_path(layout, version: 'x')
+
+      expect(response).to have_http_status(:ok)
+      expect(response.headers['Set-Cookie']).to be_nil
+      expect(user.reload.sign_in_count).to eq(signed_in)
+    end
+
+    it 'keeps a restricted resource out of shared caches' do
+      override_catalog(layout, 'copyright' => 'Spec restriction')
+
+      get preview_path(layout, version: Previews::Card.version(layout))
+
+      expect(response).to have_http_status(:ok)
+      expect(response.headers['Cache-Control']).to eq('max-age=3600, private')
+    end
+
+    it 'is a 404 kept by no cache for an unpublished resource' do
+      resource = layout
+      resource.update_columns(published: false)
+
+      get preview_path(resource, version: 'x')
+
+      expect(response).to have_http_status(:not_found)
+      expect(response.headers['Cache-Control']).not_to include('public')
     end
 
     # A preview that answers after the sign-in page would otherwise put back the session it was
@@ -142,14 +229,13 @@ RSpec.describe 'Card previews (/resources/:type/:slug/preview)', type: :request 
       get '/users/sign_in', params: { user_return_to: '/resources/mushaf-layout' }
       expect(response.headers['Set-Cookie']).to include('_quran_com-community_session=')
 
-      get preview_path(named('mushaf-layout', 'KFGQPC V2 layout'))
+      get preview_path(layout)
 
       expect(response).to have_http_status(:ok)
       expect(response.headers['Set-Cookie']).to be_nil
     end
 
     it 'is a 404 for a type without card previews, a layout without a font, a wrong type and an unknown slug' do
-      layout = named('mushaf-layout', 'KFGQPC V2 layout')
       paths = [
         preview_path(published('surah-info').first),
         preview_path(named('mushaf-layout', 'Ligature Basd SVG Mushaf')),

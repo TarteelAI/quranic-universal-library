@@ -68,7 +68,6 @@ export default function KitPage({
                   items={async () => (await fetchBundle(ids)).items}
                   label="Download kit"
                   signInHref={signInHref}
-                  className="items-start sm:items-end"
                   tooBig={<AddToBundle ids={ids} label="Add kit to bundle" addedLabel="Kit is in your bundle" />}
                 />
               )}

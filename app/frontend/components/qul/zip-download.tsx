@@ -1,4 +1,5 @@
-import { DownloadIcon, XIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircleIcon, XIcon } from 'lucide-react'
+import { Popover } from 'radix-ui'
 import * as React from 'react'
 import { toast } from 'sonner'
 
@@ -33,6 +34,7 @@ export interface ZipDownloadProps {
   signInHref: string | null
   /** What else to offer when the zip is too big for this browser to hold in memory */
   tooBig?: React.ReactNode
+  /** Classes for the component's box in its parent's layout; they never reach the button */
   className?: string
 }
 
@@ -48,26 +50,58 @@ function saveBlob(blob: Blob, name: string) {
 }
 
 /**
- * A button that downloads resources as one zip built in the browser (lib/zip-download.ts), with
- * its progress and a cancel button while it runs. Files that cannot be fetched are left out and
- * named in the zip's README. Only the cancel button stops a zip: one started in the bundle tray
- * goes on when the tray closes, and ends in the same toast.
+ * A button that downloads resources as one zip built in the browser (lib/zip-download.ts). While
+ * the zip runs, its progress and a cancel button take the button's place in the same box, so
+ * nothing around it moves; once every file is fetched it says the zip is being finished until the
+ * save is done (Chromium closing the picked file can take seconds for a large zip). Files that
+ * cannot be fetched are left out and named in the zip's README. Only the cancel button stops a
+ * zip: one started in the bundle tray goes on when the tray closes, and ends in the same toast.
  */
 export function ZipDownload({ title, items, formats = null, label, signInHref, tooBig, className }: ZipDownloadProps) {
   const [status, setStatus] = React.useState<State>({ state: 'idle' })
   const controller = React.useRef<AbortController | null>(null)
+  const root = React.useRef<HTMLDivElement>(null)
+  const button = React.useRef<HTMLButtonElement>(null)
+  const cancel = React.useRef<HTMLButtonElement>(null)
+  const progressBox = React.useRef<HTMLDivElement>(null)
+
+  const running = status.state === 'running'
+  // Every file is fetched: what is left is the README and saving the zip.
+  const finishing = running && status.progress.files >= status.files
+  let phase: 'idle' | 'running' | 'finishing' = 'idle'
+  if (finishing) phase = 'finishing'
+  else if (running) phase = 'running'
+
+  // The control that had the focus is hidden or removed when the phase changes; its successor
+  // takes it, unless the visitor has moved the focus elsewhere. A layout effect, so this runs
+  // before a modal dialog around it (the bundle tray) sees the focus lost and takes it.
+  const lastPhase = React.useRef(phase)
+  const noteId = React.useId()
+  React.useLayoutEffect(() => {
+    if (lastPhase.current === phase) return
+    lastPhase.current = phase
+    const active = document.activeElement
+    if (active && active !== document.body && !root.current?.contains(active)) return
+    const next = { idle: button, running: cancel, finishing: progressBox }[phase]
+    next.current?.focus({ preventScroll: true })
+  }, [phase])
+
+  // The caller's classes place this box; the button inside always fills it.
+  const box = cn('relative grid min-w-44', className)
 
   if (signInHref)
     return (
-      <Button asChild className={className}>
-        <a href={signInHref}>
-          <DownloadIcon /> Sign in to download
-        </a>
-      </Button>
+      <div className={box}>
+        <Button asChild>
+          <a href={signInHref}>
+            <DownloadIcon /> Sign in to download
+          </a>
+        </Button>
+      </div>
     )
 
   async function start() {
-    // The button is disabled only once the zip runs: a click during the save dialog or the lookup
+    // The button is inert only once the zip runs: a click during the save dialog or the lookup
     // would start a second zip and leave this one without a cancel button.
     if (controller.current) return
     const abort = new AbortController()
@@ -128,51 +162,95 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
     }
   }
 
-  const running = status.state === 'running'
+  const percent = running ? Math.min(100, (status.progress.bytes / Math.max(status.bytes, 1)) * 100) : 0
 
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
-      <Button onClick={start} disabled={running}>
-        <DownloadIcon /> {running ? 'Making the zip…' : label}
-      </Button>
-      {running && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <div
-            role="progressbar"
-            aria-label="Zip progress"
-            aria-valuemin={0}
-            aria-valuemax={status.bytes}
-            aria-valuenow={status.progress.bytes}
-            className="h-1.5 min-w-16 flex-1 overflow-hidden rounded-full bg-secondary"
-          >
+    <Popover.Root open={status.state === 'too-big'} onOpenChange={(open) => !open && setStatus({ state: 'idle' })}>
+      <Popover.Anchor asChild>
+        <div ref={root} className={cn(box, '@container')}>
+          <Button ref={button} onClick={start} inert={running} className={cn(running && 'opacity-0')}>
+            <DownloadIcon /> {label}
+          </Button>
+          {running && (
             <div
-              className="h-full bg-brand transition-[width]"
-              style={{ width: `${Math.min(100, (status.progress.bytes / Math.max(status.bytes, 1)) * 100)}%` }}
-            />
-          </div>
-          <span className="shrink-0 tabular-nums">
-            {Math.min(status.progress.files + 1, status.files)} of {status.files} files ·{' '}
-            {formatBytes(status.progress.bytes)} of {formatBytes(status.bytes)}
-          </span>
-          <button
-            type="button"
-            onClick={() => controller.current?.abort()}
-            aria-label="Cancel the zip"
-            className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-full hover:bg-secondary hover:text-foreground"
-          >
-            <XIcon className="size-3.5" />
-          </button>
+              ref={progressBox}
+              tabIndex={-1}
+              className="absolute inset-0 flex items-center gap-2 overflow-hidden rounded-lg border bg-card ps-3 pe-1 text-xs outline-none"
+            >
+              <span className="sr-only" role="status">
+                {finishing ? 'Finishing the zip…' : 'Making the zip…'}
+              </span>
+              {finishing ? (
+                <>
+                  <LoaderCircleIcon
+                    aria-hidden="true"
+                    className="size-3.5 shrink-0 animate-spin text-muted-foreground"
+                  />
+                  <span aria-hidden="true" className="min-w-0 flex-1 truncate">
+                    Finishing the zip…
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span aria-hidden="true" className="min-w-0 flex-1 truncate tabular-nums">
+                    {Math.min(status.progress.files + 1, status.files)} of {status.files} files
+                    <span className="hidden text-muted-foreground @3xs:inline">
+                      {' '}
+                      · {formatBytes(status.progress.bytes)} of {formatBytes(status.bytes)}
+                    </span>
+                  </span>
+                  <button
+                    ref={cancel}
+                    type="button"
+                    onClick={() => controller.current?.abort()}
+                    aria-label="Cancel the zip"
+                    className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-secondary hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  >
+                    <XIcon className="size-4" />
+                  </button>
+                </>
+              )}
+              <div
+                role="progressbar"
+                aria-label="Zip progress"
+                aria-valuemin={0}
+                aria-valuemax={status.bytes}
+                aria-valuenow={status.progress.bytes}
+                aria-valuetext={`${Math.min(status.progress.files, status.files)} of ${status.files} files, ${formatBytes(status.progress.bytes)} of ${formatBytes(status.bytes)}`}
+                className="absolute inset-x-0 bottom-0 h-1 bg-secondary"
+              >
+                <div className="h-full bg-brand transition-[width]" style={{ width: `${percent}%` }} />
+              </div>
+            </div>
+          )}
         </div>
-      )}
-      {status.state === 'too-big' && (
-        <div className="flex max-w-sm flex-col gap-2 text-xs text-muted-foreground" role="status">
-          <p>
-            This is {formatBytes(status.bytes)}, more than this browser can zip. Chrome and Edge can, or download each
-            file on its own.
-          </p>
+      </Popover.Anchor>
+      <Popover.Portal>
+        <Popover.Content
+          side="bottom"
+          align="end"
+          sideOffset={8}
+          collisionPadding={16}
+          aria-labelledby={noteId}
+          // The popover has an anchor, not a trigger, so Radix has nowhere to return the focus.
+          onCloseAutoFocus={(event) => {
+            event.preventDefault()
+            const active = document.activeElement
+            // A click outside that focused something else keeps that focus.
+            if (active && active !== document.body && !(event.currentTarget as Node).contains(active)) return
+            button.current?.focus({ preventScroll: true })
+          }}
+          className="z-50 flex w-72 max-w-[calc(100vw-2rem)] flex-col items-start gap-3 rounded-lg border bg-card p-4 text-sm text-muted-foreground shadow-md outline-none"
+        >
+          {status.state === 'too-big' && (
+            <p id={noteId} role="status">
+              This is {formatBytes(status.bytes)}, more than this browser can zip. Chrome and Edge can, or download each
+              file on its own.
+            </p>
+          )}
           {tooBig}
-        </div>
-      )}
-    </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
   )
 }

@@ -164,10 +164,13 @@ URL is served by the old ERB views. A group takes over only the URLs that have a
 rest of the group stays on the old views. `home` serves `/` (`Site::HomeController`; off, the old
 landing page). `apps` serves the apps directory `/apps` (`Site::AppsController`), which has no old
 page: off, it is a 404 and no new page links to it. Its entries are the published `App` rows of the
-CMS database (`AppDirectory`, featured first; the home page's apps band shows the first eight),
-which editors publish, edit, feature and remove in the CMS (`/cms/apps`, admins only). `bin/rails
-apps:import` makes the entries of `config/apps.yml` (icons in `public/app-icons`) published rows
-once, keyed on the entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
+CMS database (`AppDirectory`: the featured apps, those with a `position`, first in position
+order, then the others by id; the home page's apps band shows the first eight), which editors
+publish, edit and remove in the CMS (`/cms/apps`, admins only). Only a super admin
+(`User#super_admin?`) can set or clear the position, which is how an app is featured; an app made
+in the CMS or submitted has none. `bin/rails apps:import` makes the entries of `config/apps.yml` (icons in
+`public/app-icons`, an entry's `position` makes it featured) published rows once, keyed on the
+entry id (`import_key`): an entry that has a row is skipped. Its "Submit your
 app" form (`?submit=1` opens it; the home page's button links there) posts to `POST /apps`
 (`Site::AppSubmissionsController`), which needs a signed-in user, takes at most
 `App::DAILY_LIMIT` submissions per user and day, and stores an unpublished `App` row.
@@ -209,9 +212,18 @@ and the request cards open it in place. `POST /requests` creates one, `POST /req
 votes and `DELETE /requests/:id/vote` takes the vote back (`Requests::RequestsController`). Each needs a signed-in user, goes back to the page it came
 from and enqueues nothing; a user sends at most `ResourceRequest::DAILY_LIMIT` requests a day. A vote
 is one row per user and request (unique index `index_resource_request_votes_unique`, inserted with
-ON CONFLICT DO NOTHING). The public list is `Requests::ListQuery`: visible requests with vote counts
-and whether the current user voted, by votes or by date, one query a page, and no author or voter.
-Editors set the status and hide requests in the CMS (`/cms/resource_requests`, admins only).
+ON CONFLICT DO NOTHING). Beyond the title and description, what a request asks for depends on its
+type (`ResourceRequest::DETAILS`, sent to the dialog in `nav.requestTypes`): a translation, tafsir or
+surah info needs its author and may name the book, publisher and year; Other may name them; a font
+needs a source file or a link. Every type may add licence details, up to
+`ResourceRequest::SOURCE_MAX_FILES` source files (PDF, Word, text or font, each up to `SOURCE_MAX_SIZE`; typed by their bytes,
+with the name deciding only a .doc among OLE files, a .docx package holding `word/document.xml` and
+UTF-8 text, `ResourceRequest#source_uploads=`) and a source link. These minimums apply to new requests only
+(`on: :submission`). Source files are on the private default service, never on `qul_exports`. The
+public list is `Requests::ListQuery`: visible requests with vote counts and whether the current user
+voted, by votes or by date, one query a page, and no author, voter, source detail or file. Editors
+see the details and download the files, set the status and hide requests in the CMS
+(`/cms/resource_requests`, admins only).
 `account` serves the signed-in user's own pages (`Account::ProfilesController`; off, the old profile
 pages answer): the profile `/profile`, whose tabs (`?tab=`) list the user's downloads, contributions,
 edit access and, with `requests` on, resource requests (`Account::Profile`, one tab's rows a visit),
@@ -388,8 +400,10 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
 - Validation errors: `redirect_back_or_to <path>, inertia: { errors: record.errors.to_hash(true) }`.
   They reach the next page as the `errors` prop, arrays of full messages (`errorValueType`), and
   `useForm` keeps the typed values because a post preserves state.
-- Attachments: build the blob with `metadata: { analyzed: true }` (see `App#icon_upload=`), or
-  attaching enqueues `ActiveStorage::AnalyzeJob`, and ActiveJob is Sidekiq outside test.
+- Attachments: build the blob with `metadata: { analyzed: true }` (see `App#icon_upload=` and
+  `ResourceRequest#source_uploads=`), or attaching enqueues `ActiveStorage::AnalyzeJob`, and
+  ActiveJob is Sidekiq outside test. A file only editors read goes on the private default service
+  (signed links); only public files, such as app icons, go on `qul_exports`.
 
 ### Vite when Rails runs in Docker
 
@@ -456,7 +470,7 @@ this file and local Vite builds out of the image.
   two steps. New migrations use the CMS connection only; the content database is never changed.
 - **Slugs** are never all digits: `find_by_slug_or_id!` falls back to `find`.
 - **Catalog fields.** Only the slug and an editor's `short_summary` are stored (existing
-  columns). The display name, script family, rendering, status, replacement, recommended flag,
+  columns). The display name, script family, rendering, status, replacement,
   requires-links and missing summaries are computed per request (`Catalog::Derived`), and a
   `meta_data` key overrides one (DECISIONS.md). Read them from the resource (`resource.status`,
   `resource.summary`); never add a column for a value the data already implies. In a spec, call

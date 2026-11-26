@@ -40,7 +40,6 @@ export const typePageProps: CatalogTypesShow = {
       granularity: 'Ayah by Ayah',
       status: 'stable',
       scriptFamily: null,
-      recommended: false,
       previewKind: 'text',
       supersededBy: null,
     },
@@ -55,7 +54,6 @@ export const typePageProps: CatalogTypesShow = {
       granularity: 'Word by word',
       status: 'stable',
       scriptFamily: null,
-      recommended: false,
       previewKind: 'text',
       supersededBy: null,
     },
@@ -98,7 +96,6 @@ function layout(id: number, name: string, fields: Partial<CatalogResourceCard> =
     granularity: null,
     status: 'stable',
     scriptFamily: 'Madani',
-    recommended: false,
     previewKind: 'layout',
     supersededBy: null,
     ...fields,
@@ -107,15 +104,15 @@ function layout(id: number, name: string, fields: Partial<CatalogResourceCard> =
 
 const qpcV2 = { id: 3, name: 'QPC V2 Font', type: 'font', toParam: 'qpc-v2-font' }
 
-// Props of a type page with status data: two recommended layouts, a current
-// layout, a legacy one and a superseded one, and the comparison table.
+// Props of a type page with status data: three current layouts, a legacy one
+// and a superseded one, and the comparison table.
 export const layoutPageProps: CatalogTypesShow = {
   ...typePageProps,
   type: layoutType,
   types: [layoutType, translation],
   resources: [
-    layout(10, 'KFGQPC V2 layout', { recommended: true }),
-    layout(11, 'Indopak 15 lines', { recommended: true, scriptFamily: 'IndoPak' }),
+    layout(10, 'KFGQPC V2 layout'),
+    layout(11, 'Indopak 15 lines', { scriptFamily: 'IndoPak' }),
     layout(12, 'Mushaf Qatar'),
     layout(13, 'Old Indopak layout', { status: 'legacy', scriptFamily: 'IndoPak' }),
     layout(14, 'KFGQPC V2 layout (Old)', {
@@ -193,7 +190,6 @@ export const catalogPageProps: CatalogResourcesIndex = {
       granularity: '1_ayah',
       formats: ['json', 'sqlite'],
       status: 'stable',
-      recommended: false,
       previewKind: 'text',
     },
     {
@@ -206,7 +202,6 @@ export const catalogPageProps: CatalogResourcesIndex = {
       granularity: 'n_ayah',
       formats: ['json'],
       status: 'stable',
-      recommended: false,
       previewKind: null,
     },
   ],
@@ -273,7 +268,6 @@ export const resourcePageProps: CatalogResourcesShow = {
     granularity: 'Ayah by Ayah',
     summary: 'English tafsir, ayah by ayah. JSON and SQLite files.',
     info: '<p>An abridged <strong>English</strong> edition.</p>',
-    recommended: false,
     supersededBy: null,
   },
   type: tafsir,

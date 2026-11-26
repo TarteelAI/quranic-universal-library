@@ -14,7 +14,6 @@ module Catalog
       'Published layouts whose mushaf is disabled or has no words' => :layouts_without_words,
       'Published layouts with more page rows than pages' => :layouts_with_extra_pages,
       'Published layouts with too few bismillah lines' => :layouts_without_bismillah,
-      'Default mushafs with no published layout' => :defaults_without_layout,
       'Tags that are spellings of the same name' => :tag_variants,
     }.freeze
 
@@ -43,7 +42,7 @@ module Catalog
 
         Generated #{@at.utc.iso8601}.
 
-        The catalog fields (display name, script family, rendering, status, replacement, recommended) are
+        The catalog fields (display name, script family, rendering, status, replacement) are
         computed from this data when a page is read. To correct one, fix the data it comes from, or set the
         override key in the resource's meta data in the CMS: #{Derived::OVERRIDES.values.map { |key| "`#{key}`" }.join(', ')}.
 
@@ -125,13 +124,6 @@ module Catalog
       end
       Section.new('A bismillah line without an alignment row is drawn as a justified line of text.',
                   ['Id', 'Type', 'Resource', 'Bismillah lines', 'Surah name lines'], rows,)
-    end
-
-    def defaults_without_layout
-      shown = layouts.filter_map { |_, mushaf| mushaf&.id }
-      rows = Mushaf.where(is_default: true).where.not(id: shown).order(:id).map { |mushaf| [mushaf.id, mushaf.name] }
-      Section.new('The recommended flag needs a default mushaf with a published layout, so no layout is ' \
-                  'recommended for these.', ['Mushaf', 'Name'], rows,)
     end
 
     def tag_variants # rubocop:disable Metrics/AbcSize -- one query chain and one grouping

@@ -2,8 +2,7 @@
 
 module Catalog
   # The rules that infer the catalog fields no column holds: script family, rendering,
-  # lifecycle status, the recommended flag, the font a layout or glyph script requires, and a
-  # one-line summary. Each rule reads plain facts (Facts) and returns a value, or nil when the
+  # lifecycle status, the font a layout or glyph script requires, and a one-line summary. Each rule reads plain facts (Facts) and returns a value, or nil when the
   # facts do not show one. The rules are conservative: when signals disagree or a choice is
   # ambiguous, they return nil and leave the field to an editor's override. They know nothing
   # about the database; Catalog::Derived loads the facts when a page is read.
@@ -18,13 +17,12 @@ module Catalog
     # per_page:      a font with one file per mushaf page
     # svg:           a font resource that holds SVG images
     # formats:       the file types of its published files
-    # recommended_by_person: true or false when an editor's override sets the flag, else nil
     # requires:      ids of the resources it has a requires-link to
     # linked_fonts:  ids of the fonts it links to
-    Facts = Struct.new(:id, :type, :type_label, :name, :cardinality, :published, :status, :recommended_by_person,
-                       :script_family, :rendering, :language, :text_types, :font_codes, :per_page, :svg, :tags,
+    Facts = Struct.new(:id, :type, :type_label, :name, :cardinality, :published, :status, :script_family,
+                       :rendering, :language, :text_types, :font_codes, :per_page, :svg, :tags,
                        :mushaf, :formats, :requires, :linked_fonts, keyword_init: true,)
-    Mushaf = Struct.new(:font, :default, :pages, :lines, keyword_init: true)
+    Mushaf = Struct.new(:font, :pages, :lines, keyword_init: true)
 
     SCRIPT_TYPES = ['quran-script', 'font', 'mushaf-layout'].freeze
     SUMMARY_LIMIT = 160
@@ -115,40 +113,6 @@ module Catalog
 
     def base_name(name)
       name.to_s.gsub(OLD, ' ').gsub(NEW, ' ').squeeze(' ').strip.downcase
-    end
-
-    # Ids of the resources the data shows as recommended. A layout is recommended when it is the only
-    # published, current layout of its script family whose mushaf the content database flags as
-    # the default; the font it requires is recommended with it when it requires exactly one, of
-    # the same family, published and current. Which layout or font is the default is a scholarly
-    # and product call, so no other evidence counts (popularity is not authority). A layout a
-    # person rejected takes its font with it, and a family where a person has recommended
-    # another resource gets no inferred one.
-    def recommended(catalog) # rubocop:disable Metrics -- the rule as its comment states it, clause by clause
-      by_id = catalog.index_by(&:id)
-      candidates = catalog.select do |facts|
-        facts.type == 'mushaf-layout' && current?(facts) && facts.script_family && facts.mushaf&.default
-      end
-
-      candidates.group_by(&:script_family).flat_map do |family, layouts|
-        next [] unless layouts.one? && layouts.first.recommended_by_person != false
-
-        pair = [layouts.first.id, required_font_of(layouts.first, by_id)&.id].compact
-        decided = catalog.any? do |facts|
-          facts.recommended_by_person && facts.script_family == family && pair.exclude?(facts.id)
-        end
-        decided ? [] : pair
-      end
-    end
-
-    def required_font_of(layout, by_id)
-      fonts = layout.requires.filter_map { |id| by_id[id] }.select { |facts| facts.type == 'font' }
-      font = fonts.first if fonts.one?
-      font if font && current?(font) && font.script_family == layout.script_family
-    end
-
-    def current?(facts)
-      facts.published && ['legacy', 'superseded'].exclude?(facts.status)
     end
 
     # The id of the font a layout or a glyph script requires: the one published font whose own

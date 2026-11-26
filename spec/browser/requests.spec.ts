@@ -1,8 +1,26 @@
+import { execSync } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
+
 import type { Locator, Page, TestInfo } from '@playwright/test'
 
 import { expect, test } from './support/test'
 
 // Needs the `requests` page group on the server (QUL_PAGE_GROUPS in playwright.config.ts).
+// Writes go through `bin/rails runner`; QUL_BROWSER_RAILS_RUNNER replaces that command (for example
+// `docker exec qul-dev bin/rails runner` when Rails runs in Docker).
+const RUNNER = process.env.QUL_BROWSER_RAILS_RUNNER ?? 'bin/rails runner'
+
+function rails(code: string) {
+  mkdirSync('tmp/playwright', { recursive: true })
+  const script = `tmp/playwright/runner-${randomUUID()}.rb`
+  writeFileSync(script, code)
+  try {
+    execSync(`${RUNNER} ${script}`, { stdio: 'ignore' })
+  } finally {
+    rmSync(script, { force: true })
+  }
+}
 
 async function hydrated(page: Page) {
   await page.waitForFunction(() =>
@@ -88,6 +106,13 @@ test.describe('request dialog for a signed-out visitor', () => {
 test.describe('sending a request and voting', () => {
   test.describe.configure({ mode: 'serial' })
 
+  // Each run sends requests from the fake accounts, and the daily limit counts the day's: the
+  // requests earlier runs sent are dated a day back, so any number of runs fit in a day.
+  test.beforeAll(() => {
+    rails(`ResourceRequest.joins(:user).where(users: { email: %w[reader@example.test admin@example.test] })
+      .where('resource_requests.title LIKE ?', 'Browser spec%').update_all(created_at: 1.day.ago)`)
+  })
+
   const PASSWORD = 'fake-account-password'
   const account = (testInfo: TestInfo) =>
     testInfo.project.name === 'desktop' ? 'reader@example.test' : 'admin@example.test'
@@ -119,6 +144,7 @@ test.describe('sending a request and voting', () => {
     await dialog(page).getByRole('button', { name: 'Tafsir', exact: true }).click()
     await field(page, 'What is missing?').fill(title)
     await field(page, 'Language or script (optional)').fill('Bengali')
+    await field(page, 'Author or translator').fill('Salahuddin Yusuf')
     await field(page, 'What are you building?').fill('A study app, from the browser spec.')
     await dialog(page).getByRole('button', { name: 'Send request' }).click()
 
@@ -130,6 +156,41 @@ test.describe('sending a request and voting', () => {
     await expect(first.getByRole('heading')).toHaveText(title)
     await expect(first).toContainText('Tafsir · Bengali')
     await expect(first).toContainText('Open')
+  })
+
+  test('a font request shows its source fields first, takes a file and sends it', async ({ page }, testInfo) => {
+    await page.goto('/users/sign_in?user_return_to=%2Frequests%3Frequest%3Dnew')
+    await signIn(page, testInfo)
+    await expect(page).toHaveURL(/\/requests\?request=new$/)
+    await hydrated(page)
+
+    // A written work asks for its author, with the book details and the source folded.
+    await dialog(page).getByRole('button', { name: 'Translation', exact: true }).click()
+    await expect(field(page, 'Author or translator')).toHaveAttribute('required', '')
+    await dialog(page).getByText('Book details (optional)').click()
+    await dialog(page).getByText('Source and licence (optional)').click()
+    await expect(field(page, 'Publisher')).toBeVisible()
+    await dialog(page).getByText('Drop files here or choose them').scrollIntoViewIfNeeded()
+    const work = testInfo.outputPath(`request-work-${testInfo.project.name}.png`)
+    await page.screenshot({ path: work })
+    await testInfo.attach('translation request', { path: work, contentType: 'image/png' })
+
+    // A font asks for no author, and its source is open.
+    await dialog(page).getByRole('button', { name: 'Font', exact: true }).click()
+    await expect(dialog(page).getByLabel(/^Author/)).toHaveCount(0)
+    await field(page, 'What is missing?').fill(`Browser spec font ${testInfo.project.name} ${Date.now()}`)
+    await field(page, 'What are you building?').fill('A Nastaliq reader, from the browser spec.')
+    await dialog(page)
+      .getByLabel('Source files')
+      .setInputFiles({ name: 'nastaliq.woff2', mimeType: 'font/woff2', buffer: Buffer.from('wOF2\0\x01\0\0') })
+    await expect(dialog(page).getByRole('list', { name: 'Chosen files' })).toContainText('nastaliq.woff2')
+    await dialog(page).getByRole('button', { name: 'Remove nastaliq.woff2' }).scrollIntoViewIfNeeded()
+    const font = testInfo.outputPath(`request-font-${testInfo.project.name}.png`)
+    await page.screenshot({ path: font })
+    await testInfo.attach('font request', { path: font, contentType: 'image/png' })
+    await dialog(page).getByRole('button', { name: 'Send request' }).click()
+
+    await expect(page.getByRole('dialog', { name: 'Request received' })).toBeVisible()
   })
 
   test('invalid input shows the errors beside the fields and keeps what was typed', async ({ page }, testInfo) => {

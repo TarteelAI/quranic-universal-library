@@ -88,22 +88,20 @@ describe('catalog/TypePage', () => {
     expect(screen.queryByRole('table')).toBeNull()
   })
 
-  it('puts recommended resources first and collapses older ones', () => {
+  it('shows the pick block and collapses older versions', () => {
     renderPage(TypePage, { props: layoutPageProps })
 
     expect(screen.getByRole('heading', { level: 2, name: 'Which one should I pick?' })).toBeDefined()
     expect(screen.getByText('Use the layout of the printed mushaf that your readers know.')).toBeDefined()
 
-    const recommended = within(screen.getByRole('list', { name: 'Recommended' })).getAllByRole('article')
-    expect(recommended.map((card) => within(card).getByRole('heading').textContent)).toEqual([
+    const current = within(screen.getByRole('list', { name: 'Mushaf layouts' })).getAllByRole('article')
+    expect(current.map((card) => within(card).getByRole('heading').textContent)).toEqual([
       'KFGQPC V2 layout',
       'Indopak 15 lines',
+      'Mushaf Qatar',
     ])
-    recommended.forEach((card) => expect(within(card).getByText('Recommended')).toBeDefined())
-
-    const current = within(screen.getByRole('list', { name: 'Mushaf layouts' })).getAllByRole('article')
-    expect(current.map((card) => within(card).getByRole('heading').textContent)).toEqual(['Mushaf Qatar'])
-    expect(within(current[0]).getByText('Mushaf layout · Madani')).toBeDefined()
+    expect(within(current[2]).getByText('Mushaf layout · Madani')).toBeDefined()
+    expect(screen.queryByText('Recommended')).toBeNull()
 
     const older = screen.getByText(/Older versions \(2\)/).closest('details')
     expect(older?.open).toBe(false)

@@ -12,8 +12,9 @@ class SiteNavResource < ApplicationResource
   # The signed-in user's profile and account settings, in the header's account menu.
   one :profile, resource: SiteNavLinkResource
   one :settings, resource: SiteNavLinkResource
-  # The kinds of resource the request form offers; empty while the `requests` group is off.
-  many :request_types, resource: Catalog::OptionResource
+  # The kinds of resource the request form offers, with the fields each asks for; empty while the
+  # `requests` group is off.
+  many :request_types, resource: Requests::TypeResource
   # The docs search index (/docs/search-index) exists while the docs pages are new pages.
   typelize docs_search: :boolean
   attribute(:docs_search) { PageGroups.enabled?(:content) }

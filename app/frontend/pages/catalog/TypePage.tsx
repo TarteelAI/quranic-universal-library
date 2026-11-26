@@ -10,7 +10,7 @@ import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
 import { CardPreview } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
-import { RecommendedBadge, StatusBadge } from '@/components/qul/status-badge'
+import { StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
@@ -67,7 +67,6 @@ function Cards({
     <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" aria-label={label}>
       {resources.map((resource) => {
         const badges = [
-          resource.recommended && <RecommendedBadge key="recommended" />,
           resource.status !== 'stable' && (
             <StatusBadge
               key="status"
@@ -297,7 +296,7 @@ function Pages({ type, search }: { type: CatalogType; search: CatalogTypeSearch 
 }
 
 // /resources/:type: the type's description and a link to its format docs; where the type has
-// status data, which one to pick, with recommended resources first and older versions collapsed;
+// status data, which one to pick, with older versions collapsed;
 // the comparison table for layouts, scripts and fonts; a card for each published resource (with
 // search, a language filter and pages when the type has many); and the request card.
 export default function TypePage({
@@ -313,9 +312,8 @@ export default function TypePage({
   comparison,
 }: CatalogTypesShow) {
   const { nav } = usePage().props
-  const recommended = pick ? resources.filter((resource) => resource.recommended) : []
-  const older = pick ? resources.filter((resource) => !resource.recommended && isOlder(resource)) : []
-  const current = resources.filter((resource) => !recommended.includes(resource) && !older.includes(resource))
+  const older = pick ? resources.filter(isOlder) : []
+  const current = resources.filter((resource) => !older.includes(resource))
 
   return (
     <SiteShell>
@@ -347,9 +345,6 @@ export default function TypePage({
               </h2>
               <p className="mt-2 max-w-2xl text-muted-foreground">{pick}</p>
             </div>
-            {recommended.length > 0 && (
-              <Cards label="Recommended" type={type} resources={recommended} statuses={statuses} formats={formats} />
-            )}
           </section>
         )}
 

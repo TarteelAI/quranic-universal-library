@@ -18,10 +18,10 @@ module Catalog
     many :statuses, source: proc { Taxonomy.statuses }, resource: OptionResource
     many :formats, source: proc { Taxonomy.formats }, resource: OptionResource
 
-    # Only where a resource of the type has a status other than the default, or is recommended.
+    # Only where a resource of the type has a status other than the default.
     typelize pick: [:string, { nullable: true }]
     attribute :pick do |page|
-      Taxonomy.pick(page[:type]) if page[:resources].any? { |resource| resource.recommended || !resource.stable? }
+      Taxonomy.pick(page[:type]) if page[:resources].any? { |resource| !resource.stable? }
     end
 
     # The type's resource guide (the page the detail page's Data tab links to), when it has one.

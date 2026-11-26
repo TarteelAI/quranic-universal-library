@@ -62,9 +62,10 @@ describe('the request dialog', () => {
 
     const dialog = within(screen.getByRole('dialog', { name: 'Request a resource' }))
     expect(dialog.queryByRole('link', { name: 'Sign in' })).toBeNull()
-    expect(dialog.getByRole('group', { name: 'What kind of resource?' }).textContent).toBe('TranslationTafsirOther')
+    expect(dialog.getByRole('group', { name: 'What kind of resource?' }).textContent).toBe('TranslationTafsirFontOther')
     fireEvent.click(dialog.getByRole('button', { name: 'Tafsir' }))
     fireEvent.change(dialog.getByLabelText('What is missing?'), { target: { value: 'Tafsir Ahsanul Bayan' } })
+    fireEvent.change(dialog.getByLabelText('Author or translator'), { target: { value: 'Salahuddin Yusuf' } })
     fireEvent.change(dialog.getByLabelText('Language or script (optional)'), { target: { value: 'Bengali' } })
     fireEvent.change(dialog.getByLabelText('What are you building?'), { target: { value: 'A study app' } })
     fireEvent.click(dialog.getByRole('button', { name: 'Send request' }))
@@ -77,9 +78,53 @@ describe('the request dialog', () => {
           description: 'A study app',
           resource_type: 'tafsir',
           language: 'Bengali',
+          author: 'Salahuddin Yusuf',
         },
       },
       expect.objectContaining({ preserveScroll: true }),
+    )
+  })
+
+  it('asks for what each type needs: an author for a work, a file or link for a font', () => {
+    const post = vi.spyOn(router, 'post').mockImplementation(() => {})
+    renderPage(CardPage, { props: {}, shared: { nav: requestsNav, auth: signedInAuth }, url: '/?request=new' })
+    const dialog = within(screen.getByRole('dialog', { name: 'Request a resource' }))
+
+    // Before a type is chosen there is no author or source.
+    expect(dialog.queryByLabelText(/Author/)).toBeNull()
+    expect(dialog.queryByText(/Source/)).toBeNull()
+
+    fireEvent.click(dialog.getByRole('button', { name: 'Translation' }))
+    expect(dialog.getByLabelText('Author or translator').matches(':required')).toBe(true)
+    expect(dialog.getByText('Book details (optional)').closest('details')?.open).toBe(false)
+    expect(dialog.getByText('Source and licence (optional)').closest('details')?.open).toBe(false)
+    fireEvent.change(dialog.getByLabelText('Author or translator'), { target: { value: 'Muhsin Khan' } })
+
+    fireEvent.click(dialog.getByRole('button', { name: 'Other' }))
+    expect(dialog.getByLabelText('Author (optional)').matches(':required')).toBe(false)
+
+    fireEvent.click(dialog.getByRole('button', { name: 'Font' }))
+    expect(dialog.queryByLabelText(/Author/)).toBeNull()
+    expect(dialog.getByText('Source: the font file or a link to it').closest('details')?.open).toBe(true)
+    const font = new File(['wOF2'], 'nastaliq.woff2')
+    fireEvent.change(dialog.getByLabelText('Source files'), { target: { files: [font] } })
+    fireEvent.change(dialog.getByLabelText('Link to the source'), { target: { value: 'https://example.test/f' } })
+    send(dialog)
+
+    // The author typed for the translation is not sent with a font.
+    expect(post).toHaveBeenCalledWith(
+      '/requests',
+      {
+        request: {
+          title: 'Hausa',
+          description: 'A study app',
+          resource_type: 'font',
+          language: '',
+          source_url: 'https://example.test/f',
+          source_files: [font],
+        },
+      },
+      expect.anything(),
     )
   })
 
@@ -101,6 +146,21 @@ describe('the request dialog', () => {
     )
     expect(dialog.getByRole('alert').textContent).toBe('You can send at most 5 requests a day. Try again tomorrow.')
     expect(dialog.getByLabelText('What is missing?')).toHaveProperty('value', 'Hausa')
+  })
+
+  it('opens the source group when the server finds an error in it', async () => {
+    vi.spyOn(router, 'post').mockImplementation((_url, _data, options) => {
+      options?.onError?.({
+        source_files: ['Source files must be PDF, Word, text or font files (TTF, OTF, WOFF, WOFF2)'],
+      })
+    })
+    renderPage(CardPage, { props: {}, shared: { nav: requestsNav, auth: signedInAuth }, url: '/?request=new' })
+    const dialog = within(screen.getByRole('dialog', { name: 'Request a resource' }))
+    fireEvent.click(dialog.getByRole('button', { name: 'Other' }))
+    send(dialog)
+
+    await waitFor(() => expect(dialog.getByText(/Source files must be PDF/)).toBeDefined())
+    expect(dialog.getByText('Source and licence (optional)').closest('details')?.open).toBe(true)
   })
 
   it('says the request was received and links to the newest requests', async () => {

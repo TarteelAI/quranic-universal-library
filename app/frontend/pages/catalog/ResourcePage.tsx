@@ -10,7 +10,7 @@ import { CodeBlock, DocBody } from '@/components/qul/docs'
 import { DownloadPanel, WorksWith } from '@/components/qul/download-panel'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
-import { RecommendedBadge, StatusBadge } from '@/components/qul/status-badge'
+import { StatusBadge } from '@/components/qul/status-badge'
 import { Skeleton } from '@/components/ui/misc'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { catalogDownload, catalogResource, catalogType, newUserSession, resources as catalog } from '@/routes'
@@ -249,7 +249,6 @@ export default function ResourcePage(props: CatalogResourcesShow) {
                   }
                 />
               </span>
-              {resource.recommended && <RecommendedBadge />}
               {resource.scriptFamily && <span>{resource.scriptFamily}</span>}
               {!props.canDownload && <span className="text-warning">View only</span>}
             </>

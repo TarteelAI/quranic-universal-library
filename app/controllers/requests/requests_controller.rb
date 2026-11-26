@@ -21,8 +21,11 @@ module Requests
       )
     end
 
+    # The source files come as multipart `request[source_files][]`; the model checks their bytes.
     def create
-      resource_request = ResourceRequest.new(request_params.merge(user: current_user))
+      fields = request_params
+      resource_request = ResourceRequest.new(fields.except(:source_files).merge(user: current_user))
+      resource_request.source_uploads = fields[:source_files]
 
       if resource_request.save(context: :submission)
         redirect_back_or_to root_path
@@ -68,7 +71,8 @@ module Requests
     end
 
     def request_params
-      params.expect(request: [:title, :description, :resource_type, :language])
+      params.expect(request: [:title, :description, :resource_type, :language, :author, :book_name, :publisher,
+                              :publishing_year, :license_details, :source_url, { source_files: [] },])
     end
   end
 end

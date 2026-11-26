@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # Catalog fields of a DownloadableResource. The slug is stored. The display name, script family,
-# rendering, lifecycle status and replacement, the recommended flag and the summary of a resource
-# without one are computed from the catalog when they are read (Catalog::Derived), where an
+# rendering, lifecycle status and replacement and the summary of a resource without one are
+# computed from the catalog when they are read (Catalog::Derived), where an
 # editor's `meta_data` key overrides the computed value. They live here so the model file, which
 # other work also changes, gains a single include line.
 module CatalogFields
@@ -22,7 +22,7 @@ module CatalogFields
     after_commit { Catalog::Derived.reset }
   end
 
-  delegate :script_family, :rendering, :status, :superseded_by, :recommended, to: :catalog_fields
+  delegate :script_family, :rendering, :status, :superseded_by, to: :catalog_fields
 
   Catalog::Derived::STATUSES.each do |status|
     define_method(:"#{status}?") { self.status == status }

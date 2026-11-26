@@ -2,10 +2,9 @@
 
 module Catalog
   # One published resource of each type whose card on the home page shows a part of its preview,
-  # chosen from the resource's own fields rather than by id: a recommended resource first, then a
-  # stable one before a beta one, then (recitations) one whose Al-Fatihah has segment data, so the
-  # card highlights each ayah, then the most downloaded (as the catalog's popular sort counts it),
-  # then by name. Legacy and superseded resources are never shown. A type with no such resource is
+  # chosen from the resource's own fields rather than by id: a stable one before a beta one, then
+  # (recitations) one whose Al-Fatihah has segment data, so the card highlights each ayah, then the
+  # most downloaded (as the catalog's popular sort counts it), then by name. Legacy and superseded resources are never shown. A type with no such resource is
   # left out.
   class Samples
     # Type => what a sample of that type must be. A recitation is surah by surah, so the preview
@@ -81,7 +80,7 @@ module Catalog
     end
 
     def rank(resource, timed, downloads)
-      [resource.recommended ? 0 : 1, STATUSES.index(resource.status),
+      [STATUSES.index(resource.status),
        timed.include?(resource.resource_content_id) ? 0 : 1, -downloads.fetch(resource.id, 0),
        TextKey.call(resource.catalog_name), resource.id,]
     end

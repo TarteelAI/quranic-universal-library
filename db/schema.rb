@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_27_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -110,7 +110,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
     t.string "uses", default: [], null: false, array: true
     t.string "contact"
     t.boolean "consent", default: false, null: false
-    t.boolean "featured", default: false, null: false
     t.boolean "published", default: false, null: false
     t.bigint "user_id"
     t.datetime "created_at", null: false
@@ -123,6 +122,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
     t.string "app_store_url"
     t.string "play_store_url"
     t.string "source_url"
+    t.integer "position"
     t.index ["import_key"], name: "index_apps_on_import_key", unique: true
     t.index ["user_id"], name: "index_apps_on_user_id"
   end
@@ -895,6 +895,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_13_200000) do
     t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "author"
+    t.string "book_name"
+    t.string "publisher"
+    t.integer "publishing_year"
+    t.text "license_details"
+    t.string "source_url"
     t.index ["user_id"], name: "index_resource_requests_on_user_id"
   end
 

@@ -25,19 +25,21 @@ base=${base%/}
 
 auth_headers() {
   if [[ -n ${CF_ACCESS_CLIENT_ID:-} ]]; then
+    : "${CF_ACCESS_CLIENT_SECRET:?CF_ACCESS_CLIENT_SECRET is not set}"
     printf 'CF-Access-Client-Id: %s\nCF-Access-Client-Secret: %s\n' "$CF_ACCESS_CLIENT_ID" "$CF_ACCESS_CLIENT_SECRET"
   fi
 }
-fetch() { curl -sS -H @<(auth_headers) "$@"; }
+fetch() { curl -sS --max-time 30 -H @<(auth_headers) "$@"; }
 
 # Name, path, and for a partial reload "component|props" (Inertia's X-Inertia-Partial-* headers).
-# Resource ids redirect to their slug URL, which is resolved once below.
+# A resource id redirects to its slug URL (one same-origin hop), which is resolved once below.
 HOME_PREVIEWS='recitationPreview mushafLayoutPreview quranScriptPreview translationPreview tafsirPreview
   morphologyPreview ayahTopicsPreview quranMetadataPreview'
 DETAIL=/resources/mushaf-layout/19
-detail=$(fetch -o /dev/null -L -w '%{url_effective}' "$base$DETAIL")
+detail=$(fetch -o /dev/null -w '%{redirect_url}' "$base$DETAIL")
 detail=${detail#"$base"}
 detail=${detail%%\?*}
+detail=${detail:-$DETAIL}
 requests=("home|/|")
 for prop in $HOME_PREVIEWS; do requests+=("home:$prop|/|site/HomePage|$prop"); done
 requests+=(
@@ -54,12 +56,12 @@ requests+=(
 )
 
 home_html=$(fetch "$base/")
-version=$(grep -o '"version":"[^"]*"' <<<"$home_html" | head -1 | cut -d'"' -f4)
+version=$(grep -o '"version":"[^"]*"' <<<"$home_html" | head -1 | cut -d'"' -f4 || true)
 [[ -n $version ]] || { echo "no Inertia version in $base/" >&2; exit 1; }
 # The commit a staging build names (the review overlay's data-build), when the page has one.
 build=$(grep -o 'data-build="[0-9a-f]*"' <<<"$home_html" | head -1 | cut -d'"' -f2 || true)
 
-# One request: prints "ttfb total status" in seconds.
+# One request: prints "ttfb total status" in seconds; a failed connection is status 000.
 hit() {
   local path=$1 component=$2 props=$3
   local args=(-o /dev/null -w '%{time_starttransfer} %{time_total} %{http_code}\n')
@@ -68,7 +70,7 @@ hit() {
       -H "X-Inertia-Partial-Component: $component" -H "X-Inertia-Partial-Data: $props"
       -H 'Accept: text/html, application/xhtml+xml')
   fi
-  fetch "${args[@]}" "$base$path"
+  fetch "${args[@]}" "$base$path" || true
 }
 
 # The last "Completed" line written to the log since byte $1: "queries cached server_ms".
@@ -90,9 +92,9 @@ echo "# $base${build:+ at $build}, $runs runs after $warmup warm-up, $(date -u +
   home_q=0 detail_q=0
   for request in "${requests[@]}"; do
     IFS='|' read -r name path component props <<<"$request"
-    for _ in $(seq "$warmup"); do hit "$path" "$component" "$props" >/dev/null; done
+    for ((i = 0; i < warmup; i++)); do hit "$path" "$component" "$props" >/dev/null; done
     times=() server=() queries='' cached=''
-    for _ in $(seq "$runs"); do
+    for ((i = 0; i < runs; i++)); do
       [[ -n $log ]] && size=$(wc -c <"$log")
       times+=("$(hit "$path" "$component" "$props")")
       if [[ -n $log ]]; then

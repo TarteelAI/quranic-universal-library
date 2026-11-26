@@ -33,7 +33,8 @@ export interface ShardRingProps {
  * near-black background, so place it on a dark surface. The renderer is loaded once the ring is
  * on screen, and not at all without WebGL, where a still image shows instead. Under reduced
  * motion it draws one frame; otherwise it animates while on screen and the tab is visible.
- * `data-motion` says which of these applies.
+ * `data-motion` says which of these applies. The ring has no height of its own: give it one in
+ * `className`.
  */
 function ShardRing({ className, fallbackSrc = '/shards.webp' }: ShardRingProps) {
   const rootRef = React.useRef<HTMLDivElement>(null)

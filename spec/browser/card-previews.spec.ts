@@ -127,17 +127,14 @@ for (const path of ['/resources?category=tafsir', '/resources/font']) {
     await settled(page)
     const cards = page.locator('article:has([data-testid="card-preview"])')
     expect(await cards.count()).toBeGreaterThan(0)
-    // Each card in turn, until its well has asked for its preview (a card scrolled past at once
-    // may never be seen).
+    // Each card in turn, until its preview has loaded (a card scrolled past at once may never be
+    // seen). A failed preview removes its well, so it fails here too.
     for (const card of await cards.all()) {
       await card.scrollIntoViewIfNeeded()
-      await expect(card.locator('[data-testid="card-preview"][data-state="waiting"]')).toHaveCount(0, {
+      await expect(card.locator('[data-testid="card-preview"]')).toHaveAttribute('data-state', 'loaded', {
         timeout: 15_000,
       })
     }
-    await expect(page.locator('[data-testid="card-preview"]:not([data-state="loaded"])')).toHaveCount(0, {
-      timeout: 30_000,
-    })
     await settled(page)
 
     const width = page.viewportSize()!.width

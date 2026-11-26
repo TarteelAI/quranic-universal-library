@@ -3,9 +3,9 @@ import type { PreviewsText, PreviewsTextEntry, PreviewsLocale } from '@/types/se
 
 import { AyahRangeToolbar, type PreviewNavigation } from './navigation'
 
-// Languages written in Nastaliq (Urdu, Kashmiri, Shahmukhi Punjabi, Saraiki). Browsers render
-// `lang="ur"` and the others in a Nastaliq face, whose letters rise and fall far beyond a Latin
-// line, so the text needs a tall line or its lines touch and a clamp cuts them.
+// Languages written in Nastaliq (Urdu, Kashmiri, Shahmukhi Punjabi, Saraiki). Where the text
+// gets a Nastaliq face, its letters rise and fall far beyond a Latin line, so it gets a tall line
+// in case: otherwise its lines touch and a clamp cuts them.
 const NASTALIQ = new Set(['ur', 'ks', 'pnb', 'skr'])
 
 export function nastaliq(locale: PreviewsLocale) {

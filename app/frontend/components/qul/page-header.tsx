@@ -64,7 +64,7 @@ export function PageHeader({
             {description && <p className="max-w-2xl text-base text-pretty text-muted-foreground">{description}</p>}
           </div>
         </div>
-        {actions && <div className="flex shrink-0 items-start gap-2">{actions}</div>}
+        {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
       </div>
     </div>
   )

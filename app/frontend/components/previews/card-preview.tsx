@@ -2,6 +2,7 @@ import { PauseIcon, PlayIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import { catalogResourcePreview } from '@/routes'
 import type {
   CatalogSearchResult,
   PreviewsCardFont,
@@ -226,6 +227,12 @@ function Body({ data }: { data: CardPreviewData }) {
 function wellState(state: State, seen: boolean) {
   if (state.status !== 'pending') return state.status
   return seen ? 'loading' : 'waiting'
+}
+
+// The URL a card fetches its preview from. Its `v` (Previews::Card.version) changes with the
+// resource, its content row and the build, so a shared cache may keep the answer.
+export function cardPreviewUrl(card: { type: string; toParam: string; previewVersion: string | null }) {
+  return catalogResourcePreview({ type: card.type, slug: card.toParam }, { query: { v: card.previewVersion } }).url
 }
 
 // A resource card's preview (Previews::Card), fetched from `url` once the card comes near the

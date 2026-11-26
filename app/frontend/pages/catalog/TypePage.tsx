@@ -8,13 +8,13 @@ import { RequestCard } from '@/components/qul/request-dialog'
 import { SearchInput } from '@/components/qul/chrome'
 import { ResourceIcon } from '@/components/qul/icons'
 import { PageHeader } from '@/components/qul/page-header'
-import { CardPreview } from '@/components/previews/card-preview'
+import { CardPreview, cardPreviewUrl } from '@/components/previews/card-preview'
 import { ResourceCard } from '@/components/qul/resource-card'
 import { StatusBadge } from '@/components/qul/status-badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/misc'
 import { cn } from '@/lib/utils'
-import { catalogResourcePreview, catalogType, detailResources, resources as catalog } from '@/routes'
+import { catalogType, detailResources, resources as catalog } from '@/routes'
 import type {
   CatalogComparison,
   CatalogComparisonColumn,
@@ -93,12 +93,7 @@ function Cards({
               formats={resource.formats.map((format) => labelOf(formats, format))}
               muted={isOlder(resource)}
               preview={
-                resource.previewKind && (
-                  <CardPreview
-                    kind={resource.previewKind}
-                    url={catalogResourcePreview({ type: resource.type, slug: resource.toParam }).url}
-                  />
-                )
+                resource.previewKind && <CardPreview kind={resource.previewKind} url={cardPreviewUrl(resource)} />
               }
             />
           </li>

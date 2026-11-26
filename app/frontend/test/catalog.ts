@@ -41,6 +41,7 @@ export const typePageProps: CatalogTypesShow = {
       status: 'stable',
       scriptFamily: null,
       previewKind: 'text',
+      previewVersion: '0123456789ab',
       supersededBy: null,
     },
     {
@@ -55,6 +56,7 @@ export const typePageProps: CatalogTypesShow = {
       status: 'stable',
       scriptFamily: null,
       previewKind: 'text',
+      previewVersion: '0123456789ab',
       supersededBy: null,
     },
   ],
@@ -97,6 +99,7 @@ function layout(id: number, name: string, fields: Partial<CatalogResourceCard> =
     status: 'stable',
     scriptFamily: 'Madani',
     previewKind: 'layout',
+    previewVersion: '0123456789ab',
     supersededBy: null,
     ...fields,
   }
@@ -191,6 +194,7 @@ export const catalogPageProps: CatalogResourcesIndex = {
       formats: ['json', 'sqlite'],
       status: 'stable',
       previewKind: 'text',
+      previewVersion: '0123456789ab',
     },
     {
       id: 3,
@@ -203,6 +207,7 @@ export const catalogPageProps: CatalogResourcesIndex = {
       formats: ['json'],
       status: 'stable',
       previewKind: null,
+      previewVersion: null,
     },
   ],
   facets: {

@@ -226,6 +226,24 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Cost:** a longer form; uploads to store and, for spam, to remove; a file a requester sends may
   not be theirs to share, which editors check against the licence before adding it.
 
+### Card previews are cached at the edge, keyed by a version in their URL
+
+- **Decision:** the preview URL a resource card fetches carries `v`, a short digest of the build
+  (`GIT_SHA`, else the frontend digest) and of the `updated_at` of the resource and of its content
+  row (`Previews::Card.version`). With `v` the answer is public: `max-age` an hour,
+  `s-maxage` and `stale-while-revalidate` a day, so Cloudflare keeps it once a Cache Rule makes
+  the path eligible. It writes no cookie and reads nothing of the visitor (no session, XSRF
+  cookie or Warden). A URL without `v`, a restricted resource and a 404 stay private, as before.
+- **Why:** previews are the most numerous catalog requests (up to 24 a page) and the same for
+  every visitor. With the version in the URL, an editor's change to the resource or its content
+  row, and a deploy, show on the next page load without purging anything.
+- **Cost:** what the version leaves out, the other content rows a preview reads (words, ayah
+  texts, audio files), and code changes on a server that sets no `GIT_SHA` and changes no
+  frontend file, can show stale for up to a day at the edge plus an hour in a browser. A build
+  or an edit to a resource makes every page name new preview URLs, so their first visits all
+  reach Rails. A preview already at the edge stays there for its day after its resource is
+  restricted or unpublished, under a URL no page names any more.
+
 ## Storage
 
 ### Object storage stays on its current provider (2026-11-19)

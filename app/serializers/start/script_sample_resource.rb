@@ -10,5 +10,8 @@ module Start
 
     typelize preview_kind: [:string, { nullable: true, enum: Previews::Card::KINDS.values.uniq }]
     attribute(:preview_kind) { |resource| Previews::Card.kind(resource.resource_type) }
+    # The preview URL's `v` (Previews::Card.version), so a shared cache can keep the preview.
+    typelize preview_version: [:string, { nullable: true }]
+    attribute(:preview_version) { |resource| Previews::Card.version(resource) }
   end
 end

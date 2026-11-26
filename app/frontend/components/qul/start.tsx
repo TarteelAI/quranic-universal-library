@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react'
 import { ArrowRightIcon } from 'lucide-react'
 
-import { CardPreview } from '@/components/previews/card-preview'
-import { catalogResourcePreview, detailResources } from '@/routes'
+import { CardPreview, cardPreviewUrl } from '@/components/previews/card-preview'
+import { detailResources } from '@/routes'
 import type {
   CatalogOption,
   CatalogSearchResult,
@@ -129,12 +129,7 @@ export function ResultCard({ result, vocabularies, density, inertia, className }
       muted={result.status === 'legacy' || result.status === 'superseded'}
       preview={
         density !== 'compact' &&
-        result.previewKind && (
-          <CardPreview
-            kind={result.previewKind}
-            url={catalogResourcePreview({ type: result.type, slug: result.toParam }).url}
-          />
-        )
+        result.previewKind && <CardPreview kind={result.previewKind} url={cardPreviewUrl(result)} />
       }
     />
   )

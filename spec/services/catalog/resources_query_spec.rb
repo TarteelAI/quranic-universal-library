@@ -32,7 +32,7 @@ RSpec.describe Catalog::ResourcesQuery do
     expect(props['types'].size).to eq(14)
     expect(props['resources'].first.keys).to contain_exactly(
       'id', 'name', 'type', 'toParam', 'summary', 'formats', 'language', 'granularity', 'status', 'scriptFamily',
-      'previewKind', 'supersededBy',
+      'previewKind', 'previewVersion', 'supersededBy',
     )
     expect(props['resources']).to all(include('language' => be_present))
   end

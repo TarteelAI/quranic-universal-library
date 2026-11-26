@@ -258,8 +258,9 @@ groups, for every new page: the header's search button and ⌘K / Ctrl K open th
 ### Card previews (sprint 002, story 002-03)
 
 A resource card on the catalog and type pages shows a preview fitted to its type. The page props
-carry only each card's `previewKind` (`Previews::Card.kind`); the card fetches the preview as JSON
-from `/resources/:type/:slug/preview` (`Catalog::PreviewsController`, catalog group) once it comes
+carry only each card's `previewKind` (`Previews::Card.kind`) and `previewVersion`; the card fetches
+the preview as JSON from `/resources/:type/:slug/preview?v=<version>` (`Catalog::PreviewsController`,
+catalog group; the URL is `cardPreviewUrl`) once it comes
 within 200 px of the viewport (`components/previews/card-preview.tsx`), so its fonts are declared
 and downloaded only then. The JSON is the detail page's provider (`Previews.for`) asked for the
 start of the Quran and cut by a card serializer (`Previews::Card*Resource`): a layout's page 1,
@@ -269,6 +270,16 @@ preview well and the card shows without it. The record types have no entry in
 `Previews::Card::KINDS`: their cards show the type icon beside the title instead. Each card
 names its own V4 colour palette (`paletteName` of `FontFaces`), so the cards of one page do not
 replace each other's palette rule.
+
+The answer is the same for every visitor and is cached at the edge (DECISIONS.md). The version
+(`Previews::Card.version`) digests the build (`GIT_SHA`, else the frontend digest) and the
+`updated_at` of the resource and its content row, so an edit to either, or a deploy, shows on the
+next page load. With `v` the response is `public` with `s-maxage` and `stale-while-revalidate` of a
+day; without it, for a restricted resource and for a 404 it stays `private`. The controller sets
+no cookie and never asks Warden for the user: it skips the session, forgery protection (so no
+XSRF cookie) and the PaperTrail user. Anything added to it must not read the visitor. Cloudflare
+caches the path through a Cache Rule on `/resources/*/*/preview` (respect origin TTLs, query string
+in the key); other content rows a preview reads are not in the version and can be a day stale.
 
 ### Downloads
 

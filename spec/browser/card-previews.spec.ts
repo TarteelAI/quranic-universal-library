@@ -5,19 +5,24 @@ import { expect, test } from './support/test'
 // Card previews (Previews::Card) on the development clone: a card asks for its preview, and the
 // browser for the preview's fonts, only once the card comes near the viewport.
 
-const PREVIEW = /\/resources\/[^/]+\/[^/]+\/preview$/
+const PREVIEW = /\/resources\/[^/]+\/[^/]+\/preview(\?|$)/
 const FONT = /\.(woff2?|ttf|otf)(\?|$)/
 
 function record(page: Page) {
   const previews: string[] = []
   const fonts: string[] = []
+  const unversioned: string[] = []
   page.on('request', (request: Request) => {
     const path = new URL(request.url()).pathname
-    if (PREVIEW.test(path)) previews.push(path)
+    if (PREVIEW.test(path)) {
+      previews.push(path)
+      // The version lets Cloudflare keep the preview (Previews::Card.version).
+      if (!/^[0-9a-f]{12}$/.test(new URL(request.url()).searchParams.get('v') ?? '')) unversioned.push(request.url())
+    }
     // Preview fonts come from the CDN; the interface fonts are this app's own.
     else if (FONT.test(path) && new URL(request.url()).hostname !== 'localhost') fonts.push(request.url())
   })
-  return { previews, fonts }
+  return { previews, fonts, unversioned }
 }
 
 // Each card's detail path and the state of its preview well, in the card list `name`.
@@ -78,6 +83,7 @@ test('a type page loads previews and fonts only for the cards on screen', async 
   expect(seen.previews.length).toBeGreaterThan(before.previews)
   expect(new Set(seen.previews)).toEqual(requested(after))
   expect(new Set(seen.previews).size).toBe(seen.previews.length)
+  expect(seen.unversioned).toEqual([])
   expect(await declaredFonts(page)).toEqual(expect.arrayContaining(seen.fonts))
   console.log(
     `[card previews] ${after.length} cards: on load 0 previews and 0 fonts; at the first card ${before.previews} ` +

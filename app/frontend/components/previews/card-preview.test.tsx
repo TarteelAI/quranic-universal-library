@@ -12,7 +12,7 @@ import {
   cardV4FontPreview,
 } from '@/test/previews'
 
-import { CardPreview, type CardPreviewKind } from './card-preview'
+import { CardPreview, type CardPreviewKind, cardPreviewUrl } from './card-preview'
 
 // An IntersectionObserver the test moves on screen.
 let observers: { callback: IntersectionObserverCallback; elements: Element[] }[] = []
@@ -60,6 +60,16 @@ function card(kind: CardPreviewKind) {
     />
   )
 }
+
+describe('cardPreviewUrl', () => {
+  it("names the preview's version, which lets shared caches keep it", () => {
+    const card = { type: 'translation', toParam: 'sahih-international' }
+    expect(cardPreviewUrl({ ...card, previewVersion: '0123456789ab' })).toBe(
+      '/resources/translation/sahih-international/preview?v=0123456789ab',
+    )
+    expect(cardPreviewUrl({ ...card, previewVersion: null })).toBe('/resources/translation/sahih-international/preview')
+  })
+})
 
 describe('CardPreview', () => {
   beforeEach(() => {

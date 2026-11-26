@@ -9,7 +9,7 @@
 # - `uses`: the QUL resource types the app credits, as Catalog::Taxonomy type keys. The first one
 #   tints the initials tile of an app without an icon.
 # - `icon`: a file in public/app-icons (from the app's store listing, repo or site), else none.
-# - `featured`: listed first. The four below are placeholders until the maintainers supply the list.
+# - `featured`: listed first.
 # - `source_url`: the app's public repo when `url` is not it, taken from `evidence`.
 # - `kind`: a short noun for the home page's apps band, which shows the first eight apps.
 
@@ -59,6 +59,18 @@ apps:
     uses: [quran-script]
     evidence: https://github.com/yazinsai/quran-validator
     source_url: https://github.com/yazinsai/quran-validator
+    featured: true
+
+  - id: mushaf-js
+    name: mushaf.js
+    url: https://mushafjs.com
+    icon: mushaf-js.png
+    project_type: library
+    kind: JavaScript package
+    description: Interactive Madani mushaf for the web, with word, ayah and surah clicks, highlighting and range selection.
+    uses: [mushaf-layout, quran-script, quran-metadata]
+    evidence: https://github.com/YouBar/mushaf-js/blob/develop/README.md#credits
+    source_url: https://github.com/YouBar/mushaf-js
     featured: true
 
   - id: mihrab

@@ -122,3 +122,31 @@ test.describe('home page', () => {
     await testInfo.attach('hero-390', { path: shot, contentType: 'image/png' })
   })
 })
+
+test.describe('home hero on a high-density screen', () => {
+  test.use({ deviceScaleFactor: 2 })
+
+  test('keeps its height while the window narrows and widens again', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'resizes a desktop window')
+    await page.setViewportSize({ width: 1400, height: 900 })
+    await page.goto('/')
+    await expect(ring(page)).toHaveAttribute('data-motion', 'running')
+
+    // The hero's height once the renderer has had a few frames to react to the new size.
+    const heightAt = async (width: number) => {
+      await page.setViewportSize({ width, height: 900 })
+      await page.evaluate(() => new Promise((done) => setTimeout(done, 250)))
+      return (await hero(page).boundingBox())!.height
+    }
+    const widths = [1400, 1300, 1200, 1100, 1024, 1000, 900, 800, 768, 700]
+    const narrowing = []
+    for (const width of widths) narrowing.push(await heightAt(width))
+    const widening = []
+    for (const width of [...widths].reverse()) widening.push(await heightAt(width))
+    expect(widening.reverse()).toEqual(narrowing)
+    // Standing still at one width, it does not grow either.
+    const settled = await heightAt(1100)
+    await page.waitForTimeout(1000)
+    expect((await hero(page).boundingBox())!.height).toBe(settled)
+  })
+})

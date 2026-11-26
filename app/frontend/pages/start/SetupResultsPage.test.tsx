@@ -20,12 +20,12 @@ describe('start/SetupResultsPage', () => {
     expect(screen.getByText('Filtered for your Quran reader app')).toBeDefined()
     expect(screen.getByText(/iOS and Android/)).toBeDefined()
     expect(screen.getByRole('link', { name: 'Edit answers' }).getAttribute('href')).toBe(setupResultsProps.editPath)
-    expect(screen.getByRole('link', { name: 'Show everything' }).getAttribute('href')).toBe('/resources')
+    expect(screen.getByRole('heading', { name: 'Resources for your app' }).textContent).toBe('Resources for your app')
+    expect(screen.getByRole('link', { name: 'Browse full library' }).getAttribute('href')).toBe('/resources')
 
     const checklist = within(screen.getByRole('navigation', { name: 'Your app needs' }))
     expect(checklist.getAllByRole('link').map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
       ['Translation in English9', '#need-translation-en'],
-      ['Tafsir in Urdu0', '#need-tafsir-ur'],
       ['Tajweed text0', '#need-tajweed'],
     ])
 
@@ -36,10 +36,6 @@ describe('start/SetupResultsPage', () => {
     expect(translations.getByRole('link', { name: /See all 9/ }).getAttribute('href')).toBe(
       '/resources?granularity=1_ayah&language=en&type=translation',
     )
-    const tafsir = within(screen.getByRole('region', { name: /Tafsir in Urdu/ }))
-    expect(tafsir.getByText('Nothing in the library fits this yet.')).toBeDefined()
-    expect(tafsir.queryByRole('link')).toBeNull()
-
     // A need narrowed to a script with nothing tagged says so, and never lists other scripts as matches.
     const tajweed = within(screen.getByRole('region', { name: /Tajweed text/ }))
     expect(tajweed.getByText(/No IndoPak resources of this kind are tagged yet\./)).toBeDefined()
@@ -47,6 +43,17 @@ describe('start/SetupResultsPage', () => {
     expect(tajweed.getByRole('link', { name: 'Browse all Quran script resources' }).getAttribute('href')).toBe(
       '/resources/quran-script',
     )
+  })
+
+  it('says so when nothing fits any need', () => {
+    renderPage(SetupResultsPage, { props: { ...setupResultsProps, sections: [] }, url: '/resources?goal=reader' })
+
+    expect(screen.queryByRole('navigation', { name: 'Your app needs' })).toBeNull()
+    expect(screen.getByText(/Nothing in the library fits these answers yet\./)).toBeDefined()
+    expect(screen.getByRole('link', { name: 'Change your answers' }).getAttribute('href')).toBe(
+      setupResultsProps.editPath,
+    )
+    expect(screen.getByRole('link', { name: 'browse the full library' }).getAttribute('href')).toBe('/resources')
   })
 
   it("points the bundle tray at the answers' file formats", async () => {

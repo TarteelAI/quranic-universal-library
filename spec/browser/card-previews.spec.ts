@@ -114,3 +114,34 @@ test('the catalog asks for the previews of the first screen only, and a failed o
       `preview wells after one failed; on load ${seen.previews.length} previews and ${seen.fonts.length} fonts`,
   )
 })
+
+// A loaded preview never widens the page: a line that does not wrap (a tafsir's ayah run, a font
+// line, a mushaf page) is cut at its card's edge. On a phone a wider page would also widen the
+// layout viewport, so the check is against the viewport the test set. Phone only: each run loads
+// every preview of the page.
+for (const path of ['/resources?category=tafsir', '/resources/font']) {
+  test(`every preview on ${path} loads within the screen width`, async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'phone', 'phone layout')
+    test.slow()
+    await page.goto(path)
+    await settled(page)
+    const cards = page.locator('article:has([data-testid="card-preview"])')
+    expect(await cards.count()).toBeGreaterThan(0)
+    // Each card in turn, until its preview has loaded (a card scrolled past at once may never be
+    // seen). A failed preview removes its well, so it fails here too.
+    for (const card of await cards.all()) {
+      await card.scrollIntoViewIfNeeded()
+      await expect(card.locator('[data-testid="card-preview"]')).toHaveAttribute('data-state', 'loaded', {
+        timeout: 15_000,
+      })
+    }
+    await settled(page)
+
+    const width = page.viewportSize()!.width
+    const widths = await page.evaluate(() => ({
+      inner: window.innerWidth,
+      scroll: document.documentElement.scrollWidth,
+    }))
+    expect(widths).toEqual({ inner: width, scroll: width })
+  })
+}

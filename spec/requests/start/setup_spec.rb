@@ -97,7 +97,7 @@ RSpec.describe 'Guided setup (/start)', type: :request do
       expect(urdu[:total]).to eq(search.total)
       expect(urdu[:results].pluck(:id)).to eq(search.matches.first(Start::SetupController::CARDS)
         .map { |row| row.resource.id })
-      expect(props[:total]).to be_between(props[:sections].pluck(:total).max, props[:sections].sum { |s| s[:total] })
+      expect(props).not_to have_key(:total)
 
       app = Nokogiri::HTML(response.body).at('#app[data-server-rendered="true"]')
       expect(app.text).to include('Filtered for your Quran reader app', 'Your app needs', 'Translation in Urdu')
@@ -128,12 +128,22 @@ RSpec.describe 'Guided setup (/start)', type: :request do
         ActiveSupport::Notifications.subscribed(counter, 'instantiation.active_record') do
           get "/resources?goal=study&feature=translation,tafsir,wbw&lang=#{languages}"
         end
-        expect(inertia.props[:sections].size).to eq(3 * languages.split(',').size)
+        expect(controller.instance_variable_get(:@sections).size).to eq(3 * languages.split(',').size)
         count
       end
 
       expect(loaded.first).to be_positive
       expect(loaded.last).to eq(loaded.first)
+    end
+
+    it 'leaves out a need nothing fits, unless it is narrowed to scripts' do
+      get '/resources?goal=study&feature=translation,tafsir,wbw&lang=en,ur,bn,ru,tr,id,fr,es'
+
+      empty, rest = controller.instance_variable_get(:@sections).partition { |section| section.search.total.zero? }
+      expect(empty).not_to be_empty
+      expect(empty.map(&:item)).to all(satisfy { |item| item.filters['script'].blank? })
+      expect(inertia.props[:sections].pluck(:label)).to eq(rest.map(&:label))
+      expect(inertia.props[:sections].pluck(:total)).to all(be_positive)
     end
 
     it 'links each section to the catalog search that lists all of it' do

@@ -1,11 +1,32 @@
+import { cn } from '@/lib/utils'
 import type { PreviewsText, PreviewsTextEntry, PreviewsLocale } from '@/types/serializers'
 
 import { AyahRangeToolbar, type PreviewNavigation } from './navigation'
 
+// Languages written in Nastaliq (Urdu, Kashmiri, Shahmukhi Punjabi, Saraiki). Where the text
+// gets a Nastaliq face, its letters rise and fall far beyond a Latin line, so it gets a tall line
+// in case: otherwise its lines touch and a clamp cuts them.
+const NASTALIQ = new Set(['ur', 'ks', 'pnb', 'skr'])
+
+export function nastaliq(locale: PreviewsLocale) {
+  return NASTALIQ.has(locale.code.toLowerCase().split('-')[0])
+}
+
+// The class for text in the preview's language: a Nastaliq line height where it needs one. It
+// comes after `className`, so it replaces the line height there.
+export function localeClass(locale: PreviewsLocale, className?: string) {
+  return cn(className, nastaliq(locale) && 'leading-[2.3]')
+}
+
 // Text and footnotes are HTML the server sanitized (Previews.sanitize).
 export function Html({ html, locale, className }: { html: string; locale: PreviewsLocale; className?: string }) {
   return (
-    <div lang={locale.code} dir={locale.direction} className={className} dangerouslySetInnerHTML={{ __html: html }} />
+    <div
+      lang={locale.code}
+      dir={locale.direction}
+      className={localeClass(locale, className)}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
   )
 }
 
@@ -22,7 +43,11 @@ function Entry({ entry, preview }: { entry: PreviewsTextEntry; preview: Previews
                 <span lang="ar" className="font-arabic text-2xl">
                   {word.arabic}
                 </span>
-                <span lang={locale.code} dir={locale.direction} className="text-sm text-muted-foreground">
+                <span
+                  lang={locale.code}
+                  dir={locale.direction}
+                  className={localeClass(locale, 'text-sm text-muted-foreground')}
+                >
                   {word.text}
                 </span>
               </span>

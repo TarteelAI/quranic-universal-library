@@ -98,6 +98,17 @@ test.describe('docs layout', () => {
     await expect(page).toHaveURL(/\/docs\/project-setup$/)
   })
 
+  test('the phone menu opens without focusing the search field', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'phone', 'phone layout')
+    await page.goto(TUTORIAL)
+    await hydrated(page)
+
+    const nav = await sideNav(page, true)
+    await expect(nav).toBeVisible()
+    await expect(page.getByRole('dialog', { name: 'Docs' })).toBeFocused()
+    await expect(nav.getByRole('combobox', { name: 'Search the docs' })).not.toBeFocused()
+  })
+
   test('the page fits the phone width', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'phone', 'phone layout')
     for (const path of [TUTORIAL, '/docs', '/docs/api']) {

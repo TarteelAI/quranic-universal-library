@@ -46,11 +46,21 @@ RSpec.describe 'The bundle lookup (/bundle)', type: :request do
 
       items = lookup(unpublished.id, resource.id, unknown, emptied.id)[:items]
 
-      expect(items.pluck(:id)).to eq([unpublished.id, resource.id, unknown, emptied.id])
-      expect(items[0]).to eq(id: unpublished.id, restricted: false, resource: nil, category: nil, files: [])
-      expect(items[2]).to eq(id: unknown, restricted: false, resource: nil, category: nil, files: [])
-      expect(items[3]).to include(restricted: false, files: [])
-      expect(items[3][:resource][:id]).to eq(emptied.id)
+      expect(items.pluck(:id)).to eq([resource.id, emptied.id, unpublished.id, unknown])
+      expect(items[1]).to include(restricted: false, files: [])
+      expect(items[1][:resource][:id]).to eq(emptied.id)
+      expect(items[2]).to eq(id: unpublished.id, restricted: false, resource: nil, category: nil, files: [])
+      expect(items[3]).to eq(id: unknown, restricted: false, resource: nil, category: nil, files: [])
+    end
+
+    it 'orders the resources by type in taxonomy order, in the given order within a type' do
+      recitation = create_download_resource.tap { |row| row.update_columns(resource_type: 'recitation') }
+      translation = create_download_resource.tap { |row| row.update_columns(resource_type: 'translation') }
+      second_tafsir = create_download_resource
+
+      ids = lookup(resource.id, translation.id, second_tafsir.id, recitation.id)[:items].pluck(:id)
+
+      expect(ids).to eq([recitation.id, translation.id, resource.id, second_tafsir.id])
     end
 
     it 'gives a restricted resource no files, except to an admin' do

@@ -54,6 +54,8 @@ describe('content/DocsPage', () => {
 
     const sheet = screen.getByRole('dialog', { name: 'Docs' })
     expect(within(sheet).getByRole('link', { current: 'page' }).textContent).toBe('Recitation')
+    // Focus moves into the sheet, but not to the search field, which would open the phone keyboard.
+    expect(document.activeElement).toBe(sheet)
   })
 
   it('visits a docs page linked from the body in the app', () => {

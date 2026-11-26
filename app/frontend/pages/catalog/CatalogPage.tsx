@@ -421,7 +421,7 @@ export default function CatalogPage({
               const offset = all.slice(0, index).reduce((sum, previous) => sum + previous.count, 0)
               const list = (
                 <ul
-                  className={cn('grid', compact ? 'grid-cols-1 gap-2' : 'gap-4 sm:grid-cols-2 xl:grid-cols-3')}
+                  className={cn('grid grid-cols-1', compact ? 'gap-2' : 'gap-4 sm:grid-cols-2 xl:grid-cols-3')}
                   aria-label={group.category?.label ?? 'Resources'}
                 >
                   {results.slice(offset, offset + group.count).map(card)}

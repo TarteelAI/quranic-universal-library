@@ -14,10 +14,6 @@ import type { StartKitsShow } from '@/types/serializers'
 
 const textLink = 'text-foreground underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground'
 
-function joinAnd(items: string[]) {
-  return items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`
-}
-
 // /kits/:key: a starter kit (config/kits.yml), from the v8 design (ds/src/app/pages/wizard.tsx,
 // Kit). Each item names what it is for, its resource as a card, why it was picked and the
 // alternative to swap it for. The kit's guided setup answers open the setup to build your own.
@@ -27,18 +23,11 @@ export default function KitPage({
   description,
   setupPath,
   kitsPath,
-  platforms,
-  formats,
+  typeCounts,
   items,
   vocabularies,
   catalogPages,
 }: StartKitsShow) {
-  const badge = [
-    `${items.length} ${items.length === 1 ? 'resource' : 'resources'}`,
-    joinAnd(platforms),
-    formats.join(' or '),
-  ].filter(Boolean)
-
   return (
     <SiteShell>
       <Container className="py-12">
@@ -46,7 +35,7 @@ export default function KitPage({
           breadcrumb={[{ label: 'Starter kits', href: kitsPath }, { label: title }]}
           eyebrow={
             <span className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-xs shadow-xs">
-              <QulIcon name="bundle" size={14} /> {badge.join(' · ')}
+              <QulIcon name="bundle" size={14} /> {typeCounts.join(' · ')}
             </span>
           }
           title={title}

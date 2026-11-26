@@ -9,7 +9,7 @@ module Catalog
   # The CMS rows (files, links, permission, changelog) and the content rows (resource content,
   # language, mushaf) are in separate databases and are loaded in separate queries.
   class ResourcePage
-    Download = Data.define(:id, :name, :format, :format_label, :byte_size, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name
+    Download = Data.define(:id, :name, :filename, :format, :format_label, :byte_size, :md5) # rubocop:disable Naming/VariableNumber -- md5 is the prop name
     Fact = Data.define(:label, :value)
     Link = Data.define(:resource)
     Group = Data.define(:key, :label, :links)
@@ -69,9 +69,15 @@ module Catalog
     def self.download(file)
       blob = file.file.blob
       format = Taxonomy.format_for(file.file_type)
-      Download.new(id: file.id, name: file.file_type.to_s.strip, format:,
+      Download.new(id: file.id, name: file.file_type.to_s.strip, filename: blob.filename.to_s, format:,
                    format_label: Taxonomy.label(Taxonomy.formats, format), byte_size: blob.byte_size,
                    md5: Base64.decode64(blob.checksum.to_s).unpack1('H*'),) # rubocop:disable Naming/VariableNumber
+    end
+
+    # The licence of a resource's content, or nil (the Licence tab and the bundle's zip README).
+    def self.licence(resource)
+      licence = resource.resource_content&.resource_permission&.licence
+      Licence.new(name: licence.display_name, url: licence.url.presence, summary: licence.summary.presence) if licence
     end
 
     def files
@@ -147,8 +153,7 @@ module Catalog
     end
 
     def licence
-      licence = resource.resource_content&.resource_permission&.licence
-      Licence.new(name: licence.display_name, url: licence.url.presence, summary: licence.summary.presence) if licence
+      self.class.licence(resource)
     end
 
     def changelog

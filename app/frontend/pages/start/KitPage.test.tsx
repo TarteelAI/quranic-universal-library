@@ -1,7 +1,8 @@
-import { screen, within } from '@testing-library/react'
+import { cleanup, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { hydratePage, renderPage } from '@/test/inertia'
+import { nav } from '@/test/shell'
 import { kitPageProps } from '@/test/start'
 
 import KitPage from './KitPage'
@@ -39,6 +40,24 @@ describe('start/KitPage', () => {
     )
     expect(screen.getByRole('link', { name: /Change the answers/ }).getAttribute('href')).toBe(kitPageProps.setupPath)
     expect(screen.getByRole('button', { name: 'Copy link' })).toBeDefined()
+  })
+
+  it('downloads the kit as a zip once signed in, and has no bundle button', () => {
+    renderPage(KitPage, { props: kitPageProps, url: '/kits/madani-reader' })
+    expect(screen.getByRole('link', { name: 'Sign in to download' }).getAttribute('href')).toBe(
+      '/users/sign_in?user_return_to=%2Fkits%2Fmadani-reader',
+    )
+    expect(screen.queryByRole('button', { name: 'Add kit to bundle' })).toBeNull()
+    cleanup()
+
+    renderPage(KitPage, { props: { ...kitPageProps, downloadMode: 'public' }, url: '/kits/madani-reader' })
+    expect(screen.getByRole('button', { name: 'Download kit' })).toBeDefined()
+  })
+
+  it('has no download while the bundle lookup is off (the catalog group)', () => {
+    renderPage(KitPage, { props: kitPageProps, shared: { nav: { ...nav, bundle: false } }, url: '/kits/madani-reader' })
+    expect(screen.queryByRole('link', { name: 'Sign in to download' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Download kit' })).toBeNull()
   })
 
   it('hydrates the server HTML without a mismatch', async () => {

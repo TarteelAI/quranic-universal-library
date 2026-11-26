@@ -16,6 +16,7 @@ const file = (id: number, name: string, formatLabel = 'JSON') => ({
   formatLabel,
   byteSize: 2048,
   md5: 'abc',
+  filename: `${id}.${formatLabel.toLowerCase()}.zip`,
 })
 
 const ibnKathir: CatalogBundleItem = {
@@ -23,15 +24,17 @@ const ibnKathir: CatalogBundleItem = {
   restricted: false,
   resource: { id: 1, name: 'Tafsir Ibn Kathir', type: 'tafsir', toParam: 'ibn-kathir' },
   category: 'tafsir',
+  licence: { name: 'CC BY 4.0', url: 'https://creativecommons.org/licenses/by/4.0/', summary: null },
   files: [file(11, 'Tafsir Ibn Kathir JSON'), file(12, 'Tafsir Ibn Kathir SQLite', 'SQLite')],
 }
-const gone: CatalogBundleItem = { id: 2, restricted: false, resource: null, category: null, files: [] }
+const gone: CatalogBundleItem = { id: 2, restricted: false, resource: null, category: null, files: [], licence: null }
 const restricted: CatalogBundleItem = {
   id: 3,
   restricted: true,
   resource: { id: 3, name: 'Closed tafsir', type: 'tafsir', toParam: 'closed' },
   category: 'tafsir',
   files: [],
+  licence: null,
 }
 const noFiles: CatalogBundleItem = {
   id: 4,
@@ -39,6 +42,7 @@ const noFiles: CatalogBundleItem = {
   resource: { id: 4, name: 'Empty layout', type: 'mushaf-layout', toParam: 'empty' },
   category: 'layout',
   files: [],
+  licence: null,
 }
 
 let fetchMock: ReturnType<typeof vi.fn>
@@ -207,6 +211,7 @@ describe('the bundle tray', () => {
       resource: { id: 5, name: 'IndoPak font', type: 'font', toParam: 'indopak-font' },
       category: 'script',
       files: [file(51, 'IndoPak font TTF', 'Font')],
+      licence: null,
     }
     window.localStorage.setItem(BUNDLE_KEY, JSON.stringify([1, 5]))
     answer([ibnKathir, font])
@@ -248,12 +253,17 @@ describe('the bundle tray', () => {
     const tray = within(openTray())
     const signIn = await tray.findByRole('link', { name: 'Sign in' })
     expect(signIn.getAttribute('href')).toBe('/users/sign_in?user_return_to=%2Fkits%2Frecitation')
+    expect(tray.getByRole('link', { name: 'Sign in to download' }).getAttribute('href')).toBe(
+      signIn.getAttribute('href'),
+    )
+    expect(tray.queryByRole('button', { name: 'Download bundle' })).toBeNull()
     unmount()
 
     renderPage(() => <BundleTray />, { props: {}, shared: { auth: signedInAuth } })
     const signedIn = within(openTray())
     await signedIn.findByText('Tafsir Ibn Kathir')
     expect(signedIn.queryByText(/need a free account/)).toBeNull()
+    expect(signedIn.getByRole('button', { name: 'Download bundle' })).toBeDefined()
   })
 
   it('keeps the open tray when its last resource is removed, says so, and on close hides the button and focuses the page', async () => {

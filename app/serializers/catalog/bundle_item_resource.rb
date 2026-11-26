@@ -3,7 +3,8 @@
 module Catalog
   # One resource of the bundle tray (a Catalog::Bundle::Item): the id the browser holds, the
   # resource and its files, or no resource when the id is no longer a published resource.
-  # `restricted` is a resource the viewer may not download, sent with no files.
+  # `restricted` is a resource the viewer may not download, sent with no files. `licence` is the
+  # resource's licence, for the README of a zip.
   class BundleItemResource < ApplicationResource
     typelize id: :number, restricted: :boolean
     attributes :id, :restricted
@@ -15,5 +16,8 @@ module Catalog
     attribute(:category) { |item| item.resource && Taxonomy.type(item.resource.resource_type).category.key }
 
     many :files, resource: ResourceFileResource
+
+    typelize licence: { nullable: true }
+    one :licence, resource: ResourceLicenceResource
   end
 end

@@ -3,7 +3,8 @@
 module Start
   # Props of a kit page (Start::KitsController#show): the kit, how many of its items are of each
   # resource type, the guided setup with its answers, the kits index, and its items in order.
-  # `catalogPages` says whether the cards' detail pages are new pages.
+  # `catalogPages` says whether the cards' detail pages are new pages; `downloadMode` whether the
+  # kit's zip needs an account.
   class KitsShowResource < ApplicationResource
     typelize key: :string, title: :string, description: :string, setup_path: :string, kits_path: :string,
              type_counts: [:string, { multi: true }], catalog_pages: :boolean
@@ -23,5 +24,7 @@ module Start
     many :items, source: proc { self[:entries] }, resource: KitItemResource
     one :vocabularies, source: proc { { languages: [] } }, resource: Catalog::VocabulariesResource
     attribute(:catalog_pages) { PageGroups.enabled?(:catalog) }
+    typelize download_mode: [:string, { enum: DownloadMode::MODES }]
+    attribute(:download_mode) { DownloadMode.current }
   end
 end

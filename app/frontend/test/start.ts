@@ -121,4 +121,5 @@ export const kitPageProps: StartKitsShow = {
   ],
   vocabularies: catalogPageProps.vocabularies,
   catalogPages: true,
+  downloadMode: 'sign_in',
 }

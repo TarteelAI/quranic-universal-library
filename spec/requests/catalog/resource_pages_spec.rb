@@ -115,15 +115,16 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       end
     end
 
-    it 'lists each file with its format label, stored byte size and MD5 checksum in hex' do
+    it 'lists each file with its stored name, format label, stored byte size and MD5 checksum in hex' do
       get page_path(resource)
 
       expect(inertia).to render_component('catalog/ResourcePage')
       expect(props[:files]).to eq(
         [
-          { id: json_file.id, name: 'json', format: 'json', formatLabel: 'JSON', byteSize: 1,
+          { id: json_file.id, name: 'json', filename: 'spec.json.zip', format: 'json', formatLabel: 'JSON', byteSize: 1,
             md5: Base64.decode64('c3BlYw==').unpack1('H*'), }, # rubocop:disable Naming/VariableNumber
-          { id: sqlite_file.id, name: 'simple.sqlite', format: 'sqlite', formatLabel: 'SQLite', byteSize: 5_242_880,
+          { id: sqlite_file.id, name: 'simple.sqlite', filename: 'spec.sqlite.zip', format: 'sqlite',
+            formatLabel: 'SQLite', byteSize: 5_242_880,
             md5: 'd41d8cd98f00b204e9800998ecf8427e', }, # rubocop:disable Naming/VariableNumber
         ],
       )
@@ -373,7 +374,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       :download, :issueUrl, :canDownload, :restriction, :release, :version, :updatedOn, :guidePath, :formatGuide,
       :schemas, :codeSample, :kind, :html, :language, :code, :columns, :id, :name, :toParam, :status, :scriptFamily,
       :language, :granularity, :summary, :info, :supersededBy, :recommended, :rendering,
-      :key, :label, :title, :description, :category, :format, :formatLabel, :byteSize,
+      :key, :label, :title, :description, :category, :filename, :format, :formatLabel, :byteSize,
       :md5, # rubocop:disable Naming/VariableNumber -- the serialized prop name
       :value, :links, :typeLabel, :url, :excerpt, :date, :path,
     ]

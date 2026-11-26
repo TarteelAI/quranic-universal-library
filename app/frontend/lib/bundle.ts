@@ -1,5 +1,8 @@
 import * as React from 'react'
 
+import { catalogBundle } from '@/routes'
+import type { CatalogBundle, CatalogBundleItem } from '@/types/serializers'
+
 // The bundle: the resource ids a visitor has collected, kept in localStorage so the list
 // survives a reload and is the same in every tab (the storage event). The server never sees it;
 // the tray asks /bundle what the ids are now. When storage is blocked the bundle lasts as long as
@@ -88,4 +91,20 @@ export function resetBundle() {
 /** The ids in the bundle, oldest first. */
 export function useBundle() {
   return React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+}
+
+/** What the ids are now (/bundle, Catalog::BundlesController): the tray's list and a kit's zip. */
+export async function fetchBundle(ids: number[], signal?: AbortSignal): Promise<CatalogBundle> {
+  const response = await fetch(catalogBundle({ query: { ids: ids.join(',') } }).url, {
+    headers: { Accept: 'application/json' },
+    signal,
+  })
+  if (!response.ok) throw new Error(`Bundle lookup failed: ${response.status}`)
+  return response.json() as Promise<CatalogBundle>
+}
+
+/** The files of an item to list or zip: those in `formats` when the resource has any, else all. */
+export function shownFiles(item: CatalogBundleItem, formats: string[] | null) {
+  const matching = formats && item.files.filter((file) => formats.includes(file.format))
+  return matching && matching.length > 0 ? matching : item.files
 }

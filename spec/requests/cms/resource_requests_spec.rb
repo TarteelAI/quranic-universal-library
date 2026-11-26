@@ -20,7 +20,7 @@ RSpec.describe 'Resource requests in the CMS (/cms/resource_requests)', type: :r
   describe 'as an admin' do
     before { sign_in create_account(role: :admin) }
 
-    it 'lists requests and shows one with its author' do
+    it 'lists requests and shows one with the user who sent it' do
       get '/cms/resource_requests'
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('Spec Tafsir')
@@ -28,6 +28,24 @@ RSpec.describe 'Resource requests in the CMS (/cms/resource_requests)', type: :r
       get "/cms/resource_requests/#{resource_request.id}"
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(author.email)
+    end
+
+    it 'shows the source details, and the source files as downloads from the private service' do
+      resource_request.update!(author: 'Salahuddin Yusuf', publisher: 'Darussalam', publishing_year: 1996,
+                               license_details: 'Free to share with credit.',
+                               source_url: 'https://example.test/ahsanul-bayan',)
+      resource_request.source_uploads = [Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.4\n%\xE2\xE3\n".b),
+                                                                      'application/pdf',
+                                                                      original_filename: 'ahsanul-bayan.pdf',)]
+      resource_request.save!
+
+      get "/cms/resource_requests/#{resource_request.id}"
+
+      expect(response.body).to include('Salahuddin Yusuf', 'Darussalam', '1996', 'Free to share with credit.',
+                                       'href="https://example.test/ahsanul-bayan"', 'ahsanul-bayan.pdf',)
+      file = resource_request.source_files.sole
+      expect(response.body).to include(rails_blob_path(file, disposition: 'attachment', only_path: true))
+      expect(file.blob.service_name).to eq('test')
     end
 
     it 'sets the status and hides a request' do

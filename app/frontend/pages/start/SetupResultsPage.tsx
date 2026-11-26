@@ -19,7 +19,7 @@ function joinAnd(items: string[]) {
 // /resources?goal=…: the catalog filtered for the answers of the guided setup. The banner says
 // what it is filtered for and links back to the setup with the answers kept; the checklist names
 // each need, and a section per need shows its first resources and links to the catalog search
-// that lists all of them. With nothing marked recommended yet, the checklist names needs, not picks.
+// that lists all of them. The checklist names needs, not picks.
 // The server leaves out a need nothing in the library fits, unless it is narrowed to scripts.
 // While this page is open the bundle tray lists the files in the answers' formats first-hand.
 export default function SetupResultsPage({

@@ -71,18 +71,20 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Cost:** it loads every published resource per request, so it moves into SQL behind the same
   interface if the catalog grows into the thousands.
 
-### `recommended` is a flag, not a status
+### There is no `recommended` flag
 
-- **Decision:** `recommended` is a boolean separate from the lifecycle status (stable, beta,
-  legacy, superseded).
-- **Why:** endorsement is not a lifecycle stage, and a status filter of stable must keep the
-  recommended resources.
-- **Cost:** one more computed field.
+- **Decision:** the catalog has no `recommended` field. The computed flag (the one layout of a
+  script family whose mushaf is the default, and its font), its `recommended` meta data override,
+  the Recommended badge and the Recommended group of the type pages are removed.
+  It replaces the sprint 001 decision "`recommended` is a flag, not a status".
+- **Why:** the rule marked no resource in practice, so the flag, its override and
+  its UI were code with no effect; kits already name the resources to start with, by hand.
+- **Cost:** if editors want to mark picks, a flag comes back with its own rule, override and UI.
 
 ### The catalog fields are computed when read, not stored
 
 - **Decision:** the display name, script family, rendering, lifecycle status and replacement, the
-  recommended flag, the requires-link from a layout or glyph script to its font, and the summary
+  requires-link from a layout or glyph script to its font, and the summary
   of a resource without one are computed from the catalog on each request (`Catalog::Derived`,
   rules in `Catalog::Inference` and `Catalog::DisplayNames`). No column holds them, and the new
   pages add no column to `downloadable_resources` or `downloadable_related_resources`. The stored
@@ -101,8 +103,8 @@ them is in [`AGENTS.md`](AGENTS.md).
 - **Decision:** a key in the resource's `meta_data` (the JSON editor of the CMS form) overrides
   the computed value: `display-name`, `script-family` (`madani`, `indopak`, `other`), `rendering`
   (`unicode_font`, `glyph_page`, `image`, `svg`), `status` (`stable`, `beta`, `legacy`,
-  `superseded`), `superseded-by` (the slug or id of the replacement) and `recommended` (`true` or
-  `false`). An invalid value is ignored and the computed value shows.
+  `superseded`) and `superseded-by` (the slug or id of the replacement). An invalid value is
+  ignored and the computed value shows.
 - **Why:** editors already edit `meta_data`, so corrections need no developer, no new column and
   no CMS form change.
 - **Cost:** the keys are free text: a typing error is ignored without a message. The review
@@ -187,6 +189,40 @@ them is in [`AGENTS.md`](AGENTS.md).
   website link separate from `url`.
 - **Cost:** three more link columns and a type to keep right in the CMS; a new type needs a
   constant and its label.
+
+### The apps directory is ordered by a position only super admins set
+
+- **Decision:** an app has an integer `position`. The directory and the home page's apps band
+  list published apps featured first, then by position, then by id. Only a super admin
+  (`User#super_admin?`, the existing `super_admin` role) sees and changes it in `/cms/apps`; other
+  admins edit the rest of an app, featuring included. A new app (a submission, or one made in the
+  CMS) goes last; `apps:import` numbers its entries after the existing apps in the file's order;
+  the migration numbers existing rows by id, so the order does not change when it runs.
+- **Why:** the team asked to set the order without a deploy, and only super admins may. Keeping
+  `featured` first means admins who feature an app see it move up as before, and the position
+  only orders apps within the featured and the other apps.
+- **Cost:** two settings decide the order, and putting an app above a featured one means
+  featuring it. Positions are not renumbered: two apps with one position fall back to id order.
+
+### A request says where its resource comes from
+
+- **Decision:** beyond the title and description, a resource request asks for what its type needs
+  (`ResourceRequest::DETAILS`): a translation, tafsir or surah info needs its author and may name
+  the book, publisher and publishing year; Other may name an author and a book; a font needs a
+  source file or a link to one; the other types (recitations, layouts, scripts, data sets) ask for
+  neither. Every type may add licence details, up to 5 source files (PDF, Word, text, TTF, OTF,
+  WOFF, WOFF2, each up to 10 MB, typed by their bytes) and an http or https source link. The
+  dialog shows the type's fields once a type is chosen, with the book details and the source
+  folded. The minimums apply to new requests only, so editors can still change older ones. Source
+  files are on the private default storage service, for editors in the CMS; the public list shows
+  none of these fields. They are new columns on `resource_requests` (and Active Storage
+  attachments), added by a new migration rather than by changing the unreleased one, because
+  staging already ran it.
+- **Why:** editors otherwise ask the requester again for the author, the book, the licence and
+  the file. An author is how a written work is identified; for a font, the file is the resource.
+  Requiring a file for other types would turn away people who only know what they need.
+- **Cost:** a longer form; uploads to store and, for spam, to remove; a file a requester sends may
+  not be theirs to share, which editors check against the licence before adding it.
 
 ## Storage
 

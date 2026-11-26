@@ -242,9 +242,9 @@ RSpec.describe 'Home page (/)', type: :request do
                                platforms: ['web'], uses: ['translation'], featured: true,)
       get '/'
 
-      # The band of sprint 001, from the import.
-      showcase = ['quranwbw', 'qurancaption', 'quran-library', 'quran-validator', 'mihrab', 'bayaan', 'al-quran-ios',
-                  'quranic-universal-audio',].map do |key|
+      # The featured apps, then the others in the order of config/apps.yml.
+      showcase = ['quranwbw', 'qurancaption', 'quran-library', 'quran-validator', 'mushaf-js', 'mihrab', 'bayaan',
+                  'al-quran-ios',].map do |key|
         App.find_by!(import_key: key).id.to_s
       end
       expect(inertia.props[:showcase].pluck(:id)).to eq(showcase)

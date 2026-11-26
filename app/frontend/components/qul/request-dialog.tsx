@@ -1,5 +1,5 @@
 import { Link, useForm, usePage } from '@inertiajs/react'
-import { ArrowUpRightIcon } from 'lucide-react'
+import { ArrowUpRightIcon, ChevronDownIcon } from 'lucide-react'
 import * as React from 'react'
 
 import { Badge, type BadgeProps } from '@/components/ui/badge'
@@ -15,16 +15,68 @@ import {
 } from '@/components/ui/overlays'
 import { cn } from '@/lib/utils'
 import { requestsPage, resourceRequests } from '@/routes'
-import type { RequestsListItem, SiteNavLink } from '@/types/serializers'
+import type { RequestsListItem, RequestsType, SiteNavLink } from '@/types/serializers'
 
 import { FilterChip } from './catalog'
+import { FileDrop } from './file-drop'
 import { GatedForm } from './gated-form'
 import { QulIcon } from './icons'
 
 /** The query parameter that opens the request dialog on any new page (sign-in returns with it). */
 const OPEN_PARAM = 'request'
 
-type Fields = { title: string; description: string; resource_type: string; language: string }
+type Fields = {
+  title: string
+  description: string
+  resource_type: string
+  language: string
+  author: string
+  book_name: string
+  publisher: string
+  publishing_year: string
+  license_details: string
+  source_url: string
+  source_files: File[]
+}
+type TextField = Exclude<keyof Fields, 'source_files'>
+
+const EMPTY: Fields = {
+  title: '',
+  description: '',
+  resource_type: '',
+  language: '',
+  author: '',
+  book_name: '',
+  publisher: '',
+  publishing_year: '',
+  license_details: '',
+  source_url: '',
+  source_files: [],
+}
+
+// The book details fold; with the author, the fields of a written work, sent only for a type
+// that asks for an author.
+const BOOK_FIELDS = ['book_name', 'publisher', 'publishing_year'] as const
+const WORK_FIELDS = ['author', ...BOOK_FIELDS] as const
+const SOURCE_FIELDS = ['license_details', 'source_url'] as const
+// As ResourceRequest::SOURCE_TYPES, SOURCE_MAX_FILES and SOURCE_MAX_SIZE; the server checks the bytes.
+const SOURCE_ACCEPT = '.pdf,.doc,.docx,.txt,.ttf,.otf,.woff,.woff2'
+const SOURCE_MAX_FILES = 5
+const SOURCE_MAX_SIZE = 10 * 1024 * 1024
+
+// What the form sends: the core fields, the filled optional ones the type asks for, and the files.
+function payload(fields: Fields, type: RequestsType | undefined) {
+  const { title, description, resource_type, language } = fields
+  const optional = [...(type?.author ? WORK_FIELDS : []), ...SOURCE_FIELDS].filter((name) => fields[name].trim())
+  return {
+    title,
+    description,
+    resource_type,
+    language,
+    ...Object.fromEntries(optional.map((name) => [name, fields[name]])),
+    ...(fields.source_files.length > 0 && { source_files: fields.source_files }),
+  }
+}
 
 const STATUS_BADGE: Record<RequestsListItem['status'], BadgeProps['variant']> = {
   open: 'secondary',
@@ -85,10 +137,14 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
   const { url, props } = usePage()
   const types = props.nav.requestTypes
   const [sent, setSent] = React.useState(false)
-  const form = useForm<Fields>({ title: '', description: '', resource_type: '', language: '' })
+  const form = useForm<Fields>(EMPTY)
   const { data, errors } = form
+  const type = types.find((option) => option.key === data.resource_type)
   // An error about the request as a whole (the daily limit), which no field shows.
   const [refusal, setRefusal] = React.useState<string[]>()
+  // The folded groups, opened when the server finds an error in one.
+  const [bookOpen, setBookOpen] = React.useState(false)
+  const [sourceOpen, setSourceOpen] = React.useState(false)
 
   const changeOpen = (next: boolean) => {
     if (next) setSent(false)
@@ -97,13 +153,19 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
-    form.transform((fields) => ({ request: fields }))
+    form.transform((fields) => ({ request: payload(fields, type) }))
     setRefusal(undefined)
     form.post(resourceRequests().url, {
       preserveScroll: true,
-      onError: (errors) => setRefusal(errors.base),
+      onError: (errors) => {
+        setRefusal(errors.base)
+        if (BOOK_FIELDS.some((name) => errors[name])) setBookOpen(true)
+        if ([...SOURCE_FIELDS, 'source_files' as const].some((name) => errors[name])) setSourceOpen(true)
+      },
       onSuccess: () => {
         form.reset()
+        setBookOpen(false)
+        setSourceOpen(false)
         setSent(true)
       },
     })
@@ -154,12 +216,15 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
                   aria-describedby={errors.resource_type ? 'request-resource_type-error' : undefined}
                   className="flex flex-wrap gap-1.5"
                 >
-                  {types.map((type) => (
+                  {types.map((option) => (
                     <FilterChip
-                      key={type.key}
-                      option={type}
-                      selected={data.resource_type === type.key}
-                      onClick={() => form.setData('resource_type', type.key)}
+                      key={option.key}
+                      option={option}
+                      selected={data.resource_type === option.key}
+                      onClick={() => {
+                        form.setData('resource_type', option.key)
+                        if (option.sourceRequired) setSourceOpen(true)
+                      }}
                     />
                   ))}
                 </div>
@@ -190,6 +255,51 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
                   <FieldError name="language" error={errors.language} />
                 </div>
               </div>
+              {type?.author && (
+                <>
+                  <TextInput
+                    form={form}
+                    name="author"
+                    label={type.author === 'required' ? 'Author or translator' : 'Author (optional)'}
+                    required={type.author === 'required'}
+                    maxLength={200}
+                    placeholder="e.g. Salahuddin Yusuf"
+                    field={field}
+                    error={errors.author}
+                  />
+                  <Fold title="Book details (optional)" open={bookOpen} onOpenChange={setBookOpen}>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <TextInput
+                        form={form}
+                        name="book_name"
+                        label="Book name"
+                        maxLength={200}
+                        field={field}
+                        error={errors.book_name}
+                      />
+                      <TextInput
+                        form={form}
+                        name="publisher"
+                        label="Publisher"
+                        maxLength={200}
+                        field={field}
+                        error={errors.publisher}
+                      />
+                      <TextInput
+                        form={form}
+                        name="publishing_year"
+                        label="Year published"
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={new Date().getFullYear()}
+                        field={field}
+                        error={errors.publishing_year}
+                      />
+                    </div>
+                  </Fold>
+                </>
+              )}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="request-description">What are you building?</Label>
                 <Textarea
@@ -202,6 +312,56 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
                 />
                 <FieldError name="description" error={errors.description} />
               </div>
+              {type && (
+                <Fold
+                  title={
+                    type.sourceRequired ? 'Source: the font file or a link to it' : 'Source and licence (optional)'
+                  }
+                  open={sourceOpen}
+                  onOpenChange={setSourceOpen}
+                >
+                  <p className="text-sm text-muted-foreground">
+                    {type.sourceRequired
+                      ? 'Add the font file, or a link where we can get it.'
+                      : 'Files or a link save us time finding it. Only the QUL team sees them.'}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="request-source_files">Source files</Label>
+                    <FileDrop
+                      {...field('source_files')}
+                      files={data.source_files}
+                      onChange={(files) => form.setData('source_files', files)}
+                      accept={SOURCE_ACCEPT}
+                      maxFiles={SOURCE_MAX_FILES}
+                      maxSize={SOURCE_MAX_SIZE}
+                      hint="PDF, Word, text or font files, up to 5 files of 10 MB"
+                    />
+                    <FieldError name="source_files" error={errors.source_files} />
+                  </div>
+                  <TextInput
+                    form={form}
+                    name="source_url"
+                    label="Link to the source"
+                    type="url"
+                    maxLength={500}
+                    placeholder="https://"
+                    field={field}
+                    error={errors.source_url}
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="request-license_details">Licence</Label>
+                    <Textarea
+                      {...field('license_details')}
+                      rows={2}
+                      maxLength={1000}
+                      placeholder="e.g. free to share with credit, or who to ask"
+                      value={data.license_details}
+                      onChange={(event) => form.setData('license_details', event.target.value)}
+                    />
+                    <FieldError name="license_details" error={errors.license_details} />
+                  </div>
+                </Fold>
+              )}
               {refusal && (
                 <p role="alert" className="rounded-lg bg-destructive/10 p-4 text-sm text-destructive">
                   {refusal.join(' ')}
@@ -220,6 +380,68 @@ function RequestDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (o
         )}
       </DialogContent>
     </Dialog>
+  )
+}
+
+type FieldProps = (name: keyof Fields) => {
+  id: string
+  'aria-invalid': boolean | undefined
+  'aria-describedby': string | undefined
+}
+
+/** A labelled text input of the request form, with its server error. */
+function TextInput({
+  form,
+  name,
+  label,
+  field,
+  error,
+  ...input
+}: {
+  form: { data: Fields; setData: (name: TextField, value: string) => void }
+  name: TextField
+  label: string
+  field: FieldProps
+  error?: string[]
+} & Omit<React.ComponentProps<'input'>, 'form' | 'name' | 'value' | 'onChange'>) {
+  return (
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={`request-${name}`}>{label}</Label>
+      <Input
+        {...field(name)}
+        {...input}
+        value={form.data[name]}
+        onChange={(event) => form.setData(name, event.target.value)}
+      />
+      <FieldError name={name} error={error} />
+    </div>
+  )
+}
+
+/** A folded group of the request form; its summary says what is inside. */
+function Fold({
+  title,
+  open,
+  onOpenChange,
+  children,
+}: {
+  title: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  children: React.ReactNode
+}) {
+  return (
+    <details
+      open={open}
+      onToggle={(event) => onOpenChange(event.currentTarget.open)}
+      className="group rounded-lg border px-4 py-3"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-sm font-medium [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDownIcon className="size-4 transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <div className="mt-4 flex flex-col gap-4">{children}</div>
+    </details>
   )
 }
 

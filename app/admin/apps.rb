@@ -2,7 +2,8 @@
 
 # The apps directory (/apps and the home page's apps band): editors publish, edit, feature and
 # remove apps here. Submissions from the form on /apps arrive unpublished. Admins only (Ability),
-# because a submission holds the submitter's contact address.
+# because a submission holds the submitter's contact address. Only a super admin changes an app's
+# position, the order of the directory after the featured apps.
 ActiveAdmin.register App do
   menu parent: 'Settings', label: 'Apps directory'
 
@@ -18,6 +19,8 @@ ActiveAdmin.register App do
 
   includes :user, icon_attachment: :blob
 
+  config.sort_order = 'position_asc'
+
   index do
     id_column
     column(:icon) { |app| image_tag(app.icon, size: 32, alt: '') if app.icon.attached? }
@@ -25,6 +28,7 @@ ActiveAdmin.register App do
     column :url
     column :published
     column :featured
+    column :position
     column :user
     column :created_at
     actions
@@ -47,6 +51,7 @@ ActiveAdmin.register App do
       row :evidence
       row :published
       row :featured
+      row :position
       row :contact
       row :consent
       row :user
@@ -62,6 +67,9 @@ ActiveAdmin.register App do
     f.inputs do
       f.input :published, hint: 'Shown on /apps. Needs a kind and a description.'
       f.input :featured, hint: 'Listed first. The home page shows the first eight apps.'
+      if current_user.super_admin?
+        f.input :position, hint: 'The order after the featured apps: lower comes first. New apps go last.'
+      end
       f.input :name
       f.input :project_type, as: :select, include_blank: false,
                              collection: AppDirectory::PROJECT_TYPES.values.map { |type| [type.label, type.key] }
@@ -82,6 +90,9 @@ ActiveAdmin.register App do
     f.actions
   end
 
-  permit_params :published, :featured, :name, :project_type, :url, :app_store_url, :play_store_url, :source_url,
-                :kind, :description, :icon_upload, :evidence, :contact, platforms: [], uses: []
+  permit_params do
+    fields = [:published, :featured, :name, :project_type, :url, :app_store_url, :play_store_url, :source_url,
+              :kind, :description, :icon_upload, :evidence, :contact, { platforms: [], uses: [] },]
+    current_user.super_admin? ? [:position, *fields] : fields
+  end
 end

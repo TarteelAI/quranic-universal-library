@@ -2,15 +2,15 @@
 
 module Catalog
   # One resource with its catalog fields (Catalog::Derived): lifecycle status and replacement,
-  # the recommended flag, script family, rendering, summary and typed relations. Relations and
+  # script family, rendering, summary and typed relations. Relations and
   # the replacement point at published resources only, requires-links first.
   class ResourceResource < ApplicationResource
-    typelize id: :number, name: :string, type: :string, to_param: :string, recommended: :boolean,
+    typelize id: :number, name: :string, type: :string, to_param: :string,
              status: [:string, { enum: Derived::STATUSES }],
              script_family: [:string, { nullable: true, enum: Derived::SCRIPT_FAMILIES }],
              rendering: [:string, { nullable: true, enum: Derived::RENDERINGS }],
              summary: [:string, { nullable: true }]
-    attributes :id, :to_param, :status, :recommended, :script_family, :rendering
+    attributes :id, :to_param, :status, :script_family, :rendering
     attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
     attribute(:summary, &:summary)

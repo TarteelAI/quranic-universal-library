@@ -4,8 +4,8 @@ module Catalog
   # /resources/:type, while the `catalog` page group is on (PageGroups). An unknown type is a 404.
   #
   # A type with more than SEARCH_ABOVE published resources is searched (Catalog::SearchQuery):
-  # the query string's `q`, `language` and `page` pick one page of PER_PAGE cards, recommended
-  # first and older versions last, so the page's sections keep their order across pages.
+  # the query string's `q`, `language` and `page` pick one page of PER_PAGE cards, older
+  # versions last, so the page's sections keep their order across pages.
   class TypesController < InertiaController
     SEARCH_ABOVE = 48
     PER_PAGE = 24
@@ -50,7 +50,7 @@ module Catalog
     end
 
     # The type's resources (with what the cards read preloaded) in the order of the search rows,
-    # recommended first and older versions last, in pages; one empty page when nothing matches.
+    # older versions last, in pages; one empty page when nothing matches.
     def pages_of(rows)
       cards = @resources.index_by(&:id)
       ranked = rows.map { |row| cards.fetch(row.resource.id) }.sort_by.with_index { |card, index| [rank(card), index] }
@@ -58,10 +58,7 @@ module Catalog
     end
 
     def rank(resource)
-      return 0 if resource.recommended
-      return 2 if resource.legacy? || resource.superseded?
-
-      1
+      resource.legacy? || resource.superseded? ? 1 : 0
     end
   end
 end

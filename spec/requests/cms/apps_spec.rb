@@ -60,9 +60,32 @@ RSpec.describe 'Apps in the CMS (/cms/apps)', type: :request do
       expect(submission.reload.published).to be(false)
     end
 
+    it 'cannot change the position: the field is not on the form and the value is ignored' do
+      get "/cms/apps/#{submission.id}/edit"
+      expect(response.body).not_to include('app[position]')
+
+      expect { patch "/cms/apps/#{submission.id}", params: { app: { position: '0', name: 'Renamed' } } }
+        .not_to(change { submission.reload.position })
+      expect(submission.name).to eq('Renamed')
+    end
+
     it 'removes an app' do
       expect { delete "/cms/apps/#{submission.id}" }.to change(App, :count).by(-1)
       expect(response).to redirect_to('/cms/apps')
+    end
+  end
+
+  describe 'as a super admin' do
+    before { sign_in create_account(role: :super_admin) }
+
+    it 'changes the position of an app' do
+      get "/cms/apps/#{submission.id}/edit"
+      expect(response.body).to include('app[position]')
+
+      patch "/cms/apps/#{submission.id}", params: { app: { position: '0' } }
+
+      expect(response).to redirect_to("/cms/apps/#{submission.id}")
+      expect(submission.reload.position).to eq(0)
     end
   end
 

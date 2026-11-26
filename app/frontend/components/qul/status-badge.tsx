@@ -40,16 +40,3 @@ export function StatusBadge({ status, label, supersededBy, className }: StatusBa
     </span>
   )
 }
-
-export interface RecommendedBadgeProps {
-  className?: string
-}
-
-export function RecommendedBadge({ className }: RecommendedBadgeProps) {
-  return (
-    <span className={cn('inline-flex w-fit items-center gap-1.5 text-xs font-medium text-foreground', className)}>
-      <span className="size-2 shrink-0 rounded-full bg-brand" aria-hidden="true" />
-      Recommended
-    </span>
-  )
-}

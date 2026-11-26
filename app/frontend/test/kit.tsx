@@ -11,6 +11,7 @@ import * as copyButton from '@/components/qul/copy-button'
 import * as data from '@/components/qul/data'
 import * as docs from '@/components/qul/docs'
 import * as downloadPanel from '@/components/qul/download-panel'
+import * as fileDrop from '@/components/qul/file-drop'
 import * as gatedForm from '@/components/qul/gated-form'
 import * as icons from '@/components/qul/icons'
 import * as nav from '@/components/qul/nav'
@@ -53,6 +54,7 @@ const modules = {
   data,
   docs,
   downloadPanel,
+  fileDrop,
   gatedForm,
   icons,
   nav,
@@ -98,6 +100,7 @@ const { CopyButton } = copyButton
 const { SchemaTable } = data
 const { CodeBlock, DocBody, DocContents, DocsLayout, DocsNav, Playground } = docs
 const { DownloadPanel, WorksWith } = downloadPanel
+const { FileDrop } = fileDrop
 const { GatedForm } = gatedForm
 const { GoalCard, GoalIcon, KitCard, ResultCard } = start
 const { GitHubMark, QulIcon, ResourceIcon } = icons
@@ -105,7 +108,7 @@ const { MegaMenu, MobileNav, NavAnchor } = nav
 const { PageHeader } = pageHeader
 const { ResourceCard } = resourceCard
 const { Spotlight } = spotlight
-const { RecommendedBadge, StatusBadge } = statusBadge
+const { StatusBadge } = statusBadge
 const { ToolCard } = toolCard
 const { ThemeCycle, ThemeSwitch } = theme
 const { Badge } = badge
@@ -354,7 +357,6 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'Word timestamps, ayah by ayah.',
   },
-  RecommendedBadge: { element: <RecommendedBadge />, text: 'Recommended' },
   ThemeSwitch: { element: <ThemeSwitch />, text: 'System theme' },
   // Labelled "Theme" on the server and with the current theme after hydration
   ThemeCycle: { element: <ThemeCycle />, text: 'title="' },
@@ -377,6 +379,19 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
   FilterChip: {
     element: <FilterChip option={{ key: 'ios', label: 'iOS' }} selected onClick={() => {}} />,
     text: 'aria-pressed="true"',
+  },
+  FileDrop: {
+    element: (
+      <FileDrop
+        id="kit-files"
+        files={[]}
+        onChange={() => {}}
+        maxFiles={5}
+        maxSize={10 * 1024 * 1024}
+        hint="PDF or font files"
+      />
+    ),
+    text: 'Drop files here or choose them',
   },
   GatedForm: {
     element: (
@@ -410,7 +425,7 @@ export const fixtures: Record<string, { element: ReactElement; text: string; ope
     ),
     text: 'Page under the request dialog',
   },
-  Badge: { element: <Badge variant="brand">Recommended</Badge>, text: 'Recommended' },
+  Badge: { element: <Badge variant="brand">New</Badge>, text: 'New' },
   Button: { element: <Button variant="outline">Download</Button>, text: 'Download' },
   Card: { element: cardElement, text: 'Card content' },
   CardHeader: { element: cardElement, text: 'Card title' },

@@ -8,7 +8,7 @@ module Catalog
              summary: [:string, { nullable: true }],
              language: [:string, { nullable: true }], granularity: [:string, { nullable: true }],
              formats: [:string, { multi: true, enum: Taxonomy.formats.map(&:key) }],
-             status: [:string, { enum: Taxonomy.statuses.map(&:key) }], recommended: :boolean
+             status: [:string, { enum: Taxonomy.statuses.map(&:key) }]
     attribute(:id) { |row| row.resource.id }
     attribute(:name) { |row| row.resource.catalog_name }
     attribute(:type) { |row| row.resource.resource_type }
@@ -18,7 +18,6 @@ module Catalog
     attribute(:granularity) { |row| row.resource.cardinality_type }
     attribute(:formats, &:formats)
     attribute(:status) { |row| row.resource.status }
-    attribute(:recommended) { |row| row.resource.recommended }
 
     # The kind of preview the card fetches once on screen (Previews::Card), or null for none.
     typelize preview_kind: [:string, { nullable: true, enum: Previews::Card::KINDS.values.uniq }]

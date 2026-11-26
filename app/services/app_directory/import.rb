@@ -8,16 +8,20 @@ module AppDirectory
   # run: the import is a one-time step.
   module Import
     # Creates the rows of the entries that have none, in the file's order, and returns how many.
+    # They go after the apps already there, in the file's order.
     def self.run
       imported = App.where.not(import_key: nil).pluck(:import_key).to_set
       entries = AppDirectory.data.fetch('apps').reject { |entry| imported.include?(entry['id']) }
-      App.transaction { entries.each { |entry| create(entry) } }
+      App.transaction do
+        first = App.next_position
+        entries.each_with_index { |entry, index| create(entry, first + index) }
+      end
       entries.size
     end
 
-    def self.create(entry)
+    def self.create(entry, position)
       app = App.new(
-        import_key: entry['id'], published: true, featured: entry.fetch('featured', false),
+        import_key: entry['id'], published: true, featured: entry.fetch('featured', false), position:,
         **entry.slice('name', 'url', 'source_url', 'project_type', 'platforms', 'uses', 'kind', 'description',
                       'evidence',).symbolize_keys,
       )

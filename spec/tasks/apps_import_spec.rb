@@ -60,5 +60,9 @@ RSpec.describe 'apps:import' do
     import
 
     expect(submission.reload).to have_attributes(import_key: nil, published: false)
+    # The entries go after it, in the file's order.
+    imported = App.where.not(import_key: nil).order(:position).pluck(:import_key, :position)
+    expect(imported.map(&:first)).to eq(entries.pluck('id'))
+    expect(imported.map(&:last)).to eq(Array.new(entries.size) { |index| submission.position + 1 + index })
   end
 end

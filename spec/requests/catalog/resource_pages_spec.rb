@@ -303,7 +303,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
 
       get page_path(layout)
 
-      expect(props[:resource]).to include(status: 'stable', scriptFamily: 'Madani', recommended: false,
+      expect(props[:resource]).to include(status: 'stable', scriptFamily: 'Madani',
                                           summary: start_with('Mushaf layout with 604 pages'),)
       expect(props[:facts]).to include({ label: 'Script family', value: 'Madani' },
                                        { label: 'Rendering', value: 'Glyph font for each page' },)
@@ -311,11 +311,10 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       expect(props[:facts].pluck(:label)).not_to include('Type', 'Updated')
 
       override_catalog(layout, 'script-family' => 'indopak', 'rendering' => 'svg', 'status' => 'beta',
-                               'recommended' => true, 'display-name' => 'Madinah layout',)
+                               'display-name' => 'Madinah layout',)
       get page_path(layout)
 
-      expect(props[:resource]).to include(name: 'Madinah layout', status: 'beta', scriptFamily: 'IndoPak',
-                                          recommended: true,)
+      expect(props[:resource]).to include(name: 'Madinah layout', status: 'beta', scriptFamily: 'IndoPak')
       expect(props[:facts]).to include({ label: 'Script family', value: 'IndoPak' },
                                        { label: 'Rendering', value: 'SVG' },)
     end
@@ -373,7 +372,7 @@ RSpec.describe 'Resource detail pages (/resources/:type/:slug)', type: :request 
       :resource, :type, :statuses, :files, :facts, :worksWith, :changelog, :licence, :tab, :downloadMode,
       :download, :issueUrl, :canDownload, :restriction, :release, :version, :updatedOn, :guidePath, :formatGuide,
       :schemas, :codeSample, :kind, :html, :language, :code, :columns, :id, :name, :toParam, :status, :scriptFamily,
-      :language, :granularity, :summary, :info, :supersededBy, :recommended, :rendering,
+      :language, :granularity, :summary, :info, :supersededBy, :rendering,
       :key, :label, :title, :description, :category, :filename, :format, :formatLabel, :byteSize,
       :md5, # rubocop:disable Naming/VariableNumber -- the serialized prop name
       :value, :links, :typeLabel, :url, :excerpt, :date, :path,

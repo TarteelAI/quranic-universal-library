@@ -133,15 +133,12 @@ RSpec.describe Catalog::SearchQuery do
       expect(ids(search(granularity: '1_word'))).to match_array(published.where(cardinality_type: '1_word').ids)
     end
 
-    it 'filters by status, and stable keeps the recommended resources' do
-      recommended = published.where(resource_type: 'translation').order(:id).find(&:stable?)
-      override_catalog(recommended, 'recommended' => true)
+    it 'filters by status' do
       legacy = published_ids(&:legacy?)
       expect(legacy).not_to be_empty
 
       stable = ids(search(status: 'stable'))
       expect(stable).to match_array(published_ids(&:stable?))
-      expect(stable).to include(recommended.id)
       expect(ids(search(status: 'legacy'))).to match_array(legacy)
     end
 

@@ -119,6 +119,7 @@ test.describe('sending a request and voting', () => {
     await dialog(page).getByRole('button', { name: 'Tafsir', exact: true }).click()
     await field(page, 'What is missing?').fill(title)
     await field(page, 'Language or script (optional)').fill('Bengali')
+    await field(page, 'Author or translator').fill('Salahuddin Yusuf')
     await field(page, 'What are you building?').fill('A study app, from the browser spec.')
     await dialog(page).getByRole('button', { name: 'Send request' }).click()
 
@@ -130,6 +131,41 @@ test.describe('sending a request and voting', () => {
     await expect(first.getByRole('heading')).toHaveText(title)
     await expect(first).toContainText('Tafsir · Bengali')
     await expect(first).toContainText('Open')
+  })
+
+  test('a font request shows its source fields first, takes a file and sends it', async ({ page }, testInfo) => {
+    await page.goto('/users/sign_in?user_return_to=%2Frequests%3Frequest%3Dnew')
+    await signIn(page, testInfo)
+    await expect(page).toHaveURL(/\/requests\?request=new$/)
+    await hydrated(page)
+
+    // A written work asks for its author, with the book details and the source folded.
+    await dialog(page).getByRole('button', { name: 'Translation', exact: true }).click()
+    await expect(field(page, 'Author or translator')).toHaveAttribute('required', '')
+    await dialog(page).getByText('Book details (optional)').click()
+    await dialog(page).getByText('Source and licence (optional)').click()
+    await expect(field(page, 'Publisher')).toBeVisible()
+    await dialog(page).getByText('Drop files here or choose them').scrollIntoViewIfNeeded()
+    const work = testInfo.outputPath(`request-work-${testInfo.project.name}.png`)
+    await page.screenshot({ path: work })
+    await testInfo.attach('translation request', { path: work, contentType: 'image/png' })
+
+    // A font asks for no author, and its source is open.
+    await dialog(page).getByRole('button', { name: 'Font', exact: true }).click()
+    await expect(dialog(page).getByLabel(/^Author/)).toHaveCount(0)
+    await field(page, 'What is missing?').fill(`Browser spec font ${testInfo.project.name} ${Date.now()}`)
+    await field(page, 'What are you building?').fill('A Nastaliq reader, from the browser spec.')
+    await dialog(page)
+      .getByLabel('Source files')
+      .setInputFiles({ name: 'nastaliq.woff2', mimeType: 'font/woff2', buffer: Buffer.from('wOF2\0\x01\0\0') })
+    await expect(dialog(page).getByRole('list', { name: 'Chosen files' })).toContainText('nastaliq.woff2')
+    await dialog(page).getByRole('button', { name: 'Remove nastaliq.woff2' }).scrollIntoViewIfNeeded()
+    const font = testInfo.outputPath(`request-font-${testInfo.project.name}.png`)
+    await page.screenshot({ path: font })
+    await testInfo.attach('font request', { path: font, contentType: 'image/png' })
+    await dialog(page).getByRole('button', { name: 'Send request' }).click()
+
+    await expect(page.getByRole('dialog', { name: 'Request received' })).toBeVisible()
   })
 
   test('invalid input shows the errors beside the fields and keeps what was typed', async ({ page }, testInfo) => {

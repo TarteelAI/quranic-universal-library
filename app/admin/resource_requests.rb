@@ -2,7 +2,8 @@
 
 # Resource requests sent from the new pages: editors set the status visitors see and hide a
 # request from the public list. Requests are not created or removed here. Admins only (Ability),
-# because a request names its author.
+# because a request names the user who sent it and carries their source files, which download
+# here through signed links.
 ActiveAdmin.register ResourceRequest do
   menu parent: 'Settings', label: 'Resource requests'
   actions :index, :show, :edit, :update
@@ -17,7 +18,7 @@ ActiveAdmin.register ResourceRequest do
   filter :hidden
   filter :created_at
 
-  includes :user, :votes
+  includes :user, :votes, source_files_attachments: :blob
 
   index do
     id_column
@@ -27,6 +28,7 @@ ActiveAdmin.register ResourceRequest do
     column(:status, &:status_label)
     column :hidden
     column(:votes) { |request| request.votes.size }
+    column(:files) { |request| request.source_files.size }
     column :user
     column :created_at
     actions
@@ -39,10 +41,24 @@ ActiveAdmin.register ResourceRequest do
       row :description
       row :resource_type
       row :language
+      row :author
+      row :book_name
+      row :publisher
+      row :publishing_year
+      row :license_details
+      row(:source_url) do |request|
+        link_to(request.source_url, request.source_url, rel: 'noopener noreferrer nofollow') if request.source_url
+      end
+      row(:source_files) do |request|
+        safe_join(request.source_files.map do |file|
+          link_to("#{file.filename} (#{number_to_human_size(file.byte_size)})",
+                  rails_blob_path(file, disposition: 'attachment'),)
+        end, tag.br,)
+      end
       row(:status, &:status_label)
       row :hidden
       row(:votes) { |request| request.votes.size }
-      row(:author) { |request| request.user&.email }
+      row(:sent_by) { |request| request.user&.email }
       row :created_at
       row :updated_at
     end

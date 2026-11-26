@@ -63,7 +63,7 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
 
     it 'shows no "Which one should I pick?" block for a type with no status data beyond the default' do
       resources = DownloadableResource.published.where(resource_type: 'translation')
-      expect(resources.reject { |resource| resource.stable? && !resource.recommended }).to be_empty
+      expect(resources.reject(&:stable?)).to be_empty
 
       get '/resources/translation'
 
@@ -82,18 +82,6 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
       expect(card).to include(status: 'superseded', supersededBy: include(id: replacement.id,
                                                                           toParam: replacement.to_param,),)
       expect(inertia.props[:statuses].pluck(:key)).to eq(['stable', 'beta', 'legacy', 'superseded'])
-    end
-
-    it 'recommends no layout on this data, and the one an editor marks recommended' do
-      get '/resources/mushaf-layout'
-      expect(inertia.props[:resources].pluck(:recommended)).to all(be(false))
-
-      layout = DownloadableResource.published.where(resource_type: 'mushaf-layout').order(:id).first
-      override_catalog(layout, 'recommended' => true)
-      get '/resources/mushaf-layout'
-
-      expect(inertia.props[:resources].select { |c| c[:recommended] }.pluck(:id)).to eq([layout.id])
-      expect(inertia.props[:pick]).to eq(Catalog::Taxonomy::PICKS.fetch('mushaf-layout'))
     end
 
     it 'runs the same number of queries whatever the number of resources on the page' do

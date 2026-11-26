@@ -25,7 +25,7 @@ RSpec.describe Catalog::ResourceResource do
 
       expect(serialize(old)).to include(
         id: old.id, name: 'Syllables Transliteration(Old)', type: 'transliteration', toParam: old.to_param,
-        status: 'superseded', recommended: false, scriptFamily: nil, rendering: nil,
+        status: 'superseded', scriptFamily: nil, rendering: nil,
         summary: 'English transliteration, ayah by ayah. JSON and SQLite files.', supersededBy: ref(replacement),
       )
       expect(serialize(replacement)).to include(status: 'stable', supersededBy: nil)
@@ -49,15 +49,6 @@ RSpec.describe Catalog::ResourceResource do
 
       expect(scripts.map { |script| serialize(script)[:name] })
         .to eq(['Uthmani (Word by word)', 'Uthmani (Ayah by Ayah)'])
-    end
-
-    it 'recommends the one layout of a script family whose mushaf is the default, and the font it requires' do
-      expect(serialize(layout)).to include(recommended: false)
-
-      MushafLayouts::Page.mushaf_for(layout).update_columns(is_default: true)
-      Catalog::Derived.reset
-
-      expect([layout, font].map { |resource| serialize(resource)[:recommended] }).to eq([true, true])
     end
 
     it 'shows the editor summary when the resource has one' do
@@ -142,22 +133,11 @@ RSpec.describe Catalog::ResourceResource do
         .to include(status: 'superseded', supersededBy: ref(replacement.reload))
     end
 
-    it 'sets the recommended flag, and false wins over what the data shows' do
-      override_catalog(font, 'recommended' => true)
-      expect(serialize(font)).to include(recommended: true)
-
-      MushafLayouts::Page.mushaf_for(layout).update_columns(is_default: true)
-      override_catalog(layout, 'recommended' => false)
-      override_catalog(font, 'recommended' => nil)
-
-      expect([layout, font].map { |resource| serialize(resource)[:recommended] }).to eq([false, false])
-    end
-
     it 'is ignored when its value is not valid: the computed value shows' do
       computed = [layout, old].map { |resource| serialize(resource) }
 
       override_catalog(layout, 'script-family' => 'kufi', 'rendering' => 42, 'status' => 'retired',
-                               'recommended' => 'maybe', 'display-name' => '  ',)
+                               'display-name' => '  ',)
       override_catalog(old, 'superseded-by' => 'no-such-resource', 'status' => '')
 
       expect([layout, old].map { |resource| serialize(resource) }).to eq(computed)

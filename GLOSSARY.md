@@ -11,10 +11,10 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
   served by the new pages. A group that is not listed is served by the old views, which stay in
   the code.
 - **Computed field**: a catalog field that no column holds: the display name, script family,
-  rendering, status, replacement, recommended flag, the requires-link and the summary of a
-  resource without one. It is computed from the catalog when a page is read (`Catalog::Derived`).
+  rendering, status, replacement, the requires-link and the summary of a resource without one.
+  It is computed from the catalog when a page is read (`Catalog::Derived`).
 - **Override**: a key in a resource's `meta_data` that an editor sets to replace a computed field
-  (`display-name`, `script-family`, `rendering`, `status`, `superseded-by`, `recommended`).
+  (`display-name`, `script-family`, `rendering`, `status`, `superseded-by`).
 - **Review report**: a generated file that lists the known data errors, for the data team. It is
   generated on demand (`bin/rails catalog:review_report`) and is not committed.
 - **Download mode**: one setting, `QUL_DOWNLOAD_MODE`, with two values. `sign_in`: Rails asks
@@ -35,6 +35,11 @@ Terms used in the code, the specs and `AGENTS.md` for the new (Inertia) pages.
 - **Request**: a signed-in user's request for a resource QUL does not have yet
   (`ResourceRequest`), listed on `/requests` and voted on, one vote per user. Editors set its
   status and can hide it.
+- **Source details**: what a request says about where its resource comes from, asked by type
+  (`ResourceRequest::DETAILS`): the author, book name, publisher and year of a written work, the
+  licence, source files and a source link. For editors only.
+- **Position**: an app's place in the apps directory after the featured apps, set by a super
+  admin in the CMS.
 - **App submission**: an `App` row a signed-in user sends from the form on `/apps`. It stays
   unpublished until an editor publishes it.
 - **Gated form**: a form only a signed-in user can send (`GatedForm`). A visitor who is not

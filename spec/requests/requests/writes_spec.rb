@@ -14,7 +14,7 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
   let(:inertia_headers) { { 'X-Inertia' => 'true', 'Referer' => 'http://localhost/resources/translation' } }
   let(:valid_request) do
     { title: 'Tafsir Ahsanul Bayan', description: 'For a Bengali study app.', resource_type: 'tafsir',
-      language: 'Bengali', }
+      language: 'Bengali', author: 'Salahuddin Yusuf', }
   end
   let(:author) { create_account }
   let!(:resource_request) { ResourceRequest.create!(valid_request.merge(user: author)) }
@@ -127,6 +127,100 @@ RSpec.describe 'Request writes (POST /requests, POST and DELETE /requests/:id/vo
         expect(response).to have_http_status(:unprocessable_content)
       ensure
         ActionController::Base.allow_forgery_protection = original
+      end
+
+      describe 'the source details' do
+        def upload(name, bytes)
+          Rack::Test::UploadedFile.new(StringIO.new(bytes), 'application/octet-stream', original_filename: name)
+        end
+
+        let(:pdf) { upload('tafsir.pdf', "%PDF-1.4\n%\xE2\xE3\n1 0 obj<<>>endobj\n".b) }
+        let(:font_file) { upload('nastaliq.woff2', "wOF2\x00\x01\x00\x00".b + ("\0" * 60)) }
+        let(:text) { upload('notes.txt', 'Bismillah, plain text.') }
+
+        it 'stores the details of a written work and its source files, typed by their bytes, enqueueing nothing' do
+          clear_enqueued_jobs # the account's welcome email
+          expect do
+            submit(valid_request.merge(book_name: 'Ahsanul Bayan', publisher: 'Darussalam', publishing_year: '1996',
+                                       license_details: 'Free to share with credit.',
+                                       source_url: 'https://example.test/ahsanul-bayan', source_files: [pdf, text],))
+          end.to change(ResourceRequest, :count).by(1)
+
+          request = ResourceRequest.last
+          expect(request).to have_attributes(author: 'Salahuddin Yusuf', book_name: 'Ahsanul Bayan',
+                                             publisher: 'Darussalam', publishing_year: 1996,
+                                             license_details: 'Free to share with credit.',
+                                             source_url: 'https://example.test/ahsanul-bayan',)
+          expect(request.source_files.map { |file| [file.filename.to_s, file.content_type] })
+            .to contain_exactly(['tafsir.pdf', 'application/pdf'], ['notes.txt', 'text/plain'])
+          expect(request.source_files.map(&:blob)).to all(have_attributes(service_name: 'test'))
+          expect(enqueued_jobs).to be_empty
+        end
+
+        it 'needs the author of a translation, tafsir or surah info, and not of other types' do
+          expect { submit(valid_request.merge(author: ' ')) }.not_to change(ResourceRequest, :count)
+          follow_redirect!(headers: inertia_headers)
+          expect(inertia.props[:errors]).to eq('author' => ["Author can't be blank"])
+
+          expect { submit(valid_request.merge(resource_type: 'other', author: '')) }
+            .to change(ResourceRequest, :count).by(1)
+        end
+
+        it 'keeps no book details for a type that does not ask for them' do
+          submit(valid_request.merge(resource_type: 'morphology', book_name: 'A book', publishing_year: '2001'))
+
+          expect(ResourceRequest.last).to have_attributes(author: nil, book_name: nil, publishing_year: nil)
+        end
+
+        it 'needs a file or a link for a font' do
+          font = valid_request.merge(resource_type: 'font', title: 'Nastaliq font')
+          expect { submit(font) }.not_to change(ResourceRequest, :count)
+          follow_redirect!(headers: inertia_headers)
+          expect(inertia.props[:errors]).to eq('source_files' => ['Source files or a link is needed for a font'])
+
+          expect { submit(font.merge(source_files: [font_file])) }.to change(ResourceRequest, :count).by(1)
+          expect(ResourceRequest.last.source_files.sole.content_type).to eq('font/woff2')
+          expect { submit(font.merge(source_url: 'https://example.test/nastaliq')) }
+            .to change(ResourceRequest, :count).by(1)
+        end
+
+        it 'refuses a file that is not a document or a font, whatever its name, and a link that is not a web address' do
+          program = upload('tafsir.pdf', "MZ\x90\x00".b + ("\0" * 60))
+          binary = upload('notes.txt', "\x7FELF\x02\x01".b + ("\0" * 60))
+
+          expect do
+            submit(valid_request.merge(source_files: [program], source_url: 'javascript:alert(1)'))
+            submit(valid_request.merge(source_files: [binary]))
+          end.not_to change(ResourceRequest, :count)
+
+          follow_redirect!(headers: inertia_headers)
+          expect(inertia.props[:errors]).to eq(
+            'source_files' => ['Source files must be PDF, Word, text or font files (TTF, OTF, WOFF, WOFF2)'],
+          )
+          request = ResourceRequest.new(valid_request.merge(source_url: 'ftp://example.test/x'))
+          expect(request).not_to be_valid
+          expect(request.errors[:source_url]).to eq(['must be a web address starting with http:// or https://'])
+        end
+
+        it 'refuses more than five files, a file over 10 MB and a year in the future' do
+          files = Array.new(6) { |n| upload("part-#{n}.txt", 'text') }
+          big = upload('big.pdf', "%PDF-1.4\n".b + ('0' * 10.megabytes))
+
+          expect do
+            submit(valid_request.merge(source_files: files))
+            submit(valid_request.merge(source_files: [big]))
+            submit(valid_request.merge(publishing_year: (Date.current.year + 1).to_s))
+          end.not_to change(ResourceRequest, :count)
+
+          request = ResourceRequest.new(valid_request)
+          request.source_uploads = files
+          request.validate
+          expect(request.errors[:source_files]).to eq(['can be at most 5 files'])
+          request = ResourceRequest.new(valid_request)
+          request.source_uploads = [big]
+          request.validate
+          expect(request.errors[:source_files]).to eq(['must each be 10 MB or smaller'])
+        end
       end
 
       describe 'the daily limit' do

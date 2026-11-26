@@ -48,10 +48,10 @@ RSpec.describe DownloadableResource do
     expect(resource.errors[:slug]).to include('cannot be all digits')
   end
 
-  it 'starts stable, not recommended, with no script family, rendering or display name of its own' do
+  it 'starts stable, with no script family, rendering or display name of its own' do
     resource = create_resource('Catalog Spec Defaults', free_contents.first)
 
-    expect(resource).to have_attributes(status: 'stable', recommended: false, script_family: nil, rendering: nil,
+    expect(resource).to have_attributes(status: 'stable', script_family: nil, rendering: nil,
                                         catalog_name: 'Catalog Spec Defaults', superseded_by: nil,)
   end
 end

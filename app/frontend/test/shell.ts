@@ -103,9 +103,10 @@ export const requestsNav: SiteNav = {
   ...nav,
   request: link('Request a resource', '/requests?request=new', { inertia: true }),
   requestTypes: [
-    { key: 'translation', label: 'Translation' },
-    { key: 'tafsir', label: 'Tafsir' },
-    { key: 'other', label: 'Other' },
+    { key: 'translation', label: 'Translation', author: 'required', sourceRequired: false },
+    { key: 'tafsir', label: 'Tafsir', author: 'required', sourceRequired: false },
+    { key: 'font', label: 'Font', author: null, sourceRequired: true },
+    { key: 'other', label: 'Other', author: 'optional', sourceRequired: false },
   ],
 }
 

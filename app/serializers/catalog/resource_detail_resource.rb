@@ -8,8 +8,8 @@ module Catalog
              status: [:string, { enum: Taxonomy.statuses.map(&:key) }],
              script_family: [:string, { nullable: true }], language: [:string, { nullable: true }],
              granularity: [:string, { nullable: true }], summary: [:string, { nullable: true }],
-             info: [:string, { nullable: true }], recommended: :boolean
-    attributes :id, :to_param, :status, :recommended
+             info: [:string, { nullable: true }]
+    attributes :id, :to_param, :status
     attribute(:name, &:catalog_name)
     attribute(:type, &:resource_type)
     attribute(:script_family) { |resource| Taxonomy.label(Taxonomy.script_families, resource.script_family) }

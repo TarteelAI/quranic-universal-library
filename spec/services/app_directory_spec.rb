@@ -48,6 +48,18 @@ RSpec.describe AppDirectory do
       expect(apps).not_to include(submission)
     end
 
+    it 'orders by position after the featured flag, and puts a new app last' do
+      App.find_by!(import_key: 'bayaan').update!(position: 0)
+      App.find_by!(import_key: 'quranwbw').update!(position: App.next_position)
+
+      keys = described_class.apps.map(&:import_key)
+      expect(keys.index('bayaan')).to eq(entries.count { |entry| entry['featured'] })
+      expect(keys.index('bayaan')).to be < keys.index('mihrab')
+      expect(keys.index('quranwbw')).to be < keys.index('bayaan')
+      expect(App.create!(name: 'New', url: 'https://example.test/new', platforms: ['web'], uses: ['translation'])
+        .position).to eq(App.maximum(:position))
+    end
+
     it 'filters by platform and resource type' do
       apps = described_class.apps
       filters = described_class.filters(project_type: nil, platform: 'ios', type: 'font')

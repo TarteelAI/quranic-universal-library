@@ -12,7 +12,9 @@ import type { CatalogBundleItem } from '@/types/serializers'
 type SaveFilePicker = (options: {
   suggestedName: string
   types: { description: string; accept: Record<string, string[]> }[]
-}) => Promise<{ createWritable: () => Promise<WritableStream<Uint8Array>> }>
+}) => Promise<SavedFile>
+// remove() is newer than the dialog: Chromium 110.
+type SavedFile = { createWritable: () => Promise<WritableStream<Uint8Array>>; remove?: () => Promise<void> }
 
 type State =
   | { state: 'idle' }
@@ -48,12 +50,12 @@ function saveBlob(blob: Blob, name: string) {
 /**
  * A button that downloads resources as one zip built in the browser (lib/zip-download.ts), with
  * its progress and a cancel button while it runs. Files that cannot be fetched are left out and
- * named in the zip's README.
+ * named in the zip's README. Only the cancel button stops a zip: one started in the bundle tray
+ * goes on when the tray closes, and ends in the same toast.
  */
 export function ZipDownload({ title, items, formats = null, label, signInHref, tooBig, className }: ZipDownloadProps) {
   const [status, setStatus] = React.useState<State>({ state: 'idle' })
   const controller = React.useRef<AbortController | null>(null)
-  React.useEffect(() => () => controller.current?.abort(), [])
 
   if (signInHref)
     return (
@@ -68,12 +70,15 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
     const abort = new AbortController()
     controller.current = abort
     const name = zipName(title)
+    // Chromium makes the picked file when the dialog closes; one that gets no zip is removed.
+    let handle: SavedFile | null = null
+    const discard = () => handle?.remove?.().catch(() => {})
     try {
       // The save dialog first: it needs the click that started it.
       const picker = canStream()
         ? (window as unknown as { showSaveFilePicker: SaveFilePicker }).showSaveFilePicker
         : null
-      const handle = picker
+      handle = picker
         ? await picker({
             suggestedName: name,
             types: [{ description: 'Zip', accept: { 'application/zip': ['.zip'] } }],
@@ -83,6 +88,7 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
       const entries = zipEntries(resolved, formats)
       const bytes = totalBytes(entries)
       if (entries.length === 0) {
+        await discard()
         toast.error('There are no files to download.')
         return setStatus({ state: 'idle' })
       }
@@ -110,6 +116,7 @@ export function ZipDownload({ title, items, formats = null, label, signInHref, t
       setStatus({ state: 'idle' })
     } catch (error) {
       setStatus({ state: 'idle' })
+      await discard()
       if (isAbort(error)) return
       console.warn(error)
       toast.error('The zip could not be made. Try again later.', { id: 'zip-download' })

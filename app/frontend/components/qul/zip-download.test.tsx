@@ -99,6 +99,37 @@ describe('ZipDownload', () => {
     )
   })
 
+  it('goes on and saves the zip when it leaves the page (the tray closes)', async () => {
+    const { finish } = stubZip()
+    const { unmount } = render(
+      <ZipDownload title="QUL bundle" items={[item(10)]} label="Download bundle" signInHref={null} />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download bundle' }))
+    await screen.findByRole('progressbar')
+    unmount()
+    finish()
+
+    await waitFor(() => expect(saved).toEqual(['qul-bundle.zip']))
+  })
+
+  it("removes the file Chromium's save dialog made when there is nothing to zip", async () => {
+    const remove = vi.fn(() => Promise.resolve())
+    const picker = vi.fn(() => Promise.resolve({ createWritable: vi.fn(), remove }))
+    vi.stubGlobal('showSaveFilePicker', picker)
+    const error = vi.spyOn(toast, 'error')
+    const restricted = { ...item(10), restricted: true, files: [] }
+    render(
+      <ZipDownload title="Kit" items={() => Promise.resolve([restricted])} label="Download kit" signInHref={null} />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download kit' }))
+
+    await waitFor(() => expect(error).toHaveBeenCalledWith('There are no files to download.'))
+    expect(picker).toHaveBeenCalledWith(expect.objectContaining({ suggestedName: 'kit.zip' }))
+    expect(remove).toHaveBeenCalledTimes(1)
+  })
+
   it('cancels', async () => {
     let signal: AbortSignal | undefined
     vi.spyOn(zip, 'zipStream').mockImplementation(async (options) => {

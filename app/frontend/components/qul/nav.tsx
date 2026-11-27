@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react'
+import { config, Link, router } from '@inertiajs/react'
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
@@ -37,6 +37,7 @@ import {
 import { Accordion as AccordionPrimitive, NavigationMenu as NavPrimitive } from 'radix-ui'
 import * as React from 'react'
 
+import { onVisitStart, PREFETCH_CACHE_FOR, prefetchable } from '@/lib/prefetch'
 import { cn } from '@/lib/utils'
 import type { SiteNavGroup, SiteNavLink, SiteNavMenu } from '@/types/serializers'
 
@@ -53,15 +54,53 @@ export interface NavAnchorProps {
   className?: string
   children?: React.ReactNode
   onClick?: (event: React.MouseEvent<Element>) => void
+  onFocus?: (event: React.FocusEvent<HTMLAnchorElement>) => void
+  onBlur?: (event: React.FocusEvent<HTMLAnchorElement>) => void
   'aria-label'?: string
+  'aria-current'?: 'page'
   ref?: React.Ref<HTMLAnchorElement>
 }
 
 /**
- * A link from the site navigation. A link to a new page is an Inertia visit; any other link
- * (an old page, another site) is a plain link that loads the page in full.
+ * A link from the site navigation. A link to a new page is an Inertia visit, fetched ahead when
+ * the pointer rests on it or the keyboard focuses it; any other link (an old page, another
+ * site) is a plain link that loads the page in full.
  */
 function NavAnchor({ link, children, ref, ...props }: NavAnchorProps) {
+  const focusTimer = React.useRef<number | undefined>(undefined)
+  React.useEffect(() => () => window.clearTimeout(focusTimer.current), [])
+
+  if (link.inertia && prefetchable(link.href)) {
+    const { onClick, onFocus, onBlur, ...rest } = props
+    return (
+      <Link
+        ref={ref}
+        href={link.href}
+        prefetch
+        cacheFor={PREFETCH_CACHE_FOR}
+        {...rest}
+        onClick={(event) => {
+          window.clearTimeout(focusTimer.current)
+          onClick?.(event)
+        }}
+        // Inertia's hover prefetch follows the mouse only; keyboard focus waits the same delay
+        onFocus={(event: React.FocusEvent<HTMLAnchorElement>) => {
+          onFocus?.(event)
+          if (!event.currentTarget.matches(':focus-visible')) return
+          focusTimer.current = window.setTimeout(
+            () => router.prefetch(link.href, {}, { cacheFor: PREFETCH_CACHE_FOR }),
+            config.get('prefetch.hoverDelay'),
+          )
+        }}
+        onBlur={(event: React.FocusEvent<HTMLAnchorElement>) => {
+          onBlur?.(event)
+          window.clearTimeout(focusTimer.current)
+        }}
+      >
+        {children}
+      </Link>
+    )
+  }
   if (link.inertia)
     return (
       <Link ref={ref} href={link.href} {...props}>
@@ -320,7 +359,7 @@ function MegaMenu({ menus, url, className }: MegaMenuProps) {
   const [offset, setOffset] = React.useState({ x: 0, slide: false })
   const rootRef = React.useRef<HTMLElement>(null)
   const pointerType = React.useRef('')
-  React.useEffect(() => router.on('start', () => setValue('')), [])
+  React.useEffect(() => onVisitStart(() => setValue('')), [])
 
   const onValueChange = (next: string) => {
     const root = rootRef.current

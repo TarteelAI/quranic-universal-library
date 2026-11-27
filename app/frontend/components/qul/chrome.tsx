@@ -1,4 +1,4 @@
-import { router, usePage } from '@inertiajs/react'
+import { usePage } from '@inertiajs/react'
 import { ArrowUpRightIcon, LogOutIcon, MenuIcon, SearchIcon, SettingsIcon, UserIcon } from 'lucide-react'
 import { DropdownMenu as DropdownPrimitive } from 'radix-ui'
 import * as React from 'react'
@@ -8,6 +8,7 @@ import { Kbd } from '@/components/ui/misc'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/overlays'
 import { fillAuthenticityToken } from '@/lib/csrf'
 import { REPO_URL } from '@/lib/github'
+import { onVisitStart } from '@/lib/prefetch'
 import { cn } from '@/lib/utils'
 import { destroyUserSession, newUserSession } from '@/routes'
 import type { AuthUser, SiteNav, SiteNavGroup } from '@/types/serializers'
@@ -193,7 +194,7 @@ function SiteHeader({ className }: SiteHeaderProps) {
   // focus back, so the two dialogs never fight over focus.
   const searchAfterMenu = React.useRef(false)
   const closeMenu = React.useCallback(() => setMenuOpen(false), [])
-  React.useEffect(() => router.on('start', closeMenu), [closeMenu])
+  React.useEffect(() => onVisitStart(closeMenu), [closeMenu])
 
   return (
     <header className={cn('sticky top-0 z-40 border-b bg-background/85 backdrop-blur-md', className)}>

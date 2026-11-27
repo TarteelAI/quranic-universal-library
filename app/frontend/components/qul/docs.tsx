@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/overlays'
 import { searchDocs, useDocsIndex } from '@/lib/docs-search'
+import { onVisitStart } from '@/lib/prefetch'
 import { cn } from '@/lib/utils'
 import { docsIndexPage, docsPage } from '@/routes'
 import type { ContentDocHeading, ContentDocNavCategory, ContentDocSegment } from '@/types/serializers'
@@ -389,7 +390,7 @@ export function DocsLayout({
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
-  useEffect(() => router.on('start', closeMenu), [closeMenu])
+  useEffect(() => onVisitStart(closeMenu), [closeMenu])
 
   return (
     <>

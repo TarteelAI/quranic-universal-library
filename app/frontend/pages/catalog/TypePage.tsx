@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import { Container, SiteShell } from '@/components/layout'
 import { EmptyState } from '@/components/qul/catalog'
+import { NavAnchor } from '@/components/qul/nav'
 import { RequestCard } from '@/components/qul/request-dialog'
 import { SearchInput } from '@/components/qul/chrome'
 import { ResourceIcon } from '@/components/qul/icons'
@@ -125,9 +126,9 @@ function ComparisonCell({
       return (
         <TableCell>
           {row.font ? (
-            <Link href={detailHref(row.font)} className="hover:underline">
+            <NavAnchor link={{ href: detailHref(row.font), inertia: true }} className="hover:underline">
               {row.font.name}
-            </Link>
+            </NavAnchor>
           ) : (
             '–'
           )}
@@ -185,9 +186,9 @@ function ComparisonTable({
                     'min-w-36 px-5 font-medium [tr:hover>&]:bg-accent whitespace-normal sm:min-w-40',
                   )}
                 >
-                  <Link href={detailHref(row)} className="hover:underline">
+                  <NavAnchor link={{ href: detailHref(row), inertia: true }} className="hover:underline">
                     {row.name}
-                  </Link>
+                  </NavAnchor>
                 </TableCell>
                 {comparison.columns.map((column) => (
                   <ComparisonCell key={column.key} column={column} row={row} statuses={statuses} />
@@ -389,8 +390,8 @@ export default function TypePage({
           <ul className="flex flex-wrap gap-2">
             {types.map((other) => (
               <li key={other.key}>
-                <Link
-                  href={catalogType(other.key).url}
+                <NavAnchor
+                  link={{ href: catalogType(other.key).url, inertia: true }}
                   aria-current={other.key === type.key ? 'page' : undefined}
                   className={cn(
                     'inline-flex h-8 items-center rounded-md border bg-card px-3 text-sm hover:bg-accent',
@@ -398,7 +399,7 @@ export default function TypePage({
                   )}
                 >
                   {other.title}
-                </Link>
+                </NavAnchor>
               </li>
             ))}
           </ul>

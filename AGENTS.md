@@ -357,6 +357,13 @@ storage URL, so a download link is a plain `<a>`, never an Inertia visit.
   the Contribute menu are `ToolsHelper#developer_tools`. The header shows a signed-in user as their initials; the button opens the account menu (profile,
   account settings, sign out). The shared prop `auth` holds only `{ user: { initials, name } }`
   or `{ user: null }`; sign-in links pass the current path as `user_return_to`.
+- Prefetch (`lib/prefetch.ts`): a `NavAnchor` to a new page fetches it ahead once the pointer
+  rests on it for Inertia's hover delay (75 ms) or the keyboard focuses it, and keeps it 30 s
+  (another hover sends nothing) up to 5 min (a click shows the kept copy). That covers resource
+  cards, type links and the header and footer links. Not prefetched: the catalog `/resources`
+  (each request is a search; its links carry filters) and `/profile` pages. Every visit that is
+  not a GET flushes the kept pages; sign-in and sign-out are full loads. Inertia fires `start`
+  for a prefetch too, so code that closes a menu on a visit uses `onVisitStart`.
 - Theme: light and dark tokens in `app/frontend/styles/inertia.css`, switched by the `dark`
   class on `<html>`. An inline script in the layout sets it before the first paint from the
   stored choice (`localStorage` key `qul-theme`) or the system setting; `lib/theme.ts` keeps it
@@ -454,7 +461,12 @@ LOOK_PATH=/resources/font yarn test:browser look.spec.ts   # screenshots of one 
   the `analytics` fixture lists the page views a test sent. The real gtag.js still loads, so the
   GA4 spec needs network access.
 - Output (traces, screenshots, the HTML report) goes to `tmp/playwright/`.
-- `QUL_BROWSER_BASE_URL` points the run at another server.
+- `QUL_BROWSER_BASE_URL` points the run at another server. A server other than `localhost`
+  starts no Vite or Rails here; behind Cloudflare Access, `CF_ACCESS_CLIENT_ID` and
+  `CF_ACCESS_CLIENT_SECRET` in the environment sign the run in.
+- `navigation-timing.spec.ts` is a measurement that runs only with `QUL_NAV_TIMING=1`: click to
+  next page rendered for a card, a header menu link and a footer link, and the prefetches a
+  scripted catalog browse sends (comment at its top).
 - A second Rails server inside `qul-dev` (for example on 3001) is not on the host's `localhost`:
   the container publishes only 3000. Forward a host port to the container's IP
   (`docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' qul-dev`) with a

@@ -5,6 +5,8 @@ import { defineConfig, devices } from '@playwright/test'
 // already running on these ports (for example Rails in Docker).
 const baseURL = process.env.QUL_BROWSER_BASE_URL ?? 'http://localhost:3000'
 const pageGroups = process.env.QUL_PAGE_GROUPS ?? 'home,catalog,apps,content,start,requests,account'
+// A deployed server (staging) needs neither Vite nor Rails here.
+const local = new URL(baseURL).hostname === 'localhost'
 
 export default defineConfig({
   testDir: 'spec/browser',
@@ -18,19 +20,21 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } } },
     { name: 'phone', use: { ...devices['Pixel 7'] } },
   ],
-  webServer: [
-    {
-      command: 'node_modules/.bin/vite',
-      url: 'http://localhost:3036/vite-dev/@vite/client',
-      env: { RAILS_ENV: 'development' },
-      reuseExistingServer: true,
-    },
-    {
-      command: 'bin/rails server -p 3000',
-      url: `${baseURL}/health`,
-      env: { QUL_PAGE_GROUPS: pageGroups },
-      reuseExistingServer: true,
-      timeout: 120_000,
-    },
-  ],
+  webServer: local
+    ? [
+        {
+          command: 'node_modules/.bin/vite',
+          url: 'http://localhost:3036/vite-dev/@vite/client',
+          env: { RAILS_ENV: 'development' },
+          reuseExistingServer: true,
+        },
+        {
+          command: 'bin/rails server -p 3000',
+          url: `${baseURL}/health`,
+          env: { QUL_PAGE_GROUPS: pageGroups },
+          reuseExistingServer: true,
+          timeout: 120_000,
+        },
+      ]
+    : [],
 })

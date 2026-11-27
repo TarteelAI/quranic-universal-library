@@ -6,6 +6,7 @@ import '@fontsource-variable/host-grotesk'
 import '@fontsource-variable/noto-naskh-arabic'
 
 import { trackPageViews } from '../lib/analytics'
+import { flushPrefetchedOnWrite } from '../lib/prefetch'
 import { followSystemTheme } from '../lib/theme'
 import '../styles/inertia.css'
 
@@ -13,10 +14,12 @@ import '../styles/inertia.css'
 // devDependencies, so the build cannot resolve what a test file imports (Vitest, Testing Library).
 const pages = import.meta.glob<{ default: ComponentType }>(['../pages/**/*.tsx', '!../pages/**/*.test.tsx'])
 
-// The SSR bundle runs this file too; analytics and the theme belong to the browser only.
+// The SSR bundle runs this file too; analytics, the theme and the prefetch cache belong to the
+// browser only.
 if (typeof window !== 'undefined') {
   trackPageViews()
   followSystemTheme()
+  flushPrefetchedOnWrite()
 }
 
 void createInertiaApp({

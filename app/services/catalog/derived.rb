@@ -69,7 +69,7 @@ module Catalog
     end
 
     # The state of the rows the values are computed from, or nil inside a transaction that has
-    # written (a second write there to a row it already wrote leaves `xmin` as it was). Per table,
+    # written on either database (a second write there to a row it already wrote leaves `xmin` as it was). Per table,
     # the count and the sum of `xmin`, the transaction that wrote each row version, change with
     # any insert, update or delete, whether it sets `updated_at` or not. A download rewrites its
     # file's counters, so for files only the published (resource, file type) pairs count.
@@ -84,7 +84,8 @@ module Catalog
       return if cms.first
 
       content = versions(ResourceContent, Language, Mushaf, Recitation, ::Audio::Recitation, RecitationStyle)
-      cms.drop(1) + QulQuranRecord.connection.select_rows("SELECT #{content}").first
+      content = QulQuranRecord.connection.select_rows("SELECT txid_current_if_assigned(), #{content}").first
+      cms.drop(1) + content.drop(1) unless content.first
     end
 
     def self.versions(*models)

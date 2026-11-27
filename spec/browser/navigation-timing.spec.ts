@@ -166,12 +166,13 @@ test('footer link to a docs page', async ({ page }) => {
 })
 
 // A browse of the catalog's first page: the pointer rests on each of `cards` cards for `rest`
-// ms, then clicks the last. Counts the requests the page makes from the first hover on: the
+// ms, then clicks the last. Rest 0 is a sweep: the pointer glides over the cards in view
+// without stopping. Counts the requests the page makes from the first hover on: the
 // prefetches (Purpose: prefetch), the other Inertia visits, and their Rails time (x-runtime).
 for (const [cards, rest] of [
   [24, 300],
-  [24, 50],
   [6, 300],
+  [24, 0],
 ] as const) {
   test(`server load: rest ${rest} ms on ${cards} cards of the catalog, click the last`, async ({ page }) => {
     await page.goto('/resources')
@@ -187,17 +188,27 @@ for (const [cards, rest] of [
     })
     const links = page.getByTestId('resource-card').getByRole('link')
     await expect(links.first()).toBeVisible()
-    const total = Math.min(cards, await links.count())
-    for (let i = 0; i < total; i++) {
-      await links.nth(i).scrollIntoViewIfNeeded()
-      await links.nth(i).hover()
-      await page.waitForTimeout(rest)
+    let total = Math.min(cards, await links.count())
+    if (rest === 0) {
+      const boxes = []
+      for (let i = 0; i < total; i++) {
+        const box = await links.nth(i).boundingBox()
+        if (box && box.y + box.height < page.viewportSize()!.height) boxes.push(box)
+      }
+      total = boxes.length
+      for (const box of boxes) await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 4 })
+    } else {
+      for (let i = 0; i < total; i++) {
+        await links.nth(i).scrollIntoViewIfNeeded()
+        await links.nth(i).hover()
+        await page.waitForTimeout(rest)
+      }
     }
     const path = new URL((await links.nth(total - 1).getAttribute('href'))!, page.url()).pathname
     await links.nth(total - 1).click()
     await page.waitForURL((url) => url.pathname === path)
     await page.waitForLoadState('networkidle')
-    const line = `[load] ${cards} cards, rest ${rest} ms: ${seen.prefetch} prefetches (Rails ${seen.prefetchMs.toFixed(0)} ms in all), ${seen.visit} other Inertia requests, build=${commit}`
+    const line = `[load] ${total} cards, ${rest ? `rest ${rest} ms` : 'sweep'}: ${seen.prefetch} prefetches (Rails ${seen.prefetchMs.toFixed(0)} ms in all), ${seen.visit} other Inertia requests, build=${commit}`
     console.log(line)
     test.info().annotations.push({ type: 'load', description: line })
   })

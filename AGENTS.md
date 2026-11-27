@@ -482,9 +482,10 @@ this file and local Vite builds out of the image.
 - **Slugs** are never all digits: `find_by_slug_or_id!` falls back to `find`.
 - **Catalog fields.** Only the slug and an editor's `short_summary` are stored (existing
   columns). The display name, script family, rendering, status, replacement,
-  requires-links and missing summaries are computed per request (`Catalog::Derived`), and a
-  `meta_data` key overrides one (DECISIONS.md). Read them from the resource (`resource.status`,
-  `resource.summary`); never add a column for a value the data already implies. In a spec, call
+  requires-links and missing summaries are computed (`Catalog::Derived`, kept per process until
+  a row they read changes), and a `meta_data` key overrides one (DECISIONS.md). Read them from the
+  resource (`resource.status`, `resource.summary`); never add a column for a value the data
+  already implies. A new fact read from another table adds it to `Derived.fingerprint`. In a spec, call
   `Catalog::Derived.reset` after changing rows without the model (`update_columns`), or use
   `override_catalog`.
 - **Backfills** are idempotent and keyed on stable fields, because editors keep changing

@@ -27,9 +27,12 @@ module Catalog
     SURAH_NAME_FONT = { resource_type: 'font', cardinality_type: '1_chapter' }.freeze
     SURAH_NAME = /\Asurah names?\b/i
 
-    # Type => DownloadableResource.
-    def call
-      scopes = TYPES.map { |type, conditions| DownloadableResource.published.where(resource_type: type, **conditions) }
+    # Type => DownloadableResource, for `types` (all of TYPES by default): a home card's reload
+    # asks for its own type only.
+    def call(types = TYPES.keys)
+      scopes = TYPES.slice(*types).map do |type, conditions|
+        DownloadableResource.published.where(resource_type: type, **conditions)
+      end
       candidates = scopes.reduce(:or).select { |resource| STATUSES.include?(resource.status) }
       downloads = downloads(candidates)
       timed = timed(candidates)

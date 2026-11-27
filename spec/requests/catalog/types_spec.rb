@@ -87,6 +87,8 @@ RSpec.describe 'Type pages (/resources/:type)', type: :request do
     it 'runs the same number of queries whatever the number of resources on the page' do
       get '/resources/font' # loads the code and the schema
       fonts = DownloadableResource.published.where(resource_type: 'font')
+      # Both counts compute the catalog fields: the write below makes the second one compute them.
+      Catalog::Derived.latest = nil
       all = count_queries { get '/resources/font' }
       expect(inertia.props[:resources].size).to be > 20
       expect(inertia.props[:comparison][:rows].size).to eq(inertia.props[:resources].size)

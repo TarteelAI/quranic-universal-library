@@ -22,7 +22,12 @@ module CatalogFields
     after_commit { Catalog::Derived.reset }
   end
 
-  delegate :script_family, :rendering, :status, :superseded_by, to: :catalog_fields
+  delegate :script_family, :rendering, :status, to: :catalog_fields
+
+  # The resource that replaces this one, or nil.
+  def superseded_by
+    Catalog::Derived.current.superseded_by(self)
+  end
 
   Catalog::Derived::STATUSES.each do |status|
     define_method(:"#{status}?") { self.status == status }

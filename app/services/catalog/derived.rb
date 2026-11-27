@@ -10,10 +10,12 @@ module Catalog
   # override wins over the computed value, and the rules that read the field read the override.
   # An invalid one is ignored.
   #
-  # The catalog is a few hundred rows over two databases. It is loaded once per request in a
-  # fixed number of queries (`current`), whatever the number of resources a page shows, and
-  # nothing is kept between requests. A DownloadableResource reads its fields from `current`
-  # (CatalogFields), so callers use `resource.status` and need not know about this class.
+  # The catalog is a few hundred rows over two databases. Each request reads its fingerprint
+  # (`fingerprint`, one query per database) and uses the values this process last computed when
+  # the fingerprint is the same; otherwise it loads the catalog in a fixed number of queries and
+  # computes them again (DECISIONS.md). The resources themselves are loaded per request, only
+  # when a caller asks for them or for links. A DownloadableResource reads its fields from
+  # `current` (CatalogFields), so callers use `resource.status` and need not know about this class.
   class Derived
     SCRIPT_FAMILIES = ['madani', 'indopak', 'other'].freeze
     RENDERINGS = ['unicode_font', 'glyph_page', 'image', 'svg'].freeze
@@ -26,8 +28,8 @@ module Catalog
       superseded_by: 'superseded-by',
     }.freeze
 
-    # `superseded_by` is a DownloadableResource or nil.
-    Values = Struct.new(:display_name, :script_family, :rendering, :status, :superseded_by, keyword_init: true)
+    # `superseded_by_id` is the replacement's id or nil (CatalogFields#superseded_by finds it).
+    Values = Struct.new(:display_name, :script_family, :rendering, :status, :superseded_by_id, keyword_init: true)
     DEFAULTS = Values.new(status: 'stable').freeze
 
     # A link between two resources (DownloadableResource). `id` is the row's id; a requires-link
@@ -36,16 +38,27 @@ module Catalog
       def requires? = relation_type == 'requires'
     end
 
+    # What the rules compute, as ids and strings, so one request's can serve the next: resource
+    # id => Values, => summary and => tag names, each link as [row id, source id, target id,
+    # relation type], and the ids of the resources links and replacements name.
+    Snapshot = Data.define(:values, :summaries, :tags, :links, :referenced)
+
     # Holds one request's (or job's) catalog; Rails resets it between requests.
     class Current < ActiveSupport::CurrentAttributes
       attribute :catalog
+    end
+
+    # [fingerprint, Snapshot] last computed in this process.
+    @latest = nil
+    class << self
+      attr_accessor :latest
     end
 
     def self.current
       Current.catalog ||= new
     end
 
-    # Forgets the loaded catalog, so the next read sees rows changed since.
+    # Forgets the request's catalog, so the next read checks the fingerprint again.
     def self.reset
       Current.catalog = nil
     end
@@ -55,26 +68,61 @@ module Catalog
       value.squish.presence if value.is_a?(String)
     end
 
+    # The state of the rows the values are computed from, or nil inside a transaction that has
+    # written (a second write there to a row it already wrote leaves `xmin` as it was). Per table,
+    # the count and the sum of `xmin`, the transaction that wrote each row version, change with
+    # any insert, update or delete, whether it sets `updated_at` or not. A download rewrites its
+    # file's counters, so for files only the published (resource, file type) pairs count.
+    def self.fingerprint
+      tables = versions(DownloadableResource, DownloadableResourceTagging, DownloadableResourceTag,
+                        DownloadableRelatedResource,)
+      cms = ApplicationRecord.connection.select_rows(<<~SQL.squish).first
+        SELECT txid_current_if_assigned(), #{tables},
+          (SELECT md5(string_agg(downloadable_resource_id || '/' || coalesce(file_type, ''), ',' ORDER BY id))
+           FROM downloadable_files WHERE published)
+      SQL
+      return if cms.first
+
+      content = versions(ResourceContent, Language, Mushaf, Recitation, ::Audio::Recitation, RecitationStyle)
+      cms.drop(1) + QulQuranRecord.connection.select_rows("SELECT #{content}").first
+    end
+
+    def self.versions(*models)
+      models.map do |model|
+        "(SELECT count(*) || ':' || coalesce(sum(xmin::text::bigint), 0) FROM #{model.quoted_table_name})"
+      end.join(', ')
+    end
+    private_class_method :versions
+
     def initialize
-      @resources = load_resources
-      @by_id = @resources.index_by(&:id)
-      @overrides = @resources.to_h { |resource| [resource.id, overrides(resource)] }
-      @names = DisplayNames.call(@resources, @overrides.transform_values { |values| values[:display_name] }.compact)
-      @rows = stored_links
-      @facts = load_facts
-      @values = derive
+      fingerprint = self.class.fingerprint
+      latest = self.class.latest
+      @snapshot = if fingerprint && latest&.first == fingerprint
+                    latest.last
+                  else
+                    compute.tap { |snapshot| self.class.latest = [fingerprint, snapshot].freeze if fingerprint }
+                  end
     end
 
     # The fields of a resource. One this catalog does not hold (a new record) has its name, the
     # default status and nothing else.
     def of(resource)
-      @values[resource.id] || DEFAULTS.dup.tap { |values| values.display_name = resource.name }
+      @snapshot.values[resource.id] || DEFAULTS.dup.tap { |values| values.display_name = resource.name }
     end
 
     # One plain sentence for a resource with no summary of its own (Inference.summary).
     def summary(resource)
-      facts = @facts[resource.id]
-      Inference.summary(facts) if facts
+      @snapshot.summaries[resource.id]
+    end
+
+    # The names of the resource's tags.
+    def tag_names(resource)
+      @snapshot.tags.fetch(resource.id, [])
+    end
+
+    # The resource that replaces this one, or nil.
+    def superseded_by(resource)
+      of(resource).superseded_by_id&.then { |id| by_id[id] }
     end
 
     # Links the resource holds, and links other resources hold to it, in row order. A link with
@@ -82,32 +130,63 @@ module Catalog
     def links_from(resource) = links.select { |link| link.source.id == resource.id }
     def links_to(resource) = links.select { |link| link.target.id == resource.id }
 
-    # The resources in id order, as loaded here (with their content rows and tags).
-    attr_reader :resources
+    # The resources in id order, with their content rows and languages, loaded on first use.
+    def resources
+      @resources ||= load_resources
+    end
 
     private
 
+    # Without the resources loaded, only those that links and replacements name, as plain rows.
+    def by_id
+      @by_id ||= (@resources || DownloadableResource.where(id: @snapshot.referenced).order(:id).to_a).index_by(&:id)
+    end
+
+    def links
+      @links ||= @snapshot.links.filter_map do |id, source, target, relation_type|
+        next unless by_id.key?(source) && by_id.key?(target)
+
+        Link.new(id: id, source: by_id[source], target: by_id[target], relation_type: relation_type)
+      end
+    end
+
+    def compute # rubocop:disable Metrics/AbcSize -- the snapshot's parts, in the order they need each other
+      @tags = DownloadableResourceTagging.joins(:downloadable_resource_tag).order(:id)
+        .pluck(:downloadable_resource_id, 'downloadable_resource_tags.name')
+        .group_by(&:first).transform_values { |rows| rows.map(&:last).freeze }
+      @overrides = resources.to_h { |resource| [resource.id, overrides(resource)] }
+      @names = DisplayNames.call(resources, @overrides.transform_values { |values| values[:display_name] }.compact)
+      @rows = stored_links
+      @facts = load_facts
+      values = derive
+      summaries = @facts.transform_values { |facts| Inference.summary(facts)&.freeze }
+      links = link_rows
+      referenced = (links.flat_map { |link| link[1, 2] } + values.values.filter_map(&:superseded_by_id)).uniq
+      Snapshot.new(values: values.freeze, summaries: summaries.freeze, tags: @tags.freeze, links: links.freeze,
+                   referenced: referenced.freeze,)
+    end
+
     def load_resources
       DownloadableResource.order(:id)
-        .preload(:downloadable_resource_tags, :language, resource_content: :language)
+        .preload(:language, resource_content: :language)
         .to_a
     end
 
     # [source id, target id, row id] of each usable link row.
     def stored_links
       DownloadableRelatedResource.order(:id).pluck(:downloadable_resource_id, :related_resource_id, :id)
-        .select { |source, target, _| @by_id.key?(source) && @by_id.key?(target) }
+        .select { |source, target, _| by_id.key?(source) && by_id.key?(target) }
         .uniq { |source, target, _| [source, target] }
     end
 
     def load_facts # rubocop:disable Metrics/AbcSize -- the facts' queries, each keyed by resource
       formats = DownloadableFile.where(published: true).pluck(:downloadable_resource_id, :file_type)
         .group_by(&:first).transform_values { |rows| rows.map(&:last) }
-      mushafs = MushafLayouts::Page.mushafs_for(@resources.select(&:mushaf_layout?))
+      mushafs = MushafLayouts::Page.mushafs_for(resources.select(&:mushaf_layout?))
       linked = @rows.group_by(&:first).transform_values { |rows| rows.map { |row| row[1] } }
 
-      @resources.to_h do |resource|
-        fonts = linked.fetch(resource.id, []).select { |id| @by_id[id].resource_type == 'font' }
+      resources.to_h do |resource|
+        fonts = linked.fetch(resource.id, []).select { |id| by_id[id].resource_type == 'font' }
         [resource.id, facts(resource, formats.fetch(resource.id, []), mushafs[resource.id], fonts)]
       end
     end
@@ -119,7 +198,7 @@ module Catalog
         id: resource.id, type: resource.resource_type, type_label: Taxonomy.type(resource.resource_type)&.label,
         name: resource.name, cardinality: resource.cardinality_type, published: resource.published,
         language: (resource.language || content&.language)&.name&.split(',')&.first,
-        tags: resource.downloadable_resource_tags.map(&:name), formats: formats, requires: [],
+        tags: @tags.fetch(resource.id, []), formats: formats, requires: [],
         linked_fonts: linked_fonts, **script_facts(resource, content, mushaf),
       )
     end
@@ -160,7 +239,7 @@ module Catalog
       catalog.to_h do |facts|
         [facts.id, Values.new(
           display_name: @names.fetch(facts.id), script_family: facts.script_family, rendering: facts.rendering,
-          status: facts.status, superseded_by: replacements[facts.id],
+          status: facts.status, superseded_by_id: replacements[facts.id]&.id,
         ).freeze,]
       end
     end
@@ -172,22 +251,18 @@ module Catalog
       inferred, inferred_by = Inference.status(facts, catalog)
       facts.status = override[:status] || ('superseded' if override[:superseded_by]) || inferred || 'stable'
 
-      override[:superseded_by] || (@by_id[inferred_by] if facts.status == 'superseded')
+      override[:superseded_by] || (by_id[inferred_by] if facts.status == 'superseded')
     end
 
-    def links
-      @links ||= begin
-        requires = @facts.transform_values { |facts| facts.requires.first }.compact
-        stored = @rows.map do |source, target, id|
-          link(id, source, target, requires[source] == target ? 'requires' : 'pairs_with')
-        end
-        implied = requires.to_a - @rows.map { |row| row.first(2) }
-        stored + implied.map { |source, target| link(nil, source, target) }
+    # [row id, source id, target id, relation type] of each link: the usable rows, then the
+    # requires-links the data implies that no row holds.
+    def link_rows
+      requires = @facts.transform_values { |facts| facts.requires.first }.compact
+      stored = @rows.map do |source, target, id|
+        [id, source, target, requires[source] == target ? 'requires' : 'pairs_with']
       end
-    end
-
-    def link(id, source, target, relation_type = 'requires')
-      Link.new(id: id, source: @by_id.fetch(source), target: @by_id.fetch(target), relation_type: relation_type)
+      implied = requires.to_a - @rows.map { |row| row.first(2) }
+      stored + implied.map { |source, target| [nil, source, target, 'requires'] }
     end
 
     # The valid overrides of a resource: field => value.
@@ -217,8 +292,8 @@ module Catalog
       name = value.to_s.strip
       return if name.empty?
 
-      @by_slug ||= @resources.select { |other| other.slug.present? }.index_by(&:slug)
-      found = @by_slug[name] || (@by_id[name.to_i] if name.match?(/\A\d+\z/))
+      @by_slug ||= resources.select { |other| other.slug.present? }.index_by(&:slug)
+      found = @by_slug[name] || (by_id[name.to_i] if name.match?(/\A\d+\z/))
       found unless found&.id == resource.id
     end
   end

@@ -69,7 +69,7 @@ module Catalog
 
     private
 
-    # The resources come from the request's catalog (Catalog::Derived), which has their tags,
+    # The resources and their tags come from the request's catalog (Catalog::Derived), with their
     # content rows and languages loaded; the files are the one query added here.
     def load_rows
       resources = Derived.current.resources.select(&:published)
@@ -95,7 +95,7 @@ module Catalog
     def search_text(resource, language)
       type = Taxonomy.type(resource.resource_type)
       parts = [resource.catalog_name, resource.name, type&.label, type&.title, language&.name, language&.native_name,
-               *resource.downloadable_resource_tags.map(&:name),]
+               *Derived.current.tag_names(resource),]
       parts.filter_map { |part| TextKey.call(part).presence }.uniq.join(' | ')
     end
 

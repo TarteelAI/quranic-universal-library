@@ -94,9 +94,10 @@ them is in [`AGENTS.md`](AGENTS.md).
   the resource name). A stored copy needs a migration and a backfill at cutover, and it goes stale
   for every resource added later. Computed values need neither, and a new resource is right at
   once. This replaces the stored columns, the review column and the drafting backfills.
-- **Cost:** every catalog request loads the whole catalog (a few hundred rows, a fixed number of
-  queries). A display name can change when an editor adds a resource with the same name; slugs do
-  not. There is no record of who checked a computed value.
+- **Cost:** computing them loads the whole catalog (a few hundred rows, a fixed number of
+  queries); each process keeps the result until a row it reads changes (below). A display name
+  can change when an editor adds a resource with the same name; slugs do not. There is no record
+  of who checked a computed value.
 
 ### An editor corrects a catalog field with a meta data key
 
@@ -243,6 +244,29 @@ them is in [`AGENTS.md`](AGENTS.md).
   or an edit to a resource makes every page name new preview URLs, so their first visits all
   reach Rails. A preview already at the edge stays there for its day after its resource is
   restricted or unpublished, under a URL no page names any more.
+
+### The computed catalog fields are kept per process, keyed on a fingerprint of their rows
+
+- **Decision:** `Catalog::Derived` reads a fingerprint of the rows it computes from on each
+  request and reuses the values this process last computed when it is the same; otherwise it
+  computes them again. The values stay computed and no column holds them. The fingerprint is one
+  query per database: per table, the row count and the sum of `xmin` (the transaction that wrote
+  each row version), and for files a digest of the published (resource, file type) pairs. Inside
+  a transaction that has written, it computes fresh and keeps nothing. It is held in process
+  memory, not `Rails.cache`, so it works the same with `null_store` in test and development, and
+  the resource rows themselves are still loaded per request, only where search or links need them.
+- **Why:** computing the fields took about 53 ms of each catalog, type, detail, home, bundle and
+  spotlight request in the production image (half to nine tenths of its server time), and a
+  home page view built them nine times. The fields change only when an editor changes a row.
+  `xmin` changes with every insert, update or delete, including writes that skip `updated_at`
+  (two of the tables have no `updated_at`); a download rewrites its file's counters, so files
+  count only the columns the fields read.
+- **Cost:** about 0.35 MB per app process, and each process computes once after each catalog
+  change. The fingerprint costs about 2.5 ms a request locally (most of it the content
+  database's scan of `resource_contents`) and grows with those tables. It is never stale while
+  the tables it lists are the ones the fields read: a new fact read from another table must add
+  that table to `Derived.fingerprint`. It can repeat after `xmin` wraps around (about four
+  billion transactions) only if a change leaves both the count and the sum of a table as they were.
 
 ## Storage
 

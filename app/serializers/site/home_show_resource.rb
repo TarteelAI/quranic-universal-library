@@ -72,7 +72,7 @@ module Site
       name = :"#{type.underscore}_preview"
       typelize name => "#{serializer} | Previews::UnavailableResource | null"
       attribute(name, inertia: :optional) do |page|
-        page[:samples].call[type]&.then { HomeShowResource.preview(type, _1) }
+        page[:sample].call(type)&.then { HomeShowResource.preview(type, _1) }
       end
     end
 

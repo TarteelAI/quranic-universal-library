@@ -10,10 +10,12 @@ module Site
 
     def show # rubocop:disable Metrics/AbcSize -- sets each prop of the page
       # Each is computed when a prop first reads it (HomeShowResource calls it): a card's partial
-      # reload reads only its sample's preview, so it skips the counts, the apps and the kits.
+      # reload reads only its sample's preview, so it skips the counts, the apps, the kits and
+      # the other types' samples.
       @stats = lazy { Catalog::Stats.new.call }
       @contributors = lazy { contributors }
       @samples = lazy { Catalog::Samples.new.call }
+      @sample = ->(type) { Catalog::Samples.new.call([type])[type] }
       @tools = SiteNav::ContributeTools.featured(helpers.developer_tools)
       @apps = lazy { AppDirectory.apps }
       @kits = lazy { PageGroups.enabled?(:start) ? Kits.listed(Kits.all.first(KITS)) : [] }

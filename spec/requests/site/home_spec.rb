@@ -66,10 +66,33 @@ RSpec.describe 'Home page (/)', type: :request do
       get '/'
       expensive.each { |object, method| expect(object).to have_received(method).once }
 
+      sampled = []
+      allow(Catalog::Samples).to receive(:new).and_wrap_original do |original|
+        original.call.tap do |samples|
+          allow(samples).to receive(:call).and_wrap_original do |call, *types|
+            sampled << types
+            call.call(*types)
+          end
+        end
+      end
       inertia_reload_only(:translationPreview)
       expect(inertia.props.keys.map(&:to_sym) - [:errors, :head]).to eq([:translationPreview])
       expect(inertia.props[:translationPreview]).to be_present
       expensive.each { |object, method| expect(object).to have_received(method).once }
+      expect(sampled).to eq([[['translation']]])
+    end
+
+    it 'computes the catalog fields once while no row changes, not again on a card reload' do
+      Catalog::Derived.latest = nil
+      allow(Catalog::Derived).to receive(:new).and_call_original
+      allow(Catalog::DisplayNames).to receive(:call).and_call_original
+
+      get '/'
+      inertia_reload_only(:morphologyPreview)
+      get '/bundle', params: { ids: DownloadableResource.published.order(:id).limit(3).ids.join(',') }
+
+      expect(Catalog::Derived).to have_received(:new).exactly(3).times
+      expect(Catalog::DisplayNames).to have_received(:call).once
     end
 
     it 'counts each category of the taxonomy as the catalog facets do, with its hint and catalog link' do
